@@ -48,4 +48,4 @@ pnpm typecheck
 
 The first product is The Socratic Draft: a private Socratic writing tool that helps the user work out what they think before helping them write it.
 
-The product planning docs currently live in `the-socratic-draft/`.
+The product planning docs currently live in `docs/products/socratic-draft/`.

@@ -22,6 +22,7 @@ The repo currently has a basic Next.js web shell, a basic Hono API shell, a work
 - Initial `packages/products` package boundary.
 - `AGENTS.md` repo instructions for future agents.
 - `docs/decisions.md` decision log.
+- Socratic Draft product planning docs live in `docs/products/socratic-draft/`.
 - `tasks/README.md` task index.
 - `tasks/001-scaffold-repo.md` scaffold/context task record.
 
