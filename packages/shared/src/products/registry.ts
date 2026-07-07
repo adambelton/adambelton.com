@@ -15,3 +15,13 @@ export const products = [
     requiresAuth: true
   }
 ] satisfies ProductDefinition[];
+
+export function getProductById(
+  id: ProductDefinition["id"]
+): ProductDefinition | undefined {
+  return products.find((product) => product.id === id);
+}
+
+export function getProductBySlug(slug: string): ProductDefinition | undefined {
+  return products.find((product) => product.slug === slug);
+}

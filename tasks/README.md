@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 002 — Shared types and product registry
 - 003 — Static public writing and products pages
 - 004 — Socratic Draft conversation service stub
 - 005 — Conversation endpoint with in-memory persistence
@@ -19,3 +18,4 @@
 ## Completed
 
 - 001 — Scaffold repo architecture and context files
+- 002 — Shared types and product registry

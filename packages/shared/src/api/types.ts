@@ -19,3 +19,13 @@ export function success<T>(data: T): ApiSuccess<T> {
     data
   };
 }
+
+export function failure(code: string, message: string): ApiFailure {
+  return {
+    ok: false,
+    error: {
+      code,
+      message
+    }
+  };
+}

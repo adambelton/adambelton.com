@@ -7,3 +7,8 @@ export type User = {
   createdAt: string;
   lastLoginAt: string | null;
 };
+
+export type CurrentUser = {
+  user: User;
+  accessLevel: AccessLevel;
+};
