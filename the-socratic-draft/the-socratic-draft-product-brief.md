@@ -1,0 +1,701 @@
+# Product Brief: The Socratic Draft
+
+## Working title
+
+**The Socratic Draft**
+
+## Working definition
+
+**The Socratic Draft** is a private Socratic writing tool that helps the user work out what they really think before helping them write it.
+
+It starts with a rough thought, feeling, question, frustration, memory, argument, or idea. Through conversation, the assistant helps the user externalise what is in their head, examine it from different angles, distinguish feelings from claims, challenge assumptions where useful, track related threads, and eventually turn the process into a lightly polished private entry or optional public piece.
+
+The purpose is not to generate writing from nothing.
+
+The purpose is to help the user say what they mean.
+
+## One-sentence essence
+
+A Socratic writing tool that helps you work out what you really think before helping you write it.
+
+## Product context
+
+The Socratic Draft will live inside Adam’s personal website, not as a standalone product repository.
+
+The personal website should be writing-first:
+
+- the landing page shows published writing
+- `/writing` shows the writing archive
+- `/writing/[slug]` shows a public post
+- `/products` shows products Adam has built
+- `/products/socratic-draft` explains The Socratic Draft
+- `/products/socratic-draft/editor` opens the editor/demo
+
+The Socratic Draft is the first demoable product inside the personal site. Future products should be able to share the same server, auth, usage limits, admin, AI infrastructure, and product registry.
+
+This means The Socratic Draft is both:
+
+1. a real private writing tool for the owner, and
+2. a public portfolio product that visitors can try in demo mode.
+
+## Core idea
+
+Many people have thoughts they want to write about, but struggle with the blank page.
+
+The problem is not always lack of ideas or lack of writing ability. Often, the problem is that the user has not yet found the shape of the thought.
+
+**The Socratic Draft** separates thinking from writing.
+
+Instead of asking the user to begin with a finished point of view, it allows them to begin vaguely. The assistant acts as a Socratic writing partner: asking questions, drawing out details, surfacing assumptions, distinguishing feelings from claims, showing other sides of an argument, and helping the user see their own thought more clearly.
+
+Only after that process does it help compose the entry.
+
+## Category
+
+**The Socratic Draft** is not simply an AI journal, blog tool, therapist, or writing assistant.
+
+It is best understood as a **Socratic writing tool**: a private space where questioning comes before drafting, and where writing emerges from a process of reflection, challenge, clarification, and perspective-taking.
+
+The central difference from generic AI writing tools is:
+
+> Most AI writing tools start by drafting. The Socratic Draft starts by questioning.
+
+## Primary user
+
+The initial user is the builder.
+
+The tool should be designed first as a personal system for daily writing, journaling, reflection, portfolio writing, case-study development, and thought development. It will live on the user’s website and include a public demo to showcase the work.
+
+The user is a capable writer, but often feels blocked when facing a blank page. They may have many ideas, feelings, or observations in their head, but struggle to begin because writing requires too much structure too early.
+
+The tool should make it possible to start before knowing exactly what the entry is “about.”
+
+## Core job to be done
+
+When I have something in my head but cannot yet express it clearly, help me explore it, understand it, test it, and turn it into writing that still feels like mine.
+
+## What this is
+
+This is part journal, part blog engine, part reflective thinking process, and part private writing room.
+
+The comparison to therapy is useful only in the sense that therapy can help people understand their own thoughts. This tool should not be positioned as an AI therapist, and it should not make mental health claims. But it can borrow from reflective practice as a process:
+
+- asking patient questions
+- helping the user externalise thoughts
+- noticing patterns and contradictions
+- separating feelings from conclusions
+- allowing uncertainty
+- helping the user see themselves and their thoughts more clearly
+
+The better description is:
+
+> A tool for externalising your thoughts so you can examine them, develop them, and eventually express them clearly.
+
+Writing is the output, but thinking is the primary activity.
+
+## Product principles
+
+### 1. Thinking comes before writing
+
+The assistant should not rush to produce an entry.
+
+The first job is to help the user understand what they are trying to say.
+
+### 2. The user’s voice matters
+
+The final writing should feel like the user’s own thought, not like an AI essay.
+
+The assistant should preserve uncertainty, plainness, rhythm, and phrasing where possible.
+
+### 3. Validate feelings, test claims
+
+The assistant should make room for feelings without automatically validating every conclusion.
+
+For example:
+
+- “I feel trapped” is an experience to explore.
+- “That means I am a bad husband” is a conclusion to challenge or nuance.
+
+### 4. The assistant guides the inquiry
+
+The frontend should not drive the intellectual process through explicit action buttons like “reflect,” “challenge,” or “compose.”
+
+The user should be able to speak naturally.
+
+The assistant should decide the next useful conversational move:
+
+- ask a deeper question
+- clarify a vague phrase
+- challenge a harsh conclusion
+- surface another perspective
+- identify a branch
+- reflect back when the picture is clear
+- offer composition when the thought is explored enough
+
+### 5. One question at a time
+
+The assistant should not interrogate the user with a list of questions.
+
+Most responses should be a short reflection or observation plus one good question.
+
+### 6. Private by default
+
+Everything starts private.
+
+The tool should not ask about audience, publishing, structure, or form too early.
+
+Private thought comes first. Public shape comes later.
+
+### 7. Public form is intentional
+
+Publishing should be a deliberate later step.
+
+Only after the user indicates intent to publish should the tool ask what kind of public piece this might become.
+
+### 8. Research supports reflection
+
+Where a user makes factual claims, the tool may eventually help identify what needs checking.
+
+Research should support the thought, not overwhelm it.
+
+For MVP, live research can be owner-only or deferred.
+
+### 9. The tool may change the user’s mind
+
+A good session should not merely polish the user’s original view.
+
+It should sometimes help the user notice that their first framing was too harsh, too vague, too broad, unsupported, or incomplete.
+
+## Assistant-led conversation model
+
+The user introduces an idea. The assistant guides the conversation until the topic is sufficiently explored.
+
+The user does not need to choose the next mode.
+
+A typical flow:
+
+1. User introduces a rough thought.
+2. Assistant asks a probing question.
+3. User answers.
+4. Assistant clarifies, challenges, or deepens depending on what the user says.
+5. Assistant tracks threads and claims internally.
+6. Assistant reflects back only when it has a clear picture.
+7. User confirms or corrects the reflection.
+8. Assistant offers to compose a private entry.
+9. User can draft, keep exploring, or add another thought.
+10. Only later, user may choose to shape the entry for publishing.
+
+The assistant decides when something is explored enough, but the user decides whether to keep going.
+
+## Core conversation concepts
+
+### Moves
+
+A move is the assistant’s next conversational act.
+
+Examples:
+
+- probe
+- clarify
+- challenge
+- surface perspective
+- distinguish
+- ask for example
+- partial reflection
+- full reflection
+- branch check
+- suggest research
+- offer composition
+- compose private entry
+- revise private entry
+- offer publishing
+
+Moves are chosen by the assistant/backend conversation service, not the frontend.
+
+### Phases
+
+A phase is the broader lifecycle state of the entry.
+
+Examples:
+
+- new entry
+- private exploration
+- deepening
+- synthesis
+- ready to compose
+- private entry composed
+- publishing intent
+- publishing preparation
+- public draft ready
+- published
+
+The phase does not rigidly determine the move. The assistant can challenge during early exploration if the user says something that needs challenging.
+
+### Explored enough
+
+“Explored enough” means the topic has enough substance to become a coherent private entry.
+
+It does not mean the topic is finished.
+
+A topic is not explored enough if:
+
+- the user has only named a broad topic
+- the emotional centre is unclear
+- the key tension is unclear
+- the user has used loaded words without unpacking them
+- there are obvious contradictions
+- there is no concrete detail
+- there are several competing threads and no central one
+
+### Near-ready / ready to reflect
+
+Near-ready to reflect means the shape is emerging, but one important uncertainty remains.
+
+Ready to reflect means the assistant can accurately say:
+
+> I think the shape of this is...
+
+Reflection is a checkpoint, not the final entry.
+
+The user can confirm, correct, or redirect.
+
+### Should offer composition
+
+The assistant should offer composition when:
+
+- the topic is explored enough
+- a full reflection has been given
+- the user has confirmed or refined the reflection
+- there is enough of the user’s own language to preserve
+
+The assistant should not automatically compose unless the user accepts.
+
+### Detected threads
+
+A thread is a meaningful line of thought inside the conversation.
+
+Examples:
+
+- grief for an imagined life
+- guilt around naming limits
+- feeling trapped without blame
+- work and money as a possible separate thought
+
+Threads should have statuses such as:
+
+- surfaced
+- needs fleshing out
+- active
+- central
+- supporting
+- parked
+- separate entry candidate
+- resolved
+- discarded
+
+This lets the assistant distinguish between:
+
+- a central thread that needs more exploration
+- a supporting thread that belongs in the same entry
+- a surfaced but uncertain thread
+- a tangential idea to park
+- a separate idea that may become another entry
+- something the user has clarified is not relevant
+
+### Detected claims
+
+A claim is an assertion that may need care.
+
+Claims may be:
+
+- feelings
+- experiences
+- self-judgements
+- moral claims
+- interpretations
+- factual claims
+- predictions
+
+The assistant should not treat all claims the same.
+
+Examples:
+
+- “I feel trapped” → accept as feeling and explore.
+- “That means I am selfish” → challenge or nuance.
+- “FIFA breaks its own rules” → possible research candidate.
+
+## Example: private entry about being a carer
+
+User begins:
+
+> I want to write about being a carer for my wife, but I don’t know where to start. I think it has changed the way I think about love, responsibility, resentment, guilt, and what a good life actually means.
+
+The assistant should not ask what kind of post this is.
+
+It should begin privately and ask something like:
+
+> There is a lot in that: love, duty, resentment, guilt, and the question of what kind of life still feels possible. Rather than trying to write about all of it at once, I’d start with the part that feels hardest to admit. When you think about being a carer for your wife, what is the thing you find most difficult to say honestly, even privately?
+
+If the user says:
+
+> Sometimes I feel trapped.
+
+The assistant might clarify:
+
+> That distinction feels important: the trapped feeling is real, but it is not the same thing as blaming her. When you say your life feels smaller than you imagined, what kind of largeness do you feel you have lost?
+
+If the user says:
+
+> I suppose that means I’m selfish. Or that I’m a bad husband.
+
+The assistant should challenge:
+
+> I would be careful with that conclusion. Feeling grief about your own life does not mean you are denying her suffering, and it does not automatically make you selfish.
+
+Only once the central thought is clear should the assistant reflect back:
+
+> I think the shape of this is becoming clear...
+
+And only once the user confirms should it offer composition:
+
+> I think we have enough to turn this into a private entry now. Do you want me to draft it, or is there another part you want to explore first?
+
+## Private/public model
+
+Entry visibility has only two states:
+
+- private
+- public/published
+
+There should not be separate draft/revisit/public states.
+
+Use `published_at` as the source of truth:
+
+- `published_at = null` means private
+- timestamp means public
+
+`is_public` should be derived, not stored.
+
+The private entry body is canonical.
+
+A public version may differ, but only after publishing preparation.
+
+## Intended forms
+
+There should be no “case study mode” or separate writing modes at the start.
+
+Everything begins as private writing.
+
+Only after the user indicates intent to publish should the tool ask what form the piece might take.
+
+Possible intended forms:
+
+- blog post
+- portfolio case study
+- project write-up
+- opinion piece
+- personal essay
+- public note
+
+Intended forms should be configurable records, not a hardcoded enum.
+
+A case study intended form should help gather:
+
+- context
+- original problem
+- who the problem affected
+- constraints
+- user’s role
+- product thinking
+- technical decisions
+- tradeoffs
+- collaboration
+- outcomes
+- honest limits on what can be claimed
+- reflection
+
+The tool should not invent or exaggerate impact. If outcomes were not measured, it should help say that honestly.
+
+## Voice profile
+
+Voice should be implicit, not a settings screen.
+
+The tool should learn from:
+
+- how the user writes
+- how the user edits AI output
+- phrases the user keeps
+- phrases the user rejects
+- preferred uncertainty
+- disliked AI patterns
+- how much polish is acceptable
+
+Example internal guidance:
+
+> The user writes in plain, reflective language. They often qualify their claims and prefer not to overstate certainty. Preserve uncertainty where meaningful. Avoid motivational phrasing, corporate language, therapy clichés, and inflated significance. Lightly clarify rather than rewrite. Use the user’s own wording wherever possible.
+
+For MVP, persistent voice profile can be owner-only.
+
+Demo mode can adapt within the current session but should not persist a voice profile.
+
+## Personal website and product demo model
+
+The Socratic Draft lives within a single personal website repository.
+
+The website should include:
+
+- published writing as the landing page
+- a writing archive
+- individual writing pages
+- a products overview page
+- product pages for demoable projects
+- The Socratic Draft editor
+- owner-only admin
+
+The products page should present products as things Adam has built, with The Socratic Draft as the first live demoable product.
+
+Future products can share the same infrastructure.
+
+## Hosted demo model
+
+The UI should not expose account registration.
+
+Visitors access the demo by entering their email and receiving a passwordless login link.
+
+Preferred language:
+
+> Enter your email to access the demo.
+
+> I’ll send you a secure login link.
+
+> Demo access includes a limited number of AI requests each day.
+
+Demo is for showcasing what was built, not for offering a persistent product account.
+
+Demo users’ writing should not be persisted server-side.
+
+Persist allowed:
+
+- user email
+- email domain
+- created at
+- last login at
+- usage events
+- access level
+- model usage
+- token counts
+
+Do not persist for demo users:
+
+- entries
+- conversation turns
+- voice profiles
+- research notes containing private writing
+- public posts
+
+Demo session state should live in browser memory or temporary local state.
+
+At the end of a demo, offer:
+
+- copy final entry
+- download Markdown
+- download JSON
+- clear session
+
+## Owner access
+
+Owner access includes:
+
+- persistent private entries
+- saved conversation history
+- voice profile
+- intended form management
+- publishing to website
+- optional research
+- exemption from demo limits
+- admin view of demo emails and usage
+
+Owner detection can be based on an environment variable:
+
+```txt
+OWNER_EMAIL=hello@adambelton.com
+```
+
+If the authenticated email matches `OWNER_EMAIL`, the user is the owner. Otherwise, they have demo access.
+
+## Demo access
+
+Demo access includes:
+
+- limited hosted AI usage
+- no server-side writing persistence
+- no publishing
+- no long-term voice profile
+- possibly no live research
+- copy/download/clear session
+
+The demo should feel like:
+
+> Try a Socratic writing session.
+
+Not:
+
+> Create an account for your journal.
+
+## Admin visibility
+
+The owner should be able to see simple demo access information:
+
+- email
+- domain
+- accessed demo
+- last login
+- usage count
+- product accessed
+
+This is not meant to be invasive analytics. It is basic access and cost visibility.
+
+## Usage limits and cost protection
+
+Because hosted demo usage uses the owner’s AI backend, demo access needs cost protection.
+
+Use:
+
+- per-user daily request limits
+- per-user daily token limits
+- per-request input/output limits
+- model allowlist
+- email login protection
+- global daily spend cap
+- hosted AI kill switch
+- ability to restrict abusive emails or domains
+- product-aware usage events
+
+Research should likely be owner-only at first because it may be more expensive.
+
+## Repository and implementation philosophy
+
+The repository should be scaffolded with its intended long-term package boundaries from the beginning.
+
+Even if some packages are initially thin, these packages should exist on day one:
+
+- `apps/web`
+- `apps/api`
+- `packages/shared`
+- `packages/db`
+- `packages/auth`
+- `packages/ai`
+- `packages/products`
+
+Shared types should be created before feature implementation.
+
+The goal is to avoid ad hoc types and helpers being created across the repo during implementation.
+
+Principle:
+
+> Create the architecture early. Implement the behaviour gradually.
+
+## Self-hosting
+
+The repository can be public.
+
+People who want their own AI key, data control, or privacy can clone the repo and self-host.
+
+Self-hosters are responsible for:
+
+- AI provider keys
+- database setup
+- auth configuration
+- deployment
+- usage limits
+
+Hosted bring-your-own API key is not part of the current plan.
+
+## MVP scope
+
+### Must have
+
+- Single personal website repo
+- Published writing as the landing page
+- Products page
+- The Socratic Draft product page
+- The Socratic Draft editor route
+- Passwordless email auth
+- Owner access via `OWNER_EMAIL`
+- Demo access for non-owner authenticated emails
+- No server-side persistence of demo writing
+- Daily AI request limits for demo users
+- Owner private writing interface
+- Assistant-led conversation flow
+- One-question-at-a-time behaviour
+- Moves/phases/readiness conversation policy
+- Thread and claim detection
+- Reflection only when assistant has a clear picture
+- Composition offer once topic is explored enough
+- Lightly polished private entry generation
+- Owner saves private entries
+- `published_at` controls public visibility
+- Owner publishes to website writing
+- Basic implicit owner voice profile
+- Product-aware usage events
+- Open-source repo/self-hosting instructions
+- Node + Hono API server
+- Final-shaped monorepo scaffold from day one
+- Shared types defined up front
+
+### Should have
+
+- Basic admin view showing demo emails, domains, products accessed, and usage
+- Token usage tracking
+- Global spend cap
+- Demo copy/download
+- Intended forms table
+- Completeness check for public writing
+- Targeted private writing after intent to publish
+- Regeneration controls such as “use more of my wording,” “less polished,” and “clearer”
+
+### Could later have
+
+- Research with citations/source notes
+- Recurring themes/memory across owner entries
+- “You’ve written about this before”
+- Weekly/monthly summaries
+- Search past thoughts
+- Newsletter export
+- RSS
+- Local-first/encrypted storage
+- More live product demos on the personal site
+
+### Not MVP
+
+- Hosted bring-your-own-key
+- Exposed registration
+- Persistent demo entries
+- Persistent demo voice profile
+- Demo publishing
+- Multiple writing modes
+- Complex onboarding
+- Social/public discovery
+- AI therapist positioning
+- Mood tracking
+- Analytics dashboards
+- Prompt libraries
+- Gamified streaks
+- Heavy CMS
+- Generic product platform abstraction
+
+## Success criteria
+
+The product is working if:
+
+- the owner writes more often
+- the owner feels less blocked by the blank page
+- entries feel like the owner’s thoughts, not AI essays
+- the assistant uncovers meaning the user could not initially express
+- the assistant surfaces perspectives the user had not considered
+- the assistant sometimes helps refine or change the user’s view
+- private reflections can become public writing deliberately
+- portfolio case studies can be developed without over-performing
+- demo users understand the product without their writing being saved
+- hosted demo usage remains affordable and controlled
+- the codebase remains understandable and modular as more products are added
