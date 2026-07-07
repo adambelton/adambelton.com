@@ -60,6 +60,25 @@ packages/products
 - Do not mark a task complete if something is only partially wired.
 - Prefer vertical slices that work end to end.
 
+## Proposal-Before-Implementation Workflow
+
+Before starting any new implementation task, propose the task and wait for Adam's explicit approval.
+
+The proposal must include:
+
+- goal
+- why this task is next
+- scope
+- out of scope
+- expected files to create or modify
+- definition of done
+- validation commands
+- risks/questions
+
+Do not begin implementation until Adam confirms.
+
+After each completed task, you may suggest the next task, but that suggestion is not approval to begin.
+
 ## Completion Rules
 
 Every implementation task is only complete when:
