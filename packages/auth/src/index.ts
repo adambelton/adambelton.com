@@ -1,2 +1,2 @@
-export * from "./access-level";
-export * from "./session";
+export * from "packages/auth/src/access-level";
+export * from "packages/auth/src/session";

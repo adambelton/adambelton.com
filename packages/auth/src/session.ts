@@ -1,4 +1,4 @@
-import type { AccessLevel, User } from "@adambelton/shared";
+import type { AccessLevel, User } from "packages/shared/src";
 
 export type AuthenticatedSession = {
   user: User;

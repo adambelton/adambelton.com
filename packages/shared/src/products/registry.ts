@@ -1,4 +1,4 @@
-import type { ProductDefinition } from "./types";
+import type { ProductDefinition } from "packages/shared/src/products/types";
 
 export const products = [
   {

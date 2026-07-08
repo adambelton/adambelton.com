@@ -1,6 +1,6 @@
-import { getProductById } from "@adambelton/shared";
+import { getProductById } from "packages/shared/src";
 import { notFound } from "next/navigation";
-import { Prose } from "../../../components/site/Prose";
+import { Prose } from "apps/web/components/site/Prose";
 
 export default function SocraticDraftPage() {
   const product = getProductById("socratic-draft");

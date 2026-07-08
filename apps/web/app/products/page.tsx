@@ -1,6 +1,6 @@
-import { products } from "@adambelton/shared";
-import { Prose } from "../../components/site/Prose";
-import { TextLink } from "../../components/site/TextLink";
+import { products } from "packages/shared/src";
+import { Prose } from "apps/web/components/site/Prose";
+import { TextLink } from "apps/web/components/site/TextLink";
 
 export default function ProductsPage() {
   return (

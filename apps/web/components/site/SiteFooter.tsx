@@ -1,4 +1,4 @@
-import { TextLink } from "./TextLink";
+import { TextLink } from "apps/web/components/site/TextLink";
 
 export function SiteFooter() {
   return (

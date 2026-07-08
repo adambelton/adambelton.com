@@ -1,1 +1,1 @@
-export * from "./types";
+export * from "packages/shared/src/users/types";

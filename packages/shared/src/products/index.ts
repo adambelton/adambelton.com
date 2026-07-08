@@ -1,2 +1,2 @@
-export * from "./registry";
-export * from "./types";
+export * from "packages/shared/src/products/registry";
+export * from "packages/shared/src/products/types";

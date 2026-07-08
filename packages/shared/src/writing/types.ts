@@ -1,4 +1,4 @@
-import type { ProductId } from "../products/types";
+import type { ProductId } from "packages/shared/src/products/types";
 
 export type WritingPost = {
   id: string;

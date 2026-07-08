@@ -1,5 +1,5 @@
-import type { ProductId } from "../products";
-import type { AccessLevel } from "../users";
+import type { ProductId } from "packages/shared/src/products";
+import type { AccessLevel } from "packages/shared/src/users";
 
 export type UsageEvent = {
   id: string;

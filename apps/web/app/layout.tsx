@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Container } from "../components/site/Container";
-import { SiteFooter } from "../components/site/SiteFooter";
-import { SiteHeader } from "../components/site/SiteHeader";
-import "./globals.css";
+import { Container } from "apps/web/components/site/Container";
+import { SiteFooter } from "apps/web/components/site/SiteFooter";
+import { SiteHeader } from "apps/web/components/site/SiteHeader";
+import "apps/web/app/globals.css";
 
 export const metadata: Metadata = {
   title: "Adam Belton",

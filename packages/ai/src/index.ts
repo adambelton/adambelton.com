@@ -1,2 +1,2 @@
-export * from "./fake-llm-client";
-export * from "./types";
+export * from "packages/ai/src/fake-llm-client";
+export * from "packages/ai/src/types";

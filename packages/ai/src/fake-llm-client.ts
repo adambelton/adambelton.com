@@ -1,4 +1,4 @@
-import type { LlmClient, LlmRequest, LlmResponse } from "./types";
+import type { LlmClient, LlmRequest, LlmResponse } from "packages/ai/src/types";
 
 export class FakeLlmClient implements LlmClient {
   async createMessage(_request: LlmRequest): Promise<LlmResponse> {

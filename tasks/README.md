@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 006 — Socratic Draft conversation service stub
 - 007 — Conversation endpoint with in-memory persistence
 - 008 — Editor UI wired to fake conversation endpoint
 - 009 — Database schema and repositories
@@ -21,3 +20,4 @@
 - 003 — Minimal styling foundation
 - 004 — Static site routes with empty writing collection
 - 005 — Adopt code quality and testing guidelines
+- 006 — Socratic Draft product boundary and conversation service

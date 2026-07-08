@@ -6,11 +6,13 @@
   "scripts": {
     "dev:web": "pnpm --filter @adambelton/web dev",
     "dev:api": "pnpm --filter @adambelton/api dev",
+    "test": "vitest run",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build"
   },
   "devDependencies": {
     "turbo": "^2.5.6",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
   }
 }

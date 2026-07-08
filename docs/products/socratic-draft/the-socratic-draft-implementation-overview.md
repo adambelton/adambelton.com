@@ -1,5 +1,16 @@
 # Implementation Overview: The Socratic Draft
 
+## Current architecture note
+
+This document is an early implementation overview and may include older scaffold examples.
+
+Canonical current rules live in `AGENTS.md` and `docs/decisions.md`. In particular:
+
+- Socratic Draft is the source of truth for its own product contracts and domain types.
+- Socratic Draft product code uses `shared`, `server`, and `client` boundaries under `packages/products/src/socratic-draft/`.
+- `packages/shared` is reserved for platform-wide concerns.
+- The minimal server-side conversation service is named `ConversationService`.
+
 ## Project architecture
 
 The project should be a **single repository for Adam’s personal website and product demos**.

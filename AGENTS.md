@@ -31,7 +31,7 @@ apps/api
   Hono API server. Routes/controllers should be thin and should delegate to packages.
 
 packages/shared
-  Cross-package types, API contracts, product registry types, writing types, user/access types, and Socratic Draft shared conversation types.
+  Platform-wide types, API contracts, product registry types, writing types, user/access types, and usage types. Product-specific contracts do not belong here.
 
 packages/db
   Database schema, database client, migrations, and repositories. Apps should not scatter direct DB logic.
@@ -43,15 +43,33 @@ packages/ai
   AI provider interfaces, provider implementations, streaming helpers, fake/test clients, and usage metadata helpers.
 
 packages/products
-  Product-specific domain logic. The Socratic Draft conversation service, prompts, readiness logic, thread/claim handling, and composition logic belong here.
+  Product-specific source of truth. Each product owns its domain model, contracts, server logic, reusable client code, prompts, readiness logic, thread/claim handling, and composition logic.
+
+Each product should use this extractable structure:
+
+```txt
+packages/products/src/[product-slug]/
+  index.ts
+  shared/
+    index.ts
+    types.ts
+  server/
+    index.ts
+  client/
+    index.ts
+```
+
+Top-level apps are named by deployable surface, such as `apps/web` and `apps/api`. Product internals are named by reusable runtime boundary: `shared`, `server`, and `client`.
 ```
 
 ## Architecture Rules
 
 - Do not create new architectural patterns without approval.
 - Do not duplicate shared types inside apps.
-- If a type crosses a package boundary, define it in `packages/shared`.
-- Product-specific behaviour belongs in `packages/products`.
+- Platform-wide shared types belong in `packages/shared`.
+- Product-specific types, contracts, and behaviour belong in that product's folder under `packages/products`.
+- All TypeScript imports and re-exports must use repo-root absolute paths. Do not use relative imports or aliases, even between files in the same folder.
+- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/web/components/site/Prose`.
 - API routes should stay thin and call controllers/services.
 - DB access should go through `packages/db`.
 - AI provider access should go through `packages/ai`.

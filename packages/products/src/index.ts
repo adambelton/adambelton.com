@@ -1,2 +1,2 @@
-export * from "./registry";
-export * from "./socratic-draft";
+export * from "packages/products/src/registry";
+export * from "packages/products/src/socratic-draft";

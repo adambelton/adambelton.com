@@ -83,7 +83,7 @@ export type DetectedClaim = {
   relatedThreadIds: string[];
 };
 
-export type EntryConversationState = {
+export type ConversationState = {
   phase: ConversationPhase;
   exploredEnough: boolean;
   nearReadyToReflect: boolean;
@@ -99,23 +99,23 @@ export type SuggestedReply = {
   message: string;
 };
 
-export type SocraticDraftConversationMessage = {
+export type ConversationMessage = {
   role: "user" | "assistant";
   content: string;
 };
 
-export type SocraticDraftConversationRequest = {
+export type ConversationRequest = {
   entryId: string | null;
   message: string;
 };
 
-export type SocraticDraftConversationResponse = {
+export type ConversationResponse = {
   entryId: string;
   message: {
     role: "assistant";
     content: string;
   };
   move: AssistantMove;
-  state: EntryConversationState;
+  state: ConversationState;
   suggestedReplies: SuggestedReply[];
 };

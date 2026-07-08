@@ -1,4 +1,4 @@
-import { Prose } from "../components/site/Prose";
+import { Prose } from "apps/web/components/site/Prose";
 
 export default function HomePage() {
   return (

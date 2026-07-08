@@ -75,3 +75,47 @@ Project-level engineering rules should live in repo-owned, tool-agnostic docs.
 `AGENTS.md`, `docs/code-quality.md`, `docs/testing.md`, `docs/decisions.md`, `progress.md`, and `tasks/` are the canonical project context for contributors and coding agents.
 
 Tool-specific configuration may point back to these docs, but should not become the source of truth for project standards.
+
+## 012 — Product Packages Own Product Source Of Truth
+
+Each product under `packages/products/src/[product-slug]` is the source of truth for that product's domain model, contracts, server logic, reusable client code, and product-specific behaviour.
+
+Product packages should be shaped for possible future extraction into standalone projects:
+
+```txt
+packages/products/src/[product-slug]/
+  index.ts
+  shared/
+    index.ts
+    types.ts
+  server/
+    index.ts
+  client/
+    index.ts
+```
+
+`shared/` contains product-owned contracts and domain types used by that product's server and client surfaces. `server/` contains server-safe product orchestration and domain logic. `client/` contains reusable browser/client code for that product.
+
+`packages/shared` is reserved for platform-wide concerns such as generic API contracts, product registry types, writing types, user/access types, and usage types. Product-specific contracts should not live there unless they become genuinely platform-wide concepts.
+
+Because each product folder already provides the product namespace, product-local type names should use direct domain names such as `ConversationRequest`, `ConversationResponse`, and `ConversationState` rather than repeating the product name.
+
+TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/web/components/site/Prose`.
+
+Top-level apps keep deployable names such as `apps/web` and `apps/api`. Product package internals use reusable runtime boundary names: `shared`, `server`, and `client`.
+
+Lessons kept from the earlier Pinpoint Assignment prototype:
+
+- Separate conversation orchestration from HTTP controllers.
+- Keep start/welcome flows distinct from replying to user messages.
+- Keep coverage/readiness assessment separate from conversation response generation.
+- Keep profile, application, publishing, and composition generation separate from chat.
+- Treat privacy boundaries as domain concerns, not just UI copy.
+
+Trade-offs not to repeat:
+
+- Do not couple prompt construction, LLM calls, persistence-loaded messages, and flow control into one large service.
+- Do not make coverage/readiness synchronous by default when it harms perceived latency.
+- Do not duplicate product API contracts in frontend-only types.
+- Do not bury major product prompts inside hard-to-iterate service code long term.
+- Do not let HTTP controllers assemble too much domain response shape.
