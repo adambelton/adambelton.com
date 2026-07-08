@@ -4,7 +4,7 @@
 
 The monorepo has been scaffolded with the intended app/package structure. No real product behaviour has been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, a basic Hono API shell, a working health route, shared cross-package contracts, an initial product registry, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared cross-package contracts, an initial product registry, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -13,6 +13,7 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Root TypeScript configuration.
 - Basic `apps/web` Next.js landing page.
 - Minimal `apps/web` Tailwind styling foundation and small owned site components.
+- Static public routes for `/`, `/about`, `/products`, and `/products/socratic-draft`.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
 - `packages/shared` API response, user/access, writing, usage, product, and Socratic Draft conversation contract types.
@@ -29,15 +30,13 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 ## Partially implemented
 
-- Product registry exists as a shared constant, but product pages have not been implemented.
+- Product registry exists as a shared constant and is used by the static products page.
 - `packages/db`, `packages/auth`, `packages/ai`, and `packages/products` have package boundaries and initial stubs only.
 
 ## Not implemented
 
 - Public writing system.
-- Writing archive and individual writing pages.
-- Product overview pages.
-- The Socratic Draft product page.
+- Individual writing pages.
 - The Socratic Draft editor UI.
 - The Socratic Draft conversation service.
 - Conversation endpoint.
@@ -52,11 +51,11 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 ## Known gaps / risks
 
-- The current homepage is a styled scaffold only and should not be treated as the finished public website.
+- The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client exists only to establish the package boundary; it is not wired to product behaviour.
 - Demo writing persistence rules are documented but not enforced yet.
 - Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 004 — static public writing and products pages.
+Task 005 — Socratic Draft conversation service stub.

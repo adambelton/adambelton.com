@@ -61,3 +61,9 @@ Use Tailwind CSS with small owned components for shared site primitives.
 Do not add broad component libraries such as daisyUI, shadcn/ui, MUI, Chakra, Mantine, Ant Design, styled-components, or similar without explicit approval.
 
 The shared website foundation should stay neutral. Product-specific visual languages, including The Socratic Draft's final UI direction, should be decided later in product-specific work.
+
+## 010 — Root Page Is the Writing Collection
+
+The root route `/` is the entry point for published writing.
+
+It should behave as the writing collection, not as a marketing homepage. Links to products, about, and other static pages should be secondary navigation out of the writing collection.

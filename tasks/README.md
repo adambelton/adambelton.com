@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 004 — Static public writing and products pages
 - 005 — Socratic Draft conversation service stub
 - 006 — Conversation endpoint with in-memory persistence
 - 007 — Editor UI wired to fake conversation endpoint
@@ -20,3 +19,4 @@
 - 001 — Scaffold repo architecture and context files
 - 002 — Shared types and product registry
 - 003 — Minimal styling foundation
+- 004 — Static site routes with empty writing collection
