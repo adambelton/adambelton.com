@@ -62,6 +62,16 @@ packages/products/src/[product-slug]/
 Top-level apps are named by deployable surface, such as `apps/web` and `apps/api`. Product internals are named by reusable runtime boundary: `shared`, `server`, and `client`.
 ```
 
+## Product Dependency Boundary
+
+- Product packages define the contracts they need to function.
+- Host apps/packages provide adapters that fulfill those contracts.
+- Product code must not directly depend on concrete host infrastructure for AI providers, auth/session systems, database clients, or usage enforcement.
+- Products own persistence meaning and required operations, such as entries, conversation turns, state, composition, and publishing.
+- Hosts own persistence mechanisms, such as tables, migrations, repositories, database clients, user scoping, retention, and transactions.
+- Introduce product-owned ports only when a product genuinely needs the dependency.
+- Product ports should use product language, not infrastructure language. Prefer `appendConversationTurn` over generic `query` or `transaction`.
+
 ## Architecture Rules
 
 - Do not create new architectural patterns without approval.

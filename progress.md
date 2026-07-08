@@ -27,6 +27,7 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Initial `packages/db` database client placeholder.
 - Initial `packages/products` package boundary.
 - Standard product package shape using `shared`, `server`, and `client` boundaries.
+- Product dependency boundary: products define required contracts, hosts provide infrastructure adapters.
 - `AGENTS.md` repo instructions for future agents.
 - Repo-native code quality and testing guidelines.
 - `docs/decisions.md` decision log.
@@ -60,9 +61,10 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client exists only to establish the package boundary; it is not wired to product behaviour.
 - The Socratic Draft conversation service is deliberately minimal and currently establishes contract shape rather than final assistant behaviour.
+- Product-owned ports for AI, auth/access, persistence, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
 - Demo writing persistence rules are documented but not enforced yet.
 - Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 007 — Conversation endpoint with in-memory persistence.
+Task 008 — Conversation endpoint with in-memory persistence.

@@ -119,3 +119,35 @@ Trade-offs not to repeat:
 - Do not duplicate product API contracts in frontend-only types.
 - Do not bury major product prompts inside hard-to-iterate service code long term.
 - Do not let HTTP controllers assemble too much domain response shape.
+
+## 013 — Product Packages Define Contracts, Hosts Provide Adapters
+
+Product packages should be infrastructure-agnostic cores.
+
+Each product owns:
+
+- business rules
+- product concepts and domain types
+- required operations
+- service behaviour
+- product-owned ports/contracts for dependencies it genuinely needs
+
+Host apps and host infrastructure packages own:
+
+- AI provider setup
+- auth/session systems
+- database clients
+- persistence implementation
+- user/session scoping
+- usage limits and cost controls
+- deployment/runtime details
+
+The product says, "this is the contract I require to function." The host takes responsibility for fulfilling that contract.
+
+For persistence, products own the meaning of data and the operations they need. Hosts own the storage mechanism. A product can define operations such as `getConversationMessages`, `appendConversationTurn`, or `saveEntryState`; the host decides whether those operations are fulfilled with Postgres, SQLite, memory, files, browser storage, or another mechanism.
+
+Products should not directly import concrete host infrastructure packages such as `packages/ai`, `packages/auth`, `packages/db`, or usage enforcement code. When a product needs one of those capabilities, it should define a product-owned port and receive an implementation from the host.
+
+Avoid generic repositories and infrastructure-shaped ports. Product ports should use product language and expose product operations. If the product needs stronger guarantees, express those guarantees in business terms, such as `appendTurnAndSaveState`, rather than leaking database primitives such as `transaction`.
+
+This follows the dependency injection / ports-and-adapters pattern while keeping the implementation lightweight. Introduce ports only when the product genuinely needs a dependency.
