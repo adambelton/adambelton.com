@@ -51,3 +51,13 @@ Owner writing may be persisted.
 Published writing belongs to the personal website's writing system.
 
 The Socratic Draft can create private entries and later publish into the site-wide writing system, but public writing should not be tightly coupled to one product.
+
+## 009 — Minimal Site Styling Foundation
+
+The shared public website styling should be sparse, editorial, typography-led, spacious, and restrained.
+
+Use Tailwind CSS with small owned components for shared site primitives.
+
+Do not add broad component libraries such as daisyUI, shadcn/ui, MUI, Chakra, Mantine, Ant Design, styled-components, or similar without explicit approval.
+
+The shared website foundation should stay neutral. Product-specific visual languages, including The Socratic Draft's final UI direction, should be decided later in product-specific work.

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Container } from "../components/site/Container";
+import { SiteFooter } from "../components/site/SiteFooter";
+import { SiteHeader } from "../components/site/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,14 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="site-shell">
-          <header className="site-header">
-            <Link className="site-name" href="/">
-              Adam Belton
-            </Link>
-          </header>
+        <Container className="min-h-screen">
+          <SiteHeader />
           {children}
-        </div>
+          <SiteFooter />
+        </Container>
       </body>
     </html>
   );
