@@ -60,6 +60,13 @@ packages/products
 - Do not mark a task complete if something is only partially wired.
 - Prefer vertical slices that work end to end.
 
+## Code Quality And Testing
+
+- Follow `docs/code-quality.md` for naming, structure, coupling, and maintainability standards.
+- Follow `docs/testing.md` for test strategy and regression coverage expectations.
+- Keep project rules tool-agnostic and repo-owned; tool-specific config may point to these docs but should not replace them as the source of truth.
+- Prefer tests that verify observable behaviour, public contracts, and composition boundaries over implementation details.
+
 ## Proposal-Before-Implementation Workflow
 
 Before starting any new implementation task, propose the task and wait for Adam's explicit approval.

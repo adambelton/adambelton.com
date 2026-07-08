@@ -2,17 +2,17 @@
 
 ## Planned
 
-- 005 — Socratic Draft conversation service stub
-- 006 — Conversation endpoint with in-memory persistence
-- 007 — Editor UI wired to fake conversation endpoint
-- 008 — Database schema and repositories
-- 009 — Owner auth
-- 010 — Real LLM client
-- 011 — Owner persistent entries
-- 012 — Demo ephemeral mode
-- 013 — Usage limits
-- 014 — Publishing flow
-- 015 — Admin view
+- 006 — Socratic Draft conversation service stub
+- 007 — Conversation endpoint with in-memory persistence
+- 008 — Editor UI wired to fake conversation endpoint
+- 009 — Database schema and repositories
+- 010 — Owner auth
+- 011 — Real LLM client
+- 012 — Owner persistent entries
+- 013 — Demo ephemeral mode
+- 014 — Usage limits
+- 015 — Publishing flow
+- 016 — Admin view
 
 ## Completed
 
@@ -20,3 +20,4 @@
 - 002 — Shared types and product registry
 - 003 — Minimal styling foundation
 - 004 — Static site routes with empty writing collection
+- 005 — Adopt code quality and testing guidelines

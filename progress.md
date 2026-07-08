@@ -23,6 +23,7 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Initial `packages/db` database client placeholder.
 - Initial `packages/products` package boundary.
 - `AGENTS.md` repo instructions for future agents.
+- Repo-native code quality and testing guidelines.
 - `docs/decisions.md` decision log.
 - Socratic Draft product planning docs live in `docs/products/socratic-draft/`.
 - `tasks/README.md` task index.
@@ -58,4 +59,4 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 ## Next recommended task
 
-Task 005 — Socratic Draft conversation service stub.
+Task 006 — Socratic Draft conversation service stub.

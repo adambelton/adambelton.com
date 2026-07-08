@@ -67,3 +67,11 @@ The shared website foundation should stay neutral. Product-specific visual langu
 The root route `/` is the entry point for published writing.
 
 It should behave as the writing collection, not as a marketing homepage. Links to products, about, and other static pages should be secondary navigation out of the writing collection.
+
+## 011 — Repo Docs Are Canonical Project Rules
+
+Project-level engineering rules should live in repo-owned, tool-agnostic docs.
+
+`AGENTS.md`, `docs/code-quality.md`, `docs/testing.md`, `docs/decisions.md`, `progress.md`, and `tasks/` are the canonical project context for contributors and coding agents.
+
+Tool-specific configuration may point back to these docs, but should not become the source of truth for project standards.
