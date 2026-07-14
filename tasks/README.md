@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 008 — Conversation endpoint with in-memory persistence
 - 009 — Editor UI wired to fake conversation endpoint
 - 010 — Database schema and repositories
 - 011 — Owner auth
@@ -22,3 +21,4 @@
 - 005 — Adopt code quality and testing guidelines
 - 006 — Socratic Draft product boundary and conversation service
 - 007 — Product dependency boundary
+- 008 — Conversation endpoint with in-memory host adapter
