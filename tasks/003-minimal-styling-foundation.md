@@ -70,3 +70,9 @@ The public website should feel sparse, editorial, simple, calm, spacious, and cr
 - The root layout uses `Container`, `SiteHeader`, and `SiteFooter`.
 - The homepage uses restrained Tailwind utility styling and the owned `Prose` primitive.
 - No product-specific UI or future fake UI was added.
+
+## Post-Completion Context Update
+
+After this task was completed, the project adopted an accessibility/UI decision in `docs/decisions.md`: use semantic HTML first, keep the public site minimal and editorial, and prefer React Aria Components for future complex interactive components where focus management, keyboard behaviour, ARIA attributes, or screen reader behaviour are easy to get wrong.
+
+This note does not change Task 003's original scope, definition of done, or completion status. No React Aria dependency was added during Task 003.

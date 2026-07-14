@@ -52,15 +52,27 @@ Published writing belongs to the personal website's writing system.
 
 The Socratic Draft can create private entries and later publish into the site-wide writing system, but public writing should not be tightly coupled to one product.
 
-## 009 — Minimal Site Styling Foundation
+## 009 — Minimal Site Styling With Accessibility-First Primitives
 
-The shared public website styling should be sparse, editorial, typography-led, spacious, and restrained.
+The personal website should use a sparse, editorial visual style: clean text, images where appropriate, lots of space, restrained colour, and minimal interface chrome.
 
-Use Tailwind CSS with small owned components for shared site primitives.
+Styling should use Tailwind CSS and small owned components for the public site.
 
 Do not add broad component libraries such as daisyUI, shadcn/ui, MUI, Chakra, Mantine, Ant Design, styled-components, or similar without explicit approval.
 
 The shared website foundation should stay neutral. Product-specific visual languages, including The Socratic Draft's final UI direction, should be decided later in product-specific work.
+
+Accessibility should be built in from the start.
+
+For static public pages, prefer semantic HTML, correct heading structure, meaningful link text, deliberate alt text decisions, visible focus states, and keyboard-friendly markup.
+
+For image-led pages, decide alt text by intent. Use descriptive alt text when an image communicates content. Use empty alt text only for purely decorative images. Do not leave alt text as an afterthought when adding images.
+
+For complex interactive components, prefer React Aria Components rather than hand-rolling accessibility behaviour.
+
+React Aria should be used only where there is real interaction, such as dialogs, menus, tabs, form controls, select/combobox patterns, popovers, or other components where focus management, keyboard behaviour, ARIA attributes, or screen reader behaviour are easy to get wrong.
+
+Do not use React Aria for ordinary static content. Do not install React Aria speculatively.
 
 ## 010 — Root Page Is the Writing Collection
 

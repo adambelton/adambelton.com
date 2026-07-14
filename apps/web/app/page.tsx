@@ -2,7 +2,7 @@ import { Prose } from "apps/web/components/site/Prose";
 
 export default function HomePage() {
   return (
-    <main className="grid gap-14 pb-24 pt-14 sm:gap-20 sm:pb-32 sm:pt-20">
+    <>
       <section aria-labelledby="home-title">
         <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
           Writing
@@ -32,6 +32,6 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-    </main>
+    </>
   );
 }

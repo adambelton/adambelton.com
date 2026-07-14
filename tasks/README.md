@@ -2,15 +2,15 @@
 
 ## Planned
 
-- 009 — Editor UI wired to fake conversation endpoint
-- 010 — Database schema and repositories
-- 011 — Owner auth
-- 012 — Real LLM client
-- 013 — Owner persistent entries
-- 014 — Demo ephemeral mode
-- 015 — Usage limits
-- 016 — Publishing flow
-- 017 — Admin view
+- 010 — Editor UI wired to fake conversation endpoint
+- 011 — Database schema and repositories
+- 012 — Owner auth
+- 013 — Real LLM client
+- 014 — Owner persistent entries
+- 015 — Demo ephemeral mode
+- 016 — Usage limits
+- 017 — Publishing flow
+- 018 — Admin view
 
 ## Completed
 
@@ -22,3 +22,4 @@
 - 006 — Socratic Draft product boundary and conversation service
 - 007 — Product dependency boundary
 - 008 — Conversation endpoint with in-memory host adapter
+- 009 — Public site accessibility baseline

@@ -4,7 +4,7 @@ import { TextLink } from "apps/web/components/site/TextLink";
 
 export default function ProductsPage() {
   return (
-    <main className="grid gap-14 pb-24 pt-14 sm:gap-20 sm:pb-32 sm:pt-20">
+    <>
       <section aria-labelledby="products-title">
         <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
           Products
@@ -41,6 +41,6 @@ export default function ProductsPage() {
           ))}
         </ul>
       </section>
-    </main>
+    </>
   );
 }

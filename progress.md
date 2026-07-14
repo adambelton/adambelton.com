@@ -14,6 +14,8 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Repo-root absolute TypeScript import rule with workspace path resolution.
 - Basic `apps/web` Next.js landing page.
 - Minimal `apps/web` Tailwind styling foundation and small owned site components.
+- Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
+- Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
 - Static public routes for `/`, `/about`, `/products`, and `/products/socratic-draft`.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
@@ -71,4 +73,4 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 ## Next recommended task
 
-Task 009 — Editor UI wired to fake conversation endpoint.
+Task 010 — Editor UI wired to fake conversation endpoint.

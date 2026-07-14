@@ -10,7 +10,7 @@ export default function SocraticDraftPage() {
   }
 
   return (
-    <main className="grid gap-14 pb-24 pt-14 sm:gap-20 sm:pb-32 sm:pt-20">
+    <>
       <section aria-labelledby="product-title">
         <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
           Product
@@ -35,6 +35,6 @@ export default function SocraticDraftPage() {
           In Development
         </p>
       </section>
-    </main>
+    </>
   );
 }
