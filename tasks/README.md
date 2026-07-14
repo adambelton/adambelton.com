@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 010 — Editor UI wired to fake conversation endpoint
 - 011 — Database schema and repositories
 - 012 — Owner auth
 - 013 — Real LLM client
@@ -23,3 +22,4 @@
 - 007 — Product dependency boundary
 - 008 — Conversation endpoint with in-memory host adapter
 - 009 — Public site accessibility baseline
+- 010 — Editor UI wired to fake conversation endpoint

@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service and API conversation endpoint exist, but no UI, durable persistence, auth, or LLM-backed product flow has been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, and editor UI loop exist, but no durable persistence, auth, or LLM-backed product flow has been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, a host-owned in-memory conversation adapter, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, a host-owned in-memory conversation adapter, a minimal Socratic Draft editor page, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -17,6 +17,9 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
 - Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
 - Static public routes for `/`, `/about`, `/products`, and `/products/socratic-draft`.
+- Minimal Socratic Draft editor route at `/products/socratic-draft/editor`.
+- Product-specific web request helper for the conversation endpoint.
+- Next.js local API rewrite for `/api/*` to the Hono API host.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
 - `POST /products/socratic-draft/conversation/respond` API route.
@@ -44,14 +47,13 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 - Product registry exists as a shared constant and is used by the static products page.
 - `packages/db`, `packages/auth`, and `packages/ai` have package boundaries and initial stubs only.
-- The Socratic Draft conversation service returns a deterministic stub response only; it is not yet backed by persistence, readiness logic, or an LLM.
-- The Socratic Draft endpoint uses host-owned in-memory persistence only; it is not durable.
+- The Socratic Draft conversation service returns a deterministic stub response only; it is not yet backed by readiness logic or an LLM.
+- The Socratic Draft endpoint and editor use host-owned in-memory persistence only; it is not durable.
 
 ## Not implemented
 
 - Public writing system.
 - Individual writing pages.
-- The Socratic Draft editor UI.
 - Passwordless auth.
 - Owner/demo access flow.
 - Database schema, migrations, and repositories.
@@ -68,9 +70,10 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - The Socratic Draft conversation service is deliberately minimal and currently establishes contract shape rather than final assistant behaviour.
 - Product-owned ports for AI, auth/access, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
 - The current in-memory conversation adapter is a host integration placeholder, not the future database design.
+- The current editor UI is a minimal wiring proof, not the final Socratic Draft product interface.
 - Demo writing persistence rules are documented but not enforced yet.
 - Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 010 — Editor UI wired to fake conversation endpoint.
+Task 011 — Database schema and repositories.
