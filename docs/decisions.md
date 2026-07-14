@@ -163,3 +163,29 @@ Products should not directly import concrete host infrastructure packages such a
 Avoid generic repositories and infrastructure-shaped ports. Product ports should use product language and expose product operations. If the product needs stronger guarantees, express those guarantees in business terms, such as `appendTurnAndSaveState`, rather than leaking database primitives such as `transaction`.
 
 This follows the dependency injection / ports-and-adapters pattern while keeping the implementation lightweight. Introduce ports only when the product genuinely needs a dependency.
+
+## 014 — Prisma Schema And Generated Migrations
+
+The project uses Prisma for database schema, migrations, and host-owned database access.
+
+The Prisma schema is the source of truth for intended database shape.
+
+Generated migration files are committed artifacts. They must be reviewed, but never hand-edited.
+
+Schema changes must follow this workflow:
+
+- Propose the schema change before implementation.
+- Edit the Prisma schema.
+- Run Prisma schema validation.
+- Generate the migration with Prisma tooling.
+- Review the generated SQL without editing it.
+- Run tests and typecheck.
+- Commit schema changes and generated migrations together.
+
+If generated SQL is wrong, change the Prisma schema or Prisma configuration and regenerate. Do not patch the migration SQL manually.
+
+Committed migrations are immutable. Do not rewrite, regenerate, rename, reorder, or delete committed migrations unless the user explicitly approves a migration-history repair task.
+
+Local database resets are allowed for local development only. They are not a substitute for fixing schema/migration drift.
+
+The application should keep product packages independent of Prisma. `packages/db` and host apps may use Prisma to fulfill product-owned ports, but product packages must not import Prisma Client or database implementation details.

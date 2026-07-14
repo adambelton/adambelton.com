@@ -9,3 +9,4 @@ coverage/
 .env.*
 !.env.example
 .obsidian/
+packages/db/src/generated/

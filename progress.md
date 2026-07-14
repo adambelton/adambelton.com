@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, and editor UI loop exist, but no durable persistence, auth, or LLM-backed product flow has been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, editor UI loop, and Prisma-backed persistence foundation exist, but auth and LLM-backed product flow have not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, a host-owned in-memory conversation adapter, a minimal Socratic Draft editor page, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a minimal Socratic Draft editor page, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -29,10 +29,14 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Minimal Socratic Draft server conversation service with contract-focused tests.
 - Socratic Draft product-owned `EntryStore` persistence port.
 - Host/API-owned in-memory `EntryStore` adapter for the conversation endpoint.
+- Prisma schema and generated initial SQL migration for Socratic Draft entries and conversation messages.
+- Prisma-backed Socratic Draft `EntryStore` adapter in `packages/db`.
+- API-side Socratic Draft entry-store factory that uses Prisma when `DATABASE_URL` is set and falls back to in-memory storage otherwise.
+- Strict Prisma migration workflow: schema first, generated migrations only, no hand-edited migration files.
 - Root `pnpm test` command using Vitest.
 - Initial `packages/auth` access-level helper.
 - Initial `packages/ai` LLM interface and fake LLM client.
-- Initial `packages/db` database client placeholder.
+- Initial Prisma-backed `packages/db` database client and Socratic Draft repository adapter.
 - Initial `packages/products` package boundary.
 - Standard product package shape using `shared`, `server`, and `client` boundaries.
 - Product dependency boundary: products define required contracts, hosts provide infrastructure adapters.
@@ -46,9 +50,9 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 ## Partially implemented
 
 - Product registry exists as a shared constant and is used by the static products page.
-- `packages/db`, `packages/auth`, and `packages/ai` have package boundaries and initial stubs only.
+- `packages/auth` and `packages/ai` have package boundaries and initial stubs only.
 - The Socratic Draft conversation service returns a deterministic stub response only; it is not yet backed by readiness logic or an LLM.
-- The Socratic Draft endpoint and editor use host-owned in-memory persistence only; it is not durable.
+- The Socratic Draft endpoint and editor use in-memory persistence unless `DATABASE_URL` is configured.
 
 ## Not implemented
 
@@ -56,7 +60,6 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Individual writing pages.
 - Passwordless auth.
 - Owner/demo access flow.
-- Database schema, migrations, and repositories.
 - Real AI provider integration.
 - Demo ephemeral writing mode.
 - Usage limits and cost protection.
@@ -69,11 +72,12 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - The fake LLM client exists only to establish the package boundary; it is not wired to product behaviour.
 - The Socratic Draft conversation service is deliberately minimal and currently establishes contract shape rather than final assistant behaviour.
 - Product-owned ports for AI, auth/access, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
-- The current in-memory conversation adapter is a host integration placeholder, not the future database design.
+- A real database URL and applied database migrations are still needed before the Prisma-backed adapter is exercised in local/dev runtime.
+- The in-memory conversation adapter remains the no-DB local fallback.
 - The current editor UI is a minimal wiring proof, not the final Socratic Draft product interface.
 - Demo writing persistence rules are documented but not enforced yet.
 - Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 011 — Database schema and repositories.
+Task 012 — Owner auth.

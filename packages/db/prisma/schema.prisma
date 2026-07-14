@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ConversationMessageRole {
+  user
+  assistant
+}
+
+model SocraticDraftEntry {
+  id        String   @id
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  messages SocraticDraftConversationMessage[]
+
+  @@map("socratic_draft_entries")
+}
+
+model SocraticDraftConversationMessage {
+  id        String                  @id @default(uuid())
+  entryId   String                  @map("entry_id")
+  role      ConversationMessageRole
+  content   String
+  position  Int
+  createdAt DateTime                @default(now()) @map("created_at")
+
+  entry SocraticDraftEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, position])
+  @@index([entryId])
+  @@map("socratic_draft_conversation_messages")
+}

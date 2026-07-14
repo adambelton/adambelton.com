@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { createConversationRoute } from "apps/api/src/routes/socratic-draft/conversation";
-import { createInMemoryEntryStore } from "apps/api/src/routes/socratic-draft/in-memory-entry-store";
+import { createSocraticDraftEntryStore } from "apps/api/src/routes/socratic-draft/entry-store";
 
 export const socraticDraftRoute = new Hono();
 
-const entryStore = createInMemoryEntryStore();
+const entryStore = createSocraticDraftEntryStore();
 
 socraticDraftRoute.route(
   "/conversation",

@@ -7,13 +7,22 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build": "tsc -p tsconfig.json --noEmit"
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "typecheck": "pnpm prisma:generate && tsc -p tsconfig.json --noEmit",
+    "build": "pnpm prisma:generate && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@adambelton/shared": "workspace:*"
+    "@adambelton/shared": "workspace:*",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
+    "prisma": "^7.8.0",
     "typescript": "^5.8.3"
   }
 }
