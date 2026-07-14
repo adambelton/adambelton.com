@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, editor UI loop, and Prisma-backed persistence foundation exist, but auth and LLM-backed product flow have not been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, editor UI loop, Prisma-backed persistence foundation, and Neon dev database setup exist, but auth and LLM-backed product flow have not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a minimal Socratic Draft editor page, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a minimal Socratic Draft editor page, a Neon `dev` database branch with the initial Prisma migration applied, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -33,6 +33,8 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Prisma-backed Socratic Draft `EntryStore` adapter in `packages/db`.
 - API-side Socratic Draft entry-store factory that uses Prisma when `DATABASE_URL` is set and falls back to in-memory storage otherwise.
 - Strict Prisma migration workflow: schema first, generated migrations only, no hand-edited migration files.
+- Neon Postgres development database setup with a `dev` branch and applied initial migration.
+- Local development docs and `.env.example` for database environment setup.
 - Root `pnpm test` command using Vitest.
 - Initial `packages/auth` access-level helper.
 - Initial `packages/ai` LLM interface and fake LLM client.
@@ -72,7 +74,7 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - The fake LLM client exists only to establish the package boundary; it is not wired to product behaviour.
 - The Socratic Draft conversation service is deliberately minimal and currently establishes contract shape rather than final assistant behaviour.
 - Product-owned ports for AI, auth/access, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
-- A real database URL and applied database migrations are still needed before the Prisma-backed adapter is exercised in local/dev runtime.
+- The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback.
 - The current editor UI is a minimal wiring proof, not the final Socratic Draft product interface.
 - Demo writing persistence rules are documented but not enforced yet.
@@ -80,4 +82,4 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 
 ## Next recommended task
 
-Task 012 — Owner auth.
+Task 013 — Owner auth.

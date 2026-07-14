@@ -189,3 +189,19 @@ Committed migrations are immutable. Do not rewrite, regenerate, rename, reorder,
 Local database resets are allowed for local development only. They are not a substitute for fixing schema/migration drift.
 
 The application should keep product packages independent of Prisma. `packages/db` and host apps may use Prisma to fulfill product-owned ports, but product packages must not import Prisma Client or database implementation details.
+
+## 015 — Neon Development Database
+
+The project uses Neon Postgres as the hosted development database.
+
+Use Neon as a database host only. Do not enable Neon Auth unless a future approved task intentionally adopts it.
+
+Use the Neon `production` branch as the future production branch and the Neon `dev` branch for shared development.
+
+The local `.neon` file is Neon CLI-generated tool state and should remain gitignored. Do not commit a branch pointer such as `branchId`; branch selection is local workflow state.
+
+Do not commit `.env.local` or any database connection string.
+
+Commit `.env.example` with placeholders only.
+
+Do not commit generated third-party Neon agent skill snapshots. Project policy and workflow decisions belong in repo-owned docs, and external Neon guidance should be fetched from current docs, the Neon CLI, or the Neon MCP server when needed.
