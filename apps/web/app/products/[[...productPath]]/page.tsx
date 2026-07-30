@@ -1,8 +1,43 @@
-import { products } from "packages/shared/src";
+import { notFound } from "next/navigation";
+import { getProductBySlug, products } from "packages/shared/src";
+import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
 import { Prose } from "apps/web/components/site/Prose";
 import { TextLink } from "apps/web/components/site/TextLink";
 
-export default function ProductsPage() {
+type ProductsPageProps = {
+  params: Promise<{
+    productPath?: string[];
+  }>;
+};
+
+export default async function ProductsPage({ params }: ProductsPageProps) {
+  const { productPath = [] } = await params;
+  const [productSlug, ...segments] = productPath;
+
+  if (!productSlug) {
+    return <ProductsOverview />;
+  }
+
+  const product = getProductBySlug(productSlug);
+
+  if (!product) {
+    notFound();
+  }
+
+  if (product.id === "socratic-draft") {
+    const result = renderSocraticDraftRoute({ segments });
+
+    if (result.status === "not_found") {
+      notFound();
+    }
+
+    return result.element;
+  }
+
+  notFound();
+}
+
+function ProductsOverview() {
   return (
     <>
       <section aria-labelledby="products-title">

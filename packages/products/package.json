@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@adambelton/ai": "workspace:*",
-    "@adambelton/shared": "workspace:*"
+    "@adambelton/shared": "workspace:*",
+    "react": "^19.1.0"
   },
   "devDependencies": {
+    "@types/react": "^19.1.8",
     "typescript": "^5.8.3"
   }
 }

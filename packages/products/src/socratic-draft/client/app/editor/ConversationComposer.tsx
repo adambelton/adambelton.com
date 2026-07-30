@@ -39,7 +39,10 @@ export function ConversationComposer({
         value={message}
       />
       {error ? (
-        <p className="m-0 text-sm font-semibold text-[var(--accent)]" id={errorId}>
+        <p
+          className="m-0 text-sm font-semibold text-[var(--accent)]"
+          id={errorId}
+        >
           {error}
         </p>
       ) : null}

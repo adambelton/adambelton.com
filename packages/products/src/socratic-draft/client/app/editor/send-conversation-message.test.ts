@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sendConversationMessage } from "apps/web/app/products/socratic-draft/editor/send-conversation-message";
+import { sendConversationMessage } from "packages/products/src/socratic-draft/client/app/editor/send-conversation-message";
 
 describe("sendConversationMessage", () => {
   it("returns the conversation response from the API success body", async () => {

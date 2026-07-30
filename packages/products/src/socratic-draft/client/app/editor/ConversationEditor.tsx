@@ -3,10 +3,10 @@
 import { useId, useState } from "react";
 import type { FormEvent } from "react";
 import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
-import { ConversationComposer } from "apps/web/app/products/socratic-draft/editor/ConversationComposer";
-import { ConversationEditorIntro } from "apps/web/app/products/socratic-draft/editor/ConversationEditorIntro";
-import { ConversationMessageList } from "apps/web/app/products/socratic-draft/editor/ConversationMessageList";
-import { sendConversationMessage } from "apps/web/app/products/socratic-draft/editor/send-conversation-message";
+import { ConversationComposer } from "packages/products/src/socratic-draft/client/app/editor/ConversationComposer";
+import { ConversationEditorIntro } from "packages/products/src/socratic-draft/client/app/editor/ConversationEditorIntro";
+import { ConversationMessageList } from "packages/products/src/socratic-draft/client/app/editor/ConversationMessageList";
+import { sendConversationMessage } from "packages/products/src/socratic-draft/client/app/editor/send-conversation-message";
 
 type ConversationStatus = "idle" | "sending";
 

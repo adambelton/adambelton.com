@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, editor UI loop, Prisma-backed persistence foundation, and Neon dev database setup exist, but auth and LLM-backed product flow have not been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, and host-mounted product app boundary exist, but auth and LLM-backed product flow have not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a minimal Socratic Draft editor page, a Neon `dev` database branch with the initial Prisma migration applied, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a product-owned minimal Socratic Draft editor page, a Neon `dev` database branch with the initial Prisma migration applied, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -19,6 +19,8 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Static public routes for `/`, `/about`, `/products`, and `/products/socratic-draft`.
 - Minimal Socratic Draft editor route at `/products/socratic-draft/editor`.
 - Product-specific web request helper for the conversation endpoint.
+- Host-owned catch-all products route at `/products/[[...productPath]]` that dispatches into product-owned route handling.
+- Socratic Draft-owned client app surface under `packages/products/src/socratic-draft/client`.
 - Next.js local API rewrite for `/api/*` to the Hono API host.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
@@ -76,10 +78,10 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Product-owned ports for AI, auth/access, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback.
-- The current editor UI is a minimal wiring proof, not the final Socratic Draft product interface.
+- The current Socratic Draft editor UI is product-owned but remains a minimal wiring proof, not the final Socratic Draft product interface.
 - Demo writing persistence rules are documented but not enforced yet.
 - Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 013 — Owner auth.
+Task 014 — Owner auth.

@@ -205,3 +205,19 @@ Do not commit `.env.local` or any database connection string.
 Commit `.env.example` with placeholders only.
 
 Do not commit generated third-party Neon agent skill snapshots. Project policy and workflow decisions belong in repo-owned docs, and external Neon guidance should be fetched from current docs, the Neon CLI, or the Neon MCP server when needed.
+
+## 016 — Host-Mounted Product Apps
+
+Product packages own product client screens and product-relative route handling. Host apps own framework routing, layouts, redirects, `notFound` handling, auth/session gates, and deployment concerns.
+
+For the web host, `apps/web` should expose a small Next.js route mount for products and dispatch into product-owned route renderers. A product route such as `/products/socratic-draft/editor` is interpreted by the host as:
+
+- host mount: `/products`
+- product slug: `socratic-draft`
+- product-owned route segments: `["editor"]`
+
+The product package should not define Next.js file-system routes or import Next.js APIs. It may depend on React for reusable product client components, but its app surface should stay framework-light enough to be mounted by another host later.
+
+Product route renderers should return neutral route results, such as `found` with a React element or `not_found`. The host translates those results into framework behaviour.
+
+This keeps products extractable while still allowing the personal website to provide shared shell, auth, AI adapters, persistence adapters, and URL placement.

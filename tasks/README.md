@@ -2,13 +2,13 @@
 
 ## Planned
 
-- 013 — Owner auth
-- 014 — Real LLM client
-- 015 — Owner persistent entries
-- 016 — Demo ephemeral mode
-- 017 — Usage limits
-- 018 — Publishing flow
-- 019 — Admin view
+- 014 — Owner auth
+- 015 — Real LLM client
+- 016 — Owner persistent entries
+- 017 — Demo ephemeral mode
+- 018 — Usage limits
+- 019 — Publishing flow
+- 020 — Admin view
 
 ## Completed
 
@@ -24,3 +24,4 @@
 - 010 — Editor UI wired to fake conversation endpoint
 - 011 — Prisma database schema and Socratic Draft repository
 - 012 — Neon development database setup
+- 013 — Mountable product app boundary

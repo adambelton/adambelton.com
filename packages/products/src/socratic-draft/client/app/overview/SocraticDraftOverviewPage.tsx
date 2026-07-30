@@ -1,15 +1,4 @@
-import { getProductById } from "packages/shared/src";
-import { notFound } from "next/navigation";
-import { Prose } from "apps/web/components/site/Prose";
-import { TextLink } from "apps/web/components/site/TextLink";
-
-export default function SocraticDraftPage() {
-  const product = getProductById("socratic-draft");
-
-  if (!product) {
-    notFound();
-  }
-
+export function SocraticDraftOverviewPage() {
   return (
     <>
       <section aria-labelledby="product-title">
@@ -20,9 +9,13 @@ export default function SocraticDraftPage() {
           className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
           id="product-title"
         >
-          {product.name}
+          The Socratic Draft
         </h1>
-        <Prose className="mt-8">{product.description}</Prose>
+        <p className="mt-8 max-w-2xl text-base leading-7 text-[var(--muted)]">
+          Start with a rough thought. The assistant asks questions, challenges
+          assumptions, tracks threads, and helps turn the conversation into a
+          private entry.
+        </p>
       </section>
 
       <section aria-labelledby="status-title">
@@ -35,11 +28,9 @@ export default function SocraticDraftPage() {
         <p className="m-0 border-t border-[var(--line)] pt-5 text-2xl font-semibold tracking-normal">
           In Development
         </p>
-        {product.demoPath ? (
-          <p className="mt-5 text-base leading-7 text-[var(--muted)]">
-            <TextLink href={product.demoPath}>Open the editor demo</TextLink>
-          </p>
-        ) : null}
+        <p className="mt-5 text-base leading-7 text-[var(--muted)]">
+          <a href="/products/socratic-draft/editor">Open the editor demo</a>
+        </p>
       </section>
     </>
   );
