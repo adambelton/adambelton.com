@@ -1,4 +1,6 @@
-import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { getCurrentAuthSession } from "packages/auth/src/session";
 import { getProductBySlug, products } from "packages/shared/src";
 import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
 import { Prose } from "apps/web/components/site/Prose";
@@ -13,6 +15,11 @@ type ProductsPageProps = {
 export default async function ProductsPage({ params }: ProductsPageProps) {
   const { productPath = [] } = await params;
   const [productSlug, ...segments] = productPath;
+  const session = await getCurrentAuthSession(await headers());
+
+  if (!session) {
+    redirect("/login");
+  }
 
   if (!productSlug) {
     return <ProductsOverview />;
@@ -28,6 +35,10 @@ export default async function ProductsPage({ params }: ProductsPageProps) {
     const result = renderSocraticDraftRoute({ segments });
 
     if (result.status === "not_found") {
+      notFound();
+    }
+
+    if (result.requiredAccess === "owner" && !session.user.isOwner) {
       notFound();
     }
 

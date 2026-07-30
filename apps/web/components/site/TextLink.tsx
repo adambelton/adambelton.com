@@ -7,7 +7,7 @@ type TextLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
 };
 
 export function TextLink({ children, href, className = "", ...props }: TextLinkProps) {
-  const linkClassName = `underline decoration-[var(--line)] decoration-1 underline-offset-4 transition-colors hover:decoration-[var(--foreground)] ${className}`;
+  const linkClassName = `underline decoration-[var(--line)] decoration-1 underline-offset-4 transition-colors hover:text-[var(--foreground)] hover:no-underline ${className}`;
 
   if (href.startsWith("/")) {
     return (

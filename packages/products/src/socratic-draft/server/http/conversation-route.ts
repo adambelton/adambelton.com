@@ -5,15 +5,28 @@ import type { ConversationRequest } from "packages/products/src/socratic-draft/s
 import { failure, success } from "packages/shared/src";
 
 export type CreateConversationRouteDependencies = {
-  entryStore: EntryStore;
+  entryStore?: EntryStore;
+  getEntryStore?: (request: Request) => Promise<EntryStore | null>;
   conversationService?: ConversationService;
 };
 
 export function createConversationRoute({
   entryStore,
+  getEntryStore,
   conversationService = new ConversationService(),
 }: CreateConversationRouteDependencies) {
   return new Hono().post("/respond", async (context) => {
+    const requestEntryStore = getEntryStore
+      ? await getEntryStore(context.req.raw)
+      : entryStore;
+
+    if (!requestEntryStore) {
+      return context.json(
+        failure("unauthorized", "Sign in to continue the conversation."),
+        401,
+      );
+    }
+
     const request = await parseConversationRequest(context.req.raw);
 
     if (!request) {
@@ -26,13 +39,13 @@ export function createConversationRoute({
       );
     }
 
-    const entryId = request.entryId ?? entryStore.createEntryId();
+    const entryId = request.entryId ?? requestEntryStore.createEntryId();
     const response = conversationService.respond({
       entryId,
       message: request.message,
     });
 
-    await entryStore.appendConversationTurn({
+    await requestEntryStore.appendConversationTurn({
       entryId: response.entryId,
       userMessage: {
         role: "user",

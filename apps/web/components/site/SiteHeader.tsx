@@ -1,27 +1,28 @@
-import Link from "next/link";
+import { headers } from "next/headers";
+import { getCurrentAuthSession } from "packages/auth/src/session";
+import { TextLink } from "apps/web/components/site/TextLink";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await getCurrentAuthSession(await headers());
+
   return (
     <header className="flex items-center justify-end gap-8 py-7 sm:py-9">
       <nav
         aria-label="Primary"
         className="flex items-center gap-5 text-sm text-[var(--muted)]"
       >
-        <Link className="transition-colors hover:text-[var(--foreground)]" href="/">
+        <TextLink href="/">
           Home
-        </Link>
-        <Link
-          className="transition-colors hover:text-[var(--foreground)]"
-          href="/products"
-        >
+        </TextLink>
+        <TextLink href="/products">
           Products
-        </Link>
-        <Link
-          className="transition-colors hover:text-[var(--foreground)]"
-          href="/about"
-        >
+        </TextLink>
+        <TextLink href="/about">
           About
-        </Link>
+        </TextLink>
+        <TextLink href={session ? "/logout" : "/login"}>
+          {session ? "Log out" : "Log in"}
+        </TextLink>
       </nav>
     </header>
   );

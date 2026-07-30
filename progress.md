@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, and host-mounted product app boundary exist, but auth and LLM-backed product flow have not been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, and owner auth foundation exist, but LLM-backed product flow has not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, a product-owned minimal Socratic Draft editor page, a Neon `dev` database branch with the initial Prisma migration applied, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -16,15 +16,22 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Minimal `apps/web` Tailwind styling foundation and small owned site components.
 - Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
 - Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
-- Static public routes for `/`, `/about`, `/products`, and `/products/socratic-draft`.
+- Static public routes for `/` and `/about`; authenticated product routes under `/products`.
 - Minimal Socratic Draft editor route at `/products/socratic-draft/editor`.
-- Product-specific web request helper for the conversation endpoint.
+- Product-owned client request helper for the conversation endpoint.
 - Host-owned catch-all products route at `/products/[[...productPath]]` that dispatches into product-owned route handling.
 - Socratic Draft-owned client app surface under `packages/products/src/socratic-draft/client`.
+- Socratic Draft-owned API route surface under `packages/products/src/socratic-draft/server/http`.
+- API host mount for product API routes under `/products`.
+- Product route access requirements for authenticated and owner-only Socratic Draft routes.
 - Next.js local API rewrite for `/api/*` to the Hono API host.
+- Next.js local auth rewrite for `/auth/*` to the Better Auth route on the Hono API host.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
-- `POST /products/socratic-draft/conversation/respond` API route.
+- Better Auth handler mounted at `/auth/*` on the API host.
+- `POST /products/socratic-draft/conversation/respond` API route mounted by the host and handled by the Socratic Draft product package.
+- Minimal magic-link sign-in page at `/sign-in`.
+- Owner-only Socratic Draft entries placeholder route at `/products/socratic-draft/entries`.
 - `packages/shared` API response, user/access, writing, usage, and product registry types.
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
@@ -32,8 +39,9 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Socratic Draft product-owned `EntryStore` persistence port.
 - Host/API-owned in-memory `EntryStore` adapter for the conversation endpoint.
 - Prisma schema and generated initial SQL migration for Socratic Draft entries and conversation messages.
+- Prisma schema and generated SQL migration for Better Auth users, sessions, accounts, and verifications.
 - Prisma-backed Socratic Draft `EntryStore` adapter in `packages/db`.
-- API-side Socratic Draft entry-store factory that uses Prisma when `DATABASE_URL` is set and falls back to in-memory storage otherwise.
+- DB-side Socratic Draft entry-store resolver that uses Prisma for owner sessions when `DATABASE_URL` is set and uses in-memory storage for signed-in non-owner sessions or no-DB local fallback.
 - Strict Prisma migration workflow: schema first, generated migrations only, no hand-edited migration files.
 - Neon Postgres development database setup with a `dev` branch and applied initial migration.
 - Local development docs and `.env.example` for database environment setup.
@@ -54,16 +62,14 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 ## Partially implemented
 
 - Product registry exists as a shared constant and is used by the static products page.
-- `packages/auth` and `packages/ai` have package boundaries and initial stubs only.
+- `packages/ai` has a package boundary and initial stubs only.
 - The Socratic Draft conversation service returns a deterministic stub response only; it is not yet backed by readiness logic or an LLM.
-- The Socratic Draft endpoint and editor use in-memory persistence unless `DATABASE_URL` is configured.
+- The Socratic Draft endpoint persists through Prisma only for owner sessions when `DATABASE_URL` is configured; signed-in non-owner sessions use ephemeral in-memory storage.
 
 ## Not implemented
 
 - Public writing system.
 - Individual writing pages.
-- Passwordless auth.
-- Owner/demo access flow.
 - Real AI provider integration.
 - Demo ephemeral writing mode.
 - Usage limits and cost protection.
@@ -79,9 +85,10 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback.
 - The current Socratic Draft editor UI is product-owned but remains a minimal wiring proof, not the final Socratic Draft product interface.
-- Demo writing persistence rules are documented but not enforced yet.
-- Auth, database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
+- Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
+- Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
+- Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
 
 ## Next recommended task
 
-Task 014 — Owner auth.
+Task 015 — Real LLM client.

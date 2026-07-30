@@ -9,7 +9,9 @@
     "build": "next build"
   },
   "dependencies": {
+    "@adambelton/auth": "workspace:*",
     "@adambelton/shared": "workspace:*",
+    "better-auth": "^1.6.25",
     "next": "^15.3.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 014 — Owner auth
 - 015 — Real LLM client
 - 016 — Owner persistent entries
 - 017 — Demo ephemeral mode
@@ -25,3 +24,4 @@
 - 011 — Prisma database schema and Socratic Draft repository
 - 012 — Neon development database setup
 - 013 — Mountable product app boundary
+- 014 — Owner auth

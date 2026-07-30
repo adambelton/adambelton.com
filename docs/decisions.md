@@ -32,7 +32,9 @@ The Socratic Draft conversation policy, prompts, moves, phases, readiness logic,
 
 ## 005 — API Routes Stay Thin
 
-`apps/api` should expose routes and controllers, but domain behaviour belongs in packages.
+`apps/api` should expose host routes and mount product API entrypoints, but domain behaviour and product-specific HTTP behaviour belong in packages.
+
+Host apps may know which products are installed and where they are mounted. They should not own product-internal route trees, product request parsing, product response shape, or product business logic.
 
 ## 006 — Frontend Does Not Choose Socratic Draft Assistant Moves
 
@@ -221,3 +223,23 @@ The product package should not define Next.js file-system routes or import Next.
 Product route renderers should return neutral route results, such as `found` with a React element or `not_found`. The host translates those results into framework behaviour.
 
 This keeps products extractable while still allowing the personal website to provide shared shell, auth, AI adapters, persistence adapters, and URL placement.
+
+The same boundary applies to product API routes. `apps/api` may mount a product entrypoint such as `/products/socratic-draft`, but the product package owns the product-relative API route tree below that mount. The API host supplies product-neutral request context and adapters, such as signed-in/owner access state and entry-store implementations.
+
+## 017 — Owner Auth And Product Persistence
+
+The project uses Better Auth for passwordless magic-link authentication, with auth state stored in the Prisma database.
+
+Magic-link emails should be delivered through Resend in both development and production so authentication works the same way in each environment.
+
+The initial authorization model is `isOwner` on the user record. It is derived server-side from `OWNER_EMAIL` and is not accepted from user input.
+
+`isOwner` governs owner-only product persistence and future publishing capability. Product-specific roles or granular permission tables should wait until the product set actually needs them.
+
+Signed-in non-owner users may access the Socratic Draft editor as ephemeral users while no real AI is connected. They should not get persistence access by default.
+
+Socratic Draft private/working entries belong to the Socratic Draft product app. Published writing belongs to the host website as a public-read writing system. Publishing is the bridge between those two systems and should be implemented separately.
+
+Products remain auth-infrastructure agnostic. Product packages may define route access requirements in product terms, but host apps enforce those requirements using the host auth/session system.
+
+For API routes, the host translates Better Auth session state into product-neutral access context before selecting persistence adapters. Product-facing adapter selectors should not import concrete auth systems.

@@ -43,6 +43,25 @@ pnpm db:validate
 pnpm db:generate
 ```
 
+## Auth And Email
+
+Auth uses Better Auth with passwordless magic links. Auth data is stored in the Prisma database.
+
+Magic-link emails are sent through Resend in development and production so local and hosted workflows stay similar.
+
+Required local variables:
+
+```txt
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="replace-with-a-long-random-secret"
+BETTER_AUTH_TRUSTED_ORIGINS="http://localhost:3000"
+OWNER_EMAIL="hello@adambelton.com"
+RESEND_API_KEY="replace-with-resend-api-key"
+AUTH_EMAIL_FROM="Adam Belton <hello@adambelton.com>"
+```
+
+Keep the real Resend API key in `.env.local` or the host environment only. Do not commit it.
+
 Run the normal project checks:
 
 ```txt

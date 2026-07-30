@@ -11,7 +11,11 @@
     "build": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@adambelton/shared": "workspace:*"
+    "@adambelton/db": "workspace:*",
+    "@adambelton/shared": "workspace:*",
+    "@better-auth/prisma-adapter": "^1.6.25",
+    "better-auth": "^1.6.25",
+    "resend": "^6.18.1"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
