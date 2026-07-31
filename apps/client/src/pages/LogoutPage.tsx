@@ -1,6 +1,35 @@
+import { useEffect, useState } from "react";
+import { authClient } from "apps/client/src/auth";
 import { Prose } from "apps/client/src/components";
 
 export function LogoutPage() {
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function signOut() {
+      const result = await authClient.signOut();
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.error) {
+        setError("Could not log out. Refresh and try again.");
+        return;
+      }
+
+      window.location.replace("/");
+    }
+
+    void signOut();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section aria-labelledby="logout-title">
       <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
@@ -13,8 +42,9 @@ export function LogoutPage() {
         Signed-out flow placeholder.
       </h1>
       <Prose className="mt-8">
-        The logout route will call the auth client in a later task.
+        Ending your session.
       </Prose>
+      {error ? <Prose className="mt-8">{error}</Prose> : null}
     </section>
   );
 }

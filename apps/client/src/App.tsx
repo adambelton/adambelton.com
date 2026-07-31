@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import { ProtectedRoute } from "apps/client/src/auth";
 import {
   Container,
   SiteFooter,
@@ -9,6 +10,7 @@ import {
   AboutPage,
   HomePage,
   LoginPage,
+  LoginVerifyPage,
   LogoutPage,
   NotFoundPage,
   ProductsPage,
@@ -27,8 +29,16 @@ export function App() {
           <Routes>
             <Route element={<HomePage />} path="/" />
             <Route element={<AboutPage />} path="/about" />
-            <Route element={<ProductsPage />} path="/products" />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <ProductsPage />
+                </ProtectedRoute>
+              }
+              path="/products"
+            />
             <Route element={<LoginPage />} path="/login" />
+            <Route element={<LoginVerifyPage />} path="/login/verify" />
             <Route element={<LogoutPage />} path="/logout" />
             <Route element={<NotFoundPage />} path="*" />
           </Routes>

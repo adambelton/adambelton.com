@@ -71,20 +71,25 @@ pnpm typecheck
 
 ## Client Host Migration
 
-The current production-equivalent web host remains `apps/web` until the Vite client reaches functional parity.
+The Vite client in `apps/client` is now the default local website host during the migration.
 
-The staged Vite client scaffold lives in `apps/client`.
-
-Run the existing Next.js host:
+It runs on `http://localhost:3000` so existing Better Auth local settings can stay stable:
 
 ```txt
-pnpm dev:web
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_TRUSTED_ORIGINS="http://localhost:3000"
 ```
 
-Run the Vite client scaffold:
+Run the Vite client:
 
 ```txt
 pnpm dev:client
+```
+
+Run the existing Next.js host only when checking migration parity:
+
+```txt
+pnpm dev:web
 ```
 
 The Vite dev server proxies `/auth/*` to the API host and proxies `/api/*` to the API host after removing the `/api` prefix. This matches the current public client path shape while keeping the Hono API routes mounted without an `/api` prefix.

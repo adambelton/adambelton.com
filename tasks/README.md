@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 018 — Port auth UX to Vite client
 - 019 — Port product mounting to React Router
 - 020 — Remove Next app
 - 021 — Migration audit
@@ -32,3 +31,4 @@
 - 015 — Client-first host architecture decision
 - 016 — Prepare client app scaffold
 - 017 — Port shared website shell
+- 018 — Port auth UX to Vite client
