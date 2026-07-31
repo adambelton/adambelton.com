@@ -29,6 +29,7 @@ The repo currently has a basic Next.js web shell, a documented decision to migra
 - Initial `apps/client` Vite and React Router scaffold with placeholder routes and dev proxy config.
 - Shared public website shell ported into `apps/client`, including skip link, header/nav, footer, prose/layout primitives, and current public route content.
 - Better Auth magic-link login, login verification, logout, session-aware header state, and client-side `/products` gating ported into `apps/client`.
+- Product mounting ported into the Vite client through React Router, with Socratic Draft overview, editor, and entries routes dispatched from the host into the product-owned route renderer.
 - Security posture for the future client host: client route gates are UX only; API/server authorization is authoritative.
 - Next.js local API rewrite for `/api/*` to the Hono API host.
 - Next.js local auth rewrite for `/auth/*` to the Better Auth route on the Hono API host.
@@ -94,8 +95,8 @@ The repo currently has a basic Next.js web shell, a documented decision to migra
 - Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
-- The client-first host migration has started, but product mounting still lives in the existing Next.js `apps/web` host.
+- The client-first host migration has started, but the deprecated Next.js `apps/web` host still exists until a later removal task.
 
 ## Next recommended task
 
-Task 019 — Port product mounting to React Router.
+Task 020 — Remove the deprecated Next app.

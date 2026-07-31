@@ -1,8 +1,19 @@
-export type ProductId = "socratic-draft";
+export const PRODUCT_IDS = {
+  socraticDraft: "socratic-draft",
+} as const;
 
-export type ProductStatus = "prototype" | "active" | "archived";
+export type ProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];
 
-export type ProductDefinition = {
+export const PRODUCT_STATUSES = {
+  active: "active",
+  archived: "archived",
+  prototype: "prototype",
+} as const;
+
+export type ProductStatus =
+  (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
+
+export interface ProductDefinition {
   id: ProductId;
   name: string;
   slug: string;
@@ -12,4 +23,4 @@ export type ProductDefinition = {
   publicPath: string;
   demoPath?: string;
   requiresAuth: boolean;
-};
+}

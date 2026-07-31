@@ -13,8 +13,10 @@ import {
   LoginVerifyPage,
   LogoutPage,
   NotFoundPage,
+  ProductRoutePage,
   ProductsPage,
 } from "apps/client/src/pages";
+import { productRoutePath } from "apps/client/src/products";
 
 export function App() {
   return (
@@ -36,6 +38,14 @@ export function App() {
                 </ProtectedRoute>
               }
               path="/products"
+            />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <ProductRoutePage />
+                </ProtectedRoute>
+              }
+              path={productRoutePath}
             />
             <Route element={<LoginPage />} path="/login" />
             <Route element={<LoginVerifyPage />} path="/login/verify" />
