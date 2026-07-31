@@ -4,7 +4,7 @@
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, and owner auth foundation exist, but LLM-backed product flow has not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
+The repo currently has a basic Next.js web shell, a documented decision to migrate toward a Vite and React Router client-first host, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
 
 ## Implemented
 
@@ -24,6 +24,9 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Socratic Draft-owned API route surface under `packages/products/src/socratic-draft/server/http`.
 - API host mount for product API routes under `/products`.
 - Product route access requirements for authenticated and owner-only Socratic Draft routes.
+- Product roadmap context for The Socratic Draft and the future Care Calendar health-tech learning product.
+- Client-first host architecture decision: move toward Vite and React Router in staged tasks.
+- Security posture for the future client host: client route gates are UX only; API/server authorization is authoritative.
 - Next.js local API rewrite for `/api/*` to the Hono API host.
 - Next.js local auth rewrite for `/auth/*` to the Better Auth route on the Hono API host.
 - Basic `apps/api` Hono server.
@@ -88,7 +91,8 @@ The repo currently has a basic Next.js web shell, a minimal Tailwind styling fou
 - Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
+- The client-first host migration is documented but not implemented yet; the repo still runs through the existing Next.js `apps/web` host.
 
 ## Next recommended task
 
-Task 015 — Real LLM client.
+Task 016 — Prepare client app scaffold.

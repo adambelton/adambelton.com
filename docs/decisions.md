@@ -243,3 +243,27 @@ Socratic Draft private/working entries belong to the Socratic Draft product app.
 Products remain auth-infrastructure agnostic. Product packages may define route access requirements in product terms, but host apps enforce those requirements using the host auth/session system.
 
 For API routes, the host translates Better Auth session state into product-neutral access context before selecting persistence adapters. Product-facing adapter selectors should not import concrete auth systems.
+
+## 018 — Client-First Host Architecture
+
+The personal website host should migrate from a Next.js app toward a Vite and React Router client app through staged refactoring.
+
+This is an architectural-fit decision, not a claim that Vite is inherently better than Next.js. The public website is lightweight, and the portfolio value of this repo depends on making frontend architecture, product mounting, auth state, API boundaries, and security posture explicit and inspectable.
+
+The host website should demonstrate deliberate client application architecture while keeping product packages portable. Product packages remain the source of truth for product behaviour, contracts, client screens, and server entrypoints. Host apps remain responsible for mounting products and providing infrastructure such as auth, persistence adapters, AI providers, usage controls, deployment config, and publishing integration.
+
+Client-side route gates are UX affordances only. They may hide product routes, redirect signed-out users, and present loading states, but they are not the security boundary.
+
+API/server authorization is authoritative. Sensitive operations such as persistence, publishing, AI usage, health-tech actions, correction requests, acknowledgements, simulated provider updates, and owner-only views must be permission-checked server-side.
+
+Future health-tech product work makes this explicit security posture more important, but it does not require building future-product behaviour now. Known roadmap context should inform architecture decisions without expanding the scope of current tasks.
+
+Migration should happen in small stages:
+
+- document the decision and security posture
+- scaffold the client app alongside the current web app
+- port shared website shell UI
+- port auth UX and protected-route handling
+- port product mounting
+- remove the Next.js app only after the Vite client is functionally equivalent
+- audit the migration against architecture, testing, accessibility, and security rules

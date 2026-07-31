@@ -2,12 +2,18 @@
 
 ## Planned
 
-- 015 — Real LLM client
-- 016 — Owner persistent entries
-- 017 — Demo ephemeral mode
-- 018 — Usage limits
-- 019 — Publishing flow
-- 020 — Admin view
+- 016 — Prepare client app scaffold
+- 017 — Port shared website shell
+- 018 — Port auth UX to Vite client
+- 019 — Port product mounting to React Router
+- 020 — Remove Next app
+- 021 — Migration audit
+- 022 — Real LLM client
+- 023 — Owner persistent entries
+- 024 — Demo ephemeral mode
+- 025 — Usage limits
+- 026 — Publishing flow
+- 027 — Admin view
 
 ## Completed
 
@@ -25,3 +31,4 @@
 - 012 — Neon development database setup
 - 013 — Mountable product app boundary
 - 014 — Owner auth
+- 015 — Client-first host architecture decision
