@@ -13,6 +13,36 @@ export const PRODUCT_STATUSES = {
 export type ProductStatus =
   (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
 
+export const PRODUCT_ROUTE_STATUSES = {
+  found: "found",
+  notFound: "not_found",
+} as const;
+
+export type ProductRouteStatus =
+  (typeof PRODUCT_ROUTE_STATUSES)[keyof typeof PRODUCT_ROUTE_STATUSES];
+
+export const PRODUCT_ROUTE_ACCESSES = {
+  authenticated: "authenticated",
+  owner: "owner",
+} as const;
+
+export type ProductRouteAccess =
+  (typeof PRODUCT_ROUTE_ACCESSES)[keyof typeof PRODUCT_ROUTE_ACCESSES];
+
+export interface FoundProductRouteResult<RenderedRoute> {
+  status: typeof PRODUCT_ROUTE_STATUSES.found;
+  element: RenderedRoute;
+  requiredAccess: ProductRouteAccess;
+}
+
+export interface NotFoundProductRouteResult {
+  status: typeof PRODUCT_ROUTE_STATUSES.notFound;
+}
+
+export type ProductRouteResult<RenderedRoute> =
+  | FoundProductRouteResult<RenderedRoute>
+  | NotFoundProductRouteResult;
+
 export interface ProductDefinition {
   id: ProductId;
   name: string;

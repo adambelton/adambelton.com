@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  PRODUCT_ROUTE_ACCESSES,
+  PRODUCT_ROUTE_STATUSES,
+} from "packages/shared/src";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 
 describe("resolveProductRoute", () => {
@@ -9,8 +13,8 @@ describe("resolveProductRoute", () => {
         productSlug: "socratic-draft",
       })
     ).toMatchObject({
-      status: "found",
-      requiredAccess: "authenticated",
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
     });
   });
 
@@ -21,8 +25,8 @@ describe("resolveProductRoute", () => {
         productSlug: "socratic-draft",
       })
     ).toMatchObject({
-      status: "found",
-      requiredAccess: "authenticated",
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
     });
   });
 
@@ -33,8 +37,8 @@ describe("resolveProductRoute", () => {
         productSlug: "socratic-draft",
       })
     ).toMatchObject({
-      status: "found",
-      requiredAccess: "owner",
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
     });
   });
 
@@ -45,7 +49,7 @@ describe("resolveProductRoute", () => {
         productSlug: "unknown-product",
       })
     ).toMatchObject({
-      status: "not_found",
+      status: PRODUCT_ROUTE_STATUSES.notFound,
     });
   });
 });

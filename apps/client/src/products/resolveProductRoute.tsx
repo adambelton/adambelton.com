@@ -1,4 +1,8 @@
-import { getProductBySlug, PRODUCT_IDS } from "packages/shared/src";
+import {
+  getProductBySlug,
+  PRODUCT_IDS,
+  PRODUCT_ROUTE_STATUSES,
+} from "packages/shared/src";
 import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
 
 type ResolveProductRouteInput = {
@@ -15,7 +19,7 @@ export function resolveProductRoute({
   const product = getProductBySlug(productSlug);
 
   if (!product) {
-    return { status: "not_found" };
+    return { status: PRODUCT_ROUTE_STATUSES.notFound };
   }
 
   const segments = path.split("/").filter(Boolean);
@@ -24,5 +28,5 @@ export function resolveProductRoute({
     return renderSocraticDraftRoute({ segments });
   }
 
-  return { status: "not_found" };
+  return { status: PRODUCT_ROUTE_STATUSES.notFound };
 }

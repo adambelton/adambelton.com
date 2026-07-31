@@ -1,4 +1,5 @@
 import { useParams } from "react-router";
+import { PRODUCT_ROUTE_STATUSES } from "packages/shared/src";
 import { useAuthSession } from "apps/client/src/auth";
 import { NotFoundPage } from "apps/client/src/pages/NotFoundPage";
 import { resolveProductRoute } from "apps/client/src/products";
@@ -11,7 +12,7 @@ export function ProductRoutePage() {
     productSlug,
   });
 
-  if (route.status === "not_found") {
+  if (route.status === PRODUCT_ROUTE_STATUSES.notFound) {
     return <NotFoundPage />;
   }
 
