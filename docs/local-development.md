@@ -69,6 +69,26 @@ pnpm test
 pnpm typecheck
 ```
 
+## Client Host Migration
+
+The current production-equivalent web host remains `apps/web` until the Vite client reaches functional parity.
+
+The staged Vite client scaffold lives in `apps/client`.
+
+Run the existing Next.js host:
+
+```txt
+pnpm dev:web
+```
+
+Run the Vite client scaffold:
+
+```txt
+pnpm dev:client
+```
+
+The Vite dev server proxies `/auth/*` to the API host and proxies `/api/*` to the API host after removing the `/api` prefix. This matches the current public client path shape while keeping the Hono API routes mounted without an `/api` prefix.
+
 ## Migration Discipline
 
 The Prisma schema is the source of truth for database shape.
