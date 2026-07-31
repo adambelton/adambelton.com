@@ -1,13 +1,19 @@
 import type {
-  ConversationRequest,
+  ConversationMessage,
   ConversationResponse,
   ConversationState,
 } from "packages/products/src/socratic-draft/shared";
 
 const DEFAULT_ENTRY_ID = "draft-entry";
 
+export type ConversationServiceRequest = {
+  entryId: string | null;
+  message: string;
+  previousMessages: ConversationMessage[];
+};
+
 export class ConversationService {
-  respond(request: ConversationRequest): ConversationResponse {
+  respond(request: ConversationServiceRequest): ConversationResponse {
     return {
       entryId: request.entryId ?? DEFAULT_ENTRY_ID,
       message: {

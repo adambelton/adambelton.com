@@ -16,6 +16,7 @@
     "build": "pnpm prisma:generate && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@adambelton/products": "workspace:*",
     "@adambelton/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",

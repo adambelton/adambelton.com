@@ -4,8 +4,10 @@ import {
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
 import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
+import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
 
 type ResolveProductRouteInput = {
+  components: ProductAppComponents;
   path: string;
   productSlug: string;
 };
@@ -13,6 +15,7 @@ type ResolveProductRouteInput = {
 export type ResolvedProductRoute = ReturnType<typeof renderSocraticDraftRoute>;
 
 export function resolveProductRoute({
+  components,
   path,
   productSlug,
 }: ResolveProductRouteInput): ResolvedProductRoute {
@@ -25,7 +28,7 @@ export function resolveProductRoute({
   const segments = path.split("/").filter(Boolean);
 
   if (product.id === PRODUCT_IDS.socraticDraft) {
-    return renderSocraticDraftRoute({ segments });
+    return renderSocraticDraftRoute({ components, segments });
   }
 
   return { status: PRODUCT_ROUTE_STATUSES.notFound };

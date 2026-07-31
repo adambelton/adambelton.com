@@ -4,11 +4,19 @@ import {
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
+import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
+
+const testProductAppComponents: ProductAppComponents = {
+  Link({ children, href }) {
+    return <a href={href}>{children}</a>;
+  },
+};
 
 describe("resolveProductRoute", () => {
   it("mounts the Socratic Draft product root", () => {
     expect(
       resolveProductRoute({
+        components: testProductAppComponents,
         path: "",
         productSlug: "socratic-draft",
       })
@@ -21,6 +29,7 @@ describe("resolveProductRoute", () => {
   it("passes nested paths to the product route renderer", () => {
     expect(
       resolveProductRoute({
+        components: testProductAppComponents,
         path: "editor",
         productSlug: "socratic-draft",
       })
@@ -33,6 +42,7 @@ describe("resolveProductRoute", () => {
   it("preserves owner-only product route requirements", () => {
     expect(
       resolveProductRoute({
+        components: testProductAppComponents,
         path: "entries",
         productSlug: "socratic-draft",
       })
@@ -45,6 +55,7 @@ describe("resolveProductRoute", () => {
   it("does not resolve unknown products", () => {
     expect(
       resolveProductRoute({
+        components: testProductAppComponents,
         path: "",
         productSlug: "unknown-product",
       })

@@ -1,4 +1,13 @@
-export function SocraticDraftOverviewPage() {
+import { SocraticDraftTextLink } from "packages/products/src/socratic-draft/client/app/SocraticDraftTextLink";
+import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
+
+type SocraticDraftOverviewPageProps = {
+  components: ProductAppComponents;
+};
+
+export function SocraticDraftOverviewPage({
+  components,
+}: SocraticDraftOverviewPageProps) {
   return (
     <>
       <section aria-labelledby="product-title">
@@ -29,7 +38,12 @@ export function SocraticDraftOverviewPage() {
           In Development
         </p>
         <p className="mt-5 text-base leading-7 text-[var(--muted)]">
-          <a href="/products/socratic-draft/editor">Open the editor demo</a>
+          <SocraticDraftTextLink
+            Link={components.Link}
+            href="/products/socratic-draft/editor"
+          >
+            Open the editor demo
+          </SocraticDraftTextLink>
         </p>
       </section>
     </>

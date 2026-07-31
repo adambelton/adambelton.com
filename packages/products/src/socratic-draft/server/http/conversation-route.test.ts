@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
 import { createConversationRoute } from "packages/products/src/socratic-draft/server/http";
 import type {
   AppendConversationTurnInput,
@@ -49,6 +50,51 @@ describe("Socratic Draft conversation route", () => {
         content: "I can't tell whether this draft is honest.",
       },
       responseData?.message,
+    ]);
+  });
+
+  it("passes existing conversation history into the conversation service", async () => {
+    const entryStore = createFakeEntryStore();
+    await entryStore.appendConversationTurn({
+      entryId: "entry-1",
+      userMessage: {
+        role: "user",
+        content: "Earlier thought.",
+      },
+      assistantMessage: {
+        role: "assistant",
+        content: "Earlier response.",
+      },
+    });
+    let previousMessages: ConversationMessage[] | null = null;
+    const conversationService = {
+      respond(request) {
+        previousMessages = request.previousMessages;
+        return new ConversationService().respond(request);
+      },
+    } satisfies ConversationService;
+    const route = createConversationRoute({ conversationService, entryStore });
+
+    await route.request("/respond", {
+      method: "POST",
+      body: JSON.stringify({
+        entryId: "entry-1",
+        message: "New thought.",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+
+    expect(previousMessages).toEqual([
+      {
+        role: "user",
+        content: "Earlier thought.",
+      },
+      {
+        role: "assistant",
+        content: "Earlier response.",
+      },
     ]);
   });
 

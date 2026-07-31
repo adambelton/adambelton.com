@@ -271,3 +271,13 @@ Migration should happen in small stages:
 - audit the migration against architecture, testing, accessibility, and security rules
 
 The Next.js `apps/web` host was removed after the Vite client reached parity for the public shell, auth UX, and product mounting. `apps/client` is now the website host.
+
+## 019 — Host-Owned Functional Navigation For Product Apps
+
+Navigation mechanics are a host concern.
+
+Product client surfaces should not import React Router, Next.js, or host-styled link components directly. The host should pass product apps a small functional navigation adapter that knows how to navigate in the current host environment.
+
+In the Vite client host, that adapter preserves internal client-side navigation with React Router's `Link` while keeping external links as ordinary anchors.
+
+Host UI may wrap the functional adapter with host styling, such as `TextLink`. Product UI may wrap the same functional adapter with product-owned styling. The host should not pass its design-system wrapper into a product app unless that is an intentional product integration decision.

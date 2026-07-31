@@ -4,7 +4,7 @@ This repository is a single monorepo for Adam's personal website and product dem
 
 The frontend renders the public website, writing, product pages, editor screens, login, and admin UI.
 
-The host website is moving toward a client-first architecture using Vite and React Router. The goal is to make routing, product mounting, auth state, and API boundaries explicit while keeping product packages portable. The existing Next.js host should be migrated in small stages rather than replaced in one large rewrite.
+The host website uses a client-first architecture with Vite and React Router. Routing, product mounting, auth state, and API boundaries are explicit while product packages remain portable. The deprecated Next.js host has been removed.
 
 The public website should remain minimal, editorial, image-led where appropriate, and typography-focused. Use semantic HTML first for accessibility. For complex interactive UI, prefer React Aria Components over hand-rolled focus management, keyboard behaviour, ARIA attributes, or screen reader behaviour. Do not use React Aria for ordinary static content or install it speculatively.
 

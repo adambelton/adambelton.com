@@ -4,7 +4,7 @@
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, and owner auth foundation exist, but LLM-backed product flow has not been implemented yet.
 
-The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, and product mounting, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
+The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, and product mounting, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
 ## Implemented
 
@@ -30,6 +30,7 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Shared public website shell ported into `apps/client`, including skip link, header/nav, footer, prose/layout primitives, and current public route content.
 - Better Auth magic-link login, login verification, logout, session-aware header state, and client-side `/products` gating ported into `apps/client`.
 - Product mounting ported into the Vite client through React Router, with Socratic Draft overview, editor, and entries routes dispatched from the host into the product-owned route renderer.
+- Host-owned functional navigation adapter for product apps, with product-owned link styling preserved inside the product package.
 - Security posture for the future client host: client route gates are UX only; API/server authorization is authoritative.
 - Vite local API proxy for `/api/*` to the Hono API host.
 - Vite local auth proxy for `/auth/*` to the Better Auth route on the Hono API host.
@@ -43,6 +44,7 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
 - Minimal Socratic Draft server conversation service with contract-focused tests.
+- Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service, ready for the next real LLM integration task.
 - Socratic Draft product-owned `EntryStore` persistence port.
 - Host/API-owned in-memory `EntryStore` adapter for the conversation endpoint.
 - Prisma schema and generated initial SQL migration for Socratic Draft entries and conversation messages.
@@ -95,8 +97,8 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
-- The deprecated Next.js `apps/web` host has been removed; a migration audit should verify there are no stale architecture, testing, accessibility, or security gaps.
+- The product package still imports the AI package boundary indirectly through current scaffolding; this is intentionally left for the real LLM integration task.
 
 ## Next recommended task
 
-Task 021 — Migration audit.
+Task 022 — Real LLM client.

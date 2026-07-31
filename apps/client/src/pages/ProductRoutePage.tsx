@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 import { PRODUCT_ROUTE_STATUSES } from "packages/shared/src";
 import { useAuthSession } from "apps/client/src/auth";
+import { NavigationLink } from "apps/client/src/navigation";
 import { NotFoundPage } from "apps/client/src/pages/NotFoundPage";
 import { resolveProductRoute } from "apps/client/src/products";
 
@@ -8,6 +9,9 @@ export function ProductRoutePage() {
   const session = useAuthSession();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
+    components: {
+      Link: NavigationLink,
+    },
     path: productPath,
     productSlug,
   });

@@ -9,6 +9,7 @@ describe("ConversationService", () => {
     const response = service.respond({
       entryId: null,
       message: "I keep changing my mind about what this essay is really about.",
+      previousMessages: [],
     });
 
     expect(response).toMatchObject({
@@ -42,6 +43,7 @@ describe("ConversationService", () => {
     const response = service.respond({
       entryId: "entry-123",
       message: "This section feels dishonest.",
+      previousMessages: [],
     });
 
     expect(response.entryId).toBe("entry-123");

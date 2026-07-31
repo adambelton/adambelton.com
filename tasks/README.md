@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 021 — Migration audit
 - 022 — Real LLM client
 - 023 — Owner persistent entries
 - 024 — Demo ephemeral mode
@@ -32,3 +31,4 @@
 - 018 — Port auth UX to Vite client
 - 019 — Port product mounting to React Router
 - 020 — Remove Next app
+- 021 — Full-codebase audit fixes

@@ -11,6 +11,8 @@ const defaultCallbackUrl = "/products";
 const loginErrors: Record<string, string> = {
   INVALID_TOKEN: "That sign-in link is invalid or has already been used.",
 };
+const unknownLoginError =
+  "That sign-in link could not be completed. Request a new link and try again.";
 
 export function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -18,7 +20,9 @@ export function LoginPage() {
   const [status, setStatus] = useState<SignInStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const loginError = searchParams.get("error");
-  const loginErrorMessage = loginError ? loginErrors[loginError] : null;
+  const loginErrorMessage = loginError
+    ? (loginErrors[loginError] ?? unknownLoginError)
+    : null;
   const canSubmit = email.trim().length > 0 && status !== "sending";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

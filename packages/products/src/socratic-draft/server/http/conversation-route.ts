@@ -40,9 +40,12 @@ export function createConversationRoute({
     }
 
     const entryId = request.entryId ?? requestEntryStore.createEntryId();
+    const previousMessages =
+      await requestEntryStore.getConversationMessages(entryId);
     const response = conversationService.respond({
       entryId,
       message: request.message,
+      previousMessages,
     });
 
     await requestEntryStore.appendConversationTurn({

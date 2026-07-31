@@ -1,4 +1,13 @@
-export function SocraticDraftEntriesPage() {
+import { SocraticDraftTextLink } from "packages/products/src/socratic-draft/client/app/SocraticDraftTextLink";
+import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
+
+type SocraticDraftEntriesPageProps = {
+  components: ProductAppComponents;
+};
+
+export function SocraticDraftEntriesPage({
+  components,
+}: SocraticDraftEntriesPageProps) {
   return (
     <section aria-labelledby="entries-title">
       <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
@@ -14,7 +23,12 @@ export function SocraticDraftEntriesPage() {
         No saved entries yet.
       </p>
       <p className="mt-5 text-base leading-7 text-[var(--muted)]">
-        <a href="/products/socratic-draft/editor">Open the editor</a>
+        <SocraticDraftTextLink
+          Link={components.Link}
+          href="/products/socratic-draft/editor"
+        >
+          Open the editor
+        </SocraticDraftTextLink>
       </p>
     </section>
   );
