@@ -24,8 +24,8 @@ The Socratic Draft is the first product inside this system, not the whole app.
 ## Package Boundaries
 
 ```txt
-apps/web
-  Next.js frontend for the personal website, writing pages, product pages, editor UIs, login, and admin UI.
+apps/client
+  Vite and React Router client for the personal website, writing pages, product pages, editor UIs, login, and admin UI.
 
 apps/api
   Hono API server. Routes/controllers should be thin and should delegate to packages.
@@ -59,7 +59,7 @@ packages/products/src/[product-slug]/
     index.ts
 ```
 
-Top-level apps are named by deployable surface, such as `apps/web` and `apps/api`. Product internals are named by reusable runtime boundary: `shared`, `server`, and `client`.
+Top-level apps are named by deployable surface, such as `apps/client` and `apps/api`. Product internals are named by reusable runtime boundary: `shared`, `server`, and `client`.
 ```
 
 ## Product Dependency Boundary
@@ -79,7 +79,7 @@ Top-level apps are named by deployable surface, such as `apps/web` and `apps/api
 - Platform-wide shared types belong in `packages/shared`.
 - Product-specific types, contracts, and behaviour belong in that product's folder under `packages/products`.
 - All TypeScript imports and re-exports must use repo-root absolute paths. Do not use relative imports or aliases, even between files in the same folder.
-- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/web/components/site/Prose`.
+- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/client/src/components/Prose`.
 - API routes should stay thin and call controllers/services.
 - DB access should go through `packages/db`.
 - AI provider access should go through `packages/ai`.

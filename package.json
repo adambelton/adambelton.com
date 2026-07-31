@@ -4,7 +4,6 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev:web": "pnpm --filter @adambelton/web dev",
     "dev:client": "pnpm --filter @adambelton/client dev",
     "dev:api": "pnpm db:generate && pnpm --filter @adambelton/api dev",
     "db:generate": "pnpm --filter @adambelton/db prisma:generate",

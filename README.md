@@ -8,7 +8,7 @@ The site is writing-first. Product demos live inside the same repository so they
 
 ```txt
 apps/
-  web/      Next.js frontend for the public website and product UI
+  client/   Vite and React Router client for the public website and product UI
   api/      Hono API server
 packages/
   shared/   Shared types, constants, and response helpers
@@ -29,7 +29,7 @@ pnpm install
 Run the website:
 
 ```sh
-pnpm dev:web
+pnpm dev:client
 ```
 
 Run the API:

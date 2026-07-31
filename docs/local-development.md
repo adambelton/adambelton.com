@@ -69,9 +69,9 @@ pnpm test
 pnpm typecheck
 ```
 
-## Client Host Migration
+## Client Host
 
-The Vite client in `apps/client` is now the default local website host during the migration.
+The Vite client in `apps/client` is the local website host.
 
 It runs on `http://localhost:3000` so existing Better Auth local settings can stay stable:
 
@@ -84,12 +84,6 @@ Run the Vite client:
 
 ```txt
 pnpm dev:client
-```
-
-Run the existing Next.js host only when checking migration parity:
-
-```txt
-pnpm dev:web
 ```
 
 The Vite dev server proxies `/auth/*` to the API host and proxies `/api/*` to the API host after removing the `/api` prefix. This matches the current public client path shape while keeping the Hono API routes mounted without an `/api` prefix.

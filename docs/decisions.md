@@ -10,7 +10,7 @@ The Socratic Draft is the first product inside this system, not the whole app.
 
 The repo should include the intended long-term package boundaries from the beginning:
 
-- `apps/web`
+- `apps/client`
 - `apps/api`
 - `packages/shared`
 - `packages/db`
@@ -19,6 +19,8 @@ The repo should include the intended long-term package boundaries from the begin
 - `packages/products`
 
 Even if some packages are initially thin, implementation should happen in the correct place from the start.
+
+`apps/web` was the original Next.js host and has been removed. `apps/client` is now the website host.
 
 ## 003 — Shared Types First
 
@@ -114,9 +116,9 @@ packages/products/src/[product-slug]/
 
 Because each product folder already provides the product namespace, product-local type names should use direct domain names such as `ConversationRequest`, `ConversationResponse`, and `ConversationState` rather than repeating the product name.
 
-TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/web/components/site/Prose`.
+TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/client/src/components/Prose`.
 
-Top-level apps keep deployable names such as `apps/web` and `apps/api`. Product package internals use reusable runtime boundary names: `shared`, `server`, and `client`.
+Top-level apps keep deployable names such as `apps/client` and `apps/api`. Product package internals use reusable runtime boundary names: `shared`, `server`, and `client`.
 
 Lessons kept from the earlier Pinpoint Assignment prototype:
 
@@ -212,7 +214,7 @@ Do not commit generated third-party Neon agent skill snapshots. Project policy a
 
 Product packages own product client screens and product-relative route handling. Host apps own framework routing, layouts, redirects, `notFound` handling, auth/session gates, and deployment concerns.
 
-For the web host, `apps/web` should expose a small Next.js route mount for products and dispatch into product-owned route renderers. A product route such as `/products/socratic-draft/editor` is interpreted by the host as:
+For the client host, `apps/client` should expose a small React Router route mount for products and dispatch into product-owned route renderers. A product route such as `/products/socratic-draft/editor` is interpreted by the host as:
 
 - host mount: `/products`
 - product slug: `socratic-draft`
@@ -267,3 +269,5 @@ Migration should happen in small stages:
 - port product mounting
 - remove the Next.js app only after the Vite client is functionally equivalent
 - audit the migration against architecture, testing, accessibility, and security rules
+
+The Next.js `apps/web` host was removed after the Vite client reached parity for the public shell, auth UX, and product mounting. `apps/client` is now the website host.

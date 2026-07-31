@@ -4,22 +4,22 @@
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, and owner auth foundation exist, but LLM-backed product flow has not been implemented yet.
 
-The repo currently has a basic Next.js web shell, a documented decision to migrate toward a Vite and React Router client-first host, an initial Vite client scaffold with the shared public website shell and auth UX ported, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
+The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, and product mounting, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks.
 
 ## Implemented
 
-- Monorepo structure with `apps/web`, `apps/api`, and the intended `packages/*` boundaries.
+- Monorepo structure with `apps/client`, `apps/api`, and the intended `packages/*` boundaries.
 - Root `pnpm` workspace configuration.
 - Root TypeScript configuration.
 - Repo-root absolute TypeScript import rule with workspace path resolution.
-- Basic `apps/web` Next.js landing page.
-- Minimal `apps/web` Tailwind styling foundation and small owned site components.
+- `apps/client` Vite and React Router website host.
+- Minimal `apps/client` Tailwind styling foundation and small owned site components.
 - Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
 - Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
 - Static public routes for `/` and `/about`; authenticated product routes under `/products`.
 - Minimal Socratic Draft editor route at `/products/socratic-draft/editor`.
 - Product-owned client request helper for the conversation endpoint.
-- Host-owned catch-all products route at `/products/[[...productPath]]` that dispatches into product-owned route handling.
+- Host-owned React Router products route at `/products/:productSlug/*` that dispatches into product-owned route handling.
 - Socratic Draft-owned client app surface under `packages/products/src/socratic-draft/client`.
 - Socratic Draft-owned API route surface under `packages/products/src/socratic-draft/server/http`.
 - API host mount for product API routes under `/products`.
@@ -31,8 +31,8 @@ The repo currently has a basic Next.js web shell, a documented decision to migra
 - Better Auth magic-link login, login verification, logout, session-aware header state, and client-side `/products` gating ported into `apps/client`.
 - Product mounting ported into the Vite client through React Router, with Socratic Draft overview, editor, and entries routes dispatched from the host into the product-owned route renderer.
 - Security posture for the future client host: client route gates are UX only; API/server authorization is authoritative.
-- Next.js local API rewrite for `/api/*` to the Hono API host.
-- Next.js local auth rewrite for `/auth/*` to the Better Auth route on the Hono API host.
+- Vite local API proxy for `/api/*` to the Hono API host.
+- Vite local auth proxy for `/auth/*` to the Better Auth route on the Hono API host.
 - Basic `apps/api` Hono server.
 - `GET /health` API route.
 - Better Auth handler mounted at `/auth/*` on the API host.
@@ -95,8 +95,8 @@ The repo currently has a basic Next.js web shell, a documented decision to migra
 - Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
-- The client-first host migration has started, but the deprecated Next.js `apps/web` host still exists until a later removal task.
+- The deprecated Next.js `apps/web` host has been removed; a migration audit should verify there are no stale architecture, testing, accessibility, or security gaps.
 
 ## Next recommended task
 
-Task 020 — Remove the deprecated Next app.
+Task 021 — Migration audit.
