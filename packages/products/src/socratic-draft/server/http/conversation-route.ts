@@ -1,28 +1,28 @@
 import { Hono } from "hono";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
-import type { EntryStore } from "packages/products/src/socratic-draft/server/conversation";
+import type { ConversationStore } from "packages/products/src/socratic-draft/server/conversation";
 import type { ConversationRequest } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
 export type ConversationResponder = Pick<ConversationService, "respond">;
 
 export type CreateConversationRouteDependencies = {
-  entryStore?: EntryStore;
-  getEntryStore?: (request: Request) => Promise<EntryStore | null>;
+  conversationStore?: ConversationStore;
+  getConversationStore?: (request: Request) => Promise<ConversationStore | null>;
   conversationService?: ConversationResponder;
 };
 
 export function createConversationRoute({
-  entryStore,
-  getEntryStore,
+  conversationStore,
+  getConversationStore,
   conversationService = new ConversationService(),
 }: CreateConversationRouteDependencies) {
   return new Hono().post("/respond", async (context) => {
-    const requestEntryStore = getEntryStore
-      ? await getEntryStore(context.req.raw)
-      : entryStore;
+    const requestConversationStore = getConversationStore
+      ? await getConversationStore(context.req.raw)
+      : conversationStore;
 
-    if (!requestEntryStore) {
+    if (!requestConversationStore) {
       return context.json(
         failure("unauthorized", "Sign in to continue the conversation."),
         401,
@@ -35,23 +35,37 @@ export function createConversationRoute({
       return context.json(
         failure(
           "invalid_conversation_request",
-          "Conversation requests require a message and optional entryId.",
+          "Conversation requests require a message and optional conversationId.",
         ),
         400,
       );
     }
 
-    const entryId = request.entryId ?? requestEntryStore.createEntryId();
-    const previousMessages =
-      await requestEntryStore.getConversationMessages(entryId);
+    const isNewConversation = request.conversationId === null;
+    const conversationId =
+      request.conversationId ?? requestConversationStore.createConversationId();
+    const storedMessages =
+      await requestConversationStore.getConversationMessages(conversationId);
+
+    if (!isNewConversation && storedMessages === null) {
+      return context.json(
+        failure(
+          "conversation_not_found",
+          "The requested conversation was not found.",
+        ),
+        404,
+      );
+    }
+
+    const previousMessages = storedMessages ?? [];
     const response = await conversationService.respond({
-      entryId,
+      conversationId,
       message: request.message,
       previousMessages,
     });
 
-    await requestEntryStore.appendConversationTurn({
-      entryId: response.entryId,
+    await requestConversationStore.appendConversationTurn({
+      conversationId: response.conversationId,
       userMessage: {
         role: "user",
         content: request.message,
@@ -73,15 +87,15 @@ async function parseConversationRequest(
   }
 
   if (
-    body.entryId !== undefined &&
-    body.entryId !== null &&
-    typeof body.entryId !== "string"
+    body.conversationId !== undefined &&
+    body.conversationId !== null &&
+    typeof body.conversationId !== "string"
   ) {
     return null;
   }
 
   return {
-    entryId: body.entryId ?? null,
+    conversationId: body.conversationId ?? null,
     message: body.message,
   };
 }

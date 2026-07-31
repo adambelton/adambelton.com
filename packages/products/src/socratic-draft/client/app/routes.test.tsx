@@ -37,15 +37,49 @@ describe("renderSocraticDraftRoute", () => {
     });
   });
 
-  it("marks saved entries as owner-only", () => {
+  it("marks saved conversations as owner-only", () => {
     expect(
       renderSocraticDraftRoute({
         components: testProductAppComponents,
-        segments: ["entries"],
+        segments: ["conversations"],
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
     });
+  });
+
+  it("marks saved conversation detail routes as owner-only", () => {
+    expect(
+      renderSocraticDraftRoute({
+        components: testProductAppComponents,
+        segments: ["conversations", "conversation-1"],
+      }),
+    ).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+    });
+  });
+
+  it("keys saved conversation pages by conversation id", () => {
+    const firstRoute = renderSocraticDraftRoute({
+      components: testProductAppComponents,
+      segments: ["conversations", "conversation-1"],
+    });
+    const secondRoute = renderSocraticDraftRoute({
+      components: testProductAppComponents,
+      segments: ["conversations", "conversation-2"],
+    });
+
+    expect(firstRoute.status).toBe(PRODUCT_ROUTE_STATUSES.found);
+    expect(secondRoute.status).toBe(PRODUCT_ROUTE_STATUSES.found);
+
+    if (
+      firstRoute.status === PRODUCT_ROUTE_STATUSES.found &&
+      secondRoute.status === PRODUCT_ROUTE_STATUSES.found
+    ) {
+      expect(firstRoute.element).toMatchObject({ key: "conversation-1" });
+      expect(secondRoute.element).toMatchObject({ key: "conversation-2" });
+    }
   });
 });

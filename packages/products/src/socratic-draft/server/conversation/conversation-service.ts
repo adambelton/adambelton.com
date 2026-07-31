@@ -5,7 +5,7 @@ import type {
 } from "packages/products/src/socratic-draft/shared";
 import type { ConversationModel } from "packages/products/src/socratic-draft/server/conversation/conversation-model";
 
-const DEFAULT_ENTRY_ID = "draft-entry";
+const DEFAULT_CONVERSATION_ID = "draft-conversation";
 const DEFAULT_ASSISTANT_MESSAGE =
   "I'm here with you. Share the thought you want to examine, and we can start by finding the question inside it.";
 const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
@@ -17,7 +17,7 @@ const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
 ].join(" ");
 
 export type ConversationServiceRequest = {
-  entryId: string | null;
+  conversationId: string | null;
   message: string;
   previousMessages: ConversationMessage[];
 };
@@ -50,7 +50,7 @@ export class ConversationService {
     });
 
     return {
-      entryId: request.entryId ?? DEFAULT_ENTRY_ID,
+      conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
       message: {
         role: "assistant",
         content: modelResponse.content.trim() || DEFAULT_ASSISTANT_MESSAGE,
@@ -77,11 +77,11 @@ class StaticConversationModel implements ConversationModel {
 
 function createInitialConversationState(): ConversationState {
   return {
-    phase: "new_entry",
+    phase: "new_conversation",
     exploredEnough: false,
     nearReadyToReflect: false,
     readyToReflect: false,
-    shouldOfferComposition: false,
+    shouldOfferDraft: false,
     threads: [],
     claims: [],
   };

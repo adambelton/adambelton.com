@@ -6,7 +6,8 @@ import {
 } from "packages/shared/src";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
 import { ConversationEditorPage } from "packages/products/src/socratic-draft/client/app/editor/ConversationEditorPage";
-import { SocraticDraftEntriesPage } from "packages/products/src/socratic-draft/client/app/entries/SocraticDraftEntriesPage";
+import { SocraticDraftConversationsPage } from "packages/products/src/socratic-draft/client/app/conversations/SocraticDraftConversationsPage";
+import { SocraticDraftConversationPage } from "packages/products/src/socratic-draft/client/app/conversations/SocraticDraftConversationPage";
 import { SocraticDraftOverviewPage } from "packages/products/src/socratic-draft/client/app/overview/SocraticDraftOverviewPage";
 
 export type ProductAppRoute = {
@@ -39,10 +40,29 @@ export function renderSocraticDraftRoute({
     };
   }
 
-  if (segments.length === 1 && segments[0] === "entries") {
+  if (segments.length === 1 && segments[0] === "conversations") {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
-      element: <SocraticDraftEntriesPage components={components} />,
+      element: <SocraticDraftConversationsPage components={components} />,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+    };
+  }
+
+  const conversationId = segments[1];
+
+  if (
+    segments.length === 2 &&
+    segments[0] === "conversations" &&
+    conversationId
+  ) {
+    return {
+      status: PRODUCT_ROUTE_STATUSES.found,
+      element: (
+        <SocraticDraftConversationPage
+          key={conversationId}
+          conversationId={conversationId}
+        />
+      ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
     };
   }

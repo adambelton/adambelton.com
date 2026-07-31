@@ -9,18 +9,18 @@ export type AssistantMove =
   | "full_reflection"
   | "branch_check"
   | "suggest_research"
-  | "offer_composition"
-  | "compose_private"
-  | "revise_private_entry"
+  | "offer_draft"
+  | "create_draft"
+  | "revise_draft"
   | "offer_publishing";
 
 export type ConversationPhase =
-  | "new_entry"
+  | "new_conversation"
   | "private_exploration"
   | "deepening"
   | "synthesis"
-  | "ready_to_compose"
-  | "private_entry_composed"
+  | "ready_to_draft"
+  | "draft_created"
   | "publishing_intent"
   | "publishing_preparation"
   | "public_draft_ready"
@@ -33,7 +33,7 @@ export type ThreadStatus =
   | "central"
   | "supporting"
   | "parked"
-  | "separate_entry_candidate"
+  | "separate_draft_candidate"
   | "resolved"
   | "discarded";
 
@@ -88,7 +88,7 @@ export type ConversationState = {
   exploredEnough: boolean;
   nearReadyToReflect: boolean;
   readyToReflect: boolean;
-  shouldOfferComposition: boolean;
+  shouldOfferDraft: boolean;
   centralThought?: string;
   threads: ConversationThread[];
   claims: DetectedClaim[];
@@ -105,12 +105,12 @@ export type ConversationMessage = {
 };
 
 export type ConversationRequest = {
-  entryId: string | null;
+  conversationId: string | null;
   message: string;
 };
 
 export type ConversationResponse = {
-  entryId: string;
+  conversationId: string;
   message: {
     role: "assistant";
     content: string;
@@ -118,4 +118,15 @@ export type ConversationResponse = {
   move: AssistantMove;
   state: ConversationState;
   suggestedReplies: SuggestedReply[];
+};
+
+export type ConversationSummary = {
+  id: string;
+  label: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Conversation = ConversationSummary & {
+  messages: ConversationMessage[];
 };

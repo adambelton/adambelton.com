@@ -8,7 +8,7 @@
 
 **The Socratic Draft** is a private Socratic writing tool that helps the user work out what they really think before helping them write it.
 
-It starts with a rough thought, feeling, question, frustration, memory, argument, or idea. Through conversation, the assistant helps the user externalise what is in their head, examine it from different angles, distinguish feelings from claims, challenge assumptions where useful, track related threads, and eventually turn the process into a lightly polished private entry or optional public piece.
+It starts with a rough thought, feeling, question, frustration, memory, argument, or idea. Through conversation, the assistant helps the user externalise what is in their head, examine it from different angles, distinguish feelings from claims, challenge assumptions where useful, track related threads, and eventually turn the process into a lightly polished private draft or optional public piece.
 
 The purpose is not to generate writing from nothing.
 
@@ -181,7 +181,7 @@ A typical flow:
 5. Assistant tracks threads and claims internally.
 6. Assistant reflects back only when it has a clear picture.
 7. User confirms or corrects the reflection.
-8. Assistant offers to compose a private entry.
+8. Assistant offers to compose a private draft.
 9. User can draft, keep exploring, or add another thought.
 10. Only later, user may choose to shape the entry for publishing.
 
@@ -206,8 +206,8 @@ Examples:
 - branch check
 - suggest research
 - offer composition
-- compose private entry
-- revise private entry
+- compose private draft
+- revise private draft
 - offer publishing
 
 Moves are chosen by the assistant/backend conversation service, not the frontend.
@@ -223,7 +223,7 @@ Examples:
 - deepening
 - synthesis
 - ready to compose
-- private entry composed
+- private draft composed
 - publishing intent
 - publishing preparation
 - public draft ready
@@ -233,7 +233,7 @@ The phase does not rigidly determine the move. The assistant can challenge durin
 
 ### Explored enough
 
-“Explored enough” means the topic has enough substance to become a coherent private entry.
+“Explored enough” means the topic has enough substance to become a coherent private draft.
 
 It does not mean the topic is finished.
 
@@ -255,7 +255,7 @@ Ready to reflect means the assistant can accurately say:
 
 > I think the shape of this is...
 
-Reflection is a checkpoint, not the final entry.
+Reflection is a checkpoint, not the final draft.
 
 The user can confirm, correct, or redirect.
 
@@ -324,7 +324,7 @@ Examples:
 - “That means I am selfish” → challenge or nuance.
 - “FIFA breaks its own rules” → possible research candidate.
 
-## Example: private entry about being a carer
+## Example: private draft about being a carer
 
 User begins:
 
@@ -358,7 +358,7 @@ Only once the central thought is clear should the assistant reflect back:
 
 And only once the user confirms should it offer composition:
 
-> I think we have enough to turn this into a private entry now. Do you want me to draft it, or is there another part you want to explore first?
+> I think we have enough to turn this into a private draft now. Do you want me to draft it, or is there another part you want to explore first?
 
 ## Private/public model
 
@@ -376,7 +376,7 @@ Use `published_at` as the source of truth:
 
 `is_public` should be derived, not stored.
 
-The private entry body is canonical.
+The private draft body is canonical.
 
 A public version may differ, but only after publishing preparation.
 
@@ -487,7 +487,7 @@ Persist allowed:
 
 Do not persist for demo users:
 
-- entries
+- conversations and drafts
 - conversation turns
 - voice profiles
 - research notes containing private writing
@@ -497,7 +497,7 @@ Demo session state should live in browser memory or temporary local state.
 
 At the end of a demo, offer:
 
-- copy final entry
+- copy final draft
 - download Markdown
 - download JSON
 - clear session
@@ -506,7 +506,7 @@ At the end of a demo, offer:
 
 Owner access includes:
 
-- persistent private entries
+- persistent conversations and private drafts
 - saved conversation history
 - voice profile
 - intended form management
@@ -632,8 +632,8 @@ Hosted bring-your-own API key is not part of the current plan.
 - Thread and claim detection
 - Reflection only when assistant has a clear picture
 - Composition offer once topic is explored enough
-- Lightly polished private entry generation
-- Owner saves private entries
+- Lightly polished private draft generation
+- Owner saves conversations and private drafts
 - `published_at` controls public visibility
 - Owner publishes to website writing
 - Basic implicit owner voice profile
@@ -657,7 +657,7 @@ Hosted bring-your-own API key is not part of the current plan.
 ### Could later have
 
 - Research with citations/source notes
-- Recurring themes/memory across owner entries
+- Recurring themes/memory across owner conversations and drafts
 - “You’ve written about this before”
 - Weekly/monthly summaries
 - Search past thoughts
@@ -670,7 +670,7 @@ Hosted bring-your-own API key is not part of the current plan.
 
 - Hosted bring-your-own-key
 - Exposed registration
-- Persistent demo entries
+- Persistent demo drafts
 - Persistent demo voice profile
 - Demo publishing
 - Multiple writing modes
@@ -690,7 +690,7 @@ The product is working if:
 
 - the owner writes more often
 - the owner feels less blocked by the blank page
-- entries feel like the owner’s thoughts, not AI essays
+- drafts feel like the owner’s thoughts, not AI essays
 - the assistant uncovers meaning the user could not initially express
 - the assistant surfaces perspectives the user had not considered
 - the assistant sometimes helps refine or change the user’s view

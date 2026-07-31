@@ -4,7 +4,7 @@ import { createConversationRoute } from "packages/products/src/socratic-draft/se
 import type { ConversationResponder } from "packages/products/src/socratic-draft/server/http";
 import type {
   AppendConversationTurnInput,
-  EntryStore,
+  ConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
 import type {
   ConversationMessage,
@@ -14,13 +14,13 @@ import type { ApiResponse } from "packages/shared/src";
 
 describe("Socratic Draft conversation route", () => {
   it("returns an assistant response and persists the turn through the host store", async () => {
-    const entryStore = createFakeEntryStore();
-    const route = createConversationRoute({ entryStore });
+    const conversationStore = createFakeConversationStore();
+    const route = createConversationRoute({ conversationStore });
 
     const response = await route.request("/respond", {
       method: "POST",
       body: JSON.stringify({
-        entryId: null,
+        conversationId: null,
         message: "I can't tell whether this draft is honest.",
       }),
       headers: {
@@ -34,7 +34,7 @@ describe("Socratic Draft conversation route", () => {
     expect(body).toMatchObject({
       ok: true,
       data: {
-        entryId: "entry-1",
+        conversationId: "conversation-1",
         message: {
           role: "assistant",
         },
@@ -43,7 +43,7 @@ describe("Socratic Draft conversation route", () => {
     });
 
     const responseData = body.ok ? body.data : null;
-    const messages = await entryStore.getConversationMessages("entry-1");
+    const messages = await conversationStore.getConversationMessages("conversation-1");
 
     expect(messages).toEqual([
       {
@@ -55,9 +55,9 @@ describe("Socratic Draft conversation route", () => {
   });
 
   it("passes existing conversation history into the conversation service", async () => {
-    const entryStore = createFakeEntryStore();
-    await entryStore.appendConversationTurn({
-      entryId: "entry-1",
+    const conversationStore = createFakeConversationStore();
+    await conversationStore.appendConversationTurn({
+      conversationId: "conversation-1",
       userMessage: {
         role: "user",
         content: "Earlier thought.",
@@ -74,12 +74,12 @@ describe("Socratic Draft conversation route", () => {
         return new ConversationService().respond(request);
       },
     } satisfies ConversationResponder;
-    const route = createConversationRoute({ conversationService, entryStore });
+    const route = createConversationRoute({ conversationService, conversationStore });
 
     await route.request("/respond", {
       method: "POST",
       body: JSON.stringify({
-        entryId: "entry-1",
+        conversationId: "conversation-1",
         message: "New thought.",
       }),
       headers: {
@@ -101,13 +101,13 @@ describe("Socratic Draft conversation route", () => {
 
   it("rejects invalid requests", async () => {
     const route = createConversationRoute({
-      entryStore: createFakeEntryStore(),
+      conversationStore: createFakeConversationStore(),
     });
 
     const response = await route.request("/respond", {
       method: "POST",
       body: JSON.stringify({
-        entryId: null,
+        conversationId: null,
       }),
       headers: {
         "content-type": "application/json",
@@ -121,20 +121,44 @@ describe("Socratic Draft conversation route", () => {
       ok: false,
       error: {
         code: "invalid_conversation_request",
-        message: "Conversation requests require a message and optional entryId.",
+        message: "Conversation requests require a message and optional conversationId.",
       },
     });
   });
 
-  it("rejects requests without an available entry store", async () => {
+  it("does not continue an unknown saved conversation", async () => {
     const route = createConversationRoute({
-      getEntryStore: async () => null,
+      conversationStore: createFakeConversationStore(),
     });
 
     const response = await route.request("/respond", {
       method: "POST",
       body: JSON.stringify({
-        entryId: null,
+        conversationId: "missing-conversation",
+        message: "Continue this conversation.",
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: {
+        code: "conversation_not_found",
+        message: "The requested conversation was not found.",
+      },
+    });
+  });
+
+  it("rejects requests without an available conversation store", async () => {
+    const route = createConversationRoute({
+      getConversationStore: async () => null,
+    });
+
+    const response = await route.request("/respond", {
+      method: "POST",
+      body: JSON.stringify({
+        conversationId: null,
         message: "This should require a session.",
       }),
       headers: {
@@ -155,25 +179,26 @@ describe("Socratic Draft conversation route", () => {
   });
 });
 
-function createFakeEntryStore(): EntryStore {
+function createFakeConversationStore(): ConversationStore {
   const conversations = new Map<string, ConversationMessage[]>();
   let nextEntryNumber = 1;
 
   return {
-    createEntryId() {
-      const entryId = `entry-${nextEntryNumber}`;
+    createConversationId() {
+      const conversationId = `conversation-${nextEntryNumber}`;
       nextEntryNumber += 1;
-      conversations.set(entryId, []);
-      return entryId;
+      conversations.set(conversationId, []);
+      return conversationId;
     },
 
-    async getConversationMessages(entryId: string) {
-      return [...(conversations.get(entryId) ?? [])];
+    async getConversationMessages(conversationId: string) {
+      const messages = conversations.get(conversationId);
+      return messages ? [...messages] : null;
     },
 
     async appendConversationTurn(input: AppendConversationTurnInput) {
-      const existingMessages = conversations.get(input.entryId) ?? [];
-      conversations.set(input.entryId, [
+      const existingMessages = conversations.get(input.conversationId) ?? [];
+      conversations.set(input.conversationId, [
         ...existingMessages,
         input.userMessage,
         input.assistantMessage,

@@ -548,7 +548,7 @@ export type DetectedClaim = {
   relatedThreadIds: string[];
 };
 
-export type EntryConversationState = {
+export type ConversationState = {
   phase: ConversationPhase;
   exploredEnough: boolean;
   nearReadyToReflect: boolean;
@@ -565,13 +565,13 @@ export type SuggestedReply = {
 };
 
 export type SocraticDraftConversationResponse = {
-  entryId: string;
+  conversationId: string;
   message: {
     role: "assistant";
     content: string;
   };
   move: AssistantMove;
-  state: EntryConversationState;
+  state: ConversationState;
   suggestedReplies: SuggestedReply[];
 };
 ```
@@ -591,7 +591,7 @@ export const products: ProductDefinition[] = [
     summary:
       "A Socratic writing tool for working out what you think before writing it.",
     description:
-      "Start with a rough thought. The assistant asks questions, challenges assumptions, tracks threads, and helps turn the conversation into a private entry.",
+      "Start with a rough thought. The assistant asks questions, challenges assumptions, tracks threads, and helps turn the conversation into a draft.",
     status: "prototype",
     publicPath: "/products/socratic-draft",
     demoPath: "/products/socratic-draft/editor",
@@ -608,16 +608,17 @@ Future products can be added without inventing new patterns.
 
 Published writing should be a site-level concept, not a Socratic Draft-only concept.
 
-The Socratic Draft creates private entries.
+The Socratic Draft creates owner-scoped conversations that may produce private drafts.
 
-Published entries become website writing.
+Published drafts become website writing.
 
 The website should not care whether a published piece started in The Socratic Draft, was written manually, or came from another future product.
 
 Suggested boundary:
 
 ```txt
-Private product data → SocraticDraftEntry
+Conversation process → SocraticDraftConversation
+Private writing artifact → SocraticDraftDraft
 Public website writing → WritingPost
 ```
 
@@ -655,20 +656,33 @@ WritingPost {
 }
 ```
 
-### SocraticDraftEntry
+### SocraticDraftConversation
 
-Owner-only persistent private writing entry.
+Owner-only persistent conversation history and working state.
 
 ```ts
-SocraticDraftEntry {
+SocraticDraftConversation {
   id: string;
   userId: string;
+  nextMessagePosition: number;
+  state: ConversationState;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### SocraticDraftDraft
+
+Private writing produced and collaboratively shaped from a conversation.
+
+```ts
+SocraticDraftDraft {
+  id: string;
+  conversationId: string;
   title: string | null;
-  body: string | null;
-  publicBody: string | null;
+  body: string;
   intendedFormId: string | null;
   writingPostId: string | null;
-  state: EntryConversationState;
   publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -686,17 +700,17 @@ Owner-only persistent conversation history.
 ```ts
 ConversationTurn {
   id: string;
-  entryId: string;
+  conversationId: string;
   role: "user" | "assistant" | "system";
   content: string;
   assistantMove: AssistantMove | null;
   phaseAfterTurn: ConversationPhase | null;
-  stateSnapshot: EntryConversationState | null;
+  stateSnapshot: ConversationState | null;
   createdAt: Date;
 }
 ```
 
-Demo users should not create conversation turns server-side.
+Demo conversation turns may exist only in isolated, temporary session memory and must not enter durable storage.
 
 ### IntendedForm
 
@@ -835,10 +849,11 @@ GET  /products/:slug
 
 GET  /products/socratic-draft/session
 POST /products/socratic-draft/conversation/respond
-GET  /products/socratic-draft/entries
-GET  /products/socratic-draft/entries/:id
-PATCH /products/socratic-draft/entries/:id
-POST /products/socratic-draft/entries/:id/publish
+GET  /products/socratic-draft/conversations
+GET  /products/socratic-draft/conversations/:id
+GET  /products/socratic-draft/drafts/:id
+PATCH /products/socratic-draft/drafts/:id
+POST /products/socratic-draft/drafts/:id/publish
 
 GET  /admin/users
 GET  /admin/usage
@@ -852,7 +867,7 @@ POST /products/:productId/conversation/respond
 
 Use shared infrastructure behind explicit routes.
 
-## Core backend concept: EntryConversationService
+## Core backend concept: ConversationService
 
 The central product service should be analogous to the previous career reflection coach service.
 
@@ -869,16 +884,16 @@ That earlier service used:
 The equivalent for this product:
 
 ```ts
-class EntryConversationService {
+class ConversationService {
   constructor(params: {
     user: User;
     accessLevel: "owner" | "demo";
-    entry?: SocraticDraftEntry;
+    conversation?: SocraticDraftConversation;
     message: string;
     conversationHistory: ConversationMessage[];
-    currentState: EntryConversationState;
+    currentState: ConversationState;
     voiceProfile?: VoiceProfile;
-    demoState?: EntryConversationState;
+    demoState?: ConversationState;
     llmClient: LlmClient;
   }) {}
 
@@ -922,7 +937,7 @@ Example:
 POST /products/socratic-draft/conversation/respond
 
 {
-  "entryId": "entry_123",
+  "conversationId": "conversation_123",
   "message": "The hardest thing to admit is that sometimes I feel trapped..."
 }
 ```
@@ -937,7 +952,7 @@ It may decide to:
 - surface a perspective
 - reflect back
 - offer composition
-- compose the private entry
+- compose the private draft
 
 The user experiences this as a natural conversation.
 
@@ -1037,7 +1052,7 @@ The assistant can challenge during early exploration if the user says something 
 The assistant should return state including:
 
 ```ts
-type EntryConversationState = {
+type ConversationState = {
   phase: ConversationPhase;
   exploredEnough: boolean;
   nearReadyToReflect: boolean;
@@ -1051,7 +1066,7 @@ type EntryConversationState = {
 
 ### Explored enough
 
-`exploredEnough` means the topic has enough substance to become a coherent private entry.
+`exploredEnough` means the topic has enough substance to become a coherent private draft.
 
 It does not mean the user is finished.
 
@@ -1224,7 +1239,7 @@ Owner sends first message:
 POST /products/socratic-draft/conversation/respond
 
 {
-  "entryId": null,
+  "conversationId": null,
   "message": "I want to write about being a carer for my wife..."
 }
 ```
@@ -1233,15 +1248,15 @@ Backend:
 
 1. Authenticates user.
 2. Determines access level.
-3. Creates `SocraticDraftEntry` if `entryId` is null.
+3. Creates `SocraticDraftConversation` if `conversationId` is null.
 4. Saves user `ConversationTurn`.
-5. Loads current entry state.
+5. Loads current conversation state.
 6. Loads recent conversation turns.
 7. Loads voice profile if available.
-8. Calls `EntryConversationService`.
+8. Calls `ConversationService`.
 9. Saves assistant turn and state snapshot.
-10. Updates entry state.
-11. If move is `compose_private`, updates entry body.
+10. Updates conversation state.
+11. If composition is accepted, creates or updates the associated `SocraticDraftDraft`.
 12. Records product-aware usage event.
 13. Returns assistant response.
 
@@ -1273,7 +1288,7 @@ Backend:
 2. Checks usage limits.
 3. Does not create server-side entry.
 4. Does not save conversation turns.
-5. Calls `EntryConversationService` using provided temporary context.
+5. Calls `ConversationService` using provided temporary context.
 6. Records usage metadata only.
 7. Returns assistant response and updated state.
 
@@ -1316,7 +1331,7 @@ The same editor route can adapt based on access level.
 
 Publishing is owner-only.
 
-Private entries are not public until explicitly published.
+Private drafts are not public until explicitly published.
 
 Use:
 
@@ -1512,7 +1527,7 @@ Definition of done:
 
 ### Task 004 — Socratic Draft service stub
 
-Create `EntryConversationService` using `FakeLlmClient`.
+Create `ConversationService` using `FakeLlmClient`.
 
 Definition of done:
 
@@ -1532,7 +1547,7 @@ Definition of done:
 - owner new-entry flow creates an entry
 - user turn is saved
 - assistant turn is saved
-- entry state is updated
+- conversation state is updated
 - demo flow does not persist writing
 - usage event is recorded
 - tests cover owner and demo branching
@@ -1564,7 +1579,7 @@ Definition of done:
 9. Add owner/demo access rules.
 10. Add real LLM provider.
 11. Add usage limits.
-12. Add private entry composition.
+12. Add private draft composition.
 13. Add publishing to writing posts.
 14. Add admin visibility.
 15. Add intended forms.

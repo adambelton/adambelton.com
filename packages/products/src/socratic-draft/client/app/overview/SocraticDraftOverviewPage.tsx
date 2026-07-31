@@ -23,7 +23,7 @@ export function SocraticDraftOverviewPage({
         <p className="mt-8 max-w-2xl text-base leading-7 text-[var(--muted)]">
           Start with a rough thought. The assistant asks questions, challenges
           assumptions, tracks threads, and helps turn the conversation into a
-          private entry.
+          private draft that you can shape together.
         </p>
       </section>
 

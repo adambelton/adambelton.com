@@ -9,7 +9,7 @@ describe("products API route mount", () => {
       {
         method: "POST",
         body: JSON.stringify({
-          entryId: null,
+          conversationId: null,
           message: "This route should be product-mounted.",
         }),
         headers: {
@@ -26,6 +26,20 @@ describe("products API route mount", () => {
       error: {
         code: "unauthorized",
         message: "Sign in to continue the conversation.",
+      },
+    });
+  });
+
+  it("does not expose persistent conversations without owner access", async () => {
+    const response = await app.request("/products/socratic-draft/conversations");
+    const body = (await response.json()) as ApiResponse<unknown>;
+
+    expect(response.status).toBe(404);
+    expect(body).toEqual({
+      ok: false,
+      error: {
+        code: "not_found",
+        message: "The requested resource was not found.",
       },
     });
   });

@@ -2,11 +2,11 @@
 
 ## Planned
 
-- 023 — Owner persistent entries
-- 024 — Demo ephemeral mode
-- 025 — Usage limits
-- 026 — Publishing flow
-- 027 — Admin view
+- 024 — Pre-launch privacy hygiene
+- 025 — Demo ephemeral mode
+- 026 — Usage limits
+- 027 — Publishing flow
+- 028 — Admin view
 
 ## Completed
 
@@ -32,3 +32,4 @@
 - 020 — Remove Next app
 - 021 — Full-codebase audit fixes
 - 022 — Real LLM client
+- 023 — Owner persistent conversations

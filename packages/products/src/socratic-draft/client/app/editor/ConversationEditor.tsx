@@ -10,12 +10,23 @@ import { sendConversationMessage } from "packages/products/src/socratic-draft/cl
 
 type ConversationStatus = "idle" | "sending";
 
-export function ConversationEditor() {
+type ConversationEditorProps = {
+  initialConversationId?: string | null;
+  initialMessages?: ConversationMessage[];
+};
+
+export function ConversationEditor({
+  initialConversationId = null,
+  initialMessages = [],
+}: ConversationEditorProps) {
   const messageInputId = useId();
   const errorId = useId();
-  const [entryId, setEntryId] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(
+    initialConversationId,
+  );
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const [messages, setMessages] =
+    useState<ConversationMessage[]>(initialMessages);
   const [status, setStatus] = useState<ConversationStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -41,11 +52,11 @@ export function ConversationEditor() {
 
     try {
       const response = await sendConversationMessage({
-        entryId,
+        conversationId,
         message: trimmedMessage,
       });
 
-      setEntryId(response.entryId);
+      setConversationId(response.conversationId);
       setMessages((currentMessages) => [...currentMessages, response.message]);
     } catch (sendError) {
       setError(

@@ -8,7 +8,9 @@ It is context, not approval to build future product behaviour. Each product stil
 
 The Socratic Draft is the first product in the repo.
 
-It is a writing tool that helps a person work out what they think before turning those thoughts into public writing. The product should guide a conversational drafting process, identify claims and gaps, ask useful questions, and eventually help turn private working entries into publishable writing.
+It is a writing tool that helps a person work out what they think before turning those thoughts into public writing. The product should guide a conversation, identify claims and gaps, ask useful questions, and eventually create a private draft that the user and AI can shape together through direct editing and requested revisions.
+
+The conversation and draft are separate product concepts. Conversation messages preserve the exploration history. A draft is the mutable piece of writing produced from that conversation. Publishing later creates site-level public writing from the private draft.
 
 The product package should remain the source of truth for Socratic Draft concepts, conversation contracts, client screens, server behaviour, and product-specific persistence ports. The host provides infrastructure such as auth, AI services, database adapters, usage limits, and publishing integration.
 

@@ -42,7 +42,7 @@ Host apps may know which products are installed and where they are mounted. They
 
 For The Socratic Draft, the frontend should send ordinary user messages. The backend conversation service chooses the assistant move.
 
-The frontend should not send explicit actions like `challenge`, `reflect`, or `compose_private` as the core interaction model.
+The frontend should not send explicit actions like `challenge`, `reflect`, or `create_draft` as the core interaction model.
 
 ## 007 — Demo Writing Is Ephemeral
 
@@ -54,7 +54,9 @@ Owner writing may be persisted.
 
 Published writing belongs to the personal website's writing system.
 
-The Socratic Draft can create private entries and later publish into the site-wide writing system, but public writing should not be tightly coupled to one product.
+The Socratic Draft persists conversations as the history of idea exploration. A conversation may later produce a mutable private `Draft` that the user and AI shape together. Publishing creates a site-level `WritingPost` from that draft; neither the private conversation nor the working draft is itself public writing.
+
+Conversation messages remain the interaction history. Draft content is a separate future domain object so direct user edits and AI-requested revisions do not have to masquerade as conversation messages.
 
 ## 009 — Minimal Site Styling With Accessibility-First Primitives
 
@@ -226,7 +228,7 @@ Product route renderers should return neutral route results, such as `found` wit
 
 This keeps products extractable while still allowing the personal website to provide shared shell, auth, AI adapters, persistence adapters, and URL placement.
 
-The same boundary applies to product API routes. `apps/api` may mount a product entrypoint such as `/products/socratic-draft`, but the product package owns the product-relative API route tree below that mount. The API host supplies product-neutral request context and adapters, such as signed-in/owner access state and entry-store implementations.
+The same boundary applies to product API routes. `apps/api` may mount a product entrypoint such as `/products/socratic-draft`, but the product package owns the product-relative API route tree below that mount. The API host supplies product-neutral request context and adapters, such as signed-in/owner access state and conversation-store implementations.
 
 ## 017 — Owner Auth And Product Persistence
 
@@ -240,7 +242,7 @@ The initial authorization model is `isOwner` on the user record. It is derived s
 
 Signed-in non-owner users may access the Socratic Draft editor as ephemeral users while no real AI is connected. They should not get persistence access by default.
 
-Socratic Draft private/working entries belong to the Socratic Draft product app. Published writing belongs to the host website as a public-read writing system. Publishing is the bridge between those two systems and should be implemented separately.
+Socratic Draft conversations and future private working drafts belong to the Socratic Draft product app. Published writing belongs to the host website as a public-read writing system. Publishing is the bridge between a private draft and that public writing system and should be implemented separately.
 
 Products remain auth-infrastructure agnostic. Product packages may define route access requirements in product terms, but host apps enforce those requirements using the host auth/session system.
 
@@ -293,3 +295,17 @@ The first real model integration uses the official OpenAI SDK through the Respon
 Tests should use fake product model adapters rather than live OpenAI calls.
 
 The initial prompt should stay intentionally small: ask one useful question or offer one concise reflection, avoid rewriting the user's thought, and keep the response brief. More sophisticated Socratic Draft conversation policy should be added through later product-specific tasks.
+
+## 021 — Conversation, Draft, And Writing Lifecycle
+
+The Socratic Draft uses three distinct domain concepts:
+
+- A `Conversation` is the inquiry between the user and the assistant. It owns ordered conversation messages and may exist before any writing artifact has been created.
+- A `Draft` is private writing produced and collaboratively shaped from a conversation through user edits and AI-assisted edits.
+- A `WritingPost` is host-owned public writing created or updated when the owner explicitly publishes a draft.
+
+“Entry” is not used as a catch-all domain term because it obscures ownership and lifecycle boundaries.
+
+Owner conversations use durable database persistence. Non-owner conversations remain temporary and are isolated by authenticated user in process memory until the privacy-hygiene task introduces explicit acknowledgement and lifecycle controls.
+
+Persistent conversation messages use a per-conversation atomic sequence. The same owner-scoped database operation that creates or continues a conversation allocates the next pair of message positions. This prevents concurrent requests from deriving duplicate positions by counting existing messages and ensures the persistence adapter enforces ownership on writes as well as reads.

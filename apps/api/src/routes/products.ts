@@ -6,7 +6,7 @@ import {
   type LlmClient,
 } from "packages/ai/src";
 import { getCurrentAuthSession } from "packages/auth/src/session";
-import { createSocraticDraftEntryStoreResolver } from "packages/db/src";
+import { createSocraticDraftConversationStoreResolver } from "packages/db/src";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
 import type {
   ConversationModel,
@@ -14,9 +14,10 @@ import type {
 } from "packages/products/src/socratic-draft/server/conversation";
 import { createSocraticDraftApiRoute } from "packages/products/src/socratic-draft/server/http";
 
-const getSocraticDraftEntryStore = createSocraticDraftEntryStoreResolver({
-  databaseUrl: process.env.DATABASE_URL,
-});
+const getSocraticDraftConversationStore =
+  createSocraticDraftConversationStoreResolver({
+    databaseUrl: process.env.DATABASE_URL,
+  });
 
 class LlmConversationModel implements ConversationModel {
   constructor(private readonly llmClient: LlmClient) {}
@@ -56,12 +57,26 @@ productsRoute.route(
   "/socratic-draft",
   createSocraticDraftApiRoute({
     conversationService: socraticDraftConversationService,
-    getEntryStore: async (request) => {
+    getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
 
-      return getSocraticDraftEntryStore({
+      return getSocraticDraftConversationStore({
         isSignedIn: Boolean(session),
         isOwner: Boolean(session?.user.isOwner),
+        userId: session?.user.id,
+      });
+    },
+    getPersistentConversationStore: async (request) => {
+      const session = await getCurrentAuthSession(request.headers);
+
+      if (!session?.user.isOwner) {
+        return null;
+      }
+
+      return getSocraticDraftConversationStore({
+        isSignedIn: true,
+        isOwner: true,
+        userId: session.user.id,
       });
     },
   }),

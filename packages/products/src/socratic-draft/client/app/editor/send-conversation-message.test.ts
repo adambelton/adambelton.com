@@ -5,7 +5,7 @@ describe("sendConversationMessage", () => {
   it("returns the conversation response from the API success body", async () => {
     const response = await sendConversationMessage(
       {
-        entryId: null,
+        conversationId: null,
         message: "This idea feels half formed.",
       },
       async () =>
@@ -13,18 +13,18 @@ describe("sendConversationMessage", () => {
           JSON.stringify({
             ok: true,
             data: {
-              entryId: "entry-1",
+              conversationId: "conversation-1",
               message: {
                 role: "assistant",
                 content: "Tell me where it feels half formed.",
               },
               move: "probe",
               state: {
-                phase: "new_entry",
+                phase: "new_conversation",
                 exploredEnough: false,
                 nearReadyToReflect: false,
                 readyToReflect: false,
-                shouldOfferComposition: false,
+                shouldOfferDraft: false,
                 threads: [],
                 claims: [],
               },
@@ -38,7 +38,7 @@ describe("sendConversationMessage", () => {
     );
 
     expect(response).toMatchObject({
-      entryId: "entry-1",
+      conversationId: "conversation-1",
       message: {
         role: "assistant",
         content: "Tell me where it feels half formed.",
@@ -50,7 +50,7 @@ describe("sendConversationMessage", () => {
     await expect(
       sendConversationMessage(
         {
-          entryId: null,
+          conversationId: null,
           message: "",
         },
         async () =>

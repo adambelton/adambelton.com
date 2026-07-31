@@ -7,27 +7,27 @@ import type {
 } from "packages/products/src/socratic-draft/server/conversation";
 
 describe("ConversationService", () => {
-  it("returns a minimal assistant response for a new entry", async () => {
+  it("returns a minimal assistant response for a new conversation", async () => {
     const service = new ConversationService();
 
     const response = await service.respond({
-      entryId: null,
+      conversationId: null,
       message: "I keep changing my mind about what this essay is really about.",
       previousMessages: [],
     });
 
     expect(response).toMatchObject({
-      entryId: "draft-entry",
+      conversationId: "draft-conversation",
       message: {
         role: "assistant",
       },
       move: "probe",
       state: {
-        phase: "new_entry",
+        phase: "new_conversation",
         exploredEnough: false,
         nearReadyToReflect: false,
         readyToReflect: false,
-        shouldOfferComposition: false,
+        shouldOfferDraft: false,
         threads: [],
         claims: [],
       },
@@ -41,16 +41,16 @@ describe("ConversationService", () => {
     ]);
   });
 
-  it("preserves an existing entry id", async () => {
+  it("preserves an existing conversation id", async () => {
     const service = new ConversationService();
 
     const response = await service.respond({
-      entryId: "entry-123",
+      conversationId: "conversation-123",
       message: "This section feels dishonest.",
       previousMessages: [],
     });
 
-    expect(response.entryId).toBe("entry-123");
+    expect(response.conversationId).toBe("conversation-123");
   });
 
   it("passes current and previous messages to the injected conversation model", async () => {
@@ -66,7 +66,7 @@ describe("ConversationService", () => {
     const service = new ConversationService({ conversationModel });
 
     const response = await service.respond({
-      entryId: "entry-123",
+      conversationId: "conversation-123",
       message: "The ending feels too neat.",
       previousMessages: [
         {
@@ -115,7 +115,7 @@ describe("ConversationService", () => {
     });
 
     const response = await service.respond({
-      entryId: "entry-123",
+      conversationId: "conversation-123",
       message: "This thought needs a reply.",
       previousMessages: [],
     });

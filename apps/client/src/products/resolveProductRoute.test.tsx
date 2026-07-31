@@ -43,9 +43,22 @@ describe("resolveProductRoute", () => {
     expect(
       resolveProductRoute({
         components: testProductAppComponents,
-        path: "entries",
+        path: "conversations",
         productSlug: "socratic-draft",
       })
+    ).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+    });
+  });
+
+  it("preserves owner-only saved conversation detail requirements", () => {
+    expect(
+      resolveProductRoute({
+        components: testProductAppComponents,
+        path: "conversations/conversation-1",
+        productSlug: "socratic-draft",
+      }),
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
