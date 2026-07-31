@@ -281,3 +281,15 @@ Product client surfaces should not import React Router, Next.js, or host-styled 
 In the Vite client host, that adapter preserves internal client-side navigation with React Router's `Link` while keeping external links as ordinary anchors.
 
 Host UI may wrap the functional adapter with host styling, such as `TextLink`. Product UI may wrap the same functional adapter with product-owned styling. The host should not pass its design-system wrapper into a product app unless that is an intentional product integration decision.
+
+## 020 — Host-Provided AI Through Product Conversation Ports
+
+Product packages should not import OpenAI SDKs, provider configuration, API keys, or concrete AI infrastructure.
+
+Socratic Draft owns the product-level conversation model contract it needs. The host API app wires that contract to `packages/ai`, which owns provider-specific adapters such as the OpenAI client.
+
+The first real model integration uses the official OpenAI SDK through the Responses API. `OPENAI_API_KEY` supplies credentials and `OPENAI_MODEL` selects the model, defaulting to `gpt-5-mini`.
+
+Tests should use fake product model adapters rather than live OpenAI calls.
+
+The initial prompt should stay intentionally small: ask one useful question or offer one concise reflection, avoid rewriting the user's thought, and keep the response brief. More sophisticated Socratic Draft conversation policy should be added through later product-specific tasks.

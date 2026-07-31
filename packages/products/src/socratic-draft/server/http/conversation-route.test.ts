@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
 import { createConversationRoute } from "packages/products/src/socratic-draft/server/http";
+import type { ConversationResponder } from "packages/products/src/socratic-draft/server/http";
 import type {
   AppendConversationTurnInput,
   EntryStore,
@@ -68,11 +69,11 @@ describe("Socratic Draft conversation route", () => {
     });
     let previousMessages: ConversationMessage[] | null = null;
     const conversationService = {
-      respond(request) {
+      async respond(request) {
         previousMessages = request.previousMessages;
         return new ConversationService().respond(request);
       },
-    } satisfies ConversationService;
+    } satisfies ConversationResponder;
     const route = createConversationRoute({ conversationService, entryStore });
 
     await route.request("/respond", {

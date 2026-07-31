@@ -4,10 +4,12 @@ import type { EntryStore } from "packages/products/src/socratic-draft/server/con
 import type { ConversationRequest } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
+export type ConversationResponder = Pick<ConversationService, "respond">;
+
 export type CreateConversationRouteDependencies = {
   entryStore?: EntryStore;
   getEntryStore?: (request: Request) => Promise<EntryStore | null>;
-  conversationService?: ConversationService;
+  conversationService?: ConversationResponder;
 };
 
 export function createConversationRoute({
@@ -42,7 +44,7 @@ export function createConversationRoute({
     const entryId = request.entryId ?? requestEntryStore.createEntryId();
     const previousMessages =
       await requestEntryStore.getConversationMessages(entryId);
-    const response = conversationService.respond({
+    const response = await conversationService.respond({
       entryId,
       message: request.message,
       previousMessages,

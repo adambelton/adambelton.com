@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 022 — Real LLM client
 - 023 — Owner persistent entries
 - 024 — Demo ephemeral mode
 - 025 — Usage limits
@@ -32,3 +31,4 @@
 - 019 — Port product mounting to React Router
 - 020 — Remove Next app
 - 021 — Full-codebase audit fixes
+- 022 — Real LLM client

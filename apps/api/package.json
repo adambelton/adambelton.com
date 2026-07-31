@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@adambelton/ai": "workspace:*",
     "@adambelton/auth": "workspace:*",
     "@adambelton/db": "workspace:*",
     "@adambelton/products": "workspace:*",

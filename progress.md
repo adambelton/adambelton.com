@@ -2,9 +2,9 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, and owner auth foundation exist, but LLM-backed product flow has not been implemented yet.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, Prisma-backed persistence foundation, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
-The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, and product mounting, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, and context files for future Codex tasks. A post-migration codebase audit has been completed and accepted fixes have been applied.
+The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, and product mounting, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, and context files for future Codex tasks. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
 ## Implemented
 
@@ -43,8 +43,10 @@ The repo currently has a Vite and React Router client host with the shared publi
 - `packages/shared` API response, user/access, writing, usage, and product registry types.
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
-- Minimal Socratic Draft server conversation service with contract-focused tests.
-- Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service, ready for the next real LLM integration task.
+- Minimal Socratic Draft server conversation service with contract-focused tests and a product-owned conversation model port.
+- Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service.
+- OpenAI-backed LLM adapter in `packages/ai`, using `OPENAI_API_KEY` and `OPENAI_MODEL`, with `gpt-5-mini` as the default.
+- API host wiring that supplies the OpenAI-backed adapter to the Socratic Draft product conversation port while keeping provider details out of the product package.
 - Socratic Draft product-owned `EntryStore` persistence port.
 - Host/API-owned in-memory `EntryStore` adapter for the conversation endpoint.
 - Prisma schema and generated initial SQL migration for Socratic Draft entries and conversation messages.
@@ -71,15 +73,14 @@ The repo currently has a Vite and React Router client host with the shared publi
 ## Partially implemented
 
 - Product registry exists as a shared constant and is used by the static products page.
-- `packages/ai` has a package boundary and initial stubs only.
-- The Socratic Draft conversation service returns a deterministic stub response only; it is not yet backed by readiness logic or an LLM.
+- `packages/ai` has an OpenAI adapter and a fake client, but no streaming, provider routing, or usage tracking yet.
+- The Socratic Draft conversation service is LLM-backed when `OPENAI_API_KEY` is configured, but its conversation policy is intentionally minimal.
 - The Socratic Draft endpoint persists through Prisma only for owner sessions when `DATABASE_URL` is configured; signed-in non-owner sessions use ephemeral in-memory storage.
 
 ## Not implemented
 
 - Public writing system.
 - Individual writing pages.
-- Real AI provider integration.
 - Demo ephemeral writing mode.
 - Usage limits and cost protection.
 - Publishing flow from private entries to public writing.
@@ -88,17 +89,17 @@ The repo currently has a Vite and React Router client host with the shared publi
 ## Known gaps / risks
 
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
-- The fake LLM client exists only to establish the package boundary; it is not wired to product behaviour.
-- The Socratic Draft conversation service is deliberately minimal and currently establishes contract shape rather than final assistant behaviour.
-- Product-owned ports for AI, auth/access, and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
+- The fake LLM client remains as the no-key fallback and test adapter.
+- The Socratic Draft conversation service is deliberately minimal and currently establishes the model boundary rather than final assistant behaviour.
+- Product-owned ports for auth/access and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback.
 - The current Socratic Draft editor UI is product-owned but remains a minimal wiring proof, not the final Socratic Draft product interface.
 - Demo writing persistence rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
-- Database, AI, usage, and admin boundaries exist but do not yet contain real implementation.
-- The product package still imports the AI package boundary indirectly through current scaffolding; this is intentionally left for the real LLM integration task.
+- Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
+- Usage limits are not implemented yet, so local/demo AI calls should remain cautious until cost protection is added.
 
 ## Next recommended task
 
-Task 022 — Real LLM client.
+Task 023 — Owner persistent entries.

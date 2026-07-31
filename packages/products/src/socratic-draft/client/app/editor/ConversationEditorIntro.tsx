@@ -11,8 +11,8 @@ export function ConversationEditorIntro() {
         The Socratic Draft editor
       </h1>
       <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--muted)]">
-        Start with one thought. The current assistant response is still a
-        deterministic stub, but this page is wired to the conversation endpoint.
+        Start with one thought. The assistant will ask a question to help you
+        find the shape inside it.
       </p>
     </div>
   );
