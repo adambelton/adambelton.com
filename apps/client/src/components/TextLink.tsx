@@ -1,0 +1,30 @@
+import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { Link } from "react-router";
+
+type TextLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  children: ReactNode;
+  href: string;
+};
+
+export function TextLink({
+  children,
+  className = "",
+  href,
+  ...props
+}: TextLinkProps) {
+  const linkClassName = `underline decoration-[var(--line)] decoration-1 underline-offset-4 transition-colors hover:text-[var(--foreground)] hover:no-underline ${className}`;
+
+  if (href.startsWith("/")) {
+    return (
+      <Link className={linkClassName} to={href} {...props}>
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <a className={linkClassName} href={href} {...props}>
+      {children}
+    </a>
+  );
+}
