@@ -309,3 +309,15 @@ The Socratic Draft uses three distinct domain concepts:
 Owner conversations use durable database persistence. Non-owner conversations remain temporary and are isolated by authenticated user in process memory until the privacy-hygiene task introduces explicit acknowledgement and lifecycle controls.
 
 Persistent conversation messages use a per-conversation atomic sequence. The same owner-scoped database operation that creates or continues a conversation allocates the next pair of message positions. This prevents concurrent requests from deriving duplicate positions by counting existing messages and ensures the persistence adapter enforces ownership on writes as well as reads.
+
+## 022 — Temporary Conversation Privacy Lifecycle
+
+Each authenticated non-owner may have one current Socratic Draft conversation in application memory. It is isolated by authenticated user, uses an unguessable conversation identifier, and expires at a fixed deadline 24 hours after creation. Activity does not extend the deadline.
+
+Temporary conversations are recoverable after reload or navigation only while the relevant application-process memory remains available. Process restarts, deployments, and multi-instance routing may remove them sooner and must fall back safely to an empty editor. This is intentional ephemeral behaviour, not durable continuity.
+
+Non-owner users can explicitly clear their current conversation. Expiry is enforced during access and by scheduled content cleanup so a user does not need to return for their message content to be released.
+
+Before editor controls are available in a browser session, the product requires an affirmative acknowledgement explaining application-memory retention, owner persistence, OpenAI processing, and the limits of confidentiality. OpenAI Responses API requests set `store: false`; this disables optional application-state storage but is not represented as enterprise Zero Data Retention or as eliminating provider abuse-monitoring retention.
+
+Product-specific privacy explanations are product-owned routes and documentation. The host `/privacy` page covers shared platform processing, tells visitors that product privacy pages may exist, encourages review before using a demo, and discovers available notices through optional `privacyPath` product-registry metadata. It must not duplicate product lifecycle details. Product privacy routes may be public even when the product's interactive routes require authentication.

@@ -11,13 +11,17 @@ import { sendConversationMessage } from "packages/products/src/socratic-draft/cl
 type ConversationStatus = "idle" | "sending";
 
 type ConversationEditorProps = {
+  canClear?: boolean;
   initialConversationId?: string | null;
   initialMessages?: ConversationMessage[];
+  onClear?: () => Promise<void>;
 };
 
 export function ConversationEditor({
+  canClear = false,
   initialConversationId = null,
   initialMessages = [],
+  onClear,
 }: ConversationEditorProps) {
   const messageInputId = useId();
   const errorId = useId();
@@ -69,6 +73,35 @@ export function ConversationEditor({
     }
   }
 
+  async function handleClear() {
+    if (
+      !onClear ||
+      !globalThis.confirm(
+        "Clear this temporary conversation? This cannot be undone.",
+      )
+    ) {
+      return;
+    }
+
+    setStatus("sending");
+    setError(null);
+
+    try {
+      await onClear();
+      setConversationId(null);
+      setMessages([]);
+      setMessage("");
+    } catch (clearError) {
+      setError(
+        clearError instanceof Error
+          ? clearError.message
+          : "The temporary conversation could not be cleared.",
+      );
+    } finally {
+      setStatus("idle");
+    }
+  }
+
   return (
     <section aria-labelledby="editor-title">
       <ConversationEditorIntro />
@@ -85,6 +118,16 @@ export function ConversationEditor({
           onSubmit={handleSubmit}
           status={status}
         />
+        {canClear && messages.length > 0 ? (
+          <button
+            className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4"
+            disabled={status === "sending"}
+            onClick={handleClear}
+            type="button"
+          >
+            Clear this conversation
+          </button>
+        ) : null}
       </div>
     </section>
   );

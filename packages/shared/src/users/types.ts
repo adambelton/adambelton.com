@@ -1,4 +1,9 @@
-export type AccessLevel = "owner" | "demo";
+export const ACCESS_LEVELS = {
+  owner: "owner",
+  demo: "demo",
+} as const;
+
+export type AccessLevel = (typeof ACCESS_LEVELS)[keyof typeof ACCESS_LEVELS];
 
 export type User = {
   id: string;

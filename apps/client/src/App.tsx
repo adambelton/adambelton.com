@@ -15,6 +15,7 @@ import {
   NotFoundPage,
   ProductRoutePage,
   ProductsPage,
+  PrivacyPage,
 } from "apps/client/src/pages";
 import { productRoutePath } from "apps/client/src/products";
 
@@ -31,6 +32,7 @@ export function App() {
           <Routes>
             <Route element={<HomePage />} path="/" />
             <Route element={<AboutPage />} path="/about" />
+            <Route element={<PrivacyPage />} path="/privacy" />
             <Route
               element={
                 <ProtectedRoute>
@@ -40,11 +42,7 @@ export function App() {
               path="/products"
             />
             <Route
-              element={
-                <ProtectedRoute>
-                  <ProductRoutePage />
-                </ProtectedRoute>
-              }
+              element={<ProductRoutePage />}
               path={productRoutePath}
             />
             <Route element={<LoginPage />} path="/login" />

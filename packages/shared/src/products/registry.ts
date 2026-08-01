@@ -16,6 +16,7 @@ export const products = [
     status: PRODUCT_STATUSES.prototype,
     publicPath: "/products/socratic-draft",
     demoPath: "/products/socratic-draft/editor",
+    privacyPath: "/products/socratic-draft/privacy",
     requiresAuth: true,
   }
 ] satisfies ProductDefinition[];

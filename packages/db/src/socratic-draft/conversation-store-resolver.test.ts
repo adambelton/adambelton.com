@@ -37,6 +37,28 @@ describe("Socratic Draft conversation store resolver", () => {
     expect(firstStore).not.toBe(otherUserStore);
   });
 
+  it("does not let one ephemeral user read another user's conversation", async () => {
+    const resolveConversationStore = createSocraticDraftConversationStoreResolver({
+      databaseUrl: undefined,
+    });
+    const firstStore = resolveConversationStore({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "visitor-1",
+    });
+    const secondStore = resolveConversationStore({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "visitor-2",
+    });
+    const conversationId = firstStore?.createConversationId();
+
+    expect(conversationId).toBeTruthy();
+    await expect(
+      secondStore?.getConversationMessages(conversationId ?? ""),
+    ).resolves.toBeNull();
+  });
+
   it("provides a separate owner store", () => {
     const resolveConversationStore = createSocraticDraftConversationStoreResolver({
       databaseUrl: undefined,

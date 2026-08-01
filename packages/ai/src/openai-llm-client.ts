@@ -29,6 +29,7 @@ export class OpenAiLlmClient implements LlmClient {
       })),
       max_output_tokens: request.maxTokens,
       model: this.model,
+      store: false,
       temperature: request.temperature,
     });
 

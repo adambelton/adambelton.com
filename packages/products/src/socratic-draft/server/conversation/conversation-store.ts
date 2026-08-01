@@ -22,3 +22,8 @@ export type PersistentConversationStore = ConversationStore & {
   listConversations(): Promise<ConversationSummary[]>;
   getConversation(conversationId: string): Promise<Conversation | null>;
 };
+
+export type TemporaryConversationStore = ConversationStore & {
+  getCurrentConversation(): Promise<Conversation | null>;
+  clearCurrentConversation(): Promise<void>;
+};

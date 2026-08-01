@@ -1,7 +1,13 @@
 import { createDatabaseClient } from "packages/db/src/client";
-import { createInMemoryConversationStore } from "packages/db/src/socratic-draft/in-memory-conversation-store";
+import {
+  createInMemoryConversationStore,
+  createTemporaryInMemoryConversationStore,
+} from "packages/db/src/socratic-draft/in-memory-conversation-store";
 import { createPrismaConversationStore } from "packages/db/src/socratic-draft/conversation-store";
-import type { PersistentConversationStore } from "packages/products/src/socratic-draft/server/conversation";
+import type {
+  PersistentConversationStore,
+  TemporaryConversationStore,
+} from "packages/products/src/socratic-draft/server/conversation";
 
 export type SocraticDraftConversationStoreAccess = {
   isSignedIn: boolean;
@@ -13,21 +19,36 @@ export type CreateSocraticDraftConversationStoreResolverOptions = {
   databaseUrl: string | undefined;
 };
 
+export type SocraticDraftConversationStoreResolver = {
+  (
+    access: SocraticDraftConversationStoreAccess & { isOwner: true },
+  ): PersistentConversationStore | null;
+  (
+    access: SocraticDraftConversationStoreAccess & { isOwner: false },
+  ): TemporaryConversationStore | null;
+  (
+    access: SocraticDraftConversationStoreAccess,
+  ): PersistentConversationStore | TemporaryConversationStore | null;
+};
+
 export function createSocraticDraftConversationStoreResolver({
   databaseUrl,
 }: CreateSocraticDraftConversationStoreResolverOptions) {
   const ephemeralConversationStores = new Map<
     string,
-    PersistentConversationStore
+    TemporaryConversationStore
   >();
   let ownerConversationStore: PersistentConversationStore | null = null;
   let ownerConversationStoreUserId: string | null = null;
 
-  return function getSocraticDraftConversationStoreForAccess({
+  const resolveConversationStore = function ({
     isSignedIn,
     isOwner,
     userId,
-  }: SocraticDraftConversationStoreAccess): PersistentConversationStore | null {
+  }: SocraticDraftConversationStoreAccess):
+    | PersistentConversationStore
+    | TemporaryConversationStore
+    | null {
     if (!isSignedIn) {
       return null;
     }
@@ -43,7 +64,7 @@ export function createSocraticDraftConversationStoreResolver({
         return existingStore;
       }
 
-      const conversationStore = createInMemoryConversationStore();
+      const conversationStore = createTemporaryInMemoryConversationStore();
       ephemeralConversationStores.set(userId, conversationStore);
       return conversationStore;
     }
@@ -59,4 +80,6 @@ export function createSocraticDraftConversationStoreResolver({
 
     return ownerConversationStore;
   };
+
+  return resolveConversationStore as SocraticDraftConversationStoreResolver;
 }

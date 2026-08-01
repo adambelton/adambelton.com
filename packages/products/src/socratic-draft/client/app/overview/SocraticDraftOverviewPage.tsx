@@ -45,6 +45,14 @@ export function SocraticDraftOverviewPage({
             Open the editor demo
           </SocraticDraftTextLink>
         </p>
+        <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+          <SocraticDraftTextLink
+            Link={components.Link}
+            href="/products/socratic-draft/privacy"
+          >
+            Privacy information
+          </SocraticDraftTextLink>
+        </p>
       </section>
     </>
   );

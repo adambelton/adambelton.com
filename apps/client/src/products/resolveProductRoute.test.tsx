@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACCESS_LEVELS,
   PRODUCT_ROUTE_ACCESSES,
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
@@ -16,6 +17,7 @@ describe("resolveProductRoute", () => {
   it("mounts the Socratic Draft product root", () => {
     expect(
       resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "",
         productSlug: "socratic-draft",
@@ -29,6 +31,7 @@ describe("resolveProductRoute", () => {
   it("passes nested paths to the product route renderer", () => {
     expect(
       resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "editor",
         productSlug: "socratic-draft",
@@ -39,9 +42,24 @@ describe("resolveProductRoute", () => {
     });
   });
 
+  it("preserves public product privacy access", () => {
+    expect(
+      resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.demo,
+        components: testProductAppComponents,
+        path: "privacy",
+        productSlug: "socratic-draft",
+      }),
+    ).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
+    });
+  });
+
   it("preserves owner-only product route requirements", () => {
     expect(
       resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations",
         productSlug: "socratic-draft",
@@ -55,6 +73,7 @@ describe("resolveProductRoute", () => {
   it("preserves owner-only saved conversation detail requirements", () => {
     expect(
       resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations/conversation-1",
         productSlug: "socratic-draft",
@@ -68,6 +87,7 @@ describe("resolveProductRoute", () => {
   it("does not resolve unknown products", () => {
     expect(
       resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "",
         productSlug: "unknown-product",

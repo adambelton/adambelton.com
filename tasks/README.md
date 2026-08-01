@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 024 — Pre-launch privacy hygiene
 - 025 — Demo ephemeral mode
 - 026 — Usage limits
 - 027 — Publishing flow
@@ -10,6 +9,7 @@
 
 ## Completed
 
+- 024 — Pre-launch privacy hygiene
 - 001 — Scaffold repo architecture and context files
 - 002 — Shared types and product registry
 - 003 — Minimal styling foundation

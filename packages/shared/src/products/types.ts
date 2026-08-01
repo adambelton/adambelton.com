@@ -22,6 +22,7 @@ export type ProductRouteStatus =
   (typeof PRODUCT_ROUTE_STATUSES)[keyof typeof PRODUCT_ROUTE_STATUSES];
 
 export const PRODUCT_ROUTE_ACCESSES = {
+  public: "public",
   authenticated: "authenticated",
   owner: "owner",
 } as const;
@@ -52,5 +53,6 @@ export interface ProductDefinition {
   status: ProductStatus;
   publicPath: string;
   demoPath?: string;
+  privacyPath?: string;
   requiresAuth: boolean;
 }
