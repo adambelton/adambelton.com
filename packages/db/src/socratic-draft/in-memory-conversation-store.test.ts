@@ -6,6 +6,16 @@ import {
 } from "packages/db/src/socratic-draft/in-memory-conversation-store";
 
 describe("in-memory Socratic Draft conversation store", () => {
+  it("creates an addressable empty persistent conversation", async () => {
+    const store = createInMemoryConversationStore();
+    const conversation = await store.createConversation();
+
+    expect(conversation.messages).toEqual([]);
+    await expect(store.getConversation(conversation.id)).resolves.toEqual(
+      conversation,
+    );
+  });
+
   it("uses the product conversation-label policy", async () => {
     const store = createInMemoryConversationStore();
     const conversationId = store.createConversationId();
@@ -38,16 +48,30 @@ describe("temporary in-memory Socratic Draft conversation store", () => {
     });
     const conversationId = store.createConversationId();
 
+    await expect(store.getCurrentConversation()).resolves.toMatchObject({
+      conversation: { id: conversationId },
+      expiresAt: "2026-08-02T12:00:00.000Z",
+    });
+
     currentTime += TEMPORARY_CONVERSATION_LIFETIME_MS - 1;
-    await store.appendConversationTurn({
+    await expect(store.appendConversationTurn({
       conversationId,
       userMessage: { role: "user", content: "Still here" },
       assistantMessage: { role: "assistant", content: "For one more millisecond" },
+    })).resolves.toEqual({ status: "retained" });
+    await expect(store.getCurrentConversation()).resolves.toMatchObject({
+      expiresAt: "2026-08-02T12:00:00.000Z",
     });
-    await expect(store.getCurrentConversation()).resolves.not.toBeNull();
 
     currentTime += 1;
     await expect(store.getCurrentConversation()).resolves.toBeNull();
+    await expect(
+      store.appendConversationTurn({
+        conversationId,
+        userMessage: { role: "user", content: "Too late" },
+        assistantMessage: { role: "assistant", content: "Unavailable" },
+      }),
+    ).resolves.toEqual({ status: "conversation_unavailable" });
   });
 
   it("releases content when its scheduled expiry runs", async () => {

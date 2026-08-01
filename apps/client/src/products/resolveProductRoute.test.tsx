@@ -8,6 +8,7 @@ import { resolveProductRoute } from "apps/client/src/products/resolveProductRout
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
 
 const testProductAppComponents: ProductAppComponents = {
+  navigate: () => undefined,
   Link({ children, href }) {
     return <a href={href}>{children}</a>;
   },
@@ -76,6 +77,20 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations/conversation-1",
+        productSlug: "socratic-draft",
+      }),
+    ).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+    });
+  });
+
+  it("preserves owner-only persistent editor requirements", () => {
+    expect(
+      resolveProductRoute({
+        accessLevel: ACCESS_LEVELS.owner,
+        components: testProductAppComponents,
+        path: "conversations/conversation-1/editor",
         productSlug: "socratic-draft",
       }),
     ).toMatchObject({

@@ -4,19 +4,21 @@ import {
   PRODUCT_ROUTE_ACCESSES,
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
-import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client/app/routes";
+import { renderProductRoute } from "packages/products/src/socratic-draft/client/app/routes";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
+import { DemoEditorPage } from "packages/products/src/socratic-draft/client/app/pages/DemoEditorPage";
 
 const testProductAppComponents: ProductAppComponents = {
+  navigate: () => undefined,
   Link({ children, href }) {
     return <a href={href}>{children}</a>;
   },
 };
 
-describe("renderSocraticDraftRoute", () => {
+describe("renderProductRoute", () => {
   it("marks the product root as requiring an authenticated user", () => {
     expect(
-      renderSocraticDraftRoute({
+      renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         segments: [],
@@ -29,7 +31,7 @@ describe("renderSocraticDraftRoute", () => {
 
   it("allows authenticated ephemeral users into the editor", () => {
     expect(
-      renderSocraticDraftRoute({
+      renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         segments: ["editor"],
@@ -40,9 +42,23 @@ describe("renderSocraticDraftRoute", () => {
     });
   });
 
+  it("renders the owner at the editor route through demo mode", () => {
+    const route = renderProductRoute({
+      accessLevel: ACCESS_LEVELS.owner,
+      components: testProductAppComponents,
+      segments: ["editor"],
+    });
+
+    expect(route).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      element: { type: DemoEditorPage },
+    });
+  });
+
   it("makes product privacy information public", () => {
     expect(
-      renderSocraticDraftRoute({
+      renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         segments: ["privacy"],
@@ -55,7 +71,7 @@ describe("renderSocraticDraftRoute", () => {
 
   it("marks saved conversations as owner-only", () => {
     expect(
-      renderSocraticDraftRoute({
+      renderProductRoute({
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         segments: ["conversations"],
@@ -68,7 +84,7 @@ describe("renderSocraticDraftRoute", () => {
 
   it("marks saved conversation detail routes as owner-only", () => {
     expect(
-      renderSocraticDraftRoute({
+      renderProductRoute({
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         segments: ["conversations", "conversation-1"],
@@ -79,13 +95,27 @@ describe("renderSocraticDraftRoute", () => {
     });
   });
 
+  it("marks persistent conversation editor routes as owner-only", () => {
+    const route = renderProductRoute({
+      accessLevel: ACCESS_LEVELS.owner,
+      components: testProductAppComponents,
+      segments: ["conversations", "conversation-1", "editor"],
+    });
+
+    expect(route).toMatchObject({
+      status: PRODUCT_ROUTE_STATUSES.found,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      element: { key: "conversation-1" },
+    });
+  });
+
   it("keys saved conversation pages by conversation id", () => {
-    const firstRoute = renderSocraticDraftRoute({
+    const firstRoute = renderProductRoute({
       accessLevel: ACCESS_LEVELS.owner,
       components: testProductAppComponents,
       segments: ["conversations", "conversation-1"],
     });
-    const secondRoute = renderSocraticDraftRoute({
+    const secondRoute = renderProductRoute({
       accessLevel: ACCESS_LEVELS.owner,
       components: testProductAppComponents,
       segments: ["conversations", "conversation-2"],

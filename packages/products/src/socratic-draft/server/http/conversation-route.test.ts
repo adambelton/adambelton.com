@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
 import { createConversationRoute } from "packages/products/src/socratic-draft/server/http";
-import type { ConversationResponder } from "packages/products/src/socratic-draft/server/http";
 import type {
   AppendConversationTurnInput,
-  ConversationStore,
+  ConversationResponder,
+  TemporaryConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
 import type {
   ConversationMessage,
@@ -39,6 +39,7 @@ describe("Socratic Draft conversation route", () => {
           role: "assistant",
         },
         move: "probe",
+        expiresAt: "2026-08-02T12:00:00.000Z",
       },
     });
 
@@ -177,9 +178,39 @@ describe("Socratic Draft conversation route", () => {
       },
     });
   });
+
+  it("does not report success when the temporary turn cannot be retained", async () => {
+    const conversationStore = createFakeConversationStore();
+    const route = createConversationRoute({
+      conversationStore: {
+        ...conversationStore,
+        appendConversationTurn: async () => ({
+          status: "conversation_unavailable",
+        }),
+      },
+    });
+
+    const response = await route.request("/respond", {
+      method: "POST",
+      body: JSON.stringify({
+        conversationId: null,
+        message: "This turn should lose the expiry race.",
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: {
+        code: "conversation_unavailable",
+        message: "This temporary conversation is no longer available.",
+      },
+    });
+  });
 });
 
-function createFakeConversationStore(): ConversationStore {
+function createFakeConversationStore(): TemporaryConversationStore {
   const conversations = new Map<string, ConversationMessage[]>();
   let nextEntryNumber = 1;
 
@@ -203,6 +234,28 @@ function createFakeConversationStore(): ConversationStore {
         input.userMessage,
         input.assistantMessage,
       ]);
+      return { status: "retained" };
+    },
+
+    async getCurrentConversation() {
+      const entry = [...conversations.entries()].at(-1);
+
+      return entry
+        ? {
+            conversation: {
+              id: entry[0],
+              label: "Temporary conversation",
+              createdAt: "2026-08-01T12:00:00.000Z",
+              updatedAt: "2026-08-01T12:00:00.000Z",
+              messages: [...entry[1]],
+            },
+            expiresAt: "2026-08-02T12:00:00.000Z",
+          }
+        : null;
+    },
+
+    async clearCurrentConversation() {
+      conversations.clear();
     },
   };
 }

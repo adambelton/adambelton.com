@@ -57,10 +57,17 @@ function createFakeTemporaryConversationStore(): TemporaryConversationStore {
     async appendConversationTurn(input) {
       if (conversation?.id === input.conversationId) {
         conversation.messages.push(input.userMessage, input.assistantMessage);
+        return { status: "retained" };
       }
+      return { status: "conversation_unavailable" };
     },
     async getCurrentConversation() {
-      return conversation;
+      return conversation
+        ? {
+            conversation,
+            expiresAt: "2026-08-02T12:00:00.000Z",
+          }
+        : null;
     },
     async clearCurrentConversation() {
       conversation = null;

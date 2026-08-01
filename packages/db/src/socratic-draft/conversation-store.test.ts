@@ -4,6 +4,33 @@ import type { PrismaConversationStoreClient } from "packages/db/src/socratic-dra
 import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
 
 describe("Prisma Socratic Draft conversation store", () => {
+  it("creates an owner-scoped empty conversation ready for its first turn", async () => {
+    const prisma = createFakePrismaConversationStoreClient();
+    const ownerStore = createPrismaConversationStore(prisma, "owner-1");
+    const otherStore = createPrismaConversationStore(prisma, "owner-2");
+
+    const conversation = await ownerStore.createConversation();
+
+    expect(conversation.messages).toEqual([]);
+    await expect(ownerStore.getConversation(conversation.id)).resolves.toEqual(
+      conversation,
+    );
+    await expect(otherStore.getConversation(conversation.id)).resolves.toBeNull();
+
+    await ownerStore.appendConversationTurn({
+      conversationId: conversation.id,
+      userMessage: { role: "user", content: "First thought" },
+      assistantMessage: { role: "assistant", content: "First response" },
+    });
+
+    await expect(ownerStore.getConversation(conversation.id)).resolves.toMatchObject({
+      messages: [
+        { role: "user", content: "First thought" },
+        { role: "assistant", content: "First response" },
+      ],
+    });
+  });
+
   it("lists, loads, and continues conversations within the configured user scope", async () => {
     const prisma = createFakePrismaConversationStoreClient();
     const ownerStore = createPrismaConversationStore(prisma, "owner-1");
@@ -158,6 +185,16 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
       return callback(transaction);
     },
     socraticDraftConversation: {
+      async create(input) {
+        const now = new Date("2026-07-31T10:00:00.000Z");
+        const conversation = {
+          ...input.data,
+          createdAt: now,
+          updatedAt: now,
+        };
+        conversations.push(conversation);
+        return toConversationRow(conversation, messages);
+      },
       async findFirst(input) {
         const conversation = conversations.find(
           (candidate) =>

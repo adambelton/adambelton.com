@@ -1,16 +1,17 @@
 import type { ReactNode } from "react";
-import type { AccessLevel } from "packages/shared/src";
+import { ACCESS_LEVELS, type AccessLevel } from "packages/shared/src";
 import {
   PRODUCT_ROUTE_ACCESSES,
   PRODUCT_ROUTE_STATUSES,
   type ProductRouteResult,
 } from "packages/shared/src";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
-import { ConversationEditorPage } from "packages/products/src/socratic-draft/client/app/editor/ConversationEditorPage";
-import { SocraticDraftConversationsPage } from "packages/products/src/socratic-draft/client/app/conversations/SocraticDraftConversationsPage";
-import { SocraticDraftConversationPage } from "packages/products/src/socratic-draft/client/app/conversations/SocraticDraftConversationPage";
-import { SocraticDraftOverviewPage } from "packages/products/src/socratic-draft/client/app/overview/SocraticDraftOverviewPage";
-import { SocraticDraftPrivacyPage } from "packages/products/src/socratic-draft/client/app/privacy/SocraticDraftPrivacyPage";
+import { DemoEditorPage } from "packages/products/src/socratic-draft/client/app/pages/DemoEditorPage";
+import { ConversationsPage } from "packages/products/src/socratic-draft/client/app/pages/ConversationsPage";
+import { ConversationPage } from "packages/products/src/socratic-draft/client/app/pages/ConversationPage";
+import { EditorPage } from "packages/products/src/socratic-draft/client/app/pages/EditorPage";
+import { OverviewPage } from "packages/products/src/socratic-draft/client/app/pages/OverviewPage";
+import { PrivacyPage } from "packages/products/src/socratic-draft/client/app/pages/PrivacyPage";
 
 export type ProductAppRoute = {
   accessLevel: AccessLevel;
@@ -18,12 +19,12 @@ export type ProductAppRoute = {
   segments: readonly string[];
 };
 
-type SocraticDraftRenderedRoute = ReactNode;
+type RenderedRoute = ReactNode;
 
 export type ProductAppRouteResult =
-  ProductRouteResult<SocraticDraftRenderedRoute>;
+  ProductRouteResult<RenderedRoute>;
 
-export function renderSocraticDraftRoute({
+export function renderProductRoute({
   accessLevel,
   components,
   segments,
@@ -31,7 +32,7 @@ export function renderSocraticDraftRoute({
   if (segments.length === 0) {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
-      element: <SocraticDraftOverviewPage components={components} />,
+      element: <OverviewPage components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
     };
   }
@@ -40,8 +41,7 @@ export function renderSocraticDraftRoute({
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
       element: (
-        <ConversationEditorPage
-          accessLevel={accessLevel}
+        <DemoEditorPage
           components={components}
         />
       ),
@@ -52,7 +52,7 @@ export function renderSocraticDraftRoute({
   if (segments.length === 1 && segments[0] === "privacy") {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
-      element: <SocraticDraftPrivacyPage components={components} />,
+      element: <PrivacyPage components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
     };
   }
@@ -60,12 +60,30 @@ export function renderSocraticDraftRoute({
   if (segments.length === 1 && segments[0] === "conversations") {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
-      element: <SocraticDraftConversationsPage components={components} />,
+      element: <ConversationsPage components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
     };
   }
 
   const conversationId = segments[1];
+
+  if (
+    segments.length === 3 &&
+    segments[0] === "conversations" &&
+    conversationId &&
+    segments[2] === "editor"
+  ) {
+    return {
+      status: PRODUCT_ROUTE_STATUSES.found,
+      element: (
+        <EditorPage
+          key={conversationId}
+          conversationId={conversationId}
+        />
+      ),
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+    };
+  }
 
   if (
     segments.length === 2 &&
@@ -75,7 +93,7 @@ export function renderSocraticDraftRoute({
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
       element: (
-        <SocraticDraftConversationPage
+        <ConversationPage
           key={conversationId}
           conversationId={conversationId}
         />

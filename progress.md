@@ -2,7 +2,7 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
@@ -17,10 +17,13 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
 - Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
 - Static public routes for `/` and `/about`; authenticated product routes under `/products`.
-- Minimal Socratic Draft editor route at `/products/socratic-draft/editor`.
+- Socratic Draft temporary demo editor at `/products/socratic-draft/editor` for every authenticated user, including the owner.
 - Product-owned client request helper for the conversation endpoint.
 - Host-owned React Router products route at `/products/:productSlug/*` that dispatches into product-owned route handling.
 - Socratic Draft-owned client app surface under `packages/products/src/socratic-draft/client`.
+- Socratic Draft client files organised by responsibility under `pages`,
+  `components`, and `modules`, with demo and persistent editor pages named
+  explicitly as `DemoEditorPage` and `EditorPage`.
 - Socratic Draft-owned API route surface under `packages/products/src/socratic-draft/server/http`.
 - API host mount for product API routes under `/products`.
 - Product route access requirements for authenticated and owner-only Socratic Draft routes.
@@ -40,7 +43,7 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Better Auth handler mounted at `/auth/*` on the API host.
 - `POST /products/socratic-draft/conversation/respond` API route mounted by the host and handled by the Socratic Draft product package.
 - Minimal magic-link sign-in page at `/sign-in`.
-- Owner-only Socratic Draft saved-conversation list at `/products/socratic-draft/conversations` and detail routes with restored conversation history and continuation through the editor.
+- Owner-only Socratic Draft saved-conversation list at `/products/socratic-draft/conversations`, with explicit persistent creation and ID-addressed editors at `/products/socratic-draft/conversations/:id/editor`.
 - `packages/shared` API response, user/access, writing, usage, and product registry types.
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
@@ -50,7 +53,9 @@ The repo currently has a Vite and React Router client host with the shared publi
 - OpenAI Responses API requests explicitly disable optional application-state storage with `store: false`.
 - Host-owned `LlmConversationModelAdapter` composition bridge in a generic API adapter module.
 - Product-owned affirmative privacy acknowledgement before Socratic Draft editor controls become available in the current browser session.
-- One temporary in-memory conversation per authenticated non-owner, with a fixed 24-hour lifetime, authenticated restoration, and immediate clearing.
+- One temporary in-memory conversation per authenticated user using the demo editor, with a fixed visible 24-hour deadline, authenticated restoration, immediate clearing, and safe unavailable-conversation recovery.
+- Temporary conversation responses expose their fixed deadline without extending it, and atomic turn retention prevents an expired conversation from reporting an unretained model response as successful.
+- Structured conversation client failures distinguish unavailable temporary conversations from unrelated request failures.
 - Public host `/privacy` page for shared platform processing, with registry-driven links to public product-owned privacy pages.
 - Socratic Draft-owned privacy route and lifecycle note covering model processing, conversation retention boundaries, provider behavior, and user choices.
 - Socratic Draft overview and acknowledgement links to its product-owned privacy information.
@@ -91,7 +96,7 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Product registry exists as a shared constant and is used by the static products page.
 - `packages/ai` has an OpenAI adapter and a fake client, but no streaming, provider routing, or usage tracking yet.
 - The Socratic Draft conversation service is LLM-backed when `OPENAI_API_KEY` is configured, but its conversation policy is intentionally minimal.
-- The Socratic Draft endpoint persists through Prisma only for owner sessions when `DATABASE_URL` is configured; signed-in non-owner sessions use ephemeral in-memory storage.
+- Socratic Draft persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
 
 ## Not implemented
 
@@ -112,11 +117,11 @@ The repo currently has a Vite and React Router client host with the shared publi
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback and holds temporary user-isolated state for the life of the API process.
 - The current Socratic Draft editor UI is product-owned and can restore owner conversations, but remains a minimal interface rather than the final Socratic Draft product experience.
-- Demo writing persistence and temporary lifecycle rules are enforced at the current conversation endpoint boundary, but broader usage limits still need a later task.
+- Demo writing persistence and temporary lifecycle rules are enforced across the client and API boundaries, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Usage limits are not implemented yet, so local/demo AI calls should remain cautious until cost protection is added.
 
 ## Next recommended task
 
-Task 025 — Demo ephemeral mode.
+Task 026 — Usage limits.

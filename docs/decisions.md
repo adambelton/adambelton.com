@@ -321,3 +321,25 @@ Non-owner users can explicitly clear their current conversation. Expiry is enfor
 Before editor controls are available in a browser session, the product requires an affirmative acknowledgement explaining application-memory retention, owner persistence, OpenAI processing, and the limits of confidentiality. OpenAI Responses API requests set `store: false`; this disables optional application-state storage but is not represented as enterprise Zero Data Retention or as eliminating provider abuse-monitoring retention.
 
 Product-specific privacy explanations are product-owned routes and documentation. The host `/privacy` page covers shared platform processing, tells visitors that product privacy pages may exist, encourages review before using a demo, and discovers available notices through optional `privacyPath` product-registry metadata. It must not duplicate product lifecycle details. Product privacy routes may be public even when the product's interactive routes require authentication.
+
+## 023 — Conversation Routes Define Persistence Semantics
+
+Socratic Draft conversation persistence is selected by the operation and resource
+being addressed, not solely by whether the authenticated user is the owner.
+
+`/products/socratic-draft/editor` is the temporary demo editor for every
+authenticated user, including the owner. It operates on that user's single
+temporary application-memory conversation and does not expose the temporary
+conversation identifier in the browser URL.
+
+`/products/socratic-draft/conversations` is the owner-only persistent conversation
+index. Creating a persistent conversation establishes its identity before editing
+and navigates to `/products/socratic-draft/conversations/:id/editor`. An
+ID-addressed persistent editor uses only the owner-scoped persistent store and
+does not show temporary-demo lifecycle messaging.
+
+The API enforces the same distinction. Temporary operations resolve only a
+user-isolated temporary store, including for the owner, while persistent creation,
+reads, and responses require owner access and an identified persistent
+conversation. Client route gates remain usability affordances; server-side
+authorization and store selection are authoritative.

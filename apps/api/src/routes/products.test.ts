@@ -1,8 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { app } from "apps/api/src/server";
+import {
+  getPersistentConversationAccess,
+  getTemporaryConversationAccess,
+} from "apps/api/src/routes/products";
 import type { ApiResponse } from "packages/shared/src";
 
 describe("products API route mount", () => {
+  it("selects temporary operations for the owner without granting persistence to demo users", () => {
+    const ownerSession = { user: { id: "owner-1", isOwner: true } };
+    const demoSession = { user: { id: "demo-1", isOwner: false } };
+
+    expect(getTemporaryConversationAccess(ownerSession)).toEqual({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "owner-1",
+    });
+    expect(getPersistentConversationAccess(ownerSession)).toEqual({
+      isSignedIn: true,
+      isOwner: true,
+      userId: "owner-1",
+    });
+    expect(getTemporaryConversationAccess(demoSession)).toEqual({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "demo-1",
+    });
+    expect(getPersistentConversationAccess(demoSession)).toBeNull();
+  });
+
   it("routes Socratic Draft conversation requests through the product API entrypoint", async () => {
     const response = await app.request(
       "/products/socratic-draft/conversation/respond",
