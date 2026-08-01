@@ -16,6 +16,34 @@ const getSocraticDraftConversationStore =
     databaseUrl: process.env.DATABASE_URL,
   });
 
+type ProductConversationSession = {
+  user: { id: string; isOwner: boolean };
+};
+
+export function getTemporaryConversationAccess(
+  session: ProductConversationSession | null,
+) {
+  return session
+    ? {
+        isSignedIn: true as const,
+        isOwner: false as const,
+        userId: session.user.id,
+      }
+    : null;
+}
+
+export function getPersistentConversationAccess(
+  session: ProductConversationSession | null,
+) {
+  return session?.user.isOwner
+    ? {
+        isSignedIn: true as const,
+        isOwner: true as const,
+        userId: session.user.id,
+      }
+    : null;
+}
+
 function createLlmClient(): LlmClient {
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -41,38 +69,21 @@ productsRoute.route(
     conversationService: socraticDraftConversationService,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
+      const access = getTemporaryConversationAccess(session);
 
-      return getSocraticDraftConversationStore({
-        isSignedIn: Boolean(session),
-        isOwner: Boolean(session?.user.isOwner),
-        userId: session?.user.id,
-      });
+      return access ? getSocraticDraftConversationStore(access) : null;
     },
     getPersistentConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
+      const access = getPersistentConversationAccess(session);
 
-      if (!session?.user.isOwner) {
-        return null;
-      }
-
-      return getSocraticDraftConversationStore({
-        isSignedIn: true,
-        isOwner: true,
-        userId: session.user.id,
-      });
+      return access ? getSocraticDraftConversationStore(access) : null;
     },
     getTemporaryConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
+      const access = getTemporaryConversationAccess(session);
 
-      if (!session || session.user.isOwner) {
-        return null;
-      }
-
-      return getSocraticDraftConversationStore({
-        isSignedIn: true,
-        isOwner: false,
-        userId: session.user.id,
-      });
+      return access ? getSocraticDraftConversationStore(access) : null;
     },
   }),
 );

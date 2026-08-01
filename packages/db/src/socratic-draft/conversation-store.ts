@@ -65,6 +65,10 @@ export type PrismaConversationStoreClient = {
     callback: (transaction: PrismaConversationStoreTransaction) => Promise<T>,
   ): Promise<T>;
   socraticDraftConversation: {
+    create(input: {
+      data: { id: string; userId: string; nextMessagePosition: number };
+      select: { id: true; createdAt: true; updatedAt: true; messages: true };
+    }): Promise<PrismaConversationRow>;
     findFirst(
       input: ConversationSelectInput,
     ): Promise<PrismaConversationRow | null>;
@@ -142,6 +146,28 @@ export function createPrismaConversationStore(
           ],
         });
       });
+      return { status: "retained" };
+    },
+
+    async createConversation() {
+      const conversation = await prisma.socraticDraftConversation.create({
+        data: {
+          id: globalThis.crypto.randomUUID(),
+          userId,
+          nextMessagePosition: 0,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          messages: true,
+        },
+      });
+
+      return {
+        ...toConversationSummary(conversation),
+        messages: [],
+      };
     },
 
     async listConversations() {

@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   ACCESS_LEVELS,
   PRODUCT_ROUTE_ACCESSES,
@@ -11,6 +11,7 @@ import { resolveProductRoute } from "apps/client/src/products";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
+  const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
     accessLevel: session.data?.user.isOwner
@@ -18,6 +19,7 @@ export function ProductRoutePage() {
       : ACCESS_LEVELS.demo,
     components: {
       Link: NavigationLink,
+      navigate,
     },
     path: productPath,
     productSlug,

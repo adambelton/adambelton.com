@@ -1,14 +1,20 @@
 import { Hono } from "hono";
-import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
-import type { ConversationStore } from "packages/products/src/socratic-draft/server/conversation";
-import type { ConversationRequest } from "packages/products/src/socratic-draft/shared";
+import {
+  ConversationService,
+  respondToConversation,
+} from "packages/products/src/socratic-draft/server/conversation";
+import type {
+  ConversationResponder,
+  TemporaryConversationStore,
+} from "packages/products/src/socratic-draft/server/conversation";
+import { parseConversationRequest } from "packages/products/src/socratic-draft/server/http/conversation-request";
 import { failure, success } from "packages/shared/src";
 
-export type ConversationResponder = Pick<ConversationService, "respond">;
-
 export type CreateConversationRouteDependencies = {
-  conversationStore?: ConversationStore;
-  getConversationStore?: (request: Request) => Promise<ConversationStore | null>;
+  conversationStore?: TemporaryConversationStore;
+  getConversationStore?: (
+    request: Request,
+  ) => Promise<TemporaryConversationStore | null>;
   conversationService?: ConversationResponder;
 };
 
@@ -41,13 +47,16 @@ export function createConversationRoute({
       );
     }
 
-    const isNewConversation = request.conversationId === null;
     const conversationId =
       request.conversationId ?? requestConversationStore.createConversationId();
-    const storedMessages =
-      await requestConversationStore.getConversationMessages(conversationId);
+    const result = await respondToConversation({
+      conversationId,
+      message: request.message,
+      conversationService,
+      conversationStore: requestConversationStore,
+    });
 
-    if (!isNewConversation && storedMessages === null) {
+    if (result.status === "conversation_not_found") {
       return context.json(
         failure(
           "conversation_not_found",
@@ -57,49 +66,35 @@ export function createConversationRoute({
       );
     }
 
-    const previousMessages = storedMessages ?? [];
-    const response = await conversationService.respond({
-      conversationId,
-      message: request.message,
-      previousMessages,
-    });
+    if (result.status === "conversation_unavailable") {
+      return context.json(
+        failure(
+          "conversation_unavailable",
+          "This temporary conversation is no longer available.",
+        ),
+        409,
+      );
+    }
 
-    await requestConversationStore.appendConversationTurn({
-      conversationId: response.conversationId,
-      userMessage: {
-        role: "user",
-        content: request.message,
-      },
-      assistantMessage: response.message,
-    });
+    const temporaryConversation =
+      await requestConversationStore.getCurrentConversation();
 
-    return context.json(success(response), 201);
+    if (!temporaryConversation) {
+      return context.json(
+        failure(
+          "conversation_unavailable",
+          "This temporary conversation is no longer available.",
+        ),
+        409,
+      );
+    }
+
+    return context.json(
+      success({
+        ...result.response,
+        expiresAt: temporaryConversation.expiresAt,
+      }),
+      201,
+    );
   });
-}
-
-async function parseConversationRequest(
-  request: Request,
-): Promise<ConversationRequest | null> {
-  const body = await request.json().catch(() => null);
-
-  if (!isRecord(body) || typeof body.message !== "string") {
-    return null;
-  }
-
-  if (
-    body.conversationId !== undefined &&
-    body.conversationId !== null &&
-    typeof body.conversationId !== "string"
-  ) {
-    return null;
-  }
-
-  return {
-    conversationId: body.conversationId ?? null,
-    message: body.message,
-  };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

@@ -79,6 +79,27 @@ describe("Socratic Draft conversation store resolver", () => {
     expect(ownerStore).not.toBe(ephemeralStore);
   });
 
+  it("keeps an owner's temporary preview separate from their persistent store", () => {
+    const resolveConversationStore = createSocraticDraftConversationStoreResolver({
+      databaseUrl: undefined,
+    });
+
+    const persistentStore = resolveConversationStore({
+      isSignedIn: true,
+      isOwner: true,
+      userId: "owner-1",
+    });
+    const temporaryStore = resolveConversationStore({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "owner-1",
+    });
+
+    expect(persistentStore).not.toBeNull();
+    expect(temporaryStore).not.toBeNull();
+    expect(persistentStore).not.toBe(temporaryStore);
+  });
+
   it("requires an authenticated user id for an owner store", () => {
     const resolveConversationStore = createSocraticDraftConversationStoreResolver({
       databaseUrl: undefined,

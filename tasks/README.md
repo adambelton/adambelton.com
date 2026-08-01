@@ -2,13 +2,13 @@
 
 ## Planned
 
-- 025 — Demo ephemeral mode
 - 026 — Usage limits
 - 027 — Publishing flow
 - 028 — Admin view
 
 ## Completed
 
+- 025 — Demo ephemeral mode
 - 024 — Pre-launch privacy hygiene
 - 001 — Scaffold repo architecture and context files
 - 002 — Shared types and product registry

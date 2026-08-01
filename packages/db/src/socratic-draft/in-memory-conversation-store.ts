@@ -56,6 +56,21 @@ export function createInMemoryConversationStore(): PersistentConversationStore {
         createdAt: existingConversation?.createdAt ?? now,
         updatedAt: now,
       });
+      return { status: "retained" };
+    },
+
+    async createConversation() {
+      const conversationId = this.createConversationId();
+      const conversation = conversations.get(conversationId);
+
+      if (!conversation) {
+        throw new Error("The persistent conversation could not be created.");
+      }
+
+      return {
+        ...toConversationSummary(conversation),
+        messages: [],
+      };
     },
 
     async listConversations() {
@@ -145,7 +160,7 @@ export function createTemporaryInMemoryConversationStore({
       const currentConversation = getUnexpiredConversation();
 
       if (!currentConversation || currentConversation.id !== input.conversationId) {
-        return;
+        return { status: "conversation_unavailable" };
       }
 
       conversation = {
@@ -157,6 +172,7 @@ export function createTemporaryInMemoryConversationStore({
         ],
         updatedAt: new Date(now()).toISOString(),
       };
+      return { status: "retained" };
     },
 
     async getCurrentConversation() {
@@ -164,8 +180,11 @@ export function createTemporaryInMemoryConversationStore({
 
       return currentConversation
         ? {
-            ...toConversationSummary(currentConversation),
-            messages: [...currentConversation.messages],
+            conversation: {
+              ...toConversationSummary(currentConversation),
+              messages: [...currentConversation.messages],
+            },
+            expiresAt: new Date(expiresAt).toISOString(),
           }
         : null;
     },

@@ -3,7 +3,7 @@ import {
   PRODUCT_IDS,
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
-import { renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
+import { renderProductRoute as renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
 import type { AccessLevel } from "packages/shared/src";
 

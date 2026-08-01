@@ -120,6 +120,10 @@ export type ConversationResponse = {
   suggestedReplies: SuggestedReply[];
 };
 
+export type TemporaryConversationResponse = ConversationResponse & {
+  expiresAt: string;
+};
+
 export type ConversationSummary = {
   id: string;
   label: string;
@@ -129,4 +133,9 @@ export type ConversationSummary = {
 
 export type Conversation = ConversationSummary & {
   messages: ConversationMessage[];
+};
+
+export type TemporaryConversation = {
+  conversation: Conversation;
+  expiresAt: string;
 };
