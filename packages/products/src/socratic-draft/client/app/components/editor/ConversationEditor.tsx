@@ -7,15 +7,21 @@ import type {
   ConversationRequest,
   ConversationResponse,
 } from "packages/products/src/socratic-draft/shared";
-import { ConversationComposer } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationComposer";
+import {
+  CONVERSATION_ERROR_CODES,
+  CONVERSATION_MESSAGE_ROLES,
+} from "packages/products/src/socratic-draft/shared";
+import {
+  CONVERSATION_STATUSES,
+  ConversationComposer,
+  type ConversationStatus,
+} from "packages/products/src/socratic-draft/client/app/components/editor/ConversationComposer";
 import { ConversationEditorIntro } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationEditorIntro";
 import { ConversationMessageList } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationMessageList";
 import {
   ConversationRequestError,
   sendConversationMessage,
 } from "packages/products/src/socratic-draft/client/app/modules/editor/send-conversation-message";
-
-type ConversationStatus = "idle" | "sending";
 
 type ConversationEditorProps = {
   canClear?: boolean;
@@ -46,11 +52,14 @@ export function ConversationEditor({
   const [message, setMessage] = useState("");
   const [messages, setMessages] =
     useState<ConversationMessage[]>(initialMessages);
-  const [status, setStatus] = useState<ConversationStatus>("idle");
+  const [status, setStatus] = useState<ConversationStatus>(
+    CONVERSATION_STATUSES.idle,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const trimmedMessage = message.trim();
-  const canSubmit = trimmedMessage.length > 0 && status !== "sending";
+  const canSubmit =
+    trimmedMessage.length > 0 && status === CONVERSATION_STATUSES.idle;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -60,14 +69,15 @@ export function ConversationEditor({
     }
 
     const userMessage: ConversationMessage = {
-      role: "user",
+      role: CONVERSATION_MESSAGE_ROLES.user,
       content: trimmedMessage,
     };
 
-    setStatus("sending");
+    setStatus(CONVERSATION_STATUSES.sending);
     setError(null);
     setMessage("");
     setMessages((currentMessages) => [...currentMessages, userMessage]);
+    let disableAfterRequest = false;
 
     try {
       const response = await sendMessage({
@@ -82,8 +92,8 @@ export function ConversationEditor({
       if (
         sendError instanceof ConversationRequestError &&
         onUnavailable &&
-        (sendError.code === "conversation_not_found" ||
-          sendError.code === "conversation_unavailable")
+        (sendError.code === CONVERSATION_ERROR_CODES.notFound ||
+          sendError.code === CONVERSATION_ERROR_CODES.unavailable)
       ) {
         setConversationId(null);
         setMessages([]);
@@ -93,13 +103,26 @@ export function ConversationEditor({
         );
         return;
       }
+
+      setMessage(trimmedMessage);
+      setMessages((currentMessages) => currentMessages.slice(0, -1));
+      if (
+        sendError instanceof ConversationRequestError &&
+        sendError.code === CONVERSATION_ERROR_CODES.hostedAiDisabled
+      ) {
+        disableAfterRequest = true;
+      }
       setError(
         sendError instanceof Error
           ? sendError.message
           : "The conversation could not continue.",
       );
     } finally {
-      setStatus("idle");
+      setStatus(
+        disableAfterRequest
+          ? CONVERSATION_STATUSES.disabled
+          : CONVERSATION_STATUSES.idle,
+      );
     }
   }
 
@@ -113,7 +136,7 @@ export function ConversationEditor({
       return;
     }
 
-    setStatus("sending");
+    setStatus(CONVERSATION_STATUSES.sending);
     setError(null);
 
     try {
@@ -128,7 +151,7 @@ export function ConversationEditor({
           : "The temporary conversation could not be cleared.",
       );
     } finally {
-      setStatus("idle");
+      setStatus(CONVERSATION_STATUSES.idle);
     }
   }
 
@@ -151,7 +174,7 @@ export function ConversationEditor({
         {canClear && messages.length > 0 ? (
           <button
             className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4"
-            disabled={status === "sending"}
+            disabled={status === CONVERSATION_STATUSES.sending}
             onClick={handleClear}
             type="button"
           >

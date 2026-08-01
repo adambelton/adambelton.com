@@ -2,7 +2,7 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
@@ -59,6 +59,20 @@ protection, publishing, and admin visibility.
 - Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service.
 - OpenAI-backed LLM adapter in `packages/ai`, using `OPENAI_API_KEY` and `OPENAI_MODEL`, with `gpt-5-mini` as the default.
 - OpenAI Responses API requests explicitly disable optional application-state storage with `store: false`.
+- Socratic Draft hosted model calls fail closed unless
+  `HOSTED_AI_ENABLED=true` and a non-empty OpenAI API key are configured; the
+  wider site and API continue running when the product is disabled.
+- Disabled, unconfigured, or unavailable hosted AI never falls back to fake
+  product responses; the fake LLM client is retained only as a deterministic
+  test adapter.
+- Socratic Draft enforces a provider-neutral 32 KiB complete-input boundary over
+  system instructions, retained history, and the new message, measured in UTF-8
+  bytes before model invocation or persistence changes.
+- Every Socratic Draft model request carries a required provisional 1,024-token
+  output cap through the product model port and provider-neutral AI client to
+  OpenAI `max_output_tokens`.
+- Stable hosted-disabled, hosted-unavailable, and input-too-large failures retain
+  conversation state, expiry metadata, and rejected editor text for recovery.
 - Host-owned `LlmConversationModelAdapter` composition bridge in a generic API adapter module.
 - Product-owned affirmative privacy acknowledgement before Socratic Draft editor controls become available in the current browser session.
 - One temporary in-memory conversation per authenticated user using the demo editor, with a fixed visible 24-hour deadline, authenticated restoration, immediate clearing, and safe unavailable-conversation recovery.
@@ -108,8 +122,8 @@ protection, publishing, and admin visibility.
 ## Partially implemented
 
 - Product registry exists as a shared constant and is used by the static products page.
-- `packages/ai` has an OpenAI adapter and a fake client, but no streaming, provider routing, or usage tracking yet.
-- The Socratic Draft conversation service is LLM-backed when `OPENAI_API_KEY` is configured, but its conversation policy is intentionally minimal.
+- `packages/ai` has an OpenAI adapter and a test-only fake client, but no streaming, provider routing, or usage tracking yet.
+- The Socratic Draft conversation service is LLM-backed only when the hosted-AI kill switch and OpenAI configuration are present, but its conversation policy is intentionally minimal.
 - Socratic Draft persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
 
 ## Not implemented
@@ -129,7 +143,7 @@ protection, publishing, and admin visibility.
 ## Known gaps / risks
 
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
-- The fake LLM client remains as the no-key fallback and test adapter.
+- The fake LLM client remains as a deterministic test adapter but is not used by API composition.
 - The Socratic Draft conversation service is deliberately minimal and currently establishes the model boundary rather than final assistant behaviour.
 - Product-owned ports for auth/access and usage have not been introduced yet; they should be added only when a product service genuinely needs those dependencies.
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
@@ -138,8 +152,9 @@ protection, publishing, and admin visibility.
 - Demo writing persistence and temporary lifecycle rules are enforced across the client and API boundaries, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
-- Usage limits are not implemented yet, so local/demo AI calls should remain cautious until cost protection is added.
+- Daily usage limits are not implemented yet; the kill switch and per-request
+  bounds reduce immediate exposure but do not replace Task 034 cost protection.
 
 ## Next recommended task
 
-Task 026 — Hosted-AI immediate safety boundaries.
+Task 027 — Workspace and capability foundations.

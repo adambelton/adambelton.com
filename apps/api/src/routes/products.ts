@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import {
   DEFAULT_OPENAI_MODEL,
-  FakeLlmClient,
   OpenAiLlmClient,
-  type LlmClient,
 } from "packages/ai/src";
-import { LlmConversationModelAdapter } from "apps/api/src/adapters";
+import {
+  DisabledConversationModelAdapter,
+  LlmConversationModelAdapter,
+} from "apps/api/src/adapters";
 import { getCurrentAuthSession } from "packages/auth/src/session";
 import { createSocraticDraftConversationStoreResolver } from "packages/db/src";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
@@ -15,6 +16,8 @@ const getSocraticDraftConversationStore =
   createSocraticDraftConversationStoreResolver({
     databaseUrl: process.env.DATABASE_URL,
   });
+
+export const HOSTED_AI_ENABLED_VALUE = "true";
 
 type ProductConversationSession = {
   user: { id: string; isOwner: boolean };
@@ -44,21 +47,32 @@ export function getPersistentConversationAccess(
     : null;
 }
 
-function createLlmClient(): LlmClient {
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    return new FakeLlmClient();
+export function createConversationModel(configuration: {
+  hostedAiEnabled?: string;
+  openAiApiKey?: string;
+  openAiModel?: string;
+}) {
+  if (
+    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
+    !configuration.openAiApiKey?.trim()
+  ) {
+    return new DisabledConversationModelAdapter();
   }
 
-  return new OpenAiLlmClient({
-    apiKey,
-    model: process.env.OPENAI_MODEL ?? DEFAULT_OPENAI_MODEL,
-  });
+  return new LlmConversationModelAdapter(
+    new OpenAiLlmClient({
+      apiKey: configuration.openAiApiKey,
+      model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
+    }),
+  );
 }
 
 const socraticDraftConversationService = new ConversationService({
-  conversationModel: new LlmConversationModelAdapter(createLlmClient()),
+  conversationModel: createConversationModel({
+    hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
+    openAiApiKey: process.env.OPENAI_API_KEY,
+    openAiModel: process.env.OPENAI_MODEL,
+  }),
 });
 
 export const productsRoute = new Hono();

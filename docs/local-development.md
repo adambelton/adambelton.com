@@ -62,6 +62,23 @@ AUTH_EMAIL_FROM="Adam Belton <hello@adambelton.com>"
 
 Keep the real Resend API key in `.env.local` or the host environment only. Do not commit it.
 
+## Hosted AI
+
+Socratic Draft model-backed actions fail closed unless hosted AI is explicitly
+enabled and OpenAI is configured:
+
+```txt
+HOSTED_AI_ENABLED="true"
+OPENAI_API_KEY="replace-with-openai-api-key"
+OPENAI_MODEL="gpt-5-mini"
+```
+
+Only the exact value `true` enables hosted calls. Set `HOSTED_AI_ENABLED=false`
+as the emergency kill switch. A missing flag, any other value, or a missing API
+key leaves Socratic Draft disabled while the rest of the website and API can
+continue running. The application never substitutes fake conversation responses
+for disabled or missing hosted configuration.
+
 Run the normal project checks:
 
 ```txt

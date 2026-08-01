@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 026 — Hosted-AI immediate safety boundaries
 - 027 — Workspace and capability foundations
 - 028 — Idea-map baseline
 - 029 — Fluid discovery and articulation
@@ -16,6 +15,7 @@
 
 ## Completed
 
+- 026 — Hosted-AI immediate safety boundaries
 - 025 — Demo ephemeral mode
 - 024 — Pre-launch privacy hygiene
 - 001 — Scaffold repo architecture and context files

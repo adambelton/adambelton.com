@@ -67,6 +67,35 @@ describe("persistent conversation pages", () => {
       screen.queryByText("The requested conversation was not found."),
     ).toBeNull();
   });
+
+  it("preserves a persistent conversation and rejected text when hosted AI is unavailable", async () => {
+    stubFetch(
+      success(
+        conversation("conversation-1", [
+          { role: "user", content: "A retained saved thought" },
+        ]),
+      ),
+      failure(
+        "hosted_ai_unavailable",
+        "The Socratic Draft could not respond. Try again shortly.",
+        503,
+      ),
+    );
+
+    render(<EditorPage conversationId="conversation-1" />);
+    await screen.findByText("A retained saved thought");
+
+    fireEvent.change(screen.getByLabelText("Your next thought"), {
+      target: { value: "Retry this saved thought" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(
+      await screen.findByText(/could not respond/i),
+    ).toBeTruthy();
+    expect(screen.getByText("A retained saved thought")).toBeTruthy();
+    expect(screen.getByDisplayValue("Retry this saved thought")).toBeTruthy();
+  });
 });
 
 function createComponents(

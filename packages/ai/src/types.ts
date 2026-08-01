@@ -6,7 +6,7 @@ export type LlmMessage = {
 export type LlmRequest = {
   system: string;
   messages: LlmMessage[];
-  maxTokens?: number;
+  maxTokens: number;
   temperature?: number;
 };
 

@@ -387,3 +387,23 @@ Assistant readiness is action-specific and advisory. Explicit user intention is
 separate and may proceed despite the assistant's assessment. Product lifecycle is
 derived from real resources and publishing state rather than stored in a general
 phase enum.
+
+## 026 — Hosted AI Fails Closed Without Fake Product Responses
+
+Socratic Draft model-backed actions require both `HOSTED_AI_ENABLED=true` and
+valid provider configuration supplied by the API host. A missing flag, any other
+flag value, or missing provider configuration disables those actions while
+allowing unrelated website and API behaviour to continue. This is an explicit
+operational kill switch independent of provider credentials.
+
+The API composition must not silently replace disabled, unconfigured, or failed
+hosted AI with a fake model. The fake LLM client remains a deterministic test
+adapter only. Product-owned failure semantics distinguish disabled configuration,
+oversized conversation input, and temporary provider unavailability.
+
+Socratic Draft owns a provider-neutral 32 KiB complete-input boundary, measured
+as UTF-8 bytes across system instructions, retained conversation history, and the
+new user message. It also owns a required provisional 1,024-token output cap that
+the host passes through the provider-neutral AI client to OpenAI. Later
+action-specific limits may refine these values without moving the policy into the
+provider adapter.

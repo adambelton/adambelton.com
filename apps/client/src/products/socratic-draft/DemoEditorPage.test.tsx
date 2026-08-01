@@ -110,7 +110,37 @@ describe("DemoEditorPage", () => {
 
     expect(await screen.findByText("The model could not respond.")).toBeTruthy();
     expect(screen.getByText("Restored thought")).toBeTruthy();
-    expect(screen.getByText("Keep this context")).toBeTruthy();
+    expect(screen.getByDisplayValue("Keep this context")).toBeTruthy();
+    expect(screen.getByText(/scheduled to expire/i)).toBeTruthy();
+  });
+
+  it("disables composition without losing work when hosted AI is disabled", async () => {
+    stubFetch(
+      success(temporaryConversation()),
+      failure(
+        "hosted_ai_disabled",
+        "The Socratic Draft is currently disabled.",
+        503,
+      ),
+    );
+
+    render(<DemoEditorPage components={components} />);
+    await screen.findByText("Restored thought");
+
+    fireEvent.change(screen.getByLabelText("Your next thought"), {
+      target: { value: "Keep this disabled thought" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(
+      await screen.findByText("The Socratic Draft is currently disabled."),
+    ).toBeTruthy();
+    expect(screen.getByText("Restored thought")).toBeTruthy();
+    expect(screen.getByDisplayValue("Keep this disabled thought")).toBeTruthy();
+    expect(
+      (screen.getByRole("button", { name: "Unavailable" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
     expect(screen.getByText(/scheduled to expire/i)).toBeTruthy();
   });
 

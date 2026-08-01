@@ -31,12 +31,13 @@ describe("OpenAI LLM client", () => {
     });
 
     await client.createMessage({
+      maxTokens: 1024,
       system: "A system instruction",
       messages: [{ role: "user", content: "A thought" }],
     });
 
     expect(openAiMocks.createResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ store: false }),
+      expect.objectContaining({ max_output_tokens: 1024, store: false }),
     );
   });
 });

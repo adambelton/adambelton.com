@@ -1,18 +1,22 @@
+export const ASSISTANT_MOVES = {
+  askForExample: "ask_for_example",
+  branchCheck: "branch_check",
+  challenge: "challenge",
+  clarify: "clarify",
+  createDraft: "create_draft",
+  distinguish: "distinguish",
+  fullReflection: "full_reflection",
+  offerDraft: "offer_draft",
+  offerPublishing: "offer_publishing",
+  partialReflection: "partial_reflection",
+  probe: "probe",
+  reviseDraft: "revise_draft",
+  suggestResearch: "suggest_research",
+  surfacePerspective: "surface_perspective",
+} as const;
+
 export type AssistantMove =
-  | "probe"
-  | "clarify"
-  | "challenge"
-  | "surface_perspective"
-  | "distinguish"
-  | "ask_for_example"
-  | "partial_reflection"
-  | "full_reflection"
-  | "branch_check"
-  | "suggest_research"
-  | "offer_draft"
-  | "create_draft"
-  | "revise_draft"
-  | "offer_publishing";
+  (typeof ASSISTANT_MOVES)[keyof typeof ASSISTANT_MOVES];
 
 export type ConversationPhase =
   | "new_conversation"
@@ -99,10 +103,30 @@ export type SuggestedReply = {
   message: string;
 };
 
+export const CONVERSATION_MESSAGE_ROLES = {
+  assistant: "assistant",
+  user: "user",
+} as const;
+
+export type ConversationMessageRole =
+  (typeof CONVERSATION_MESSAGE_ROLES)[keyof typeof CONVERSATION_MESSAGE_ROLES];
+
 export type ConversationMessage = {
-  role: "user" | "assistant";
+  role: ConversationMessageRole;
   content: string;
 };
+
+export const CONVERSATION_ERROR_CODES = {
+  inputTooLarge: "conversation_input_too_large",
+  invalidRequest: "invalid_conversation_request",
+  notFound: "conversation_not_found",
+  unavailable: "conversation_unavailable",
+  hostedAiDisabled: "hosted_ai_disabled",
+  hostedAiUnavailable: "hosted_ai_unavailable",
+} as const;
+
+export type ConversationErrorCode =
+  (typeof CONVERSATION_ERROR_CODES)[keyof typeof CONVERSATION_ERROR_CODES];
 
 export type ConversationRequest = {
   conversationId: string | null;
@@ -112,7 +136,7 @@ export type ConversationRequest = {
 export type ConversationResponse = {
   conversationId: string;
   message: {
-    role: "assistant";
+    role: typeof CONVERSATION_MESSAGE_ROLES.assistant;
     content: string;
   };
   move: AssistantMove;

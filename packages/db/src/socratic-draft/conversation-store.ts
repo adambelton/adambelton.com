@@ -3,7 +3,10 @@ import type {
   PersistentConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
 import { createConversationLabel } from "packages/products/src/socratic-draft/server/conversation";
-import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import {
+  CONVERSATION_MESSAGE_ROLES,
+  type ConversationMessage,
+} from "packages/products/src/socratic-draft/shared";
 
 type ConversationMessageRole = ConversationMessage["role"];
 
@@ -80,7 +83,7 @@ export type PrismaConversationStoreClient = {
         createdAt: true;
         updatedAt: true;
         messages: {
-          where: { role: "user" };
+          where: { role: typeof CONVERSATION_MESSAGE_ROLES.user };
           orderBy: { position: "asc" };
           take: 1;
           select: { role: true; content: true };
@@ -179,7 +182,7 @@ export function createPrismaConversationStore(
           createdAt: true,
           updatedAt: true,
           messages: {
-            where: { role: "user" },
+            where: { role: CONVERSATION_MESSAGE_ROLES.user },
             orderBy: { position: "asc" },
             take: 1,
             select: { role: true, content: true },

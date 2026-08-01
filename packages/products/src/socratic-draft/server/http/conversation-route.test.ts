@@ -10,6 +10,11 @@ import type {
   ConversationMessage,
   ConversationResponse,
 } from "packages/products/src/socratic-draft/shared";
+import {
+  ConversationInputTooLargeError,
+  HostedAiDisabledError,
+  HostedAiUnavailableError,
+} from "packages/products/src/socratic-draft/server/conversation";
 import type { ApiResponse } from "packages/shared/src";
 
 describe("Socratic Draft conversation route", () => {
@@ -208,6 +213,50 @@ describe("Socratic Draft conversation route", () => {
       },
     });
   });
+
+  it.each([
+    {
+      error: new HostedAiDisabledError(),
+      code: "hosted_ai_disabled",
+      status: 503,
+    },
+    {
+      error: new ConversationInputTooLargeError(),
+      code: "conversation_input_too_large",
+      status: 413,
+    },
+    {
+      error: new HostedAiUnavailableError(),
+      code: "hosted_ai_unavailable",
+      status: 503,
+    },
+  ])(
+    "returns $code without creating or appending a temporary conversation",
+    async ({ error, code, status }) => {
+      const conversationStore = createFakeConversationStore();
+      const route = createConversationRoute({
+        conversationStore,
+        conversationService: {
+          async respond() {
+            throw error;
+          },
+        },
+      });
+
+      const response = await route.request("/respond", {
+        method: "POST",
+        body: JSON.stringify({ conversationId: null, message: "Keep this" }),
+        headers: { "content-type": "application/json" },
+      });
+
+      expect(response.status).toBe(status);
+      await expect(response.json()).resolves.toMatchObject({
+        ok: false,
+        error: { code },
+      });
+      await expect(conversationStore.getCurrentConversation()).resolves.toBeNull();
+    },
+  );
 });
 
 function createFakeConversationStore(): TemporaryConversationStore {

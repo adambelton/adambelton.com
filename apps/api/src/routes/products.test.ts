@@ -1,12 +1,38 @@
 import { describe, expect, it } from "vitest";
 import { app } from "apps/api/src/server";
 import {
+  createConversationModel,
   getPersistentConversationAccess,
   getTemporaryConversationAccess,
 } from "apps/api/src/routes/products";
+import {
+  DisabledConversationModelAdapter,
+  LlmConversationModelAdapter,
+} from "apps/api/src/adapters";
 import type { ApiResponse } from "packages/shared/src";
 
 describe("products API route mount", () => {
+  it("enables OpenAI only with the exact kill-switch value and a non-empty key", () => {
+    expect(
+      createConversationModel({
+        hostedAiEnabled: "true",
+        openAiApiKey: "test-key",
+      }),
+    ).toBeInstanceOf(LlmConversationModelAdapter);
+    expect(
+      createConversationModel({
+        hostedAiEnabled: "false",
+        openAiApiKey: "test-key",
+      }),
+    ).toBeInstanceOf(DisabledConversationModelAdapter);
+    expect(
+      createConversationModel({
+        hostedAiEnabled: "true",
+        openAiApiKey: "   ",
+      }),
+    ).toBeInstanceOf(DisabledConversationModelAdapter);
+  });
+
   it("selects temporary operations for the owner without granting persistence to demo users", () => {
     const ownerSession = { user: { id: "owner-1", isOwner: true } };
     const demoSession = { user: { id: "demo-1", isOwner: false } };

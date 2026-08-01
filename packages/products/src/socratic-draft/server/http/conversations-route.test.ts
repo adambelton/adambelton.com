@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { createConversationsRoute } from "packages/products/src/socratic-draft/server/http/conversations-route";
 import type { PersistentConversationStore } from "packages/products/src/socratic-draft/server/conversation";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
+import {
+  ConversationInputTooLargeError,
+  HostedAiDisabledError,
+  HostedAiUnavailableError,
+} from "packages/products/src/socratic-draft/server/conversation";
 
 describe("Socratic Draft conversations route", () => {
   it("creates an empty persistent conversation before editing", async () => {
@@ -179,6 +184,54 @@ describe("Socratic Draft conversations route", () => {
       ok: false,
       error: { code: "conversation_not_found" },
     });
+  });
+
+  it.each([
+    {
+      error: new HostedAiDisabledError(),
+      code: "hosted_ai_disabled",
+      status: 503,
+    },
+    {
+      error: new ConversationInputTooLargeError(),
+      code: "conversation_input_too_large",
+      status: 413,
+    },
+    {
+      error: new HostedAiUnavailableError(),
+      code: "hosted_ai_unavailable",
+      status: 503,
+    },
+  ])("returns $code without appending a persistent turn", async ({ error, code, status }) => {
+    let appendWasCalled = false;
+    const store = createPersistentConversationStore();
+    const route = createConversationsRoute({
+      getPersistentConversationStore: async () => ({
+        ...store,
+        appendConversationTurn: async () => {
+          appendWasCalled = true;
+          return { status: "retained" };
+        },
+      }),
+      conversationService: {
+        async respond() {
+          throw error;
+        },
+      },
+    });
+
+    const response = await route.request("/conversation-1/respond", {
+      method: "POST",
+      body: JSON.stringify({ message: "Keep this" }),
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code },
+    });
+    expect(appendWasCalled).toBe(false);
   });
 });
 

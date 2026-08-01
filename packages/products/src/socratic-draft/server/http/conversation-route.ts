@@ -8,6 +8,7 @@ import type {
   TemporaryConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
 import { parseConversationRequest } from "packages/products/src/socratic-draft/server/http/conversation-request";
+import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
 export type CreateConversationRouteDependencies = {
@@ -40,39 +41,67 @@ export function createConversationRoute({
     if (!request) {
       return context.json(
         failure(
-          "invalid_conversation_request",
+          CONVERSATION_ERROR_CODES.invalidRequest,
           "Conversation requests require a message and optional conversationId.",
         ),
         400,
       );
     }
 
-    const conversationId =
-      request.conversationId ?? requestConversationStore.createConversationId();
     const result = await respondToConversation({
-      conversationId,
+      conversationId: request.conversationId,
       message: request.message,
       conversationService,
       conversationStore: requestConversationStore,
     });
 
-    if (result.status === "conversation_not_found") {
+    if (result.status === CONVERSATION_ERROR_CODES.notFound) {
       return context.json(
         failure(
-          "conversation_not_found",
+          CONVERSATION_ERROR_CODES.notFound,
           "The requested conversation was not found.",
         ),
         404,
       );
     }
 
-    if (result.status === "conversation_unavailable") {
+    if (result.status === CONVERSATION_ERROR_CODES.unavailable) {
       return context.json(
         failure(
-          "conversation_unavailable",
+          CONVERSATION_ERROR_CODES.unavailable,
           "This temporary conversation is no longer available.",
         ),
         409,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.inputTooLarge) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.inputTooLarge,
+          "This conversation is too large to continue. Shorten it and try again.",
+        ),
+        413,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.hostedAiDisabled) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.hostedAiDisabled,
+          "The Socratic Draft is currently disabled.",
+        ),
+        503,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.hostedAiUnavailable) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.hostedAiUnavailable,
+          "The Socratic Draft could not respond. Try again shortly.",
+        ),
+        503,
       );
     }
 
@@ -82,7 +111,7 @@ export function createConversationRoute({
     if (!temporaryConversation) {
       return context.json(
         failure(
-          "conversation_unavailable",
+          CONVERSATION_ERROR_CODES.unavailable,
           "This temporary conversation is no longer available.",
         ),
         409,

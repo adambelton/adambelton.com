@@ -1,4 +1,7 @@
-import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import {
+  CONVERSATION_MESSAGE_ROLES,
+  type ConversationMessage,
+} from "packages/products/src/socratic-draft/shared";
 
 type ConversationMessageListProps = {
   messages: ConversationMessage[];
@@ -33,7 +36,7 @@ function ConversationMessageItem({ message }: ConversationMessageItemProps) {
   return (
     <li className="border-t border-[var(--line)] pt-5">
       <p className="m-0 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        {message.role === "user" ? "You" : "Assistant"}
+        {message.role === CONVERSATION_MESSAGE_ROLES.user ? "You" : "Assistant"}
       </p>
       <p className="mt-3 max-w-3xl text-base leading-7">{message.content}</p>
     </li>

@@ -1,6 +1,15 @@
 import type { FormEvent } from "react";
 
-type ConversationComposerProps = {
+export const CONVERSATION_STATUSES = {
+  disabled: "disabled",
+  idle: "idle",
+  sending: "sending",
+} as const;
+
+export type ConversationStatus =
+  (typeof CONVERSATION_STATUSES)[keyof typeof CONVERSATION_STATUSES];
+
+export interface ConversationComposerProps {
   canSubmit: boolean;
   error: string | null;
   errorId: string;
@@ -8,8 +17,8 @@ type ConversationComposerProps = {
   messageInputId: string;
   onMessageChange: (message: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  status: "idle" | "sending";
-};
+  status: ConversationStatus;
+}
 
 export function ConversationComposer({
   canSubmit,
@@ -32,7 +41,7 @@ export function ConversationComposer({
       </label>
       <textarea
         className="min-h-36 resize-y border border-[var(--line)] bg-transparent p-4 text-base leading-7 text-[var(--foreground)]"
-        disabled={status === "sending"}
+        disabled={status !== CONVERSATION_STATUSES.idle}
         id={messageInputId}
         onChange={(event) => onMessageChange(event.target.value)}
         placeholder="Write the thought you want to examine."
@@ -51,7 +60,11 @@ export function ConversationComposer({
         disabled={!canSubmit}
         type="submit"
       >
-        {status === "sending" ? "Sending..." : "Send"}
+        {status === CONVERSATION_STATUSES.sending
+          ? "Sending..."
+          : status === CONVERSATION_STATUSES.disabled
+            ? "Unavailable"
+            : "Send"}
       </button>
     </form>
   );

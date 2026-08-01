@@ -1,10 +1,15 @@
-import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import {
+  CONVERSATION_MESSAGE_ROLES,
+  type ConversationMessage,
+} from "packages/products/src/socratic-draft/shared";
 
 const UNTITLED_CONVERSATION_LABEL = "Untitled conversation";
 const CONVERSATION_LABEL_MAX_LENGTH = 80;
 
 export function createConversationLabel(messages: ConversationMessage[]) {
-  const firstUserMessage = messages.find((message) => message.role === "user");
+  const firstUserMessage = messages.find(
+    (message) => message.role === CONVERSATION_MESSAGE_ROLES.user,
+  );
   const content = firstUserMessage?.content.trim();
 
   if (!content) {

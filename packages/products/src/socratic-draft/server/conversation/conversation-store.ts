@@ -1,4 +1,7 @@
-import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import {
+  CONVERSATION_ERROR_CODES,
+  type ConversationMessage,
+} from "packages/products/src/socratic-draft/shared";
 import type {
   Conversation,
   ConversationSummary,
@@ -11,9 +14,14 @@ export type AppendConversationTurnInput = {
   assistantMessage: ConversationMessage;
 };
 
+export const CONVERSATION_TURN_RETENTION_STATUSES = {
+  retained: "retained",
+  unavailable: CONVERSATION_ERROR_CODES.unavailable,
+} as const;
+
 export type AppendConversationTurnResult =
-  | { status: "retained" }
-  | { status: "conversation_unavailable" };
+  | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.retained }
+  | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.unavailable };
 
 export type ConversationStore = {
   createConversationId(): string;

@@ -8,6 +8,7 @@ import type {
   PersistentConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
 import { parseConversationMessage } from "packages/products/src/socratic-draft/server/http/conversation-request";
+import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
 export type CreateConversationsRouteDependencies = {
@@ -75,7 +76,7 @@ export function createConversationsRoute({
     if (!conversation) {
       return context.json(
         failure(
-          "conversation_not_found",
+          CONVERSATION_ERROR_CODES.notFound,
           "The requested conversation was not found.",
         ),
         404,
@@ -103,7 +104,7 @@ export function createConversationsRoute({
     if (typeof message !== "string") {
       return context.json(
         failure(
-          "invalid_conversation_request",
+          CONVERSATION_ERROR_CODES.invalidRequest,
           "Conversation requests require a message.",
         ),
         400,
@@ -117,13 +118,46 @@ export function createConversationsRoute({
       conversationStore,
     });
 
-    if (result.status !== "responded") {
+    if (
+      result.status === CONVERSATION_ERROR_CODES.notFound ||
+      result.status === CONVERSATION_ERROR_CODES.unavailable
+    ) {
       return context.json(
         failure(
-          "conversation_not_found",
+          CONVERSATION_ERROR_CODES.notFound,
           "The requested conversation was not found.",
         ),
         404,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.inputTooLarge) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.inputTooLarge,
+          "This conversation is too large to continue. Shorten it and try again.",
+        ),
+        413,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.hostedAiDisabled) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.hostedAiDisabled,
+          "The Socratic Draft is currently disabled.",
+        ),
+        503,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.hostedAiUnavailable) {
+      return context.json(
+        failure(
+          CONVERSATION_ERROR_CODES.hostedAiUnavailable,
+          "The Socratic Draft could not respond. Try again shortly.",
+        ),
+        503,
       );
     }
 

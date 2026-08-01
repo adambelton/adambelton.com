@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation/conversation-service";
+import {
+  ConversationInputTooLargeError,
+  MAX_CONVERSATION_INPUT_BYTES,
+  MAX_CONVERSATION_OUTPUT_TOKENS,
+  measureConversationRequestInputBytes,
+} from "packages/products/src/socratic-draft/server/conversation/conversation-service";
 import type {
   ConversationModel,
   ConversationModelRequest,
@@ -101,6 +107,57 @@ describe("ConversationService", () => {
       ],
     });
     expect(modelRequests[0]?.system).toContain("The Socratic Draft");
+    expect(modelRequests[0]?.maxOutputTokens).toBe(
+      MAX_CONVERSATION_OUTPUT_TOKENS,
+    );
+  });
+
+  it("accepts complete input at the byte boundary and rejects one byte over", async () => {
+    const modelRequests: ConversationModelRequest[] = [];
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse(request) {
+          modelRequests.push(request);
+          return { content: "A bounded response" };
+        },
+      },
+    });
+    const emptyRequest = {
+      conversationId: "conversation-123",
+      message: "",
+      previousMessages: [],
+    };
+    const availableMessageBytes =
+      MAX_CONVERSATION_INPUT_BYTES -
+      measureConversationRequestInputBytes(emptyRequest);
+
+    await service.respond({
+      ...emptyRequest,
+      message: "a".repeat(availableMessageBytes),
+    });
+
+    await expect(
+      service.respond({
+        ...emptyRequest,
+        message: "a".repeat(availableMessageBytes + 1),
+      }),
+    ).rejects.toBeInstanceOf(ConversationInputTooLargeError);
+    expect(modelRequests).toHaveLength(1);
+  });
+
+  it("measures complete input as UTF-8 bytes", () => {
+    const asciiBytes = measureConversationRequestInputBytes({
+      conversationId: null,
+      message: "a",
+      previousMessages: [],
+    });
+    const emojiBytes = measureConversationRequestInputBytes({
+      conversationId: null,
+      message: "😀",
+      previousMessages: [],
+    });
+
+    expect(emojiBytes - asciiBytes).toBe(3);
   });
 
   it("uses the static response if the model returns blank content", async () => {
