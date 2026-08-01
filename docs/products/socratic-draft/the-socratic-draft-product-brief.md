@@ -176,12 +176,14 @@ and do not require assistant approval. Changes proposed by the assistant should
 remain proposals until the user explicitly accepts them through conversation or
 the interface.
 
-### 11. Assistant interpretation stays visible and negotiable
+### 11. Assistant assessment stays limited and negotiable
 
-The assistant should maintain an interpretation of the ideas taking shape without
-presenting that interpretation as objective truth. The user may disagree with an
-assessment without erasing it. A difference between the user's view and the
-assistant's view can reveal a useful tension and may become relevant later.
+The assistant may visibly assess qualitative exploration and contextual
+importance without presenting either as objective truth. Its unconfirmed
+hypotheses about themes, causes, forms, audiences, or possible directions remain
+transient reasoning: they may guide a Socratic question or be offered explicitly
+and tentatively in conversation, but they do not become idea-map content until
+the user adopts, confirms, corrects, or meaningfully develops them.
 
 ### 12. Discovery and articulation inform each other
 
@@ -209,8 +211,8 @@ chatbot that eventually generates an essay.
 It contains three connected representations:
 
 1. **Conversation history** records what the user and assistant actually said.
-2. **Idea map** makes the assistant's evolving interpretation of the thought
-   visible, useful, and correctable.
+2. **Idea map** makes the user's explored material visible, organised, and
+   correctable, alongside limited qualitative assistant assessment.
 3. **Draft** contains the user's canonical current articulation of selected ideas.
 
 Information can move in both directions. Conversation can change the idea map and
@@ -247,10 +249,26 @@ to recognise when articulation would be more useful than another question.
 
 ### Idea map
 
-The idea map owns the ideas and relationships the assistant perceives in the
-work. For each idea it may hold a shared summary, unresolved questions,
-connections, possible structural role, disposition, and separate user and
-assistant assessments.
+The idea map owns the ideas and relationships established through the user's
+exploration. For each idea it may hold a concise title, a shared synthesis,
+richer idea substance, grounded unresolved questions, connections, disposition,
+explicit user interpretation, and qualitative assistant assessment.
+
+The synthesis is the distilled current shape shown when the user inspects an
+idea. The substance is the higher-resolution, lightly curated body of
+distinctions, experiences, examples, tensions, perspectives, counterarguments,
+uncertainties, and useful language uncovered through exploration. Sustained
+inquiry may make one idea's substance several paragraphs long and rich enough to
+support an entire piece of writing. It should accumulate coherent material
+without becoming a transcript, and may preserve much more than the eventual
+draft articulates.
+
+Every canonical claim in a title, synthesis, substance, or unresolved question
+must be traceable to something the user expressed or to assistant language the
+user explicitly adopted, confirmed, corrected, or developed. The map must not
+silently shape the idea by storing unconfirmed assistant hypotheses. Questions
+about audience, genre, tone, evidence, and structure belong only when the user
+has begun the corresponding articulation work.
 
 Two important dimensions are:
 
@@ -263,12 +281,13 @@ high-importance, lightly explored idea may deserve attention; a lightly explored
 idea the user has intentionally dismissed may not. The useful question is whether
 an idea has been expressed deeply enough for the role the user wants it to play.
 
-The user's and assistant's assessments can differ. The product should preserve
-that difference, make the assistant's reasoning inspectable, and let the user
-accept, correct, park, dismiss, reopen, or redirect an idea without requiring the
-assistant to pretend its own assessment never existed.
+The user's interpretation and assistant's qualitative assessment can differ. The
+product should preserve that difference and let the user
+accept, correct, focus, satisfy, park, dismiss, reopen, or redirect an idea
+without requiring the assistant to pretend its own assessment never existed.
 
-The baseline may begin with a simple expandable list of ideas and summaries.
+The baseline may begin with a simple expandable list of idea syntheses, with
+their richer substance available for deeper inspection.
 Later development may add relationships, competing interpretations, structural
 roles, evidence, unresolved tensions, separate-piece candidates, and richer ways
 to compare perceived importance with intended importance.

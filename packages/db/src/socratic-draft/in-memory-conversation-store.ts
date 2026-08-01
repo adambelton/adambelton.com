@@ -5,21 +5,34 @@ import type {
 } from "packages/products/src/socratic-draft/server/conversation";
 import { createConversationLabel } from "packages/products/src/socratic-draft/server/conversation";
 import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import {
+  EMPTY_IDEA_MAP,
+  IDEA_MAP_REVISION_SOURCE_TYPES,
+  type IdeaMap,
+  type IdeaMapRevisionSourceType,
+} from "packages/products/src/socratic-draft/shared";
 
-type InMemoryConversation = {
+interface InMemoryIdeaMapRevision {
+  ideaMap: IdeaMap;
+  sourceType: IdeaMapRevisionSourceType;
+  sourceId: string;
+}
+
+interface InMemoryConversation {
   id: string;
   messages: ConversationMessage[];
   createdAt: string;
   updatedAt: string;
-};
+  ideaMapRevisions: InMemoryIdeaMapRevision[];
+}
 
 export const TEMPORARY_CONVERSATION_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
-export type TemporaryConversationStoreOptions = {
+export interface TemporaryConversationStoreOptions {
   now?: () => number;
   scheduleExpiration?: (callback: () => void, delayMs: number) => unknown;
   cancelExpiration?: (handle: unknown) => void;
-};
+}
 
 export function createInMemoryConversationStore(): PersistentConversationStore {
   const conversations = new Map<string, InMemoryConversation>();
@@ -33,19 +46,34 @@ export function createInMemoryConversationStore(): PersistentConversationStore {
         messages: [],
         createdAt: now,
         updatedAt: now,
+        ideaMapRevisions: [],
       });
       return conversationId;
     },
 
-    async getConversationMessages(conversationId: string) {
+    async getConversationWorkspace(conversationId: string) {
       const conversation = conversations.get(conversationId);
 
-      return conversation ? [...conversation.messages] : null;
+      return conversation
+        ? {
+            messages: [...conversation.messages],
+            ideaMap: currentIdeaMap(conversation),
+          }
+        : null;
     },
 
     async appendConversationTurn(input: AppendConversationTurnInput) {
       const existingConversation = conversations.get(input.conversationId);
+      const existingIdeaMap = existingConversation
+        ? currentIdeaMap(existingConversation)
+        : EMPTY_IDEA_MAP;
+      const expectedRevision = input.expectedIdeaMapRevision;
+      const nextIdeaMap = input.ideaMap;
+      if (existingIdeaMap.revision !== expectedRevision) {
+        return { status: "conflict" };
+      }
       const now = new Date().toISOString();
+      const revisions = existingConversation?.ideaMapRevisions ?? [];
       conversations.set(input.conversationId, {
         id: input.conversationId,
         messages: [
@@ -55,7 +83,37 @@ export function createInMemoryConversationStore(): PersistentConversationStore {
         ],
         createdAt: existingConversation?.createdAt ?? now,
         updatedAt: now,
+        ideaMapRevisions:
+          nextIdeaMap.revision === existingIdeaMap.revision
+            ? revisions
+            : [
+                ...revisions,
+                createIdeaMapRevision(
+                  nextIdeaMap,
+                  IDEA_MAP_REVISION_SOURCE_TYPES.conversationTurn,
+                  input.operationId,
+                ),
+              ],
       });
+      return { status: "retained" };
+    },
+
+    async replaceIdeaMap(input) {
+      const conversation = conversations.get(input.conversationId);
+      if (!conversation) {
+        return { status: "conversation_unavailable" };
+      }
+      if (currentIdeaMap(conversation).revision !== input.expectedRevision) {
+        return { status: "conflict" };
+      }
+      conversation.ideaMapRevisions.push(
+        createIdeaMapRevision(
+          input.ideaMap,
+          IDEA_MAP_REVISION_SOURCE_TYPES.ideaAction,
+          input.operationId,
+        ),
+      );
+      conversation.updatedAt = new Date().toISOString();
       return { status: "retained" };
     },
 
@@ -70,6 +128,7 @@ export function createInMemoryConversationStore(): PersistentConversationStore {
       return {
         ...toConversationSummary(conversation),
         messages: [],
+        ideaMap: currentIdeaMap(conversation),
       };
     },
 
@@ -88,6 +147,7 @@ export function createInMemoryConversationStore(): PersistentConversationStore {
         ? {
             ...toConversationSummary(conversation),
             messages: [...conversation.messages],
+            ideaMap: currentIdeaMap(conversation),
           }
         : null;
     },
@@ -137,7 +197,8 @@ export function createTemporaryInMemoryConversationStore({
         id: conversationId,
         messages: [],
         createdAt,
-        updatedAt: createdAt,
+      updatedAt: createdAt,
+      ideaMapRevisions: [],
       };
       expiresAt = now() + TEMPORARY_CONVERSATION_LIFETIME_MS;
       expirationHandle = scheduleExpiration(() => {
@@ -148,11 +209,14 @@ export function createTemporaryInMemoryConversationStore({
       return conversationId;
     },
 
-    async getConversationMessages(conversationId: string) {
+    async getConversationWorkspace(conversationId: string) {
       const currentConversation = getUnexpiredConversation();
 
       return currentConversation?.id === conversationId
-        ? [...currentConversation.messages]
+        ? {
+            messages: [...currentConversation.messages],
+            ideaMap: currentIdeaMap(currentConversation),
+          }
         : null;
     },
 
@@ -162,6 +226,12 @@ export function createTemporaryInMemoryConversationStore({
       if (!currentConversation || currentConversation.id !== input.conversationId) {
         return { status: "conversation_unavailable" };
       }
+      const existingIdeaMap = currentIdeaMap(currentConversation);
+      const expectedRevision = input.expectedIdeaMapRevision;
+      const nextIdeaMap = input.ideaMap;
+      if (existingIdeaMap.revision !== expectedRevision) {
+        return { status: "conflict" };
+      }
 
       conversation = {
         ...currentConversation,
@@ -169,6 +239,40 @@ export function createTemporaryInMemoryConversationStore({
           ...currentConversation.messages,
           input.userMessage,
           input.assistantMessage,
+        ],
+        updatedAt: new Date(now()).toISOString(),
+        ideaMapRevisions:
+          nextIdeaMap.revision === existingIdeaMap.revision
+            ? currentConversation.ideaMapRevisions
+            : [
+                ...currentConversation.ideaMapRevisions,
+                createIdeaMapRevision(
+                  nextIdeaMap,
+                  IDEA_MAP_REVISION_SOURCE_TYPES.conversationTurn,
+                  input.operationId,
+                ),
+              ],
+      };
+      return { status: "retained" };
+    },
+
+    async replaceIdeaMap(input) {
+      const currentConversation = getUnexpiredConversation();
+      if (!currentConversation || currentConversation.id !== input.conversationId) {
+        return { status: "conversation_unavailable" };
+      }
+      if (currentIdeaMap(currentConversation).revision !== input.expectedRevision) {
+        return { status: "conflict" };
+      }
+      conversation = {
+        ...currentConversation,
+        ideaMapRevisions: [
+          ...currentConversation.ideaMapRevisions,
+          createIdeaMapRevision(
+            input.ideaMap,
+            IDEA_MAP_REVISION_SOURCE_TYPES.ideaAction,
+            input.operationId,
+          ),
         ],
         updatedAt: new Date(now()).toISOString(),
       };
@@ -183,6 +287,7 @@ export function createTemporaryInMemoryConversationStore({
             conversation: {
               ...toConversationSummary(currentConversation),
               messages: [...currentConversation.messages],
+              ideaMap: currentIdeaMap(currentConversation),
             },
             expiresAt: new Date(expiresAt).toISOString(),
           }
@@ -193,6 +298,24 @@ export function createTemporaryInMemoryConversationStore({
       clear();
     },
   };
+}
+
+function currentIdeaMap(conversation: InMemoryConversation): IdeaMap {
+  return cloneIdeaMap(
+    conversation.ideaMapRevisions.at(-1)?.ideaMap ?? EMPTY_IDEA_MAP,
+  );
+}
+
+function createIdeaMapRevision(
+  ideaMap: IdeaMap,
+  sourceType: IdeaMapRevisionSourceType,
+  sourceId: string,
+): InMemoryIdeaMapRevision {
+  return { ideaMap: cloneIdeaMap(ideaMap), sourceType, sourceId };
+}
+
+function cloneIdeaMap(ideaMap: IdeaMap): IdeaMap {
+  return JSON.parse(JSON.stringify(ideaMap)) as IdeaMap;
 }
 
 function toConversationSummary(conversation: InMemoryConversation) {

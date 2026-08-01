@@ -46,12 +46,13 @@ function createFakeTemporaryConversationStore(): TemporaryConversationStore {
         createdAt: "2026-08-01T12:00:00.000Z",
         updatedAt: "2026-08-01T12:00:00.000Z",
         messages: [],
+        ideaMap: { revision: 0, ideas: [] },
       };
       return conversation.id;
     },
-    async getConversationMessages(conversationId) {
+    async getConversationWorkspace(conversationId) {
       return conversation?.id === conversationId
-        ? [...conversation.messages]
+        ? { messages: [...conversation.messages], ideaMap: conversation.ideaMap }
         : null;
     },
     async appendConversationTurn(input) {
@@ -60,6 +61,16 @@ function createFakeTemporaryConversationStore(): TemporaryConversationStore {
         return { status: "retained" };
       }
       return { status: "conversation_unavailable" };
+    },
+    async replaceIdeaMap(input) {
+      if (conversation?.id !== input.conversationId) {
+        return { status: "conversation_unavailable" };
+      }
+      if (conversation.ideaMap.revision !== input.expectedRevision) {
+        return { status: "conflict" };
+      }
+      conversation.ideaMap = input.ideaMap;
+      return { status: "retained" };
     },
     async getCurrentConversation() {
       return conversation

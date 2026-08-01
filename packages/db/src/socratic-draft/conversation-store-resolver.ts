@@ -3,7 +3,10 @@ import {
   createInMemoryConversationStore,
   createTemporaryInMemoryConversationStore,
 } from "packages/db/src/socratic-draft/in-memory-conversation-store";
-import { createPrismaConversationStore } from "packages/db/src/socratic-draft/conversation-store";
+import {
+  createPrismaConversationStore,
+  createPrismaConversationStoreClient,
+} from "packages/db/src/socratic-draft/conversation-store";
 import type {
   PersistentConversationStore,
   TemporaryConversationStore,
@@ -74,7 +77,10 @@ export function createSocraticDraftConversationStoreResolver({
     }
 
     ownerConversationStore = databaseUrl
-      ? createPrismaConversationStore(createDatabaseClient(databaseUrl), userId)
+      ? createPrismaConversationStore(
+          createPrismaConversationStoreClient(createDatabaseClient(databaseUrl)),
+          userId,
+        )
       : createInMemoryConversationStore();
     ownerConversationStoreUserId = userId;
 

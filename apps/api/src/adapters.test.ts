@@ -12,6 +12,7 @@ import {
 const modelRequest = {
   maxOutputTokens: 1_024,
   messages: [{ role: "user" as const, content: "A bounded thought" }],
+  outputFormat: { name: "test", schema: { type: "object" } },
   system: "System instructions",
 };
 
@@ -31,6 +32,7 @@ describe("conversation model adapters", () => {
       {
         maxTokens: 1_024,
         messages: modelRequest.messages,
+        outputFormat: modelRequest.outputFormat,
         system: modelRequest.system,
       },
     ]);

@@ -429,3 +429,51 @@ store operation, and reports a `conversation_turn_retained` event only after the
 write succeeds. Capability-specific resources and additional events are added by
 the observable slices that exercise them. Resource existence remains the source
 of lifecycle meaning.
+
+## 028 — Idea Maps Preserve Synthesis And Substance
+
+An idea has a stable product-generated identity, a concise title, a distilled
+synthesis for ordinary inspection, and higher-resolution substance containing
+the lightly curated material uncovered through exploration. Substance may grow
+to several paragraphs and contain substantially more than a later draft uses.
+Sustained inquiry should enrich an existing idea rather than turn every facet
+into another shallow identity.
+
+The idea map records material expressed by the user or assistant language the
+user has explicitly adopted, confirmed, corrected, or meaningfully developed.
+Assistant-generated hypotheses may guide a transient conversational move, but
+they are not canonical idea material and must not silently enter titles,
+syntheses, substance, unresolved questions, or the editor UI. Qualitative
+exploration and contextual-importance assessments remain visible without a
+persisted prose interpretation. Unresolved questions must be grounded in
+user-expressed tensions and must not introduce premature audience, genre, tone,
+evidence, or structural decisions during discovery.
+
+The initial product-policy limits are twelve retained ideas, six active or
+focused ideas, and one focused idea. These values are adjustable, are not schema
+constraints, and must be reassessed after sustained complete-product use.
+Content-free product analytics may support a later review but must never include
+private idea or conversation content.
+
+Exploration uses emerging, developing, and well explored. Contextual importance
+uses background, supporting, and central. Baseline dispositions are active,
+focused, satisfied, parked, and dismissed. Satisfaction records that the user
+considers an idea developed enough for its current purpose and may differ from
+the assistant's exploration assessment.
+
+Conversation response generation and idea-map assessment begin as one structured
+model operation using bounded current map context, with response and proposed
+map changes validated independently. Meaningful map changes create monotonic
+whole-map revisions linked to their originating successful operation or turn.
+The product conversation-model port supplies a provider-neutral strict output
+schema. Host AI adapters translate that schema into their provider's structured
+output mechanism, while product validation still enforces semantic rules such as
+canonical idea identity and explicit user authority for disposition actions.
+Mutations use optimistic revision checks, and stale work must not silently merge,
+overwrite newer state, or trigger an automatic model retry.
+
+Autonomous merge and split behaviour remains out of the baseline but is required
+before the editor is considered fully functional. Real-time multi-user
+collaboration remains a future direction; transport such as WebSockets would not
+replace revisions, conflict handling, permissions, attribution, or collaborative
+editing semantics.

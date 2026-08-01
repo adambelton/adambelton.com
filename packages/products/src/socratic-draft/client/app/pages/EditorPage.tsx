@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Conversation } from "packages/products/src/socratic-draft/shared";
 import { ConversationEditor } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationEditor";
 import { sendPersistentConversationMessage } from "packages/products/src/socratic-draft/client/app/modules/editor/send-conversation-message";
+import { sendPersistentIdeaAction } from "packages/products/src/socratic-draft/client/app/modules/editor/send-idea-action";
 import { loadConversation } from "packages/products/src/socratic-draft/client/app/modules/conversations/load-conversations";
 
 type EditorPageProps = {
@@ -53,6 +54,8 @@ export function EditorPage({
     <ConversationEditor
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
+      initialIdeaMap={conversation.ideaMap}
+      sendIdeaAction={sendPersistentIdeaAction}
       sendMessage={(request) =>
         sendPersistentConversationMessage({
           ...request,

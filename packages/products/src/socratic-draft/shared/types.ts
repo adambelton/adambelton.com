@@ -42,11 +42,11 @@ export const READINESS_ASSESSMENTS = {
 export type ReadinessAssessment =
   (typeof READINESS_ASSESSMENTS)[keyof typeof READINESS_ASSESSMENTS];
 
-export type AssistantReadiness = {
+export interface AssistantReadiness {
   action: ReadinessAction;
   assessment: ReadinessAssessment;
   explanation?: string;
-};
+}
 
 export const USER_INTENTIONS = {
   articulate: "articulate",
@@ -58,10 +58,122 @@ export const USER_INTENTIONS = {
 export type UserIntention =
   (typeof USER_INTENTIONS)[keyof typeof USER_INTENTIONS];
 
-export type SuggestedReply = {
+export interface SuggestedReply {
   label: string;
   message: string;
+}
+
+export const IDEA_EXPLORATION_ASSESSMENTS = {
+  emerging: "emerging",
+  developing: "developing",
+  wellExplored: "well_explored",
+} as const;
+
+export type IdeaExplorationAssessment =
+  (typeof IDEA_EXPLORATION_ASSESSMENTS)[keyof typeof IDEA_EXPLORATION_ASSESSMENTS];
+
+export const IDEA_IMPORTANCE_ASSESSMENTS = {
+  background: "background",
+  supporting: "supporting",
+  central: "central",
+} as const;
+
+export type IdeaImportanceAssessment =
+  (typeof IDEA_IMPORTANCE_ASSESSMENTS)[keyof typeof IDEA_IMPORTANCE_ASSESSMENTS];
+
+export const IDEA_DISPOSITIONS = {
+  active: "active",
+  focused: "focused",
+  satisfied: "satisfied",
+  parked: "parked",
+  dismissed: "dismissed",
+} as const;
+
+export type IdeaDisposition =
+  (typeof IDEA_DISPOSITIONS)[keyof typeof IDEA_DISPOSITIONS];
+
+export interface AssistantIdeaAssessment {
+  exploration: IdeaExplorationAssessment;
+  importance: IdeaImportanceAssessment;
+}
+
+export interface Idea {
+  id: string;
+  title: string;
+  synthesis: string;
+  substance: string;
+  unresolvedQuestions: string[];
+  assistantAssessment: AssistantIdeaAssessment;
+  userInterpretation: string | null;
+  disposition: IdeaDisposition;
+}
+
+export interface IdeaMap {
+  revision: number;
+  ideas: Idea[];
+}
+
+export const EMPTY_IDEA_MAP: IdeaMap = {
+  revision: 0,
+  ideas: [],
 };
+
+export const IDEA_ACTION_TYPES = {
+  correct: "correct",
+  dismiss: "dismiss",
+  focus: "focus",
+  park: "park",
+  reopen: "reopen",
+  satisfy: "satisfy",
+} as const;
+
+export type IdeaActionType =
+  (typeof IDEA_ACTION_TYPES)[keyof typeof IDEA_ACTION_TYPES];
+
+export function isIdeaActionType(value: unknown): value is IdeaActionType {
+  return (
+    typeof value === "string" &&
+    (Object.values(IDEA_ACTION_TYPES) as string[]).includes(value)
+  );
+}
+
+export interface IdeaActionRequest {
+  action: IdeaActionType;
+  expectedRevision: number;
+  userInterpretation?: string;
+}
+
+export const IDEA_ACTION_RESULT_STATUSES = {
+  changed: "changed",
+  conflict: "conflict",
+} as const;
+
+export interface IdeaActionChangedResult {
+  status: typeof IDEA_ACTION_RESULT_STATUSES.changed;
+  ideaMap: IdeaMap;
+}
+
+export interface IdeaActionConflictResult {
+  status: typeof IDEA_ACTION_RESULT_STATUSES.conflict;
+  ideaMap: IdeaMap;
+}
+
+export type IdeaActionResult =
+  | IdeaActionChangedResult
+  | IdeaActionConflictResult;
+
+export const IDEA_MAP_REVISION_SOURCE_TYPES = {
+  conversationTurn: "conversation_turn",
+  ideaAction: "idea_action",
+} as const;
+
+export type IdeaMapRevisionSourceType =
+  (typeof IDEA_MAP_REVISION_SOURCE_TYPES)[keyof typeof IDEA_MAP_REVISION_SOURCE_TYPES];
+
+export const IDEA_MAP_ERROR_CODES = {
+  conflict: "idea_map_conflict",
+  invalidAction: "invalid_idea_action",
+} as const;
 
 export const CONVERSATION_MESSAGE_ROLES = {
   assistant: "assistant",
@@ -71,12 +183,13 @@ export const CONVERSATION_MESSAGE_ROLES = {
 export type ConversationMessageRole =
   (typeof CONVERSATION_MESSAGE_ROLES)[keyof typeof CONVERSATION_MESSAGE_ROLES];
 
-export type ConversationMessage = {
+export interface ConversationMessage {
   role: ConversationMessageRole;
   content: string;
-};
+}
 
 export const CONVERSATION_ERROR_CODES = {
+  conflict: "conversation_conflict",
   inputTooLarge: "conversation_input_too_large",
   invalidRequest: "invalid_conversation_request",
   notFound: "conversation_not_found",
@@ -88,12 +201,12 @@ export const CONVERSATION_ERROR_CODES = {
 export type ConversationErrorCode =
   (typeof CONVERSATION_ERROR_CODES)[keyof typeof CONVERSATION_ERROR_CODES];
 
-export type ConversationRequest = {
+export interface ConversationRequest {
   conversationId: string | null;
   message: string;
-};
+}
 
-export type ConversationResponse = {
+export interface ConversationResponse {
   conversationId: string;
   message: {
     role: typeof CONVERSATION_MESSAGE_ROLES.assistant;
@@ -104,24 +217,26 @@ export type ConversationResponse = {
   assistantReadiness: AssistantReadiness[];
   userIntention: UserIntention | null;
   suggestedReplies: SuggestedReply[];
-};
+  ideaMap: IdeaMap;
+}
 
-export type TemporaryConversationResponse = ConversationResponse & {
+export interface TemporaryConversationResponse extends ConversationResponse {
   expiresAt: string;
-};
+}
 
-export type ConversationSummary = {
+export interface ConversationSummary {
   id: string;
   label: string;
   createdAt: string;
   updatedAt: string;
-};
+}
 
-export type Conversation = ConversationSummary & {
+export interface Conversation extends ConversationSummary {
   messages: ConversationMessage[];
-};
+  ideaMap: IdeaMap;
+}
 
-export type TemporaryConversation = {
+export interface TemporaryConversation {
   conversation: Conversation;
   expiresAt: string;
-};
+}

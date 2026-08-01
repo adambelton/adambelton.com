@@ -94,6 +94,7 @@ export function DemoEditorPage({
         canClear
         initialConversationId={temporaryConversation?.conversation.id}
         initialMessages={temporaryConversation?.conversation.messages}
+        initialIdeaMap={temporaryConversation?.conversation.ideaMap}
         onResponse={(response) => {
           const expiresAt = response.expiresAt;
 

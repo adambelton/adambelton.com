@@ -106,6 +106,7 @@ describe("Socratic Draft conversation detail states", () => {
             { role: "user", content: "A saved thought" },
             { role: "assistant", content: "What matters about that thought?" },
           ],
+          ideaMap: { revision: 0, ideas: [] },
         }}
         error={null}
       />,

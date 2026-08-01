@@ -16,9 +16,10 @@ selected ideas. The user and assistant may move back and forth between discovery
 and articulation as writing exposes further questions.
 
 Conversation messages preserve the exploration history. The idea map maintains
-ideas, summaries, contextual importance, exploration, and potentially differing
-user and assistant assessments. A draft is separate, mutable, and authoritative
-when directly edited by the user. Assistant changes require explicit approval.
+ideas, distilled syntheses, richer substance, contextual importance, exploration,
+and potentially differing user and assistant assessments. A draft is separate,
+mutable, and authoritative when directly edited by the user. Assistant changes
+require explicit approval.
 Publishing later creates site-level public writing from the private draft.
 
 The product is divided conceptually into conversation and inquiry, idea mapping,

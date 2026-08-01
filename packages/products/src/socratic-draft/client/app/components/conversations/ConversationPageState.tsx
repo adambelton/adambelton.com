@@ -1,5 +1,7 @@
 import type { Conversation } from "packages/products/src/socratic-draft/shared";
 import { ConversationEditor } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationEditor";
+import { sendPersistentIdeaAction } from "packages/products/src/socratic-draft/client/app/modules/editor/send-idea-action";
+import { sendPersistentConversationMessage } from "packages/products/src/socratic-draft/client/app/modules/editor/send-conversation-message";
 
 type ConversationPageStateProps = {
   conversation: Conversation | null;
@@ -38,6 +40,14 @@ export function ConversationPageState({
       key={conversation.id}
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
+      initialIdeaMap={conversation.ideaMap}
+      sendIdeaAction={sendPersistentIdeaAction}
+      sendMessage={(request) =>
+        sendPersistentConversationMessage({
+          ...request,
+          conversationId: conversation.id,
+        })
+      }
     />
   );
 }

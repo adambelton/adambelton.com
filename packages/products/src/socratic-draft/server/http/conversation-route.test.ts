@@ -9,6 +9,7 @@ import type { ConversationResponder } from "packages/products/src/socratic-draft
 import type {
   ConversationMessage,
   ConversationResponse,
+  IdeaMap,
 } from "packages/products/src/socratic-draft/shared";
 import {
   ConversationInputTooLargeError,
@@ -52,9 +53,9 @@ describe("Socratic Draft conversation route", () => {
     });
 
     const responseData = body.ok ? body.data : null;
-    const messages = await conversationStore.getConversationMessages("conversation-1");
+    const workspace = await conversationStore.getConversationWorkspace("conversation-1");
 
-    expect(messages).toEqual([
+    expect(workspace?.messages).toEqual([
       {
         role: "user",
         content: "I can't tell whether this draft is honest.",
@@ -67,6 +68,7 @@ describe("Socratic Draft conversation route", () => {
     const conversationStore = createFakeConversationStore();
     await conversationStore.appendConversationTurn({
       conversationId: "conversation-1",
+      operationId: "operation-1",
       userMessage: {
         role: "user",
         content: "Earlier thought.",
@@ -75,6 +77,8 @@ describe("Socratic Draft conversation route", () => {
         role: "assistant",
         content: "Earlier response.",
       },
+      expectedIdeaMapRevision: 0,
+      ideaMap: { revision: 0, ideas: [] },
     });
     let previousMessages: ConversationMessage[] | null = null;
     const conversationService = {
@@ -260,10 +264,105 @@ describe("Socratic Draft conversation route", () => {
       await expect(conversationStore.getCurrentConversation()).resolves.toBeNull();
     },
   );
+
+  it("applies an explicit temporary idea action and advances the revision", async () => {
+    const conversationStore = createFakeConversationStore();
+    const conversationId = conversationStore.createConversationId();
+    await conversationStore.replaceIdeaMap({
+      conversationId,
+      operationId: "operation-1",
+      expectedRevision: 0,
+      ideaMap: {
+        revision: 1,
+        ideas: [
+          {
+            id: "idea-1",
+            title: "A tangent",
+            synthesis: "A possible tangent.",
+            substance: "This may not belong.",
+            unresolvedQuestions: [],
+            assistantAssessment: {
+              exploration: "emerging",
+              importance: "background",
+            },
+            userInterpretation: null,
+            disposition: "active",
+          },
+        ],
+      },
+    });
+    const route = createConversationRoute({ conversationStore });
+    const response = await route.request(
+      `/${conversationId}/ideas/idea-1`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "dismiss", expectedRevision: 1 }),
+      },
+    );
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        status: "changed",
+        ideaMap: { revision: 2, ideas: [{ disposition: "dismissed" }] },
+      },
+    });
+  });
+
+  it("returns the current idea map when an explicit action is stale", async () => {
+    const conversationStore = createFakeConversationStore();
+    const conversationId = conversationStore.createConversationId();
+    await conversationStore.replaceIdeaMap({
+      conversationId,
+      operationId: "operation-1",
+      expectedRevision: 0,
+      ideaMap: {
+        revision: 1,
+        ideas: [
+          {
+            id: "idea-1",
+            title: "A tangent",
+            synthesis: "A possible tangent.",
+            substance: "This may not belong.",
+            unresolvedQuestions: [],
+            assistantAssessment: {
+              exploration: "emerging",
+              importance: "background",
+            },
+            userInterpretation: null,
+            disposition: "active",
+          },
+        ],
+      },
+    });
+    const route = createConversationRoute({ conversationStore });
+    await route.request(`/${conversationId}/ideas/idea-1`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "dismiss", expectedRevision: 1 }),
+    });
+
+    const response = await route.request(`/${conversationId}/ideas/idea-1`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "park", expectedRevision: 1 }),
+    });
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        status: "conflict",
+        ideaMap: { revision: 2, ideas: [{ disposition: "dismissed" }] },
+      },
+    });
+  });
 });
 
 function createFakeConversationStore(): TemporaryConversationStore {
   const conversations = new Map<string, ConversationMessage[]>();
+  const ideaMaps = new Map<string, IdeaMap>();
   let nextEntryNumber = 1;
 
   return {
@@ -271,12 +370,14 @@ function createFakeConversationStore(): TemporaryConversationStore {
       const conversationId = `conversation-${nextEntryNumber}`;
       nextEntryNumber += 1;
       conversations.set(conversationId, []);
+      ideaMaps.set(conversationId, { revision: 0, ideas: [] });
       return conversationId;
     },
 
-    async getConversationMessages(conversationId: string) {
+    async getConversationWorkspace(conversationId: string) {
       const messages = conversations.get(conversationId);
-      return messages ? [...messages] : null;
+      const ideaMap = ideaMaps.get(conversationId);
+      return messages && ideaMap ? { messages: [...messages], ideaMap } : null;
     },
 
     async appendConversationTurn(input: AppendConversationTurnInput) {
@@ -286,6 +387,18 @@ function createFakeConversationStore(): TemporaryConversationStore {
         input.userMessage,
         input.assistantMessage,
       ]);
+      ideaMaps.set(
+        input.conversationId,
+        input.ideaMap,
+      );
+      return { status: "retained" };
+    },
+
+    async replaceIdeaMap(input) {
+      const current = ideaMaps.get(input.conversationId);
+      if (!current) return { status: "conversation_unavailable" };
+      if (current.revision !== input.expectedRevision) return { status: "conflict" };
+      ideaMaps.set(input.conversationId, input.ideaMap);
       return { status: "retained" };
     },
 
@@ -300,6 +413,7 @@ function createFakeConversationStore(): TemporaryConversationStore {
               createdAt: "2026-08-01T12:00:00.000Z",
               updatedAt: "2026-08-01T12:00:00.000Z",
               messages: [...entry[1]],
+              ideaMap: ideaMaps.get(entry[0]) ?? { revision: 0, ideas: [] },
             },
             expiresAt: "2026-08-02T12:00:00.000Z",
           }
@@ -308,6 +422,7 @@ function createFakeConversationStore(): TemporaryConversationStore {
 
     async clearCurrentConversation() {
       conversations.clear();
+      ideaMaps.clear();
     },
   };
 }

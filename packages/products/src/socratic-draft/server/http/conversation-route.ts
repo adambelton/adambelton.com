@@ -10,6 +10,7 @@ import {
   type ConversationResponder,
 } from "packages/products/src/socratic-draft/server/workspace";
 import { parseConversationRequest } from "packages/products/src/socratic-draft/server/http/conversation-request";
+import { handleIdeaActionRequest } from "packages/products/src/socratic-draft/server/http/idea-action-handler";
 import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
@@ -26,7 +27,8 @@ export function createConversationRoute({
   getConversationStore,
   conversationService = new ConversationService(),
 }: CreateConversationRouteDependencies) {
-  return new Hono().post("/respond", async (context) => {
+  const route = new Hono();
+  route.post("/respond", async (context) => {
     const requestConversationStore = getConversationStore
       ? await getConversationStore(context.req.raw)
       : conversationStore;
@@ -73,6 +75,13 @@ export function createConversationRoute({
           CONVERSATION_ERROR_CODES.unavailable,
           "This temporary conversation is no longer available.",
         ),
+        409,
+      );
+    }
+
+    if (result.status === CONVERSATION_ERROR_CODES.conflict) {
+      return context.json(
+        failure(result.status, "The idea map changed while the response was being prepared. Try again."),
         409,
       );
     }
@@ -128,4 +137,21 @@ export function createConversationRoute({
       201,
     );
   });
+
+  route.post("/:conversationId/ideas/:ideaId", async (context) => {
+    const store = getConversationStore
+      ? await getConversationStore(context.req.raw)
+      : conversationStore;
+    if (!store) {
+      return context.json(failure("unauthorized", "Sign in to continue."), 401);
+    }
+    return handleIdeaActionRequest({
+      request: context.req.raw,
+      conversationId: context.req.param("conversationId"),
+      ideaId: context.req.param("ideaId"),
+      conversations: store,
+    });
+  });
+
+  return route;
 }

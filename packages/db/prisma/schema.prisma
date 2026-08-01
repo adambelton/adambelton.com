@@ -81,15 +81,33 @@ model SocraticDraftConversation {
   id                  String   @id
   userId              String   @map("user_id")
   nextMessagePosition Int      @default(0) @map("next_message_position")
+  ideaMapRevision     Int      @default(0) @map("idea_map_revision")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
   user     User                               @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages SocraticDraftConversationMessage[]
+  ideaMapRevisions SocraticDraftIdeaMapRevision[]
 
   @@index([userId, updatedAt])
   @@unique([id, userId])
   @@map("socratic_draft_conversations")
+}
+
+model SocraticDraftIdeaMapRevision {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  revision       Int
+  ideas          Json
+  sourceType     String   @map("source_type")
+  sourceId       String   @map("source_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation SocraticDraftConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, revision])
+  @@index([conversationId])
+  @@map("socratic_draft_idea_map_revisions")
 }
 
 model SocraticDraftConversationMessage {

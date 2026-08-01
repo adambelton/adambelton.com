@@ -30,13 +30,30 @@ export class OpenAiLlmClient implements LlmClient {
       max_output_tokens: request.maxTokens,
       model: this.model,
       store: false,
+      ...(request.outputFormat
+        ? {
+            text: {
+              format: {
+                type: "json_schema" as const,
+                name: request.outputFormat.name,
+                schema: request.outputFormat.schema,
+                strict: true,
+              },
+            },
+          }
+        : {}),
       temperature: request.temperature,
     });
+
+    if (response.status === "incomplete") {
+      throw new Error("The model response was incomplete.");
+    }
 
     return {
       content: response.output_text,
       inputTokens: response.usage?.input_tokens,
       outputTokens: response.usage?.output_tokens,
+      reasoningTokens: response.usage?.output_tokens_details?.reasoning_tokens,
       model: response.model,
     };
   }

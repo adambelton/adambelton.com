@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import { createPrismaConversationStore } from "packages/db/src/socratic-draft/conversation-store";
 import type { PrismaConversationStoreClient } from "packages/db/src/socratic-draft/conversation-store";
 import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
+import type { IdeaMap } from "packages/products/src/socratic-draft/shared";
+import type { AppendConversationTurnInput } from "packages/products/src/socratic-draft/server/conversation";
 
 describe("Prisma Socratic Draft conversation store", () => {
   it("creates an owner-scoped empty conversation ready for its first turn", async () => {
     const prisma = createFakePrismaConversationStoreClient();
     const ownerStore = createPrismaConversationStore(prisma, "owner-1");
     const otherStore = createPrismaConversationStore(prisma, "owner-2");
-
     const conversation = await ownerStore.createConversation();
 
     expect(conversation.messages).toEqual([]);
@@ -17,11 +18,11 @@ describe("Prisma Socratic Draft conversation store", () => {
     );
     await expect(otherStore.getConversation(conversation.id)).resolves.toBeNull();
 
-    await ownerStore.appendConversationTurn({
+    await ownerStore.appendConversationTurn(createTurn({
       conversationId: conversation.id,
       userMessage: { role: "user", content: "First thought" },
       assistantMessage: { role: "assistant", content: "First response" },
-    });
+    }));
 
     await expect(ownerStore.getConversation(conversation.id)).resolves.toMatchObject({
       messages: [
@@ -35,9 +36,10 @@ describe("Prisma Socratic Draft conversation store", () => {
     const prisma = createFakePrismaConversationStoreClient();
     const ownerStore = createPrismaConversationStore(prisma, "owner-1");
     const otherStore = createPrismaConversationStore(prisma, "owner-2");
+    const ownerConversation = await ownerStore.createConversation();
 
-    await ownerStore.appendConversationTurn({
-      conversationId: "conversation-1",
+    await ownerStore.appendConversationTurn(createTurn({
+      conversationId: ownerConversation.id,
       userMessage: {
         role: "user",
         content: "I am not sure this draft says what I mean.",
@@ -46,9 +48,9 @@ describe("Prisma Socratic Draft conversation store", () => {
         role: "assistant",
         content: "What feels furthest from what you mean?",
       },
-    });
-    await ownerStore.appendConversationTurn({
-      conversationId: "conversation-1",
+    }));
+    await ownerStore.appendConversationTurn(createTurn({
+      conversationId: ownerConversation.id,
       userMessage: {
         role: "user",
         content: "The conclusion is too calm.",
@@ -57,18 +59,18 @@ describe("Prisma Socratic Draft conversation store", () => {
         role: "assistant",
         content: "What would a more honest ending admit?",
       },
-    });
+    }));
 
     await expect(ownerStore.listConversations()).resolves.toMatchObject([
       {
-        id: "conversation-1",
+        id: ownerConversation.id,
         label: "I am not sure this draft says what I mean.",
       },
     ]);
     await expect(
-      ownerStore.getConversation("conversation-1"),
+      ownerStore.getConversation(ownerConversation.id),
     ).resolves.toMatchObject({
-      id: "conversation-1",
+      id: ownerConversation.id,
       messages: [
         { role: "user", content: "I am not sure this draft says what I mean." },
         {
@@ -83,46 +85,102 @@ describe("Prisma Socratic Draft conversation store", () => {
       ],
     });
     await expect(otherStore.listConversations()).resolves.toEqual([]);
-    await expect(otherStore.getConversation("conversation-1")).resolves.toBeNull();
+    await expect(otherStore.getConversation(ownerConversation.id)).resolves.toBeNull();
     await expect(
-      otherStore.getConversationMessages("conversation-1"),
+      otherStore.getConversationWorkspace?.(ownerConversation.id),
     ).resolves.toBeNull();
     await expect(
-      otherStore.appendConversationTurn({
-        conversationId: "conversation-1",
+      otherStore.appendConversationTurn(createTurn({
+        conversationId: ownerConversation.id,
         userMessage: { role: "user", content: "This should not be stored." },
         assistantMessage: { role: "assistant", content: "Nor should this." },
-      }),
-    ).rejects.toThrow("Conversation belongs to another user.");
+      })),
+    ).resolves.toEqual({ status: "conflict" });
   });
 
-  it("allocates each appended turn from the conversation's atomic sequence", async () => {
+  it("rejects one of two overlapping turns instead of duplicating a sequence", async () => {
     const prisma = createFakePrismaConversationStoreClient();
     const store = createPrismaConversationStore(prisma, "owner-1");
+    const conversation = await store.createConversation();
 
-    await Promise.all([
-      store.appendConversationTurn({
-        conversationId: "conversation-1",
+    const results = await Promise.all([
+      store.appendConversationTurn(createTurn({
+        conversationId: conversation.id,
         userMessage: { role: "user", content: "First user turn" },
         assistantMessage: { role: "assistant", content: "First response" },
-      }),
-      store.appendConversationTurn({
-        conversationId: "conversation-1",
+      })),
+      store.appendConversationTurn(createTurn({
+        conversationId: conversation.id,
         userMessage: { role: "user", content: "Second user turn" },
         assistantMessage: { role: "assistant", content: "Second response" },
-      }),
+      })),
     ]);
 
-    const conversation = await store.getConversation("conversation-1");
-    expect(conversation?.messages).toHaveLength(4);
-    expect(conversation?.messages).toEqual([
-      { role: "user", content: "First user turn" },
-      { role: "assistant", content: "First response" },
-      { role: "user", content: "Second user turn" },
-      { role: "assistant", content: "Second response" },
+    expect(results.map((result) => result.status).sort()).toEqual([
+      "conflict",
+      "retained",
     ]);
+    const retained = await store.getConversation(conversation.id);
+    expect(retained?.messages).toHaveLength(2);
+  });
+
+  it("retains owner-scoped idea-map revisions and rejects stale replacement", async () => {
+    const prisma = createFakePrismaConversationStoreClient();
+    const store = createPrismaConversationStore(prisma, "owner-1");
+    const conversation = await store.createConversation();
+    const ideaMap: IdeaMap = {
+      revision: 1,
+      ideas: [
+        {
+          id: "idea-1",
+          title: "Agency",
+          synthesis: "The idea concerns agency.",
+          substance: "Open time and spontaneity have become scarce.",
+          unresolvedQuestions: [],
+          assistantAssessment: {
+            exploration: "developing",
+            importance: "central",
+          },
+          userInterpretation: null,
+          disposition: "active",
+        },
+      ],
+    };
+    await expect(
+      store.replaceIdeaMap?.({
+        conversationId: conversation.id,
+        operationId: "idea-action-1",
+        expectedRevision: 0,
+        ideaMap,
+      }),
+    ).resolves.toEqual({ status: "retained" });
+    await expect(store.getConversation(conversation.id)).resolves.toMatchObject({
+      ideaMap,
+    });
+    await expect(
+      store.replaceIdeaMap?.({
+        conversationId: conversation.id,
+        operationId: "idea-action-2",
+        expectedRevision: 0,
+        ideaMap: { ...ideaMap, revision: 2 },
+      }),
+    ).resolves.toEqual({ status: "conflict" });
   });
 });
+
+function createTurn(
+  input: Pick<
+    AppendConversationTurnInput,
+    "conversationId" | "userMessage" | "assistantMessage"
+  >,
+): AppendConversationTurnInput {
+  return {
+    ...input,
+    operationId: globalThis.crypto.randomUUID(),
+    expectedIdeaMapRevision: 0,
+    ideaMap: { revision: 0, ideas: [] },
+  };
+}
 
 type FakeConversation = {
   id: string;
@@ -130,6 +188,7 @@ type FakeConversation = {
   nextMessagePosition: number;
   createdAt: Date;
   updatedAt: Date;
+  ideaMapRevision: number;
 };
 
 type FakeMessage = ConversationMessage & {
@@ -140,42 +199,59 @@ type FakeMessage = ConversationMessage & {
 function createFakePrismaConversationStoreClient(): PrismaConversationStoreClient {
   const conversations: FakeConversation[] = [];
   const messages: FakeMessage[] = [];
+  const revisions: { conversationId: string; revision: number; ideas: unknown }[] = [];
 
   const transaction = {
     socraticDraftConversation: {
-      async upsert(input: {
-        where: { id_userId: { id: string; userId: string } };
-        create: { id: string; userId: string; nextMessagePosition: number };
-        update: {
-          nextMessagePosition: { increment: number };
+      async findFirst(input: { where: { id: string; userId: string } }) {
+        const conversation = conversations.find(
+          (candidate) =>
+            candidate.id === input.where.id && candidate.userId === input.where.userId,
+        );
+        return conversation
+          ? { nextMessagePosition: conversation.nextMessagePosition }
+          : null;
+      },
+      async updateMany(input: {
+        where: {
+          id: string;
+          userId: string;
+          ideaMapRevision: number;
+          nextMessagePosition?: number;
+        };
+        data: {
+          nextMessagePosition?: { increment: number };
+          ideaMapRevision: number;
           updatedAt: Date;
         };
-        select: { nextMessagePosition: true };
       }) {
-        const existingConversation = conversations.find(
-          (conversation) => conversation.id === input.where.id_userId.id,
-        );
-        if (existingConversation) {
-          if (existingConversation.userId !== input.where.id_userId.userId) {
-            throw new Error("Conversation belongs to another user.");
-          }
-          existingConversation.nextMessagePosition +=
-            input.update.nextMessagePosition.increment;
-          existingConversation.updatedAt = input.update.updatedAt;
-        } else {
-          const now = new Date("2026-07-31T10:00:00.000Z");
-          conversations.push({ ...input.create, createdAt: now, updatedAt: now });
-        }
         const conversation = conversations.find(
-          (candidate) => candidate.id === input.where.id_userId.id,
+          (candidate) =>
+            candidate.id === input.where.id &&
+            candidate.userId === input.where.userId &&
+            candidate.ideaMapRevision === input.where.ideaMapRevision &&
+            (input.where.nextMessagePosition === undefined ||
+              candidate.nextMessagePosition === input.where.nextMessagePosition),
         );
-        return { nextMessagePosition: conversation?.nextMessagePosition ?? 0 };
+        if (!conversation) return { count: 0 };
+        conversation.nextMessagePosition += input.data.nextMessagePosition?.increment ?? 0;
+        conversation.ideaMapRevision = input.data.ideaMapRevision;
+        conversation.updatedAt = input.data.updatedAt;
+        return { count: 1 };
       },
     },
     socraticDraftConversationMessage: {
       async createMany(input: { data: FakeMessage[] }) {
         messages.push(...input.data);
         return { count: input.data.length };
+      },
+    },
+    socraticDraftIdeaMapRevision: {
+      async create(input: {
+        data: { conversationId: string; revision: number; ideas: unknown };
+      }) {
+        revisions.push(input.data);
+        return input.data;
       },
     },
   };
@@ -193,7 +269,7 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
           updatedAt: now,
         };
         conversations.push(conversation);
-        return toConversationRow(conversation, messages);
+        return toConversationRow(conversation, messages, revisions);
       },
       async findFirst(input) {
         const conversation = conversations.find(
@@ -201,7 +277,9 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
             candidate.id === input.where.id &&
             candidate.userId === input.where.userId,
         );
-        return conversation ? toConversationRow(conversation, messages) : null;
+        return conversation
+          ? toConversationRow(conversation, messages, revisions)
+          : null;
       },
       async findMany(input) {
         return conversations
@@ -211,7 +289,7 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
               second.updatedAt.getTime() - first.updatedAt.getTime(),
           )
           .map((conversation) => ({
-            ...toConversationRow(conversation, messages),
+            ...toConversationRow(conversation, messages, revisions),
             messages: messages
               .filter(
                 (message) =>
@@ -230,11 +308,18 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
 function toConversationRow(
   conversation: FakeConversation,
   messages: FakeMessage[],
+  revisions: { conversationId: string; revision: number; ideas: unknown }[],
 ) {
   return {
     id: conversation.id,
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt,
+    ideaMapRevision: conversation.ideaMapRevision,
+    ideaMapRevisions: revisions
+      .filter((revision) => revision.conversationId === conversation.id)
+      .sort((first, second) => second.revision - first.revision)
+      .slice(0, 1)
+      .map(({ revision, ideas }) => ({ revision, ideas })),
     messages: messages
       .filter((message) => message.conversationId === conversation.id)
       .sort((first, second) => first.position - second.position)

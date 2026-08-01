@@ -3,8 +3,14 @@ import type { ConversationMessage } from "packages/products/src/socratic-draft/s
 export type ConversationModelRequest = {
   maxOutputTokens: number;
   messages: ConversationMessage[];
+  outputFormat: ConversationModelOutputFormat;
   system: string;
 };
+
+export interface ConversationModelOutputFormat {
+  name: string;
+  schema: Record<string, unknown>;
+}
 
 export type ConversationModelResponse = {
   content: string;

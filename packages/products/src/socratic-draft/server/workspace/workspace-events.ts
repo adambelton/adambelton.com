@@ -1,5 +1,6 @@
 export const WORKSPACE_EVENT_TYPES = {
   conversationTurnRetained: "conversation_turn_retained",
+  ideaMapChanged: "idea_map_changed",
 } as const;
 
 export type ConversationTurnRetainedEvent = {
@@ -7,4 +8,10 @@ export type ConversationTurnRetainedEvent = {
   conversationId: string;
 };
 
-export type WorkspaceEvent = ConversationTurnRetainedEvent;
+export type IdeaMapChangedEvent = {
+  type: typeof WORKSPACE_EVENT_TYPES.ideaMapChanged;
+  conversationId: string;
+  revision: number;
+};
+
+export type WorkspaceEvent = ConversationTurnRetainedEvent | IdeaMapChangedEvent;

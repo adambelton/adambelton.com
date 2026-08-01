@@ -4,6 +4,7 @@ import {
   createTemporaryInMemoryConversationStore,
   TEMPORARY_CONVERSATION_LIFETIME_MS,
 } from "packages/db/src/socratic-draft/in-memory-conversation-store";
+import type { AppendConversationTurnInput } from "packages/products/src/socratic-draft/server/conversation";
 
 describe("in-memory Socratic Draft conversation store", () => {
   it("creates an addressable empty persistent conversation", async () => {
@@ -20,11 +21,11 @@ describe("in-memory Socratic Draft conversation store", () => {
     const store = createInMemoryConversationStore();
     const conversationId = store.createConversationId();
 
-    await store.appendConversationTurn({
+    await store.appendConversationTurn(createTurn({
       conversationId,
       userMessage: { role: "user", content: `  ${"a".repeat(100)}  ` },
       assistantMessage: { role: "assistant", content: "A response" },
-    });
+    }));
 
     await expect(store.listConversations()).resolves.toMatchObject([
       { label: `${"a".repeat(79)}…` },
@@ -54,11 +55,11 @@ describe("temporary in-memory Socratic Draft conversation store", () => {
     });
 
     currentTime += TEMPORARY_CONVERSATION_LIFETIME_MS - 1;
-    await expect(store.appendConversationTurn({
+    await expect(store.appendConversationTurn(createTurn({
       conversationId,
       userMessage: { role: "user", content: "Still here" },
       assistantMessage: { role: "assistant", content: "For one more millisecond" },
-    })).resolves.toEqual({ status: "retained" });
+    }))).resolves.toEqual({ status: "retained" });
     await expect(store.getCurrentConversation()).resolves.toMatchObject({
       expiresAt: "2026-08-02T12:00:00.000Z",
     });
@@ -66,11 +67,11 @@ describe("temporary in-memory Socratic Draft conversation store", () => {
     currentTime += 1;
     await expect(store.getCurrentConversation()).resolves.toBeNull();
     await expect(
-      store.appendConversationTurn({
+      store.appendConversationTurn(createTurn({
         conversationId,
         userMessage: { role: "user", content: "Too late" },
         assistantMessage: { role: "assistant", content: "Unavailable" },
-      }),
+      })),
     ).resolves.toEqual({ status: "conversation_unavailable" });
   });
 
@@ -100,3 +101,17 @@ describe("temporary in-memory Socratic Draft conversation store", () => {
     await expect(store.getCurrentConversation()).resolves.toBeNull();
   });
 });
+
+function createTurn(
+  input: Pick<
+    AppendConversationTurnInput,
+    "conversationId" | "userMessage" | "assistantMessage"
+  >,
+): AppendConversationTurnInput {
+  return {
+    ...input,
+    operationId: globalThis.crypto.randomUUID(),
+    expectedIdeaMapRevision: 0,
+    ideaMap: { revision: 0, ideas: [] },
+  };
+}

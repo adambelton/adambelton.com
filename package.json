@@ -6,6 +6,7 @@
   "scripts": {
     "dev:client": "pnpm --filter @adambelton/client dev",
     "dev:api": "pnpm db:generate && pnpm --filter @adambelton/api dev",
+    "evaluate:socratic-draft": "pnpm --filter @adambelton/api evaluate:socratic-draft",
     "db:generate": "pnpm --filter @adambelton/db prisma:generate",
     "db:validate": "pnpm --filter @adambelton/db prisma:validate",
     "db:migrate:dev": "pnpm --filter @adambelton/db prisma:migrate:dev",

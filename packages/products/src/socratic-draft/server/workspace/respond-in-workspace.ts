@@ -17,6 +17,11 @@ import {
   CONVERSATION_MESSAGE_ROLES,
   type ConversationResponse,
 } from "packages/products/src/socratic-draft/shared";
+import {
+  applyIdeaAction,
+  applyProposedIdeas,
+  IDEA_MAP_UPDATE_STATUSES,
+} from "packages/products/src/socratic-draft/server/idea-map";
 
 export const WORKSPACE_RESPONSE_STATUSES = {
   responded: "responded",
@@ -34,7 +39,8 @@ export type RespondInWorkspaceResult =
   | { status: typeof CONVERSATION_ERROR_CODES.unavailable }
   | { status: typeof CONVERSATION_ERROR_CODES.inputTooLarge }
   | { status: typeof CONVERSATION_ERROR_CODES.hostedAiDisabled }
-  | { status: typeof CONVERSATION_ERROR_CODES.hostedAiUnavailable };
+  | { status: typeof CONVERSATION_ERROR_CODES.hostedAiUnavailable }
+  | { status: typeof CONVERSATION_ERROR_CODES.conflict };
 
 export async function respondInWorkspace(input: {
   conversationId: string | null;
@@ -42,21 +48,22 @@ export async function respondInWorkspace(input: {
   conversation: ConversationResponder;
   conversations: ConversationStore;
 }): Promise<RespondInWorkspaceResult> {
-  const previousMessages = input.conversationId
-    ? await input.conversations.getConversationMessages(input.conversationId)
-    : [];
+  const workspace = input.conversationId
+    ? await input.conversations.getConversationWorkspace(input.conversationId)
+    : { messages: [], ideaMap: { revision: 0, ideas: [] } };
 
-  if (previousMessages === null) {
+  if (workspace === null) {
     return { status: CONVERSATION_ERROR_CODES.notFound };
   }
 
-  let generatedResponse: ConversationResponse;
+  let generatedResponse: Awaited<ReturnType<ConversationResponder["respond"]>>;
 
   try {
     generatedResponse = await input.conversation.respond({
       conversationId: input.conversationId,
       message: input.message,
-      previousMessages,
+      previousMessages: workspace.messages,
+      ideaMap: workspace.ideaMap,
     });
   } catch (error) {
     if (error instanceof ConversationInputTooLargeError) {
@@ -71,18 +78,65 @@ export async function respondInWorkspace(input: {
     throw error;
   }
 
+  const operationId = globalThis.crypto.randomUUID();
   const conversationId =
     input.conversationId ?? input.conversations.createConversationId();
-  const response = { ...generatedResponse, conversationId };
+  const proposedMap = applyProposedIdeas({
+    current: workspace.ideaMap,
+    proposedIdeas: generatedResponse.proposedIdeas,
+  });
+  let ideaMap =
+    proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
+      ? workspace.ideaMap
+      : proposedMap.ideaMap;
+  let invalidIdeaChanges =
+    proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
+  const {
+    proposedIdeas: _proposedIdeas,
+    proposedIdeaActions,
+    ...generatedConversationResponse
+  } = generatedResponse;
+  for (const action of proposedIdeaActions ?? []) {
+    const actionResult = applyIdeaAction({
+      current: ideaMap,
+      ideaId: action.ideaId,
+      request: {
+        action: action.action,
+        expectedRevision: workspace.ideaMap.revision,
+        userInterpretation: action.userInterpretation,
+      },
+    });
+    if (actionResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
+      invalidIdeaChanges = true;
+      break;
+    }
+    ideaMap = actionResult.ideaMap;
+  }
+  if (invalidIdeaChanges) {
+    ideaMap = workspace.ideaMap;
+  } else if (ideaMap.revision !== workspace.ideaMap.revision) {
+    ideaMap = { ...ideaMap, revision: workspace.ideaMap.revision + 1 };
+  }
+  const response: ConversationResponse = {
+    ...generatedConversationResponse,
+    conversationId,
+    ideaMap,
+  };
   const appendResult = await input.conversations.appendConversationTurn({
     conversationId,
+    operationId,
     userMessage: {
       role: CONVERSATION_MESSAGE_ROLES.user,
       content: input.message,
     },
     assistantMessage: response.message,
+    expectedIdeaMapRevision: workspace.ideaMap.revision,
+    ideaMap,
   });
 
+  if (appendResult.status === CONVERSATION_TURN_RETENTION_STATUSES.conflict) {
+    return { status: CONVERSATION_ERROR_CODES.conflict };
+  }
   if (appendResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
     return { status: CONVERSATION_ERROR_CODES.unavailable };
   }
@@ -95,6 +149,15 @@ export async function respondInWorkspace(input: {
         type: WORKSPACE_EVENT_TYPES.conversationTurnRetained,
         conversationId,
       },
+      ...(ideaMap.revision !== workspace.ideaMap.revision
+        ? [
+            {
+              type: WORKSPACE_EVENT_TYPES.ideaMapChanged,
+              conversationId,
+              revision: ideaMap.revision,
+            },
+          ]
+        : []),
     ],
   };
 }

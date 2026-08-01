@@ -55,7 +55,7 @@ describe("Socratic Draft conversation store resolver", () => {
 
     expect(conversationId).toBeTruthy();
     await expect(
-      secondStore?.getConversationMessages(conversationId ?? ""),
+      secondStore?.getConversationWorkspace?.(conversationId ?? ""),
     ).resolves.toBeNull();
   });
 

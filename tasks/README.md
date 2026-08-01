@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 028 — Idea-map baseline
 - 029 — Fluid discovery and articulation
 - 030 — Private drafts and approved revision proposals
 - 031 — Manual draft-edit interpretation
@@ -14,6 +13,7 @@
 
 ## Completed
 
+- 028 — Idea-map baseline
 - 027 — Workspace and capability foundations
 - 026 — Hosted-AI immediate safety boundaries
 - 025 — Demo ephemeral mode

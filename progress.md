@@ -2,7 +2,7 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
@@ -61,6 +61,43 @@ protection, publishing, and admin visibility.
 - Workspace orchestration loads conversation context, invokes the conversation
   capability, retains complete turns through the product-owned store operation,
   and reports retained-turn events only after successful persistence.
+- The Socratic Draft idea-map baseline identifies and enriches stable ideas with
+  concise titles, distilled syntheses, higher-resolution substance, unresolved
+  questions, qualitative assistant exploration/importance assessments, parallel
+  user interpretation, and user-controlled disposition.
+- Idea-map policy currently permits twelve retained ideas, six active or focused
+  ideas, and one focused idea; the limits are adjustable product policy rather
+  than schema constraints and are marked for evidence-based review.
+- The product supports active, focused, satisfied, parked, and dismissed ideas,
+  with focus, satisfy, park, dismiss, reopen, and correction operations shared by
+  direct UI actions and conversational interpretation.
+- Conversation response and idea-map assessment use one structured model result.
+  Valid responses degrade safely when proposed idea changes are invalid, and
+  bounded model context prioritises focused/active substance without shrinking
+  canonical retained substance.
+- The product model port supplies a provider-neutral strict output schema, which
+  the OpenAI Responses adapter enforces through Structured Outputs before the
+  product applies its separate semantic validation.
+- An opt-in, cost-gated hosted evaluation command exercises sustained synthetic
+  idea exploration and reports content-free latency, token usage, output size,
+  identity retention, and idea-map growth outside the deterministic test suite.
+- Meaningful idea-map changes create whole-map revision snapshots. Optimistic
+  revision checks reject stale conversational or direct UI mutations, while the
+  editor pauses same-tab mutating controls during an in-flight operation. Stale
+  direct actions return the authoritative map so the browser can refresh without
+  discarding the user's attempted correction.
+- Idea-map syntheses and full substance are inspectable in the expandable tracker;
+  assistant assessments are presented qualitatively without percentages or
+  colour-only meaning, and direct actions provide local acknowledgement without
+  another hosted call.
+- Canonical idea-map content is restricted to user-expressed or explicitly
+  user-adopted material. Assistant hypotheses remain transient conversational
+  reasoning, are not displayed in the tracker, and cannot silently enter titles,
+  syntheses, substance, or unresolved questions.
+- Temporary idea maps share the existing conversation expiry and clearing
+  lifecycle. Owner idea-map revisions are stored in owner-scoped Prisma records
+  through generated migrations and atomic host adapter operations; every
+  revision records both its source type and the originating operation ID.
 - Minimal Socratic Draft server conversation service with contract-focused tests and a product-owned conversation model port.
 - Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service.
 - OpenAI-backed LLM adapter in `packages/ai`, using `OPENAI_API_KEY` and `OPENAI_MODEL`, with `gpt-5-mini` as the default.
@@ -139,7 +176,6 @@ protection, publishing, and admin visibility.
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
 - Draft creation and collaborative editing from a conversation.
-- Idea-map presentation and user/assistant interpretation controls.
 - Fluid discovery and articulation behaviour.
 - Manual draft-edit interpretation and preference learning.
 - Complete demo copy and export flow.
@@ -160,7 +196,12 @@ protection, publishing, and admin visibility.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Daily usage limits are not implemented yet; the kill switch and per-request
   bounds reduce immediate exposure but do not replace Task 034 cost protection.
+- Autonomous, user-correctable idea merging and splitting remains required before
+  the editor is considered fully functional.
+- Idea-count limits and idea-action acknowledgement UX should be reassessed after
+  sustained complete-product and browser use; any future analytics must remain
+  content-free and privacy-reviewed.
 
 ## Next recommended task
 
-Task 028 — Idea-map baseline.
+Task 029 — Fluid discovery and articulation.

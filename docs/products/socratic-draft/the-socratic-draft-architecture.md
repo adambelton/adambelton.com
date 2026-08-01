@@ -19,7 +19,8 @@ the intended product difficult to develop later.
 ## Architectural goals
 
 - Keep the user authoritative over meaning, direction, and draft content.
-- Make assistant interpretation visible, useful, and negotiable.
+- Make user-established idea material visible and correctable while keeping
+  qualitative assistant assessment limited and negotiable.
 - Support fluid movement between discovery and articulation.
 - Let conversation and interface actions participate in one collaboration model.
 - Keep conversation history, the idea map, and the draft distinct.
@@ -66,12 +67,23 @@ messages do not double as draft versions or idea records.
 
 ### Idea map
 
-The evolving, inspectable interpretation of ideas in the workspace: their shared
-summaries, relationships, tensions, unresolved questions, contextual importance,
-exploration, intended roles, and dispositions.
+The evolving, inspectable record of ideas established through the user's
+exploration: their concise titles, shared syntheses, richer substance,
+relationships, tensions, unresolved
+questions, contextual importance, exploration, intended roles, and dispositions.
 
-The map may retain parallel user and assistant assessments. It is derived and
-correctable, but it is product state rather than transient presentation data.
+An idea's synthesis distils its current shape for inspection. Its substance is
+the higher-resolution, lightly curated body uncovered through exploration and may
+contain several paragraphs of distinctions, experiences, examples, tensions,
+perspectives, counterarguments, uncertainties, and useful language. One deeply
+explored idea may supply an entire piece of writing, and its substance may retain
+far more than the draft eventually articulates.
+
+The map may retain explicit user interpretation and limited qualitative
+assistant assessments of exploration and contextual importance. Assistant
+hypotheses remain transient unless the user adopts, confirms, corrects, or
+meaningfully develops them. The map is derived and correctable, but it is product
+state rather than transient presentation data.
 
 ### Draft
 
@@ -116,11 +128,14 @@ The following rules are architectural invariants:
 3. Assistant draft changes remain proposals until explicitly accepted.
 4. Accepting a proposal must apply the reviewed proposal, not silently regenerate
    a different change.
-5. Conversation history records what occurred; derived summaries may evolve.
-6. Assistant assessments are interpretations with provenance, not objective
-   completion values.
-7. User and assistant assessments may differ without either being silently
-   overwritten.
+5. Conversation history records what occurred; derived idea syntheses and
+   substance may evolve.
+6. Canonical idea material is grounded in user-expressed or user-adopted material;
+   transient assistant hypotheses do not become map state merely because they
+   informed a conversational move.
+7. Assistant exploration and contextual-importance assessments are qualitative,
+   not objective completion values, and may differ from user intention without
+   either being silently overwritten.
 8. A dismissed or parked idea remains available as historical context but should
    not be made active again without new evidence and appropriate user involvement.
 9. Demo and owner work use the same product concepts even when their persistence
@@ -198,13 +213,14 @@ Later direction:
 
 Owns:
 
-- idea identity and current shared summary;
-- relationships, tensions, dependencies, and unresolved questions;
+- idea identity, concise title, current shared synthesis, and richer substance;
+- relationships, tensions, dependencies, and grounded unresolved questions;
 - assistant-perceived contextual importance and exploration;
 - user-assigned importance, desired depth, and intended role;
 - dispositions such as active, focused, satisfied, parked, dismissed, or separate;
 - correction and reconciliation operations;
-- provenance needed to explain an assessment.
+- provenance needed to distinguish user-established material from transient
+  assistant reasoning.
 
 Exploration and contextual importance are independent. Contextual importance asks
 how much explanatory, emotional, argumentative, or structural weight an idea
@@ -216,10 +232,11 @@ but contracts should retain qualitative meaning and the source of the judgment.
 
 An idea may contain:
 
-- a negotiated/shared summary;
-- a current assistant assessment;
+- a concise title and negotiated/shared synthesis;
+- higher-resolution, lightly curated substance accumulated through exploration;
+- current qualitative assistant exploration and contextual-importance assessments;
 - an explicit user assessment or intention;
-- known disagreement between them;
+- known disagreement between user intention and qualitative assessment;
 - unresolved questions;
 - evidence references to conversation turns or draft regions;
 - a prospective structural role and inclusion intention.
@@ -227,15 +244,15 @@ An idea may contain:
 Baseline direction:
 
 - a bounded list of identified ideas;
-- expandable summaries;
+- expandable syntheses with richer substance available for inspection;
 - qualitative exploration and importance;
-- focus, park, dismiss, correct, and reopen operations;
+- focus, satisfy, park, dismiss, correct, and reopen operations;
 - assistant responses that respect those operations.
 
 Later direction:
 
 - typed relationships and dependencies;
-- richer comparison of user and assistant interpretations;
+- richer comparison of user intention with qualitative assistant assessment;
 - structural roles, inclusion intentions, and separate-piece candidates;
 - explainable assessment evidence;
 - permission-aware re-emergence of parked material;
@@ -347,7 +364,7 @@ semantics; they do not prescribe infrastructure.
 Candidate commands include:
 
 - submit a conversation message;
-- focus, park, dismiss, reopen, or correct an idea;
+- focus, satisfy, park, dismiss, reopen, or correct an idea;
 - request exploration or articulation;
 - request draft composition;
 - save a manual draft edit;
@@ -380,7 +397,7 @@ identify which idea the user means; the explicit UI command already supplies it.
 | State | Canonical owner | Mutable by | Derived or canonical |
 |---|---|---|---|
 | Conversation messages | Conversation store | Retained turn operation | Canonical history |
-| Idea summary | Idea map | Idea-map operations | Derived, correctable product state |
+| Idea synthesis and substance | Idea map | Idea-map operations | Derived, correctable product state |
 | Assistant idea assessment | Idea map | Assessment operation | Derived interpretation |
 | User idea intention | Idea map | Explicit user command | Canonical user intent |
 | Draft content | Draft | Direct edit or accepted proposal | Canonical user-owned content |
@@ -396,8 +413,8 @@ field. Readiness may be retained as a current assistant assessment where useful,
 but it must identify the action being assessed and must not block an explicit user
 command by itself.
 
-Derived does not mean disposable. Idea assessments and summaries may need to be
-retained so the workspace remains coherent, but they remain revisable
+Derived does not mean disposable. Idea assessments, syntheses, and substance may
+need to be retained so the workspace remains coherent, but they remain revisable
 interpretations rather than historical facts.
 
 ## Principal flows
@@ -442,8 +459,9 @@ expired or a durable write fails.
 ### Draft composition
 
 1. The user requests composition or accepts an offer to compose.
-2. Drafting receives selected ideas, summaries, user intentions, unresolved
-   uncertainty, relevant conversation language, and preference guidance.
+2. Drafting receives selected ideas, syntheses, relevant substance, user
+   intentions, unresolved uncertainty, relevant conversation language, and
+   preference guidance.
 3. Usage authorization occurs immediately before the hosted model boundary.
 4. The model returns provider-neutral draft content and metadata.
 5. A new private draft is retained as canonical content only if the workspace is
@@ -673,7 +691,7 @@ Representative scenario tests should cover:
 
 - guided discovery from a vague thought;
 - user-led articulation from a strong initial view;
-- disagreement between user and assistant idea assessments;
+- disagreement between user intention and qualitative assistant assessment;
 - dismissal through conversation and through the UI producing equivalent state;
 - drafting with acknowledged unresolved uncertainty;
 - a manual edit revealing a discovery gap;
@@ -697,7 +715,7 @@ tests. Live-provider calls should not be required by the normal test suite.
 - Update this document when ownership, dependency direction, canonical state, or
   a cross-capability invariant changes.
 - Deliver work as vertical slices through these boundaries. A valid slice might
-  identify one idea, render its summary, allow dismissal through either surface,
+  identify one idea, render its synthesis, allow dismissal through either surface,
   and ensure later assistant behaviour respects that dismissal.
 - Do not reintroduce a general conversation phase or an activity-focus hierarchy.
   Add concrete commands, moves, readiness targets, and resource state only when a
@@ -725,21 +743,20 @@ Each task remains independently proposed and requires approval.
 
 These questions remain open intentionally:
 
-- **Assessment topology:** decide when implementing the idea-map slice whether
-  structured assessment and conversational generation share a model call or use
-  separate operations.
-- **Assessment history:** decide when persistence requires it whether current
-  parallel assessments plus conversation history are sufficient or explicit
-  assessment history is needed.
-- **Importance presentation:** decide with the idea-map UI how to communicate
-  relative weight without false numerical precision.
-- **Idea identity:** decide during the baseline how model-surfaced ideas retain
-  stable identity across renaming, merging, and splitting.
+- **Idea-map evidence:** reassess provisional idea-count limits after sustained
+  complete-product use and consider privacy-reviewed, content-free product
+  analytics before changing them.
+- **Idea evolution:** implement autonomous, user-correctable merge and split
+  behaviour after stronger conversational interpretation exists and before the
+  editor is considered fully functional.
 - **Substantive edit detection:** begin conservatively during manual-edit work;
   decide whether explicit user action, deterministic diff rules, model
   classification, or a combination best protects flow and privacy.
-- **Assistant response to UI actions:** decide per action whether silent state
-  change, acknowledgement, or a conversational response is useful.
+- **Assistant response to UI actions:** revisit acknowledgement wording and
+  placement through browser use after the idea-map baseline is implemented.
+- **Multi-user collaboration:** treat shared workspaces as a future direction;
+  real-time transport does not replace revisions, conflict handling, permissions,
+  attribution, or collaborative editing semantics.
 - **Preference provenance:** decide during preference persistence which evidence
   can be summarized and which provenance is required for correction.
 - **Proposal comparison:** decide during draft work how change scope, diffing,
@@ -748,8 +765,8 @@ These questions remain open intentionally:
   a complete-demo task establishes whether any browser-held state improves
   privacy and resilience without fragmenting canonical workspace state.
 - **Context growth:** decide with real prompts and measured sessions how older
-  conversation, idea summaries, draft content, and preferences are selected or
-  summarized under hard input bounds.
+  conversation, idea syntheses and substance, draft content, and preferences are
+  selected or summarized under hard input bounds.
 
 The distinction between activity, move, readiness, user intention, and
 resource-derived lifecycle is settled architecture rather than an open decision.

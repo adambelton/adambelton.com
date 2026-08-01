@@ -51,7 +51,7 @@ describe("respondInWorkspace", () => {
         },
       },
       conversations: createStore({
-        getConversationMessages: async () => null,
+        getConversationWorkspace: async () => null,
       }),
     });
 
@@ -88,6 +88,65 @@ describe("respondInWorkspace", () => {
 
     expect("events" in result).toBe(false);
   });
+
+  it("applies a conversational dismissal through the idea-map operation", async () => {
+    let retainedTurn: Parameters<ConversationStore["appendConversationTurn"]>[0] | null = null;
+    const store: ConversationStore = {
+      createConversationId: () => "conversation-1",
+      getConversationWorkspace: async () => ({
+        messages: [],
+        ideaMap: {
+          revision: 1,
+          ideas: [
+            {
+              id: "idea-1",
+              title: "A tangent",
+              synthesis: "A possible tangent.",
+              substance: "This may not belong in the work.",
+              unresolvedQuestions: [],
+              assistantAssessment: {
+                exploration: "emerging",
+                importance: "background",
+              },
+              userInterpretation: null,
+              disposition: "active",
+            },
+          ],
+        },
+      }),
+      appendConversationTurn: async (turn) => {
+        retainedTurn = turn;
+        return { status: "retained" };
+      },
+      replaceIdeaMap: async () => ({ status: "retained" }),
+    };
+    const result = await respondInWorkspace({
+      conversationId: "conversation-1",
+      message: "Dismiss that tangent.",
+      conversations: store,
+      conversation: {
+        async respond() {
+          return {
+            conversationId: "conversation-1",
+            message: { role: "assistant", content: "We can leave that aside." },
+            activity: "discovery",
+            move: "clarify",
+            assistantReadiness: [],
+            userIntention: null,
+            suggestedReplies: [],
+            proposedIdeas: null,
+            proposedIdeaActions: [{ ideaId: "idea-1", action: "dismiss" }],
+          };
+        },
+      },
+    });
+
+    expect(result).toMatchObject({
+      status: "responded",
+      response: { ideaMap: { revision: 2, ideas: [{ disposition: "dismissed" }] } },
+    });
+    expect(retainedTurn).toMatchObject({ ideaMap: { revision: 2 } });
+  });
 });
 
 function createStore(
@@ -95,8 +154,12 @@ function createStore(
 ): ConversationStore {
   return {
     createConversationId: () => "conversation-1",
-    getConversationMessages: async () => [],
+    getConversationWorkspace: async () => ({
+      messages: [],
+      ideaMap: { revision: 0, ideas: [] },
+    }),
     appendConversationTurn: async () => ({ status: "retained" }),
+    replaceIdeaMap: async () => ({ status: "retained" }),
     ...overrides,
   };
 }

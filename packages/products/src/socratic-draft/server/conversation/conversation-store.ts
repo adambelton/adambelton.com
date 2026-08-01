@@ -4,42 +4,56 @@ import {
 } from "packages/products/src/socratic-draft/shared";
 import type {
   Conversation,
+  IdeaMap,
   ConversationSummary,
   TemporaryConversation,
 } from "packages/products/src/socratic-draft/shared";
 
-export type AppendConversationTurnInput = {
+export interface AppendConversationTurnInput {
   conversationId: string;
+  operationId: string;
   userMessage: ConversationMessage;
   assistantMessage: ConversationMessage;
-};
+  expectedIdeaMapRevision: number;
+  ideaMap: IdeaMap;
+}
+
+export interface ReplaceIdeaMapInput {
+  conversationId: string;
+  operationId: string;
+  expectedRevision: number;
+  ideaMap: IdeaMap;
+}
 
 export const CONVERSATION_TURN_RETENTION_STATUSES = {
+  conflict: "conflict",
   retained: "retained",
   unavailable: CONVERSATION_ERROR_CODES.unavailable,
 } as const;
 
 export type AppendConversationTurnResult =
   | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.retained }
+  | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.conflict }
   | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.unavailable };
 
-export type ConversationStore = {
+export interface ConversationStore {
   createConversationId(): string;
-  getConversationMessages(
+  getConversationWorkspace(
     conversationId: string,
-  ): Promise<ConversationMessage[] | null>;
+  ): Promise<{ messages: ConversationMessage[]; ideaMap: IdeaMap } | null>;
   appendConversationTurn(
     input: AppendConversationTurnInput,
   ): Promise<AppendConversationTurnResult>;
-};
+  replaceIdeaMap(input: ReplaceIdeaMapInput): Promise<AppendConversationTurnResult>;
+}
 
-export type PersistentConversationStore = ConversationStore & {
+export interface PersistentConversationStore extends ConversationStore {
   createConversation(): Promise<Conversation>;
   listConversations(): Promise<ConversationSummary[]>;
   getConversation(conversationId: string): Promise<Conversation | null>;
-};
+}
 
-export type TemporaryConversationStore = ConversationStore & {
+export interface TemporaryConversationStore extends ConversationStore {
   getCurrentConversation(): Promise<TemporaryConversation | null>;
   clearCurrentConversation(): Promise<void>;
-};
+}

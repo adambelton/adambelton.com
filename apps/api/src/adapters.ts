@@ -15,6 +15,7 @@ export class LlmConversationModelAdapter implements ConversationModel {
     try {
       const response = await this.llmClient.createMessage({
         maxTokens: request.maxOutputTokens,
+        outputFormat: request.outputFormat,
         system: request.system,
         messages: request.messages,
       });

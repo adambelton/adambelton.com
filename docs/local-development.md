@@ -86,6 +86,33 @@ pnpm test
 pnpm typecheck
 ```
 
+## Hosted Socratic Draft Evaluation
+
+The opt-in hosted evaluation runs a synthetic multi-turn conversation through
+the real product service and configured OpenAI model. It reports content-free
+latency, token usage, output size, idea identity retention, and idea-map growth.
+It is never included in the normal test suite.
+
+Run it only when paid hosted model usage is intended:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:socratic-draft
+```
+
+Prompts, responses, and idea-map content are omitted by default. To include them
+for an explicitly reviewed diagnostic run:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true pnpm evaluate:socratic-draft
+```
+
+Limit a diagnostic run to a smaller number of turns with
+`EVALUATION_MAX_TURNS`, for example:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true EVALUATION_MAX_TURNS=1 pnpm evaluate:socratic-draft
+```
+
 ## Client Host
 
 The Vite client in `apps/client` is the local website host.

@@ -5,76 +5,93 @@ import type {
 import { createConversationLabel } from "packages/products/src/socratic-draft/server/conversation";
 import {
   CONVERSATION_MESSAGE_ROLES,
+  EMPTY_IDEA_MAP,
+  IDEA_MAP_REVISION_SOURCE_TYPES,
   type ConversationMessage,
+  type IdeaMap,
 } from "packages/products/src/socratic-draft/shared";
+import type { DatabaseClient } from "packages/db/src/client";
 
-type ConversationMessageRole = ConversationMessage["role"];
-
-type PrismaConversationMessageRow = {
-  role: ConversationMessageRole;
-  content: string;
-};
-
-type PrismaConversationRow = {
+type MessageRole = ConversationMessage["role"];
+interface MessageRow { role: MessageRole; content: string }
+interface IdeaRevisionRow { revision: number; ideas: unknown }
+interface ConversationRow {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  messages: PrismaConversationMessageRow[];
-};
+  ideaMapRevision: number;
+  messages: MessageRow[];
+  ideaMapRevisions: IdeaRevisionRow[];
+}
 
-type PrismaConversationStoreTransaction = {
+interface TransactionClient {
   socraticDraftConversation: {
-    upsert(input: {
-      where: { id_userId: { id: string; userId: string } };
-      create: {
+    findFirst(input: {
+      where: { id: string; userId: string };
+      select: { nextMessagePosition: true };
+    }): Promise<{ nextMessagePosition: number } | null>;
+    updateMany(input: {
+      where: {
         id: string;
         userId: string;
-        nextMessagePosition: number;
+        ideaMapRevision: number;
+        nextMessagePosition?: number;
       };
-      update: {
-        nextMessagePosition: { increment: number };
+      data: {
+        nextMessagePosition?: { increment: number };
+        ideaMapRevision: number;
         updatedAt: Date;
       };
-      select: { nextMessagePosition: true };
-    }): Promise<{ nextMessagePosition: number }>;
+    }): Promise<{ count: number }>;
   };
   socraticDraftConversationMessage: {
     createMany(input: {
       data: {
         conversationId: string;
-        role: ConversationMessageRole;
+        role: MessageRole;
         content: string;
         position: number;
       }[];
     }): Promise<unknown>;
   };
-};
-
-type ConversationSelectInput = {
-  where: { id: string; userId: string };
-  select: {
-    id: true;
-    createdAt: true;
-    updatedAt: true;
-    messages: {
-      orderBy: { position: "asc" };
-      select: { role: true; content: true };
-    };
+  socraticDraftIdeaMapRevision: {
+    create(input: {
+      data: {
+        conversationId: string;
+        revision: number;
+        ideas: unknown;
+        sourceType: string;
+        sourceId: string;
+      };
+    }): Promise<unknown>;
   };
-};
+}
 
-export type PrismaConversationStoreClient = {
-  $transaction<T>(
-    callback: (transaction: PrismaConversationStoreTransaction) => Promise<T>,
-  ): Promise<T>;
+interface ConversationSelect {
+  id: true;
+  createdAt: true;
+  updatedAt: true;
+  ideaMapRevision: true;
+  messages: unknown;
+  ideaMapRevisions: unknown;
+}
+
+export interface PrismaConversationStoreClient {
+  $transaction<T>(callback: (transaction: TransactionClient) => Promise<T>): Promise<T>;
   socraticDraftConversation: {
     create(input: {
-      data: { id: string; userId: string; nextMessagePosition: number };
-      select: { id: true; createdAt: true; updatedAt: true; messages: true };
-    }): Promise<PrismaConversationRow>;
-    findFirst(
-      input: ConversationSelectInput,
-    ): Promise<PrismaConversationRow | null>;
+      data: {
+        id: string;
+        userId: string;
+        nextMessagePosition: number;
+        ideaMapRevision: number;
+      };
+      select: ConversationSelect;
+    }): Promise<ConversationRow>;
+    findFirst(input: {
+      where: { id: string; userId: string };
+      select: ConversationSelect;
+    }): Promise<ConversationRow | null>;
     findMany(input: {
       where: { userId: string };
       orderBy: { updatedAt: "desc" };
@@ -82,16 +99,42 @@ export type PrismaConversationStoreClient = {
         id: true;
         createdAt: true;
         updatedAt: true;
-        messages: {
-          where: { role: typeof CONVERSATION_MESSAGE_ROLES.user };
-          orderBy: { position: "asc" };
-          take: 1;
-          select: { role: true; content: true };
-        };
+        ideaMapRevision: true;
+        messages: unknown;
+        ideaMapRevisions: unknown;
       };
-    }): Promise<PrismaConversationRow[]>;
+    }): Promise<ConversationRow[]>;
   };
-};
+}
+
+export function createPrismaConversationStoreClient(
+  prisma: DatabaseClient,
+): PrismaConversationStoreClient {
+  return {
+    $transaction: (callback) =>
+      prisma.$transaction((transaction) =>
+        callback(transaction as unknown as TransactionClient),
+      ),
+    socraticDraftConversation:
+      prisma.socraticDraftConversation as unknown as PrismaConversationStoreClient["socraticDraftConversation"],
+  };
+}
+
+const CONVERSATION_SELECT = {
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  ideaMapRevision: true,
+  messages: {
+    orderBy: { position: "asc" },
+    select: { role: true, content: true },
+  },
+  ideaMapRevisions: {
+    orderBy: { revision: "desc" },
+    take: 1,
+    select: { revision: true, ideas: true },
+  },
+} as const;
 
 export function createPrismaConversationStore(
   prisma: PrismaConversationStoreClient,
@@ -102,54 +145,89 @@ export function createPrismaConversationStore(
       return globalThis.crypto.randomUUID();
     },
 
-    async getConversationMessages(conversationId: string) {
-      const conversation = await findConversation(
-        prisma,
-        userId,
-        conversationId,
-      );
-
+    async getConversationWorkspace(conversationId) {
+      const conversation = await findConversation(prisma, userId, conversationId);
       return conversation
-        ? conversation.messages.map(toConversationMessage)
+        ? {
+            messages: conversation.messages.map(toConversationMessage),
+            ideaMap: toIdeaMap(conversation),
+          }
         : null;
     },
 
     async appendConversationTurn(input: AppendConversationTurnInput) {
-      await prisma.$transaction(async (transaction) => {
-        const updatedAt = new Date();
-        const conversation = await transaction.socraticDraftConversation.upsert({
-          where: {
-            id_userId: { id: input.conversationId, userId },
-          },
-          create: {
-            id: input.conversationId,
-            userId,
-            nextMessagePosition: 2,
-          },
-          update: {
-            nextMessagePosition: { increment: 2 },
-            updatedAt,
-          },
+      const expectedRevision = input.expectedIdeaMapRevision;
+      const nextIdeaMap = input.ideaMap;
+      const retained = await prisma.$transaction(async (transaction) => {
+        const conversation = await transaction.socraticDraftConversation.findFirst({
+          where: { id: input.conversationId, userId },
           select: { nextMessagePosition: true },
         });
-        const firstMessagePosition = conversation.nextMessagePosition - 2;
+        if (!conversation) return false;
+
+        const update = await transaction.socraticDraftConversation.updateMany({
+          where: {
+            id: input.conversationId,
+            userId,
+            ideaMapRevision: expectedRevision,
+            nextMessagePosition: conversation.nextMessagePosition,
+          },
+          data: {
+            nextMessagePosition: { increment: 2 },
+            ideaMapRevision: nextIdeaMap.revision,
+            updatedAt: new Date(),
+          },
+        });
+        if (update.count !== 1) return false;
 
         await transaction.socraticDraftConversationMessage.createMany({
           data: [
-            toConversationMessageRow({
-              conversationId: input.conversationId,
-              message: input.userMessage,
-              position: firstMessagePosition,
-            }),
-            toConversationMessageRow({
-              conversationId: input.conversationId,
-              message: input.assistantMessage,
-              position: firstMessagePosition + 1,
-            }),
+            toMessageRow(input.conversationId, input.userMessage, conversation.nextMessagePosition),
+            toMessageRow(input.conversationId, input.assistantMessage, conversation.nextMessagePosition + 1),
           ],
         });
+        if (nextIdeaMap.revision !== expectedRevision) {
+          await transaction.socraticDraftIdeaMapRevision.create({
+            data: {
+              conversationId: input.conversationId,
+              revision: nextIdeaMap.revision,
+              ideas: nextIdeaMap.ideas,
+              sourceType: IDEA_MAP_REVISION_SOURCE_TYPES.conversationTurn,
+              sourceId: input.operationId,
+            },
+          });
+        }
+        return true;
       });
-      return { status: "retained" };
+      return retained ? { status: "retained" } : { status: "conflict" };
+    },
+
+    async replaceIdeaMap(input) {
+      const retained = await prisma.$transaction(async (transaction) => {
+        const update = await transaction.socraticDraftConversation.updateMany({
+          where: {
+            id: input.conversationId,
+            userId,
+            ideaMapRevision: input.expectedRevision,
+          },
+          data: {
+            ideaMapRevision: input.ideaMap.revision,
+            updatedAt: new Date(),
+          },
+        });
+        if (update.count !== 1) return false;
+        await transaction.socraticDraftIdeaMapRevision.create({
+          data: {
+            conversationId: input.conversationId,
+            revision: input.ideaMap.revision,
+            ideas: input.ideaMap.ideas,
+            sourceType: IDEA_MAP_REVISION_SOURCE_TYPES.ideaAction,
+            sourceId: input.operationId,
+          },
+        });
+        return true;
+      });
+      return retained ? { status: "retained" } : { status: "conflict" };
     },
 
     async createConversation() {
@@ -158,29 +236,23 @@ export function createPrismaConversationStore(
           id: globalThis.crypto.randomUUID(),
           userId,
           nextMessagePosition: 0,
+          ideaMapRevision: 0,
         },
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          messages: true,
-        },
+        select: CONVERSATION_SELECT,
       });
-
       return {
-        ...toConversationSummary(conversation),
+        ...toSummary(conversation),
         messages: [],
+        ideaMap: { ...EMPTY_IDEA_MAP, ideas: [] },
       };
     },
 
     async listConversations() {
-      const conversations = await prisma.socraticDraftConversation.findMany({
+      const rows = await prisma.socraticDraftConversation.findMany({
         where: { userId },
         orderBy: { updatedAt: "desc" },
         select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
+          ...CONVERSATION_SELECT,
           messages: {
             where: { role: CONVERSATION_MESSAGE_ROLES.user },
             orderBy: { position: "asc" },
@@ -189,25 +261,18 @@ export function createPrismaConversationStore(
           },
         },
       });
-
-      return conversations.map(toConversationSummary);
+      return rows.map(toSummary);
     },
 
-    async getConversation(conversationId: string) {
-      const conversation = await findConversation(
-        prisma,
-        userId,
-        conversationId,
-      );
-
-      if (!conversation) {
-        return null;
-      }
-
-      return {
-        ...toConversationSummary(conversation),
-        messages: conversation.messages.map(toConversationMessage),
-      };
+    async getConversation(conversationId) {
+      const conversation = await findConversation(prisma, userId, conversationId);
+      return conversation
+        ? {
+            ...toSummary(conversation),
+            messages: conversation.messages.map(toConversationMessage),
+            ideaMap: toIdeaMap(conversation),
+          }
+        : null;
     },
   };
 }
@@ -219,19 +284,11 @@ function findConversation(
 ) {
   return prisma.socraticDraftConversation.findFirst({
     where: { id: conversationId, userId },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      messages: {
-        orderBy: { position: "asc" },
-        select: { role: true, content: true },
-      },
-    },
+    select: CONVERSATION_SELECT,
   });
 }
 
-function toConversationSummary(conversation: PrismaConversationRow) {
+function toSummary(conversation: ConversationRow) {
   return {
     id: conversation.id,
     label: createConversationLabel(conversation.messages),
@@ -240,24 +297,21 @@ function toConversationSummary(conversation: PrismaConversationRow) {
   };
 }
 
-function toConversationMessage(
-  message: PrismaConversationMessageRow,
-): ConversationMessage {
-  return {
-    role: message.role,
-    content: message.content,
-  };
+function toIdeaMap(conversation: ConversationRow): IdeaMap {
+  const latest = conversation.ideaMapRevisions[0];
+  return latest
+    ? { revision: latest.revision, ideas: latest.ideas as IdeaMap["ideas"] }
+    : { revision: conversation.ideaMapRevision, ideas: [] };
 }
 
-function toConversationMessageRow(input: {
-  conversationId: string;
-  message: ConversationMessage;
-  position: number;
-}) {
-  return {
-    conversationId: input.conversationId,
-    role: input.message.role,
-    content: input.message.content,
-    position: input.position,
-  };
+function toConversationMessage(message: MessageRow): ConversationMessage {
+  return { role: message.role, content: message.content };
+}
+
+function toMessageRow(
+  conversationId: string,
+  message: ConversationMessage,
+  position: number,
+) {
+  return { conversationId, role: message.role, content: message.content, position };
 }

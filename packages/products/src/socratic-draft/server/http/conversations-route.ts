@@ -10,6 +10,7 @@ import {
   type ConversationResponder,
 } from "packages/products/src/socratic-draft/server/workspace";
 import { parseConversationMessage } from "packages/products/src/socratic-draft/server/http/conversation-request";
+import { handleIdeaActionRequest } from "packages/products/src/socratic-draft/server/http/idea-action-handler";
 import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
 
@@ -143,6 +144,13 @@ export function createConversationsRoute({
       );
     }
 
+    if (result.status === CONVERSATION_ERROR_CODES.conflict) {
+      return context.json(
+        failure(result.status, "The idea map changed while the response was being prepared. Try again."),
+        409,
+      );
+    }
+
     if (result.status === CONVERSATION_ERROR_CODES.hostedAiDisabled) {
       return context.json(
         failure(
@@ -164,6 +172,19 @@ export function createConversationsRoute({
     }
 
     return context.json(success(result.response), 201);
+  });
+
+  route.post("/:conversationId/ideas/:ideaId", async (context) => {
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) {
+      return context.json(failure("not_found", "The requested resource was not found."), 404);
+    }
+    return handleIdeaActionRequest({
+      request: context.req.raw,
+      conversationId: context.req.param("conversationId"),
+      ideaId: context.req.param("ideaId"),
+      conversations: store,
+    });
   });
 
   return route;

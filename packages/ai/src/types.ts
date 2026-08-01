@@ -7,13 +7,20 @@ export type LlmRequest = {
   system: string;
   messages: LlmMessage[];
   maxTokens: number;
+  outputFormat?: LlmOutputFormat;
   temperature?: number;
 };
+
+export interface LlmOutputFormat {
+  name: string;
+  schema: Record<string, unknown>;
+}
 
 export type LlmResponse = {
   content: string;
   inputTokens?: number;
   outputTokens?: number;
+  reasoningTokens?: number;
   model: string;
 };
 

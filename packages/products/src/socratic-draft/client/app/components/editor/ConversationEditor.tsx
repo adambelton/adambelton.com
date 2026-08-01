@@ -6,10 +6,15 @@ import type {
   ConversationMessage,
   ConversationRequest,
   ConversationResponse,
+  IdeaActionRequest,
+  IdeaActionResult,
+  IdeaMap,
 } from "packages/products/src/socratic-draft/shared";
 import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_MESSAGE_ROLES,
+  EMPTY_IDEA_MAP,
+  IDEA_ACTION_RESULT_STATUSES,
 } from "packages/products/src/socratic-draft/shared";
 import {
   CONVERSATION_STATUSES,
@@ -18,31 +23,41 @@ import {
 } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationComposer";
 import { ConversationEditorIntro } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationEditorIntro";
 import { ConversationMessageList } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationMessageList";
+import { IdeaMapTracker } from "packages/products/src/socratic-draft/client/app/components/editor/IdeaMapTracker";
 import {
   ConversationRequestError,
   sendConversationMessage,
 } from "packages/products/src/socratic-draft/client/app/modules/editor/send-conversation-message";
+import { sendTemporaryIdeaAction } from "packages/products/src/socratic-draft/client/app/modules/editor/send-idea-action";
 
-type ConversationEditorProps = {
+interface ConversationEditorProps {
   canClear?: boolean;
   initialConversationId?: string | null;
   initialMessages?: ConversationMessage[];
+  initialIdeaMap?: IdeaMap;
   onClear?: () => Promise<void>;
   onResponse?: (response: ConversationResponse & { expiresAt?: string }) => void;
   onUnavailable?: () => void;
   sendMessage?: (
     request: ConversationRequest,
   ) => Promise<ConversationResponse & { expiresAt?: string }>;
-};
+  sendIdeaAction?: (
+    conversationId: string,
+    ideaId: string,
+    request: IdeaActionRequest,
+  ) => Promise<IdeaActionResult>;
+}
 
 export function ConversationEditor({
   canClear = false,
   initialConversationId = null,
   initialMessages = [],
+  initialIdeaMap = EMPTY_IDEA_MAP,
   onClear,
   onResponse,
   onUnavailable,
   sendMessage = sendConversationMessage,
+  sendIdeaAction = sendTemporaryIdeaAction,
 }: ConversationEditorProps) {
   const messageInputId = useId();
   const errorId = useId();
@@ -52,6 +67,8 @@ export function ConversationEditor({
   const [message, setMessage] = useState("");
   const [messages, setMessages] =
     useState<ConversationMessage[]>(initialMessages);
+  const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
+  const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
   const [status, setStatus] = useState<ConversationStatus>(
     CONVERSATION_STATUSES.idle,
   );
@@ -87,6 +104,9 @@ export function ConversationEditor({
 
       setConversationId(response.conversationId);
       setMessages((currentMessages) => [...currentMessages, response.message]);
+      if (response.ideaMap) {
+        setIdeaMap(response.ideaMap);
+      }
       onResponse?.(response);
     } catch (sendError) {
       if (
@@ -143,6 +163,7 @@ export function ConversationEditor({
       await onClear();
       setConversationId(null);
       setMessages([]);
+      setIdeaMap(EMPTY_IDEA_MAP);
       setMessage("");
     } catch (clearError) {
       setError(
@@ -160,6 +181,42 @@ export function ConversationEditor({
       <ConversationEditorIntro />
 
       <div className="mt-12 grid gap-8">
+        <IdeaMapTracker
+          ideaMap={ideaMap}
+          isBusy={status === CONVERSATION_STATUSES.sending}
+          onAction={async (ideaId, request) => {
+            if (!conversationId || status === CONVERSATION_STATUSES.sending) return false;
+            setStatus(CONVERSATION_STATUSES.sending);
+            setError(null);
+            setIdeaStatus(null);
+            try {
+              const result = await sendIdeaAction(
+                conversationId,
+                ideaId,
+                request,
+              );
+              setIdeaMap(result.ideaMap);
+              if (result.status === IDEA_ACTION_RESULT_STATUSES.conflict) {
+                setIdeaStatus(
+                  "The idea map changed elsewhere, so it has been refreshed. Review it and try again.",
+                );
+                return false;
+              }
+              setIdeaStatus("Idea map updated.");
+              return true;
+            } catch (actionError) {
+              setError(
+                actionError instanceof Error
+                  ? actionError.message
+                  : "The idea could not be updated.",
+              );
+              return false;
+            } finally {
+              setStatus(CONVERSATION_STATUSES.idle);
+            }
+          }}
+        />
+        {ideaStatus ? <p className="text-sm text-[var(--muted)]" role="status">{ideaStatus}</p> : null}
         <ConversationMessageList messages={messages} />
         <ConversationComposer
           canSubmit={canSubmit}

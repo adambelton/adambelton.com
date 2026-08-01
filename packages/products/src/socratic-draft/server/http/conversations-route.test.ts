@@ -242,6 +242,7 @@ function createPersistentConversationStore(): PersistentConversationStore {
     createdAt: "2026-07-31T10:00:00.000Z",
     updatedAt: "2026-07-31T10:05:00.000Z",
     messages: [{ role: "user" as const, content: "A saved thought" }],
+    ideaMap: { revision: 0, ideas: [] },
   };
 
   return {
@@ -251,9 +252,12 @@ function createPersistentConversationStore(): PersistentConversationStore {
       id: "conversation-2",
       messages: [],
     }),
-    getConversationMessages: async (conversationId) =>
-      conversationId === conversation.id ? conversation.messages : null,
+    getConversationWorkspace: async (conversationId) =>
+      conversationId === conversation.id
+        ? { messages: conversation.messages, ideaMap: conversation.ideaMap }
+        : null,
     appendConversationTurn: async () => ({ status: "retained" }),
+    replaceIdeaMap: async () => ({ status: "retained" }),
     listConversations: async () => [conversation],
     getConversation: async (conversationId) =>
       conversationId === conversation.id ? conversation : null,
