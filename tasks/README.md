@@ -2,9 +2,17 @@
 
 ## Planned
 
-- 026 — Usage limits
-- 027 — Publishing flow
-- 028 — Admin view
+- 026 — Hosted-AI immediate safety boundaries
+- 027 — Workspace and capability foundations
+- 028 — Idea-map baseline
+- 029 — Fluid discovery and articulation
+- 030 — Private drafts and approved revision proposals
+- 031 — Manual draft-edit interpretation
+- 032 — Preference-learning baseline
+- 033 — Complete temporary demo session
+- 034 — Calibrated usage limits and cost protection
+- 035 — Publishing flow
+- 036 — Admin visibility
 
 ## Completed
 

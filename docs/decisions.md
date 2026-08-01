@@ -343,3 +343,47 @@ user-isolated temporary store, including for the owner, while persistent creatio
 reads, and responses require owner access and an identified persistent
 conversation. Client route gates remain usability affordances; server-side
 authorization and store selection are authoritative.
+
+## 024 — Shared Inquiry And Articulation Workspace
+
+The Socratic Draft is a shared inquiry and articulation workspace built from
+three connected representations: conversation history, an inspectable idea map,
+and a user-owned private draft.
+
+Discovery and articulation are fluid activities rather than exclusive modes or
+rigid phases. Work may move between them whenever an attempt to express an idea
+reveals something unresolved.
+
+The user is authoritative about intended meaning and canonical draft content.
+Direct user edits take effect immediately. Assistant draft changes remain
+proposals until the user explicitly accepts them.
+
+Assistant assessments and user assessments may coexist when they differ. The
+assistant should expose its interpretation as negotiable rather than objective,
+and disagreement may remain useful context instead of being silently overwritten.
+
+Conversation and inquiry, idea mapping, drafting and revision, preference
+learning, and workspace orchestration are distinct product capabilities. They
+should communicate through narrow product-language operations. Implementation
+should deliver end-to-end behaviours through those boundaries rather than create
+either a monolithic workspace service or disconnected infrastructure layers.
+
+## 025 — Activity, Move, Readiness, And Lifecycle Are Separate
+
+The Socratic Draft does not use a general conversation phase as the source of
+truth for intellectual progress.
+
+Discovery and articulation classify the primary purpose of a particular
+interaction or operation. They are not persistent workspace modes. An assistant
+move describes the technique used in a particular assistant response. Activities
+and moves have a many-to-many relationship, and an activity may occur without an
+assistant move.
+
+Do not introduce a separate activity-focus hierarchy. Specific acts such as
+clarifying, reflecting, composing, and revising belong in assistant moves, user
+commands, or resource operations.
+
+Assistant readiness is action-specific and advisory. Explicit user intention is
+separate and may proceed despite the assistant's assessment. Product lifecycle is
+derived from real resources and publishing state rather than stored in a general
+phase enum.

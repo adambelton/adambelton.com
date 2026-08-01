@@ -6,6 +6,14 @@ The monorepo has been scaffolded with the intended app/package structure. The fi
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
+The Socratic Draft product model has been refined before usage-limit work. The
+product is now documented as a shared inquiry and articulation workspace with
+conversation history, an inspectable idea map, and a user-owned draft. Conceptual
+capability boundaries and a staged implementation plan now cover idea mapping,
+fluid discovery/articulation, approved draft revisions, manual-edit
+interpretation, preference learning, a complete demo session, calibrated usage
+protection, publishing, and admin visibility.
+
 ## Implemented
 
 - Monorepo structure with `apps/client`, `apps/api`, and the intended `packages/*` boundaries.
@@ -88,6 +96,12 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Repo-native code quality and testing guidelines.
 - `docs/decisions.md` decision log.
 - Socratic Draft product planning docs live in `docs/products/socratic-draft/`.
+- Socratic Draft product architecture documents conceptually rich conversation,
+  idea-map, draft, preference, and workspace-orchestration capability boundaries.
+- Socratic Draft planning separates interaction-scoped discovery/articulation
+  activity, assistant moves, action-specific readiness, explicit user intention,
+  and resource-derived lifecycle; Task 027 owns the clean removal of the obsolete
+  general conversation-phase contract.
 - `tasks/README.md` task index.
 - `tasks/001-scaffold-repo.md` scaffold/context task record.
 
@@ -105,6 +119,10 @@ The repo currently has a Vite and React Router client host with the shared publi
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
 - Draft creation and collaborative editing from a conversation.
+- Idea-map presentation and user/assistant interpretation controls.
+- Fluid discovery and articulation behaviour.
+- Manual draft-edit interpretation and preference learning.
+- Complete demo copy and export flow.
 - Publishing flow from private drafts to public writing.
 - Admin UI.
 
@@ -124,4 +142,4 @@ The repo currently has a Vite and React Router client host with the shared publi
 
 ## Next recommended task
 
-Task 026 — Usage limits.
+Task 026 — Hosted-AI immediate safety boundaries.

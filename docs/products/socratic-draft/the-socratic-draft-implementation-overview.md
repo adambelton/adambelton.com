@@ -6,6 +6,14 @@ This document is an early implementation overview and may include older scaffold
 
 Canonical current rules live in `AGENTS.md` and `docs/decisions.md`. In particular:
 
+- The canonical product-specific design lives in
+  `docs/products/socratic-draft/the-socratic-draft-architecture.md`.
+- The `ConversationPhase` examples and phase-based state shapes later in this
+  early overview are superseded. Do not use them for implementation. Task 027
+  replaces the current phase contract with interaction-scoped activity,
+  assistant moves, action-specific readiness, explicit user intention, and
+  resource-derived lifecycle.
+
 - Socratic Draft is the source of truth for its own product contracts and domain types.
 - Socratic Draft product code uses `shared`, `server`, and `client` boundaries under `packages/products/src/socratic-draft/`.
 - `packages/shared` is reserved for platform-wide concerns.

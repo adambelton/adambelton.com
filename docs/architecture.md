@@ -13,3 +13,8 @@ The API owns authentication, owner/demo access decisions, product access, usage 
 Client-side route gates are UX affordances only. API/server authorization is the authoritative security boundary for sensitive operations.
 
 Shared package boundaries are created early to keep later implementation small and deliberate.
+
+Product-specific architectures may define domain concepts, capability boundaries,
+state ownership, and product flows beneath these host/package rules. The canonical
+Socratic Draft product architecture is
+`docs/products/socratic-draft/the-socratic-draft-architecture.md`.

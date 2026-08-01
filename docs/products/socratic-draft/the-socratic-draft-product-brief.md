@@ -166,6 +166,173 @@ A good session should not merely polish the user’s original view.
 
 It should sometimes help the user notice that their first framing was too harsh, too vague, too broad, unsupported, or incomplete.
 
+### 10. The user remains the author
+
+The assistant can interpret, question, organise, and propose, but the user has
+authority over what they mean, what matters, and what the draft says.
+
+The user may change the draft directly at any time. Those changes are canonical
+and do not require assistant approval. Changes proposed by the assistant should
+remain proposals until the user explicitly accepts them through conversation or
+the interface.
+
+### 11. Assistant interpretation stays visible and negotiable
+
+The assistant should maintain an interpretation of the ideas taking shape without
+presenting that interpretation as objective truth. The user may disagree with an
+assessment without erasing it. A difference between the user's view and the
+assistant's view can reveal a useful tension and may become relevant later.
+
+### 12. Discovery and articulation inform each other
+
+Discovery is the work of finding out what the user thinks. Articulation is the
+work of finding language and form that express it. They are not rigid sequential
+phases. Attempting to articulate an idea often reveals something undiscovered,
+and a user may move between the two repeatedly.
+
+The product may classify the primary activity of a particular interaction or
+operation and describe it subtly, but activity is not a persistent workspace mode
+and the user should not have to operate a mode switch. Conversation and interface
+controls should both let the user ask to explore, articulate, structure, revise,
+or return to an underlying question.
+
+Activity describes why the work is happening. An assistant move describes how
+the assistant contributes in a particular response. The same move may support
+either activity, and an activity may occur without an assistant move—for example,
+when the user edits the draft directly.
+
+## Shared inquiry and articulation workspace
+
+The Socratic Draft is a shared inquiry and articulation workspace rather than a
+chatbot that eventually generates an essay.
+
+It contains three connected representations:
+
+1. **Conversation history** records what the user and assistant actually said.
+2. **Idea map** makes the assistant's evolving interpretation of the thought
+   visible, useful, and correctable.
+3. **Draft** contains the user's canonical current articulation of selected ideas.
+
+Information can move in both directions. Conversation can change the idea map and
+draft. A manual draft edit can reveal a changed idea, a structural preference, or
+an unresolved question and can therefore affect later conversation.
+
+Meaningful interface actions should participate in the same collaboration as
+messages. Dismissing an idea in the tracker should have the same product meaning
+as saying “that is not important.” Selecting an idea for deeper exploration
+should have the same meaning as asking the assistant to focus on it.
+
+The assistant should respond to substantive draft edits as evidence about the
+work. It may recognise a clarified distinction, ask whether a removed idea should
+be parked, or notice that new wording changes the claim. It should not interrupt
+the user with commentary about trivial corrections.
+
+## Product capabilities
+
+The capabilities below are conceptually separate even when a single user action
+passes through several of them. Each should have a clear responsibility and
+narrow contracts so its behaviour can develop without spreading its internal
+model across the product.
+
+### Conversation and inquiry
+
+Conversation helps the user externalise and examine what they think. It chooses a
+useful next response while following the user's lead, and can vary from patient
+guidance to precise collaboration with a user who already has a strong view.
+
+The baseline should support concise, one-question-at-a-time inquiry and explicit
+user redirection. Later development may improve move selection, handling of
+ambiguity and contradiction, perspective-taking, inquiry style, and the ability
+to recognise when articulation would be more useful than another question.
+
+### Idea map
+
+The idea map owns the ideas and relationships the assistant perceives in the
+work. For each idea it may hold a shared summary, unresolved questions,
+connections, possible structural role, disposition, and separate user and
+assistant assessments.
+
+Two important dimensions are:
+
+- **exploration:** how fully the idea appears to have been understood or expressed;
+- **contextual importance:** how much explanatory, emotional, argumentative, or
+  structural weight it appears to carry in the work as a whole.
+
+These dimensions should not be collapsed into a flat completion percentage. A
+high-importance, lightly explored idea may deserve attention; a lightly explored
+idea the user has intentionally dismissed may not. The useful question is whether
+an idea has been expressed deeply enough for the role the user wants it to play.
+
+The user's and assistant's assessments can differ. The product should preserve
+that difference, make the assistant's reasoning inspectable, and let the user
+accept, correct, park, dismiss, reopen, or redirect an idea without requiring the
+assistant to pretend its own assessment never existed.
+
+The baseline may begin with a simple expandable list of ideas and summaries.
+Later development may add relationships, competing interpretations, structural
+roles, evidence, unresolved tensions, separate-piece candidates, and richer ways
+to compare perceived importance with intended importance.
+
+### Drafting and revision
+
+The draft is private, mutable, and user-owned. It is separate from conversation
+history and does not need to contain every explored idea.
+
+Composition should assemble material whose meaning and intended role are clear
+enough for the requested purpose. The assistant may advise that an uncertainty
+remains, but the user can request an early or deliberately rough draft.
+
+The assistant should propose edits at an understandable scope—a phrase, passage,
+section, structure, or whole draft—and apply them only after explicit acceptance.
+The user can accept, reject, amend, or discuss a proposal. Direct user edits take
+effect immediately and become context for subsequent inquiry and revision.
+
+Later development may support multiple structural alternatives, passage-level
+discussion, richer comparisons, selective application, and returning from an
+articulation problem to discovery without losing the draft.
+
+### Preference learning
+
+Preference learning maintains an inspectable and correctable body of evidence
+about how the user prefers to inquire, structure, articulate, and edit their
+writing. It is broader than a surface-level voice profile.
+
+Preferences may concern:
+
+- voice, rhythm, vocabulary, directness, uncertainty, and degree of polish;
+- appetite for questions, challenge, examples, or abstraction;
+- narrative and argumentative structure;
+- recurring devices such as contrast, callbacks, scenes, or open endings;
+- editorial choices revealed through accepted, rejected, or manually rewritten
+  suggestions.
+
+Observed, inferred, explicitly confirmed, contextual, and rejected preferences
+should remain distinguishable. Preferences may have evidence, confidence, scope,
+recency, and exceptions. They should guide rather than constrain: the assistant
+must not turn the user's past writing into a fixed caricature.
+
+The baseline should favour explicit preferences and corrections, with an
+inspectable owner profile. Later development may learn cautiously from repeated
+edits, acceptance and rejection patterns, contextual differences between kinds of
+writing, conflicts, recency, and model-assisted inference. Those improvements
+should remain inside the preference capability rather than changing the
+responsibilities of conversation, idea mapping, or drafting.
+
+Demo preference learning is limited to the temporary workspace. Persistent
+cross-work preferences are owner-only.
+
+### Workspace orchestration
+
+Workspace orchestration coordinates meaningful product events across the other
+capabilities without owning their domain logic. A user message, idea-control
+action, accepted proposal, structural change, or substantive manual edit can all
+update the shared work and inform the assistant's next response.
+
+The baseline should establish explicit events and small capability contracts.
+Later behaviour can become more sophisticated without creating a single
+monolithic service or requiring every module to understand every other module's
+internal representation.
+
 ## Assistant-led conversation model
 
 The user introduces an idea. The assistant guides the conversation until the topic is sufficiently explored.
@@ -185,7 +352,9 @@ A typical flow:
 9. User can draft, keep exploring, or add another thought.
 10. Only later, user may choose to shape the entry for publishing.
 
-The assistant decides when something is explored enough, but the user decides whether to keep going.
+The assistant assesses whether something appears explored enough and explains
+relevant uncertainty. The user decides whether to continue, change scope, or
+proceed anyway.
 
 ## Core conversation concepts
 
@@ -211,29 +380,41 @@ Examples:
 - offer publishing
 
 Moves are chosen by the assistant/backend conversation service, not the frontend.
+A move is a technique rather than a phase or purpose. Clarification, for example,
+may support discovery when meaning is uncertain or articulation when meaning is
+known but the language is imprecise.
 
-### Phases
+### Activity, readiness, and lifecycle
 
-A phase is the broader lifecycle state of the entry.
+The product should not represent intellectual progress with one general phase.
+That would combine the purpose of the current work, the assistant's judgment
+about useful next actions, and the resources that exist.
 
-Examples:
+Keep these separate:
 
-- new entry
-- private exploration
-- deepening
-- synthesis
-- ready to compose
-- private draft composed
-- publishing intent
-- publishing preparation
-- public draft ready
-- published
+- **Activity** is the primary purpose of an interaction or operation: discovery
+  or articulation. It is not a persistent workspace mode.
+- **Move** is the assistant's specific technique in one response. Moves and
+  activities have a many-to-many relationship.
+- **Readiness** is an assistant assessment about a specific possible action, such
+  as reflection or composition. It is advisory and may differ from the user's
+  explicit intention.
+- **Lifecycle** is derived from real resources and publishing state, such as
+  whether a private draft exists or `published_at` has been set.
 
-The phase does not rigidly determine the move. The assistant can challenge during early exploration if the user says something that needs challenging.
+An activity may have no assistant move. Directly rewriting a paragraph is an act
+of articulation even if the assistant does not respond. Conversely, the move
+`clarify` can serve discovery or articulation depending on its purpose.
+
+The user does not need to agree with assistant readiness. The assistant may assess
+that a confident draft is not ready while the user explicitly requests a rough
+draft that preserves unresolved uncertainty.
 
 ### Explored enough
 
-“Explored enough” means the topic has enough substance to become a coherent private draft.
+“Explored enough” is contextual shorthand, not a stored workspace-wide boolean.
+It means selected material has enough substance for a particular next action and
+intended role.
 
 It does not mean the topic is finished.
 
@@ -436,7 +617,10 @@ Example internal guidance:
 
 For MVP, persistent voice profile can be owner-only.
 
-Demo mode can adapt within the current session but should not persist a voice profile.
+Demo mode can adapt within the current session but should not persist a voice
+profile. For owner use, this concept is expanded by the preference-learning
+capability described above: voice is one part of a broader, inspectable model of
+inquiry, structural, narrative, and editorial preferences.
 
 ## Personal website and product demo model
 
@@ -628,7 +812,7 @@ Hosted bring-your-own API key is not part of the current plan.
 - Owner private writing interface
 - Assistant-led conversation flow
 - One-question-at-a-time behaviour
-- Moves/phases/readiness conversation policy
+- Activity, moves, action-specific readiness, and resource-derived lifecycle
 - Thread and claim detection
 - Reflection only when assistant has a clear picture
 - Composition offer once topic is explored enough

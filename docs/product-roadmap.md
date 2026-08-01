@@ -8,9 +8,24 @@ It is context, not approval to build future product behaviour. Each product stil
 
 The Socratic Draft is the first product in the repo.
 
-It is a writing tool that helps a person work out what they think before turning those thoughts into public writing. The product should guide a conversation, identify claims and gaps, ask useful questions, and eventually create a private draft that the user and AI can shape together through direct editing and requested revisions.
+It is a shared inquiry and articulation workspace that helps a person work out
+what they think and express it in their own voice. Conversation supports discovery
+and articulation, an inspectable idea map makes the assistant's interpretation
+visible and negotiable, and a user-owned draft contains the current expression of
+selected ideas. The user and assistant may move back and forth between discovery
+and articulation as writing exposes further questions.
 
-The conversation and draft are separate product concepts. Conversation messages preserve the exploration history. A draft is the mutable piece of writing produced from that conversation. Publishing later creates site-level public writing from the private draft.
+Conversation messages preserve the exploration history. The idea map maintains
+ideas, summaries, contextual importance, exploration, and potentially differing
+user and assistant assessments. A draft is separate, mutable, and authoritative
+when directly edited by the user. Assistant changes require explicit approval.
+Publishing later creates site-level public writing from the private draft.
+
+The product is divided conceptually into conversation and inquiry, idea mapping,
+drafting and revision, preference learning, and workspace orchestration. These
+capabilities should have narrow contracts and be developed through working
+end-to-end slices. The product brief and product architecture describe both baseline
+behaviour and longer-term direction for each capability.
 
 The product package should remain the source of truth for Socratic Draft concepts, conversation contracts, client screens, server behaviour, and product-specific persistence ports. The host provides infrastructure such as auth, AI services, database adapters, usage limits, and publishing integration.
 
@@ -18,9 +33,13 @@ Current implementation status:
 
 - Product package boundary exists.
 - Minimal editor UI exists.
-- Conversation endpoint exists with deterministic stub behaviour.
+- Conversation endpoint exists with real LLM-backed responses and deterministic
+  fake-model test/development behaviour.
 - Owner auth and owner-only persistence foundation exist.
-- Real LLM-backed writing behaviour, entry management, demo usage limits, and publishing are not implemented yet.
+- Conversation policy remains minimal and does not yet drive meaningful moves,
+  ideas, readiness, discovery, or articulation state.
+- Idea mapping, private drafts, revision proposals, preference learning, complete
+  demo export, calibrated usage limits, publishing, and admin are not implemented.
 
 ## Care Calendar
 
