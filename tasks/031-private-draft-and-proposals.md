@@ -1,4 +1,4 @@
-# Task 030 — Add private drafts and approved revision proposals
+# Task 031 — Add private drafts and approved revision proposals
 
 ## Goal
 
@@ -26,7 +26,7 @@ product architecture.
 ## Settled constraints
 
 - A draft is a product-owned private resource distinct from conversation history
-  and the idea map. Its body is the user's canonical current articulation and
+  and the idea map. Its body is the user's canonical current composition and
   need not contain every important or explored idea.
 - Every draft has a revision identity or concurrency token. A direct user save is
   made against an expected revision; after a successful save the submitted

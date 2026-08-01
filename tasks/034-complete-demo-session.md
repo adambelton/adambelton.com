@@ -1,9 +1,9 @@
-# Task 033 — Complete the temporary demo session
+# Task 034 — Complete the temporary demo session
 
 ## Goal
 
 Let a demo user experience the defining Socratic Draft journey from a rough
-thought through inquiry, articulation, an editable draft, revision, and export.
+thought through discovery, composition, an editable draft, revision, and export.
 
 ## Why this task is next
 
@@ -63,7 +63,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 ## Definition of done
 
 - A demo user can complete and export a draft without durable writing persistence.
-- Both guided discovery and explicit user-led articulation work end to end.
+- Both guided discovery and explicit user-led composition work end to end.
 - Representative usage measurements are documented for the next task.
 - Clearing, fixed expiry, early process loss, hosted-AI failure, and export remain
   coherent across the complete workspace rather than conversation alone.
@@ -98,7 +98,7 @@ git diff --check
   fragmenting canonical workspace state or weakening the privacy promise.
 - The representative guided, user-led, short-form, and long-form measurement
   fixtures. Record request counts, bounded context sizes, input/output tokens,
-  and action types in a documented repository file consumed by Task 034.
+  and action types in a documented repository file consumed by Task 035.
 
 ## Status
 

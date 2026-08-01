@@ -21,7 +21,7 @@ the intended product difficult to develop later.
 - Keep the user authoritative over meaning, direction, and draft content.
 - Make user-established idea material visible and correctable while keeping
   qualitative assistant assessment limited and negotiable.
-- Support fluid movement between discovery and articulation.
+- Support fluid movement between discovery and composition once a draft exists.
 - Let conversation and interface actions participate in one collaboration model.
 - Keep conversation history, the idea map, and the draft distinct.
 - Allow conversation, idea mapping, drafting, and preference learning to develop
@@ -47,7 +47,7 @@ the intended product difficult to develop later.
 
 ## Core workspace model
 
-A workspace is the private body of work in which inquiry and articulation take
+A workspace is the private body of work in which discovery and composition take
 place. It connects three representations without merging them:
 
 ```mermaid
@@ -87,26 +87,34 @@ state rather than transient presentation data.
 
 ### Draft
 
-The user's canonical current articulation of selected ideas. A draft can be
+The user's canonical current composition of selected ideas. A draft can be
 composed from workspace material and then changed freely by the user. It need not
 contain every important or well-explored idea.
 
-### Discovery and articulation
+### Discovery and composition
 
-Discovery and articulation are activities, not exclusive workspace modes:
+Discovery and composition are activities, not exclusive workspace modes:
 
-- **Discovery** finds out what the user thinks.
-- **Articulation** finds language and form that express it.
+- **Discovery** finds out what the user thinks, including language that clarifies
+  what they mean before a draft exists.
+- **Composition** creates and continually develops the canonical draft from
+  selected ideas.
+
+A composition request or accepted offer creates the first draft and begins
+composition. Before that operation, reflection, paraphrasing, and finding words
+remain discovery. Once a draft exists, composition may expose an unresolved idea
+and return the work to discovery; later discovery may change the draft.
 
 Activity classifies the primary purpose of a particular interaction or operation.
 It is not persisted as a global mode that governs what the workspace may do next.
 Drafting may reveal an unresolved idea; later inquiry may change an existing
 draft.
 
-An assistant move describes the technique used in one assistant response. The
-same move may support either activity: clarification can uncover uncertain meaning
-or improve the language of known meaning. An activity can also occur without an
-assistant move, as when the user directly edits or restructures the draft.
+An assistant move describes the technique used in one assistant response.
+Clarification and reflection can uncover uncertain meaning or improve its
+expression during discovery. An activity can also occur without an assistant
+move, as when the user directly edits or restructures the draft during
+composition.
 
 Do not introduce an additional activity-focus taxonomy. More specific acts such
 as clarifying, reflecting, structuring, composing, and revising belong in
@@ -179,9 +187,11 @@ queries, not permission for one module to mutate another module's state directly
 Owns:
 
 - selecting the next conversational move;
-- producing a concise question, reflection, explanation, or articulation response;
+- producing a concise question, reflection, explanation, or draft-focused
+  response;
 - following explicit user direction about focus and desired assistance;
-- classifying the primary purpose of an interaction as discovery or articulation;
+- classifying the primary purpose of an interaction as discovery or, when a
+  draft exists or is being created, composition;
 - choosing an assistant move that serves that purpose;
 - interpreting conversational commands into product intentions;
 - consuming a prepared view of relevant workspace and preference context.
@@ -365,7 +375,7 @@ Candidate commands include:
 
 - submit a conversation message;
 - focus, satisfy, park, dismiss, reopen, or correct an idea;
-- request exploration or articulation;
+- request exploration or composition;
 - request draft composition;
 - save a manual draft edit;
 - request, accept, reject, or amend a revision proposal;
@@ -483,7 +493,7 @@ expired or a durable write fails.
 1. The user saves edited content against a known draft revision.
 2. The draft operation validates the revision and commits the user's content.
 3. The change is classified conservatively as textual maintenance,
-   articulation, conceptual change, or structural change where possible.
+   composition, conceptual change, or structural change where possible.
 4. Meaningful change information may be offered to the idea map and preference
    capability as evidence.
 5. Conversation orchestration responds only when useful or explicitly requested.
@@ -690,7 +700,7 @@ Each capability should have:
 Representative scenario tests should cover:
 
 - guided discovery from a vague thought;
-- user-led articulation from a strong initial view;
+- user-led composition from a strong initial view;
 - disagreement between user intention and qualitative assistant assessment;
 - dismissal through conversation and through the UI producing equivalent state;
 - drafting with acknowledged unresolved uncertainty;
@@ -728,7 +738,7 @@ The current proposed sequence is:
 1. Immediate hosted-AI safety boundaries.
 2. Workspace and capability foundations.
 3. Idea-map baseline.
-4. Fluid discovery and articulation.
+4. Meaningful discovery and composition readiness.
 5. Private drafts and approved revision proposals.
 6. Manual draft-edit interpretation.
 7. Preference-learning baseline.

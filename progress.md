@@ -7,10 +7,10 @@ The monorepo has been scaffolded with the intended app/package structure. The fi
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
 The Socratic Draft product model has been refined before usage-limit work. The
-product is now documented as a shared inquiry and articulation workspace with
+product is now documented as a shared discovery and composition workspace with
 conversation history, an inspectable idea map, and a user-owned draft. Conceptual
 capability boundaries and a staged implementation plan now cover idea mapping,
-fluid discovery/articulation, approved draft revisions, manual-edit
+meaningful discovery and composition readiness, approved draft revisions, manual-edit
 interpretation, preference learning, a complete demo session, calibrated usage
 protection, publishing, and admin visibility.
 
@@ -55,7 +55,7 @@ protection, publishing, and admin visibility.
 - `packages/shared` API response, user/access, writing, usage, and product registry types.
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
-- Socratic Draft interaction contracts separate discovery/articulation activity,
+- Socratic Draft interaction contracts separate discovery/composition activity,
   assistant moves, action-specific assistant readiness, and explicit user
   intention without a general conversation-state or lifecycle aggregate.
 - Workspace orchestration loads conversation context, invokes the conversation
@@ -155,7 +155,7 @@ protection, publishing, and admin visibility.
 - Socratic Draft product planning docs live in `docs/products/socratic-draft/`.
 - Socratic Draft product architecture documents conceptually rich conversation,
   idea-map, draft, preference, and workspace-orchestration capability boundaries.
-- Socratic Draft contracts separate interaction-scoped discovery/articulation
+- Socratic Draft contracts separate interaction-scoped discovery/composition
   activity, assistant moves, action-specific readiness, explicit user intention,
   and resource-derived lifecycle; the obsolete general conversation-state and
   phase contract has been removed without a catch-all replacement.
@@ -176,7 +176,7 @@ protection, publishing, and admin visibility.
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
 - Draft creation and collaborative editing from a conversation.
-- Fluid discovery and articulation behaviour.
+- Meaningful discovery and composition-readiness behaviour.
 - Manual draft-edit interpretation and preference learning.
 - Complete demo copy and export flow.
 - Publishing flow from private drafts to public writing.
@@ -195,7 +195,7 @@ protection, publishing, and admin visibility.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Daily usage limits are not implemented yet; the kill switch and per-request
-  bounds reduce immediate exposure but do not replace Task 034 cost protection.
+  bounds reduce immediate exposure but do not replace Task 035 cost protection.
 - Autonomous, user-correctable idea merging and splitting remains required before
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after
@@ -204,4 +204,4 @@ protection, publishing, and admin visibility.
 
 ## Next recommended task
 
-Task 029 — Fluid discovery and articulation.
+Task 030 — Meaningful discovery and composition readiness.

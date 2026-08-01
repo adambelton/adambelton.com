@@ -1,8 +1,8 @@
-# Task 031 — Interpret substantive manual draft edits
+# Task 032 — Interpret substantive manual draft edits
 
 ## Goal
 
-Let direct draft edits inform the shared inquiry so articulation can reveal new
+Let direct draft edits inform discovery so composition can reveal new
 meaning, changed claims, structural choices, or discovery gaps.
 
 ## Why this task is next
@@ -30,7 +30,7 @@ architecture.
 - Manual saves use the draft's expected revision contract. A stale save must
   preserve the newer canonical draft and return a recoverable conflict.
 - The conservative baseline change vocabulary is textual maintenance,
-  articulation, conceptual change, and structural change. Classification is an
+  composition, conceptual change, and structural change. Classification is an
   interpretation rather than objective truth.
 - Classification failure must fail quietly after a successful save and must not
   manufacture idea-map or preference changes.

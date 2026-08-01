@@ -19,7 +19,7 @@ export type AssistantMove =
   (typeof ASSISTANT_MOVES)[keyof typeof ASSISTANT_MOVES];
 
 export const ACTIVITIES = {
-  articulation: "articulation",
+  composition: "composition",
   discovery: "discovery",
 } as const;
 
@@ -49,7 +49,6 @@ export interface AssistantReadiness {
 }
 
 export const USER_INTENTIONS = {
-  articulate: "articulate",
   compose: "compose",
   explore: "explore",
   reflect: "reflect",

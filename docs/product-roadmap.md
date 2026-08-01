@@ -8,12 +8,12 @@ It is context, not approval to build future product behaviour. Each product stil
 
 The Socratic Draft is the first product in the repo.
 
-It is a shared inquiry and articulation workspace that helps a person work out
-what they think and express it in their own voice. Conversation supports discovery
-and articulation, an inspectable idea map makes the assistant's interpretation
-visible and negotiable, and a user-owned draft contains the current expression of
-selected ideas. The user and assistant may move back and forth between discovery
-and articulation as writing exposes further questions.
+It is a shared discovery and composition workspace that helps a person work out
+what they think and express it in their own voice. Conversation and the idea map
+support discovery, including finding clear language for meaning. A user-owned
+draft contains the current composition of selected ideas. Once a draft exists,
+the user and assistant may move back and forth as composition exposes further
+questions and discovery changes the writing.
 
 Conversation messages preserve the exploration history. The idea map maintains
 ideas, distilled syntheses, richer substance, contextual importance, exploration,
@@ -37,9 +37,9 @@ Current implementation status:
 - Conversation endpoint exists with real LLM-backed responses and deterministic
   fake-model test/development behaviour.
 - Owner auth and owner-only persistence foundation exist.
-- Conversation policy remains minimal and does not yet drive meaningful moves,
-  ideas, readiness, discovery, or articulation state.
-- Idea mapping, private drafts, revision proposals, preference learning, complete
+- Conversation policy remains minimal and does not yet drive meaningful moves or
+  composition readiness.
+- Private drafts, revision proposals, preference learning, complete
   demo export, calibrated usage limits, publishing, and admin are not implemented.
 
 ## Care Calendar

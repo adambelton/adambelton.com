@@ -2,17 +2,18 @@
 
 ## Planned
 
-- 029 — Fluid discovery and articulation
-- 030 — Private drafts and approved revision proposals
-- 031 — Manual draft-edit interpretation
-- 032 — Preference-learning baseline
-- 033 — Complete temporary demo session
-- 034 — Calibrated usage limits and cost protection
-- 035 — Publishing flow
-- 036 — Admin visibility
+- 030 — Meaningful discovery and composition readiness
+- 031 — Private drafts and approved revision proposals
+- 032 — Manual draft-edit interpretation
+- 033 — Preference-learning baseline
+- 034 — Complete temporary demo session
+- 035 — Calibrated usage limits and cost protection
+- 036 — Publishing flow
+- 037 — Admin visibility
 
 ## Completed
 
+- 029 — Discovery and composition terminology correction
 - 028 — Idea-map baseline
 - 027 — Workspace and capability foundations
 - 026 — Hosted-AI immediate safety boundaries

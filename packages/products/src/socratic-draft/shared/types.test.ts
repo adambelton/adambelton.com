@@ -10,7 +10,7 @@ import {
 describe("Socratic Draft interaction contracts", () => {
   it("keeps activity, assistant technique, readiness, and user intention distinct", () => {
     expect(ACTIVITIES).toEqual({
-      articulation: "articulation",
+      composition: "composition",
       discovery: "discovery",
     });
     expect(ASSISTANT_MOVES.clarify).toBe("clarify");
@@ -24,7 +24,6 @@ describe("Socratic Draft interaction contracts", () => {
       readyWithUncertainty: "ready_with_uncertainty",
     });
     expect(USER_INTENTIONS).toEqual({
-      articulate: "articulate",
       compose: "compose",
       explore: "explore",
       reflect: "reflect",

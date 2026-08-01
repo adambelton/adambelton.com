@@ -185,17 +185,23 @@ transient reasoning: they may guide a Socratic question or be offered explicitly
 and tentatively in conversation, but they do not become idea-map content until
 the user adopts, confirms, corrects, or meaningfully develops them.
 
-### 12. Discovery and articulation inform each other
+### 12. Discovery and composition inform each other
 
-Discovery is the work of finding out what the user thinks. Articulation is the
-work of finding language and form that express it. They are not rigid sequential
-phases. Attempting to articulate an idea often reveals something undiscovered,
-and a user may move between the two repeatedly.
+Discovery is the work of finding out what the user thinks. It includes finding
+language that clarifies what the user means before a draft exists. Composition is
+the work of creating and continually developing the canonical draft from selected
+ideas. A composition request or accepted composition offer creates the first
+draft and begins that activity.
+
+They are not rigid sequential phases once a draft exists. Composition may reveal
+something undiscovered, causing a return to inquiry; further discovery may then
+change the draft. Before a draft exists, reflection, paraphrasing, and figuring
+out how to say what the user means remain discovery.
 
 The product may classify the primary activity of a particular interaction or
 operation and describe it subtly, but activity is not a persistent workspace mode
 and the user should not have to operate a mode switch. Conversation and interface
-controls should both let the user ask to explore, articulate, structure, revise,
+controls should both let the user ask to explore, compose, structure, revise,
 or return to an underlying question.
 
 Activity describes why the work is happening. An assistant move describes how
@@ -203,9 +209,9 @@ the assistant contributes in a particular response. The same move may support
 either activity, and an activity may occur without an assistant move—for example,
 when the user edits the draft directly.
 
-## Shared inquiry and articulation workspace
+## Shared discovery and composition workspace
 
-The Socratic Draft is a shared inquiry and articulation workspace rather than a
+The Socratic Draft is a shared discovery and composition workspace rather than a
 chatbot that eventually generates an essay.
 
 It contains three connected representations:
@@ -213,7 +219,7 @@ It contains three connected representations:
 1. **Conversation history** records what the user and assistant actually said.
 2. **Idea map** makes the user's explored material visible, organised, and
    correctable, alongside limited qualitative assistant assessment.
-3. **Draft** contains the user's canonical current articulation of selected ideas.
+3. **Draft** contains the user's canonical current composition of selected ideas.
 
 Information can move in both directions. Conversation can change the idea map and
 draft. A manual draft edit can reveal a changed idea, a structural preference, or
@@ -245,7 +251,7 @@ guidance to precise collaboration with a user who already has a strong view.
 The baseline should support concise, one-question-at-a-time inquiry and explicit
 user redirection. Later development may improve move selection, handling of
 ambiguity and contradiction, perspective-taking, inquiry style, and the ability
-to recognise when articulation would be more useful than another question.
+to recognise when composition should be offered rather than another question.
 
 ### Idea map
 
@@ -268,7 +274,7 @@ must be traceable to something the user expressed or to assistant language the
 user explicitly adopted, confirmed, corrected, or developed. The map must not
 silently shape the idea by storing unconfirmed assistant hypotheses. Questions
 about audience, genre, tone, evidence, and structure belong only when the user
-has begun the corresponding articulation work.
+has begun the corresponding composition work.
 
 Two important dimensions are:
 
@@ -307,14 +313,14 @@ The user can accept, reject, amend, or discuss a proposal. Direct user edits tak
 effect immediately and become context for subsequent inquiry and revision.
 
 Later development may support multiple structural alternatives, passage-level
-discussion, richer comparisons, selective application, and returning from an
-articulation problem to discovery without losing the draft.
+discussion, richer comparisons, selective application, and returning from a
+composition problem to discovery without losing the draft.
 
 ### Preference learning
 
 Preference learning maintains an inspectable and correctable body of evidence
-about how the user prefers to inquire, structure, articulate, and edit their
-writing. It is broader than a surface-level voice profile.
+about how the user prefers to inquire, compose, structure, and edit their writing.
+It is broader than a surface-level voice profile.
 
 Preferences may concern:
 
@@ -400,7 +406,7 @@ Examples:
 
 Moves are chosen by the assistant/backend conversation service, not the frontend.
 A move is a technique rather than a phase or purpose. Clarification, for example,
-may support discovery when meaning is uncertain or articulation when meaning is
+may support discovery when meaning is uncertain or composition when meaning is
 known but the language is imprecise.
 
 ### Activity, readiness, and lifecycle
@@ -412,7 +418,7 @@ about useful next actions, and the resources that exist.
 Keep these separate:
 
 - **Activity** is the primary purpose of an interaction or operation: discovery
-  or articulation. It is not a persistent workspace mode.
+  or composition. It is not a persistent workspace mode.
 - **Move** is the assistant's specific technique in one response. Moves and
   activities have a many-to-many relationship.
 - **Readiness** is an assistant assessment about a specific possible action, such
@@ -422,8 +428,8 @@ Keep these separate:
   whether a private draft exists or `published_at` has been set.
 
 An activity may have no assistant move. Directly rewriting a paragraph is an act
-of articulation even if the assistant does not respond. Conversely, the move
-`clarify` can serve discovery or articulation depending on its purpose.
+of composition even if the assistant does not respond. Clarifying meaning or
+finding more precise language before a draft exists remains discovery.
 
 The user does not need to agree with assistant readiness. The assistant may assess
 that a confident draft is not ready while the user explicitly requests a rough

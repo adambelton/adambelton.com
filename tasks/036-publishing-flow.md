@@ -1,4 +1,4 @@
-# Task 035 — Publish private drafts to site writing
+# Task 036 — Publish private drafts to site writing
 
 ## Goal
 

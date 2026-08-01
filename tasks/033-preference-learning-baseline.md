@@ -1,4 +1,4 @@
-# Task 032 — Establish the preference-learning baseline
+# Task 033 — Establish the preference-learning baseline
 
 ## Goal
 

@@ -1,10 +1,10 @@
-# Task 029 — Support fluid discovery and articulation
+# Task 030 — Support meaningful discovery and composition readiness
 
 ## Goal
 
-Let the assistant recognise whether the user needs help discovering meaning or
-articulating known meaning, and move naturally between those activities under
-user direction.
+Make discovery genuinely useful by selecting grounded conversational moves,
+following user direction, and recognising when composition could usefully be
+offered without creating a draft.
 
 ## Why this task is next
 
@@ -13,23 +13,30 @@ intent to choose a genuinely useful next act rather than always probing.
 
 ## Scope
 
-Implements **Discovery and articulation**, **Conversation and inquiry**, and the
+Implements the discovery portions of **Discovery and composition**,
+**Conversation and inquiry**, and the
 conversation-turn portions of **Principal flows** from the product architecture.
 
-- Implement meaningful move selection and readiness assessment.
-- Classify the primary purpose of each relevant interaction as discovery or
-  articulation while allowing the same move to serve either purpose.
-- Support conversational and UI steering toward exploration or articulation.
-- Allow articulation attempts to expose a discovery gap and return to inquiry.
-- Explain important readiness uncertainty without blocking user-directed drafting.
+- Implement meaningful, grounded discovery-move selection.
+- Support conversational and subtle UI steering within discovery, such as
+  focusing an idea, asking for guidance, or requesting reflection.
+- Assess readiness for reflection and for offering composition.
+- Explain important readiness uncertainty without treating it as a gate.
+- Recognise an explicit composition request as user intention without
+  misclassifying the pre-draft interaction as composition. Performing that
+  request belongs to the next capability slice.
 - Keep activity operation-scoped and distinct from assistant moves, readiness,
   user intention, and resource-derived lifecycle.
 
 ## Settled constraints
 
+- All interactions implemented by this task remain discovery because no draft
+  exists and this task does not create one. Reflection, paraphrasing, and finding
+  precise language for meaning are discovery moves.
+- Composition begins only with the operation that creates the canonical draft.
+  That operation belongs to Task 031.
 - Activity describes why an interaction or operation is happening; an assistant
-  move describes the technique used in one assistant response. Their relationship
-  is many-to-many, and an activity may occur without an assistant move.
+  move describes the technique used in one assistant response.
 - Activity and move are interaction metadata, not stored workspace lifecycle.
   Do not introduce a general phase, completion field, or activity-focus taxonomy.
 - The frontend may communicate explicit user intention but must not choose the
@@ -40,32 +47,36 @@ conversation-turn portions of **Principal flows** from the product architecture.
 - Conversation consumes a bounded, prepared view of relevant idea-map state. It
   must not own or directly mutate canonical idea-map state.
 - The baseline conversational policy asks one useful question or offers one
-  concise reflection, explanation, or articulation response at a time.
+  concise grounded reflection or explanation at a time.
 - Model results that select activity, move, or readiness must be provider-neutral
   and validated into product-owned contracts. Invalid structured output must fail
   safely or degrade to conversation without corrupting product state.
 - This task may express composition readiness, an offer, or user composition
-  intention, but it does not create a canonical draft resource.
+  intention, but it does not emit composition activity or create a canonical
+  draft resource.
 
 ## Out of scope
 
-- Canonical draft objects, revision proposals, or persistent preference learning.
+- Composition activity, canonical draft objects, revision proposals, manual-draft
+  edit interpretation, or persistent preference learning.
 
 ## Expected files to create or modify
 
 - conversation policy/readiness modules and prompts under the product server
-- activity controls and state presentation under the product client
+- discovery steering and readiness presentation under the product client
 - product contracts and, where the structured result requires them, host-supplied
   provider adapters under `apps/api` and `packages/ai`
 - tests, evaluation fixtures, progress, and task index
 
 ## Definition of done
 
-- Activity, move, readiness, and user intention are derived meaningfully rather
+- Discovery moves, readiness, and user intention are derived meaningfully rather
   than returned as fixed placeholders.
-- Activity and move are both meaningful without duplicating one another.
-- Users can ask to be guided or take the lead through either surface.
-- The product can offer articulation while preserving unresolved uncertainty.
+- Conversation remains grounded in user-expressed or user-adopted idea material.
+- Users can ask to be guided, redirect the inquiry, focus an idea, or request a
+  reflection through conversation and appropriately subtle UI controls.
+- The product can offer composition while preserving unresolved uncertainty and
+  without pretending a draft already exists.
 - Explicit user direction can override the suggested direction without rewriting
   the assistant's readiness assessment.
 - Invalid model classification cannot corrupt the idea map or retained
@@ -93,8 +104,9 @@ git diff --check
   response generation, including validation and degraded behavior.
 - The concrete UI controls for guided versus user-led work without creating a
   mandatory mode selector.
-- Representative deterministic evaluation cases for ambiguous activity,
-  readiness uncertainty, and articulation that exposes a discovery gap.
+- Representative deterministic evaluation cases for move selection, grounded
+  reflection, user redirection, readiness uncertainty, and an explicit early
+  composition request.
 - How bounded conversation and idea context is selected or summarized for this
   operation under the existing input limit.
 

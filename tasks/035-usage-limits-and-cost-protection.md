@@ -1,4 +1,4 @@
-# Task 034 — Add calibrated usage limits and cost protection
+# Task 035 — Add calibrated usage limits and cost protection
 
 ## Goal
 
@@ -102,7 +102,7 @@ git diff --check
 
 ## Values required before approval
 
-Task 033's committed measurements must be used to add concrete values and
+Task 034's committed measurements must be used to add concrete values and
 rationale here before implementation approval:
 
 - demo UTC-daily request allowance;

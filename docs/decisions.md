@@ -477,3 +477,24 @@ before the editor is considered fully functional. Real-time multi-user
 collaboration remains a future direction; transport such as WebSockets would not
 replace revisions, conflict handling, permissions, attribution, or collaborative
 editing semantics.
+
+## 029 — Discovery And Composition Are The Product Activities
+
+The Socratic Draft uses discovery and composition as its two interaction-scoped
+activities. This supersedes the articulation terminology in Decisions 024, 025,
+and 027 without changing their separation of activity, move, readiness,
+intention, and resource-derived lifecycle.
+
+Discovery finds out what the user thinks. It includes reflection, paraphrasing,
+clarifying expression, and finding language for meaning before a draft exists.
+Those acts do not become a separate pre-draft writing activity.
+
+Composition creates and continually develops the canonical draft from selected
+ideas. A direct composition request or accepted composition offer creates the
+first draft and begins composition. Once a draft exists, composition may expose
+an unresolved idea and return the work to discovery; later discovery may inform
+further composition.
+
+The standalone `articulate` user intention is removed. Concrete intentions and
+operations such as explore, reflect, compose, structure, and revise describe what
+the user asks to do without introducing a persistent workspace mode.
