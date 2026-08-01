@@ -1,9 +1,9 @@
 import type {
   ConversationMessage,
   ConversationResponse,
-  ConversationState,
 } from "packages/products/src/socratic-draft/shared";
 import {
+  ACTIVITIES,
   ASSISTANT_MOVES,
   CONVERSATION_MESSAGE_ROLES,
 } from "packages/products/src/socratic-draft/shared";
@@ -65,8 +65,10 @@ export class ConversationService {
         role: CONVERSATION_MESSAGE_ROLES.assistant,
         content: modelResponse.content.trim() || DEFAULT_ASSISTANT_MESSAGE,
       },
+      activity: ACTIVITIES.discovery,
       move: ASSISTANT_MOVES.probe,
-      state: createInitialConversationState(),
+      assistantReadiness: [],
+      userIntention: null,
       suggestedReplies: [
         {
           label: "Start with a thought",
@@ -112,16 +114,4 @@ class StaticConversationModel implements ConversationModel {
       content: DEFAULT_ASSISTANT_MESSAGE,
     };
   }
-}
-
-function createInitialConversationState(): ConversationState {
-  return {
-    phase: "new_conversation",
-    exploredEnough: false,
-    nearReadyToReflect: false,
-    readyToReflect: false,
-    shouldOfferDraft: false,
-    threads: [],
-    claims: [],
-  };
 }

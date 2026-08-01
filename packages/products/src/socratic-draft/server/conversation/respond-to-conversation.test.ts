@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation/conversation-service";
-import { respondToConversation } from "packages/products/src/socratic-draft/server/conversation/respond-to-conversation";
+import { respondInWorkspace } from "packages/products/src/socratic-draft/server/workspace/respond-in-workspace";
 import type { ConversationStore } from "packages/products/src/socratic-draft/server/conversation/conversation-store";
 
-describe("respondToConversation", () => {
+describe("respondInWorkspace", () => {
   it("loads history and retains the complete generated turn", async () => {
     const appendedTurns: unknown[] = [];
     const store = createStore({
@@ -13,14 +13,19 @@ describe("respondToConversation", () => {
       },
     });
 
-    const result = await respondToConversation({
+    const result = await respondInWorkspace({
       conversationId: "conversation-1",
       message: "A new thought",
-      conversationService: new ConversationService(),
-      conversationStore: store,
+      conversation: new ConversationService(),
+      conversations: store,
     });
 
     expect(result.status).toBe("responded");
+    expect(result).toMatchObject({
+      events: [
+        { type: "conversation_turn_retained", conversationId: "conversation-1" },
+      ],
+    });
     expect(appendedTurns).toMatchObject([
       {
         conversationId: "conversation-1",
@@ -32,10 +37,10 @@ describe("respondToConversation", () => {
 
   it("does not invoke the model for a missing conversation", async () => {
     let modelWasCalled = false;
-    const result = await respondToConversation({
+    const result = await respondInWorkspace({
       conversationId: "missing",
       message: "Do not process this",
-      conversationService: {
+      conversation: {
         async respond() {
           modelWasCalled = true;
           return new ConversationService().respond({
@@ -45,7 +50,7 @@ describe("respondToConversation", () => {
           });
         },
       },
-      conversationStore: createStore({
+      conversations: createStore({
         getConversationMessages: async () => null,
       }),
     });
@@ -55,11 +60,11 @@ describe("respondToConversation", () => {
   });
 
   it("reports when the complete turn cannot be retained", async () => {
-    const result = await respondToConversation({
+    const result = await respondInWorkspace({
       conversationId: "conversation-1",
       message: "A racing thought",
-      conversationService: new ConversationService(),
-      conversationStore: createStore({
+      conversation: new ConversationService(),
+      conversations: createStore({
         appendConversationTurn: async () => ({
           status: "conversation_unavailable",
         }),
@@ -67,6 +72,21 @@ describe("respondToConversation", () => {
     });
 
     expect(result).toEqual({ status: "conversation_unavailable" });
+  });
+
+  it("does not report a retained-turn event when retention fails", async () => {
+    const result = await respondInWorkspace({
+      conversationId: "conversation-1",
+      message: "Do not call this retained",
+      conversation: new ConversationService(),
+      conversations: createStore({
+        appendConversationTurn: async () => ({
+          status: "conversation_unavailable",
+        }),
+      }),
+    });
+
+    expect("events" in result).toBe(false);
   });
 });
 

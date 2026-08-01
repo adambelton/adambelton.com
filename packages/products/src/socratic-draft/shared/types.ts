@@ -18,85 +18,45 @@ export const ASSISTANT_MOVES = {
 export type AssistantMove =
   (typeof ASSISTANT_MOVES)[keyof typeof ASSISTANT_MOVES];
 
-export type ConversationPhase =
-  | "new_conversation"
-  | "private_exploration"
-  | "deepening"
-  | "synthesis"
-  | "ready_to_draft"
-  | "draft_created"
-  | "publishing_intent"
-  | "publishing_preparation"
-  | "public_draft_ready"
-  | "published";
+export const ACTIVITIES = {
+  articulation: "articulation",
+  discovery: "discovery",
+} as const;
 
-export type ThreadStatus =
-  | "surfaced"
-  | "needs_fleshing_out"
-  | "active"
-  | "central"
-  | "supporting"
-  | "parked"
-  | "separate_draft_candidate"
-  | "resolved"
-  | "discarded";
+export type Activity = (typeof ACTIVITIES)[keyof typeof ACTIVITIES];
 
-export type ThreadRelevance =
-  | "central"
-  | "supporting"
-  | "uncertain"
-  | "tangential"
-  | "not_relevant";
+export const READINESS_ACTIONS = {
+  compose: "compose",
+  reflect: "reflect",
+} as const;
 
-export type ConversationThread = {
-  id: string;
-  label: string;
-  summary: string;
-  status: ThreadStatus;
-  relevance: ThreadRelevance;
-  evidence: string[];
-  openQuestions: string[];
+export type ReadinessAction =
+  (typeof READINESS_ACTIONS)[keyof typeof READINESS_ACTIONS];
+
+export const READINESS_ASSESSMENTS = {
+  notReady: "not_ready",
+  ready: "ready",
+  readyWithUncertainty: "ready_with_uncertainty",
+} as const;
+
+export type ReadinessAssessment =
+  (typeof READINESS_ASSESSMENTS)[keyof typeof READINESS_ASSESSMENTS];
+
+export type AssistantReadiness = {
+  action: ReadinessAction;
+  assessment: ReadinessAssessment;
+  explanation?: string;
 };
 
-export type ClaimType =
-  | "feeling"
-  | "experience"
-  | "self_judgement"
-  | "moral_claim"
-  | "interpretation"
-  | "factual_claim"
-  | "prediction";
+export const USER_INTENTIONS = {
+  articulate: "articulate",
+  compose: "compose",
+  explore: "explore",
+  reflect: "reflect",
+} as const;
 
-export type ClaimStatus =
-  | "accepted_as_feeling"
-  | "accepted_as_experience"
-  | "needs_clarification"
-  | "needs_nuance"
-  | "needs_challenge"
-  | "research_candidate"
-  | "supported"
-  | "contradicted"
-  | "unclear"
-  | "opinion";
-
-export type DetectedClaim = {
-  id: string;
-  text: string;
-  type: ClaimType;
-  status: ClaimStatus;
-  relatedThreadIds: string[];
-};
-
-export type ConversationState = {
-  phase: ConversationPhase;
-  exploredEnough: boolean;
-  nearReadyToReflect: boolean;
-  readyToReflect: boolean;
-  shouldOfferDraft: boolean;
-  centralThought?: string;
-  threads: ConversationThread[];
-  claims: DetectedClaim[];
-};
+export type UserIntention =
+  (typeof USER_INTENTIONS)[keyof typeof USER_INTENTIONS];
 
 export type SuggestedReply = {
   label: string;
@@ -139,8 +99,10 @@ export type ConversationResponse = {
     role: typeof CONVERSATION_MESSAGE_ROLES.assistant;
     content: string;
   };
+  activity: Activity;
   move: AssistantMove;
-  state: ConversationState;
+  assistantReadiness: AssistantReadiness[];
+  userIntention: UserIntention | null;
   suggestedReplies: SuggestedReply[];
 };
 

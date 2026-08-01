@@ -1,12 +1,14 @@
 import { Hono } from "hono";
 import {
   ConversationService,
-  respondToConversation,
 } from "packages/products/src/socratic-draft/server/conversation";
 import type {
-  ConversationResponder,
   PersistentConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
+import {
+  respondInWorkspace,
+  type ConversationResponder,
+} from "packages/products/src/socratic-draft/server/workspace";
 import { parseConversationMessage } from "packages/products/src/socratic-draft/server/http/conversation-request";
 import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
@@ -111,11 +113,11 @@ export function createConversationsRoute({
       );
     }
 
-    const result = await respondToConversation({
+    const result = await respondInWorkspace({
       conversationId,
       message,
-      conversationService,
-      conversationStore,
+      conversation: conversationService,
+      conversations: conversationStore,
     });
 
     if (

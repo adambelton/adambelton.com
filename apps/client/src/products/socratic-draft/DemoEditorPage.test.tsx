@@ -199,16 +199,10 @@ function conversationResponse(conversationId: string) {
   return {
     conversationId,
     message: { role: "assistant", content: "A response" },
+    activity: "discovery",
     move: "probe",
-    state: {
-      phase: "new_conversation",
-      exploredEnough: false,
-      nearReadyToReflect: false,
-      readyToReflect: false,
-      shouldOfferDraft: false,
-      threads: [],
-      claims: [],
-    },
+    assistantReadiness: [],
+    userIntention: null,
     suggestedReplies: [],
   };
 }

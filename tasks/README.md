@@ -2,7 +2,6 @@
 
 ## Planned
 
-- 027 — Workspace and capability foundations
 - 028 — Idea-map baseline
 - 029 — Fluid discovery and articulation
 - 030 — Private drafts and approved revision proposals
@@ -15,6 +14,7 @@
 
 ## Completed
 
+- 027 — Workspace and capability foundations
 - 026 — Hosted-AI immediate safety boundaries
 - 025 — Demo ephemeral mode
 - 024 — Pre-launch privacy hygiene

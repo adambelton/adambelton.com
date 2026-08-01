@@ -2,7 +2,7 @@
 
 ## Current status
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal Socratic Draft product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable Socratic Draft product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned Socratic Draft client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
@@ -55,6 +55,12 @@ protection, publishing, and admin visibility.
 - `packages/shared` API response, user/access, writing, usage, and product registry types.
 - Product registry containing The Socratic Draft, with lookup helpers by id and slug.
 - Socratic Draft-owned shared conversation/domain contract types under `packages/products`.
+- Socratic Draft interaction contracts separate discovery/articulation activity,
+  assistant moves, action-specific assistant readiness, and explicit user
+  intention without a general conversation-state or lifecycle aggregate.
+- Workspace orchestration loads conversation context, invokes the conversation
+  capability, retains complete turns through the product-owned store operation,
+  and reports retained-turn events only after successful persistence.
 - Minimal Socratic Draft server conversation service with contract-focused tests and a product-owned conversation model port.
 - Socratic Draft conversation endpoint now reads existing conversation messages before calling the product conversation service.
 - OpenAI-backed LLM adapter in `packages/ai`, using `OPENAI_API_KEY` and `OPENAI_MODEL`, with `gpt-5-mini` as the default.
@@ -112,10 +118,10 @@ protection, publishing, and admin visibility.
 - Socratic Draft product planning docs live in `docs/products/socratic-draft/`.
 - Socratic Draft product architecture documents conceptually rich conversation,
   idea-map, draft, preference, and workspace-orchestration capability boundaries.
-- Socratic Draft planning separates interaction-scoped discovery/articulation
+- Socratic Draft contracts separate interaction-scoped discovery/articulation
   activity, assistant moves, action-specific readiness, explicit user intention,
-  and resource-derived lifecycle; Task 027 owns the clean removal of the obsolete
-  general conversation-phase contract.
+  and resource-derived lifecycle; the obsolete general conversation-state and
+  phase contract has been removed without a catch-all replacement.
 - `tasks/README.md` task index.
 - `tasks/001-scaffold-repo.md` scaffold/context task record.
 
@@ -157,4 +163,4 @@ protection, publishing, and admin visibility.
 
 ## Next recommended task
 
-Task 027 — Workspace and capability foundations.
+Task 028 — Idea-map baseline.

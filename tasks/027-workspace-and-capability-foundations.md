@@ -31,7 +31,11 @@ ownership**, and **Package and dependency boundaries** at baseline depth.
 - Establish narrow capability contracts and product-language operations.
 - Represent user and assistant interpretations separately.
 - Define only the events needed by the next observable slices.
-- Migrate current conversation state without adding placeholder UI.
+- Remove the current `ConversationState` aggregate and migrate its consumers to
+  the smallest capability-owned resource contracts and interaction-scoped
+  metadata required by existing conversation behaviour. Do not replace it with
+  another catch-all intellectual-progress or workspace-lifecycle object, and do
+  not add placeholder UI.
 - Document ownership and persistence semantics with contract-focused tests.
 
 ## Out of scope
@@ -49,6 +53,8 @@ ownership**, and **Package and dependency boundaries** at baseline depth.
 
 - Each capability has an explicit responsibility and dependency direction.
 - No obsolete phase or overlapping readiness contract remains in apps or packages.
+- The obsolete `ConversationState` aggregate is not replaced by a renamed
+  catch-all state contract.
 - Activity, move, readiness, user intention, and resource lifecycle have distinct
   product meanings.
 - Existing conversation behaviour runs through the workspace boundary.
@@ -73,4 +79,4 @@ rg -n "ConversationPhase|new_conversation|private_exploration|deepening|synthesi
 
 ## Status
 
-Proposed. Awaiting approval.
+Completed.

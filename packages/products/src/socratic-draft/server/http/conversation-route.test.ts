@@ -3,9 +3,9 @@ import { ConversationService } from "packages/products/src/socratic-draft/server
 import { createConversationRoute } from "packages/products/src/socratic-draft/server/http";
 import type {
   AppendConversationTurnInput,
-  ConversationResponder,
   TemporaryConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation";
+import type { ConversationResponder } from "packages/products/src/socratic-draft/server/workspace";
 import type {
   ConversationMessage,
   ConversationResponse,
@@ -43,7 +43,10 @@ describe("Socratic Draft conversation route", () => {
         message: {
           role: "assistant",
         },
+        activity: "discovery",
         move: "probe",
+        assistantReadiness: [],
+        userIntention: null,
         expiresAt: "2026-08-02T12:00:00.000Z",
       },
     });

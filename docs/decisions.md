@@ -30,7 +30,7 @@ Do not create ad hoc duplicate types inside apps or feature folders.
 
 ## 004 — Product-Specific Logic Belongs in packages/products
 
-The Socratic Draft conversation policy, prompts, moves, phases, readiness logic, thread handling, claim handling, and composition behaviour belong in `packages/products`.
+The Socratic Draft conversation policy, prompts, activity, moves, readiness logic, thread handling, claim handling, and composition behaviour belong in `packages/products`.
 
 ## 005 — API Routes Stay Thin
 
@@ -407,3 +407,25 @@ new user message. It also owns a required provisional 1,024-token output cap tha
 the host passes through the provider-neutral AI client to OpenAI. Later
 action-specific limits may refine these values without moving the policy into the
 provider adapter.
+
+## 027 — Workspace Contracts Replace General Conversation State
+
+The obsolete `ConversationState` aggregate is removed rather than renamed or
+reshaped. Interaction purpose is represented by discovery or articulation
+activity, assistant technique by a move, assistant judgment by action-specific
+readiness, and explicit user direction by a separate intention. No field among
+them acts as a stored workspace phase or general measure of intellectual
+progress.
+
+Conversation responses expose only interaction-scoped metadata that the current
+behaviour can state truthfully. The current discovery response has no readiness
+assessment and no explicit user intention; later behaviours add those values
+only when they perform the corresponding interpretation.
+
+Workspace orchestration coordinates capability operations without owning their
+rules. At the current baseline it loads conversation history, invokes the
+conversation capability, retains the complete turn through a product-language
+store operation, and reports a `conversation_turn_retained` event only after the
+write succeeds. Capability-specific resources and additional events are added by
+the observable slices that exercise them. Resource existence remains the source
+of lifecycle meaning.

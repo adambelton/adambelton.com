@@ -22,6 +22,30 @@ Implements **Preference learning**, **Preference evidence**, and the applicable
 - Supply context-relevant guidance to conversation, composition, and revision.
 - Keep demo preferences temporary.
 
+## Settled constraints
+
+- The preference capability owns evidence, preference statements, status, scope,
+  confirmation, correction, rejection/supersession where exercised, removal, and
+  relevant-guidance queries.
+- It does not own conversation messages, idea-map state, draft content, user
+  identity, or model-provider access. Other capabilities submit concise
+  product-level evidence and request guidance through narrow operations.
+- The baseline favors explicit preferences and corrections. Workspace-scoped
+  explicit preferences may remain temporary; durable cross-work owner guidance
+  requires confirmation. Do not infer a profile from every edit.
+- The richer status vocabulary may distinguish observed, inferred, confirmed,
+  corrected, rejected, and superseded preferences, but this task should implement
+  only statuses exercised by its observable behavior.
+- Guidance influences inquiry, composition, and revision but never overrides an
+  explicit current user instruction or becomes a mandatory writing rule.
+- Stored evidence is data-minimized: prefer a concise derived statement and safe
+  provenance over unnecessary excerpts of private writing.
+- Demo preferences expire with the temporary workspace. Persistent preferences
+  are owner-only, inspectable, and owner-scoped on every durable read and write.
+- Confirming, correcting, rescoping, rejecting, superseding, or removing a
+  preference changes subsequent guidance without mutating prior conversation or
+  draft history.
+
 ## Out of scope
 
 - Automatic profiling from every edit, opaque embeddings, or mandatory style
@@ -36,7 +60,9 @@ Implements **Preference learning**, **Preference evidence**, and the applicable
 
 ## Definition of done
 
-- Explicit preferences measurably inform a later suggestion.
+- At least one end-to-end scenario proves that an explicit preference changes a
+  later conversation, composition, or revision result while a conflicting current
+  instruction still takes precedence.
 - Retained preferences are inspectable, correctable, removable, and scoped.
 - Other capabilities depend only on preference operations, not storage or
   inference internals.
@@ -57,6 +83,19 @@ git diff --check
 - Store enough provenance to explain a preference without unnecessarily retaining
   sensitive writing excerpts.
 - Later inference must extend this boundary rather than bypass it.
+
+## Decisions this task must settle
+
+- The minimal status and scope vocabularies required by the baseline UI and
+  guidance query.
+- Which provenance is retained for correction and explanation, and which source
+  material is deliberately discarded.
+- The explicit confirmation flow that permits owner guidance to become durable.
+- How conflicts, corrections, and supersession are represented without silently
+  rewriting historical evidence.
+
+If schema changes are required, edit the Prisma schema, validate it, generate and
+review the migration, and never hand-edit generated migration SQL.
 
 ## Status
 

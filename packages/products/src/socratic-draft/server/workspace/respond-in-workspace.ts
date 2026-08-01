@@ -10,22 +10,25 @@ import {
   CONVERSATION_TURN_RETENTION_STATUSES,
   type ConversationStore,
 } from "packages/products/src/socratic-draft/server/conversation/conversation-store";
+import { WORKSPACE_EVENT_TYPES } from "packages/products/src/socratic-draft/server/workspace/workspace-events";
+import type { WorkspaceEvent } from "packages/products/src/socratic-draft/server/workspace/workspace-events";
 import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_MESSAGE_ROLES,
   type ConversationResponse,
 } from "packages/products/src/socratic-draft/shared";
 
-export const CONVERSATION_RESPONSE_STATUSES = {
+export const WORKSPACE_RESPONSE_STATUSES = {
   responded: "responded",
 } as const;
 
 export type ConversationResponder = Pick<ConversationService, "respond">;
 
-export type RespondToConversationResult =
+export type RespondInWorkspaceResult =
   | {
-      status: typeof CONVERSATION_RESPONSE_STATUSES.responded;
+      status: typeof WORKSPACE_RESPONSE_STATUSES.responded;
       response: ConversationResponse;
+      events: WorkspaceEvent[];
     }
   | { status: typeof CONVERSATION_ERROR_CODES.notFound }
   | { status: typeof CONVERSATION_ERROR_CODES.unavailable }
@@ -33,14 +36,14 @@ export type RespondToConversationResult =
   | { status: typeof CONVERSATION_ERROR_CODES.hostedAiDisabled }
   | { status: typeof CONVERSATION_ERROR_CODES.hostedAiUnavailable };
 
-export async function respondToConversation(input: {
+export async function respondInWorkspace(input: {
   conversationId: string | null;
   message: string;
-  conversationService: ConversationResponder;
-  conversationStore: ConversationStore;
-}): Promise<RespondToConversationResult> {
+  conversation: ConversationResponder;
+  conversations: ConversationStore;
+}): Promise<RespondInWorkspaceResult> {
   const previousMessages = input.conversationId
-    ? await input.conversationStore.getConversationMessages(input.conversationId)
+    ? await input.conversations.getConversationMessages(input.conversationId)
     : [];
 
   if (previousMessages === null) {
@@ -50,7 +53,7 @@ export async function respondToConversation(input: {
   let generatedResponse: ConversationResponse;
 
   try {
-    generatedResponse = await input.conversationService.respond({
+    generatedResponse = await input.conversation.respond({
       conversationId: input.conversationId,
       message: input.message,
       previousMessages,
@@ -69,10 +72,10 @@ export async function respondToConversation(input: {
   }
 
   const conversationId =
-    input.conversationId ?? input.conversationStore.createConversationId();
+    input.conversationId ?? input.conversations.createConversationId();
   const response = { ...generatedResponse, conversationId };
-  const appendResult = await input.conversationStore.appendConversationTurn({
-    conversationId: response.conversationId,
+  const appendResult = await input.conversations.appendConversationTurn({
+    conversationId,
     userMessage: {
       role: CONVERSATION_MESSAGE_ROLES.user,
       content: input.message,
@@ -80,7 +83,18 @@ export async function respondToConversation(input: {
     assistantMessage: response.message,
   });
 
-  return appendResult.status === CONVERSATION_TURN_RETENTION_STATUSES.retained
-    ? { status: CONVERSATION_RESPONSE_STATUSES.responded, response }
-    : { status: CONVERSATION_ERROR_CODES.unavailable };
+  if (appendResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
+    return { status: CONVERSATION_ERROR_CODES.unavailable };
+  }
+
+  return {
+    status: WORKSPACE_RESPONSE_STATUSES.responded,
+    response,
+    events: [
+      {
+        type: WORKSPACE_EVENT_TYPES.conversationTurnRetained,
+        conversationId,
+      },
+    ],
+  };
 }
