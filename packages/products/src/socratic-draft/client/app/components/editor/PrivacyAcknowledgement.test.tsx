@@ -19,7 +19,7 @@ describe("Socratic Draft privacy acknowledgement", () => {
       />,
     );
 
-    expect(markup).toContain("Before you begin");
+    expect(markup).toContain("Your writing and this demo");
     expect(markup).toContain('type="checkbox"');
     expect(markup).not.toContain("Your next thought");
     expect(markup).toContain("Leave the editor");

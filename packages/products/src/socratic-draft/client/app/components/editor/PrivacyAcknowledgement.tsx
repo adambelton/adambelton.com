@@ -28,9 +28,6 @@ export function PrivacyAcknowledgement({
 
   return (
     <section aria-labelledby="privacy-acknowledgement-title">
-      <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        Before you begin
-      </p>
       <h1
         className="m-0 max-w-4xl text-5xl font-semibold leading-none tracking-normal sm:text-7xl"
         id="privacy-acknowledgement-title"

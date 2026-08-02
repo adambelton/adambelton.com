@@ -1,15 +1,18 @@
 import { Hono } from "hono";
 import type { TemporaryConversationStore } from "packages/products/src/socratic-draft/server/conversation";
 import { failure, success } from "packages/shared/src";
+import type { DraftStore } from "packages/products/src/socratic-draft/server/draft";
 
 export type CreateTemporaryConversationRouteDependencies = {
   getTemporaryConversationStore: (
     request: Request,
   ) => Promise<TemporaryConversationStore | null>;
+  getTemporaryDraftStore?: (request: Request) => Promise<DraftStore | null>;
 };
 
 export function createTemporaryConversationRoute({
   getTemporaryConversationStore,
+  getTemporaryDraftStore,
 }: CreateTemporaryConversationRouteDependencies) {
   const route = new Hono();
 
@@ -40,6 +43,11 @@ export function createTemporaryConversationRoute({
       );
     }
 
+    const current = await conversationStore.getCurrentConversation();
+    if (current && getTemporaryDraftStore) {
+      const drafts = await getTemporaryDraftStore(context.req.raw);
+      await drafts?.deleteDraftWorkspace(current.conversation.id);
+    }
     await conversationStore.clearCurrentConversation();
     return context.json(success(null));
   });

@@ -1,12 +1,12 @@
 # The Socratic Draft privacy and data lifecycle
 
-Last reviewed: 1 August 2026.
+Last reviewed: 2 August 2026.
 
 This note records the product-specific privacy boundary for The Socratic Draft.
 Shared authentication, contact, and platform-provider processing is documented in
 `docs/privacy-and-data-lifecycle.md`.
 
-## Non-owner conversation
+## Non-owner workspace
 
 - The user must affirmatively acknowledge the processing summary in the current
   browser session before editor controls are available.
@@ -17,21 +17,31 @@ Shared authentication, contact, and platform-provider processing is documented i
 - Reads and writes enforce the deadline, and scheduled expiry releases message
   content even if the user does not return.
 - The authenticated user can clear the conversation immediately from the editor.
+- Drafts, immutable revision snapshots, proposal versions, and operation records
+  share the temporary conversation lifecycle. Explicit clearing and scheduled
+  expiry remove all of this private writing state from application memory.
 - Reload and navigation recovery are best effort. A process restart, deployment,
   or request to another application instance can remove the conversation sooner.
 
-## Owner conversation
+## Owner workspace
 
 - The acknowledgement explains that owner conversations may be saved.
 - Owner conversations and messages are stored in the Neon-hosted Postgres
   database and scoped to the authenticated owner in database operations.
 - Owner conversations do not currently have an automatic expiry.
+- Private drafts, their complete retained revision history, revision proposals,
+  proposal versions, and retry-operation records are stored with the owner
+  conversation. Owner-scoped repository operations prevent another user from
+  loading them.
+- Deleting the owning conversation cascades to its draft, revisions, proposals,
+  proposal versions, and operation records.
 - They are private working material. Publishing is a separate, explicit future
   lifecycle and is not implemented.
 
 ## Model processing
 
-- Conversation messages are sent from the browser to the application API and
+- Conversation messages, explicitly attached draft passages, composition
+  material, and proposal instructions are sent from the browser to the application API and
   then to the OpenAI Responses API.
 - Every request sets `store: false`, disabling optional Responses API
   application-state storage for this flow.

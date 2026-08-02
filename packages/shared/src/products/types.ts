@@ -34,6 +34,12 @@ export interface FoundProductRouteResult<RenderedRoute> {
   status: typeof PRODUCT_ROUTE_STATUSES.found;
   element: RenderedRoute;
   requiredAccess: ProductRouteAccess;
+  breadcrumbs: readonly ProductRouteBreadcrumb[];
+}
+
+export interface ProductRouteBreadcrumb {
+  label: string;
+  href?: string;
 }
 
 export interface NotFoundProductRouteResult {

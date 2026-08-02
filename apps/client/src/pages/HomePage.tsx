@@ -1,12 +1,10 @@
-import { Prose } from "apps/client/src/components";
+import { Breadcrumbs, Prose } from "apps/client/src/components";
 
 export function HomePage() {
   return (
     <>
       <section aria-labelledby="home-title">
-        <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-          Writing
-        </p>
+        <Breadcrumbs items={[{ label: "Writing" }]} />
         <h1
           className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
           id="home-title"

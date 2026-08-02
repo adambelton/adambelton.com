@@ -1,19 +1,19 @@
 import { TextLink } from "packages/products/src/socratic-draft/client/app/components/TextLink";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client/app/product-app-components";
+import { ACCESS_LEVELS, type AccessLevel } from "packages/shared/src";
 
 type OverviewPageProps = {
+  accessLevel: AccessLevel;
   components: ProductAppComponents;
 };
 
 export function OverviewPage({
+  accessLevel,
   components,
 }: OverviewPageProps) {
   return (
     <>
       <section aria-labelledby="product-title">
-        <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-          Product
-        </p>
         <h1
           className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
           id="product-title"
@@ -45,6 +45,16 @@ export function OverviewPage({
             Open the editor demo
           </TextLink>
         </p>
+        {accessLevel === ACCESS_LEVELS.owner ? (
+          <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+            <TextLink
+              Link={components.Link}
+              href="/products/socratic-draft/conversations"
+            >
+              Saved conversations
+            </TextLink>
+          </p>
+        ) : null}
         <p className="mt-3 text-base leading-7 text-[var(--muted)]">
           <TextLink
             Link={components.Link}

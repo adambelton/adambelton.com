@@ -18,7 +18,7 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 031 — Private drafts and approved revision proposals
+- 031 — Private drafts, revision history, and approved proposals
 - 032 — Manual draft-edit interpretation
 - 033 — Preference-learning baseline
 - 034 — Complete temporary demo session

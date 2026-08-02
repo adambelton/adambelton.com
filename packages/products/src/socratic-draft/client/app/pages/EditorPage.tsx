@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import type { Conversation } from "packages/products/src/socratic-draft/shared";
+import type { Conversation, DraftWorkspace } from "packages/products/src/socratic-draft/shared";
 import { ConversationEditor } from "packages/products/src/socratic-draft/client/app/components/editor/ConversationEditor";
 import { sendPersistentConversationMessage } from "packages/products/src/socratic-draft/client/app/modules/editor/send-conversation-message";
 import { sendPersistentIdeaAction } from "packages/products/src/socratic-draft/client/app/modules/editor/send-idea-action";
 import { loadConversation } from "packages/products/src/socratic-draft/client/app/modules/conversations/load-conversations";
+import { loadDraft } from "packages/products/src/socratic-draft/client/app/modules/editor/draft-client";
 
 type EditorPageProps = {
   conversationId: string;
@@ -14,6 +15,7 @@ export function EditorPage({
 }: EditorPageProps) {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [draftWorkspace, setDraftWorkspace] = useState<DraftWorkspace | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -21,10 +23,14 @@ export function EditorPage({
     setConversation(null);
     setError(null);
 
-    loadConversation(conversationId)
-      .then((loadedConversation) => {
+    Promise.all([
+      loadConversation(conversationId),
+      loadDraft("persistent", conversationId),
+    ])
+      .then(([loadedConversation, loadedDraftWorkspace]) => {
         if (isCurrent) {
           setConversation(loadedConversation);
+          setDraftWorkspace(loadedDraftWorkspace);
         }
       })
       .catch((loadError: unknown) => {
@@ -52,9 +58,11 @@ export function EditorPage({
 
   return (
     <ConversationEditor
+      draftPersistenceKind="persistent"
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}
+      initialDraftWorkspace={draftWorkspace}
       sendIdeaAction={sendPersistentIdeaAction}
       sendMessage={(request) =>
         sendPersistentConversationMessage({

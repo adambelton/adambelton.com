@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ACCESS_LEVELS, PRODUCT_ROUTE_STATUSES } from "packages/shared/src";
 import { renderProductRoute } from "packages/products/src/socratic-draft/client";
+import "packages/products/src/socratic-draft/testing/client/styles.css";
 
 const route = renderProductRoute({
   accessLevel: ACCESS_LEVELS.demo,

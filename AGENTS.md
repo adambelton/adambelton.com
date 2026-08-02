@@ -125,6 +125,15 @@ merge, run the task's approved local validation and require the repository CI
 checks to pass. Committing, pushing, and opening or merging a pull request remain
 explicit actions and should only be performed when Adam requests them.
 
+Use local `git` for branches, staging, commits, and pushes. Use the authenticated
+GitHub CLI (`gh`) directly for GitHub mutations and GitHub Actions operations,
+including creating pull requests, monitoring checks, reading workflow logs, and
+merging pull requests. Do not attempt a GitHub connector mutation before falling
+back to `gh`: the current ChatGPT Codex Connector authorization cannot create or
+merge pull requests for this repository. The connector may be used for optional
+read-only structured repository, issue, or pull-request context when it is more
+useful than `gh`.
+
 ## Proposal Review And Approval Records
 
 Review proposals against the following authority order:

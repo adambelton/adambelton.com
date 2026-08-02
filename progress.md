@@ -18,6 +18,29 @@ Task 030 has been completed. Its implementation preserves the intentional
 boundary: discovery can recognise composition readiness and intention while Task
 031 performs canonical draft creation.
 
+Task 031 has been implemented and its post-audit corrective pass completed. The product now owns private-draft composition,
+manual immutable revisions, history preview and restoration, exact selected
+draft context, reviewed passage and whole-draft proposals, amendment, rejection,
+stale protection, and exact atomic acceptance. Temporary and Prisma persistence
+are host adapters to product-owned ports, and deterministic browser coverage
+exercises the complete discovery and drafting flows.
+
+The corrective pass makes model-backed draft commands idempotent before model
+invocation, preserves exact manual text, serializes durable draft and proposal
+updates, normalizes provider failures, loads persistent draft state with the
+initial editor workspace, restores real-host responsive styles, and exposes
+owner-only saved-conversation navigation. Conversation policy now keeps
+ordinary statements in the writing frame and includes a hosted hunger scenario
+that fails if practical-advice hypotheses leak into canonical idea material.
+Every page caption is now a semantic breadcrumb landmark. Website routes render
+host-owned breadcrumbs directly, while Socratic Draft supplies portable route
+metadata that the host renders with linked ancestors and a non-linked current
+page.
+Gated real-Prisma suites cover both conversation and draft adapters. Conversation
+coverage exercises concurrent message sequencing, duplicate operations,
+transaction rollback, owner-scoped reads, and workspace cascades; ordinary unit
+and CI runs skip these database-connected tests unless `DATABASE_URL` is supplied.
+
 The Socratic Draft now has a canonical terminology reference distinguishing
 artifacts, activities, operations, assistant moves, readiness, intention,
 commands, events, and lifecycle facts. In particular, a `Draft` is the writing,
@@ -217,7 +240,6 @@ contract evaluation remains outside CI.
 - Individual writing pages.
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
-- Draft creation and collaborative editing from a conversation.
 - Manual draft-edit interpretation and preference learning.
 - Complete demo copy and export flow.
 - Publishing flow from private drafts to public writing.
@@ -245,4 +267,4 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Task 031 — Private drafts and approved revision proposals.
+Task 032 — Manual edit interpretation.

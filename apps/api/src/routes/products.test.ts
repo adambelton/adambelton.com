@@ -2,13 +2,18 @@ import { describe, expect, it } from "vitest";
 import { app } from "apps/api/src/server";
 import {
   createConversationModel,
+  createDraftModel,
   getPersistentConversationAccess,
   getTemporaryConversationAccess,
 } from "apps/api/src/routes/products";
 import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
-} from "apps/api/src/adapters";
+} from "apps/api/src/adapters/socratic-draft/conversation-model-adapters";
+import {
+  DisabledDraftModelAdapter,
+  LlmDraftModelAdapter,
+} from "apps/api/src/adapters/socratic-draft/draft-model-adapters";
 import type { ApiResponse } from "packages/shared/src";
 
 describe("products API route mount", () => {
@@ -25,6 +30,14 @@ describe("products API route mount", () => {
         openAiApiKey: "test-key",
       }),
     ).toBeInstanceOf(DisabledConversationModelAdapter);
+    expect(createDraftModel({
+      hostedAiEnabled: "true",
+      openAiApiKey: "test-key",
+    })).toBeInstanceOf(LlmDraftModelAdapter);
+    expect(createDraftModel({
+      hostedAiEnabled: "false",
+      openAiApiKey: "test-key",
+    })).toBeInstanceOf(DisabledDraftModelAdapter);
     expect(
       createConversationModel({
         hostedAiEnabled: "true",

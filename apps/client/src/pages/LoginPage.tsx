@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router";
 import { magicLinkSignInPath } from "packages/auth/src/routes";
-import { Button, Prose } from "apps/client/src/components";
+import { Breadcrumbs, Button, Prose } from "apps/client/src/components";
 
 type SignInStatus = "idle" | "sending" | "sent";
 
@@ -59,9 +59,7 @@ export function LoginPage() {
 
   return (
     <section aria-labelledby="login-title">
-      <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        Log in
-      </p>
+      <Breadcrumbs items={[{ label: "Log in" }]} />
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
         id="login-title"

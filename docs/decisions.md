@@ -594,3 +594,101 @@ and supplied adapters. Infrastructure packages retain tests of their own
 concrete product adapters. A product-owned evaluation may compose a concrete AI
 provider as a test-only development fixture without adding that provider to the
 product's production dependency boundary.
+
+## 036 — GitHub Mutations Use The Authenticated CLI
+
+Repository workflows use local `git` for branches, staging, commits, and pushes,
+and authenticated `gh` commands for GitHub mutations and Actions operations.
+This includes pull-request creation and merging, check monitoring, and workflow
+log inspection. The GitHub connector is optional read-only context and is not
+attempted first for write operations.
+
+The current ChatGPT Codex Connector appears only as an authorized GitHub App and
+provides no repository-installation permission controls. Its pull-request create
+and merge operations return `403 Resource not accessible by integration`, while
+the authenticated CLI succeeds. This workflow avoids a known failing operation
+and should be reconsidered only if the connector's repository-write capability
+is explicitly reconfigured and verified.
+
+## 037 — Draft Changes Use Persisted Linear Revision History
+
+The Socratic Draft retains one continuous canonical draft per workspace and an
+append-only sequence of complete revision snapshots. Initial composition,
+changed manual saves, accepted assistant proposals, and restoration of an older
+snapshot all create new monotonically numbered revisions. Restoration never
+deletes intervening history or moves the revision number backward.
+
+Revision history is server-owned product state: it shares the temporary
+in-memory lifetime of a demo workspace and is durably owner-scoped for owner
+workspaces. The client keeps only running app state and does not persist private
+writing or revision history in cookies, `localStorage`, or IndexedDB. Complete
+snapshots favour reliable comparison and restoration for the baseline; diffs are
+derived presentation data rather than the persistence primitive.
+
+The draft remains a single document rather than a collection of paragraph
+entities. A user may attach one contiguous passage to conversation as explicit
+context, and the assistant may discuss it or create a reviewable passage or
+whole-draft proposal. An unaccepted proposal is never a draft revision.
+Acceptance applies the exact reviewed content without regeneration and records a
+new revision atomically.
+
+The revision-history interface previews and compares retained snapshots and
+restores one only through an explicit action that creates another revision.
+Named versions, branching, merging, arbitrary revision deletion, collaborative
+editing, and final product visual design remain outside the approved baseline.
+
+## 038 — Product-Owned Persistence Ports Preserve Extractability
+
+Socratic Draft defines its persistence contracts, persistence-facing snapshots,
+commands, results, and every domain transition inside the product package. A
+host adapter may depend on those definitions to implement them, but it must not
+define a parallel Socratic Draft record model or decide product behaviour.
+
+The product-owned conversation and draft stores are each implemented once over
+injected persistence ports. Conversation retention and idea-map replacement,
+proposal application, staleness, restoration, revision construction, and
+lifecycle transitions therefore remain identical for durable owner work,
+temporary demo work, and deterministic tests. Concrete adapters provide only
+storage mechanics such as scoping, serialization, conditional writes,
+transactions, idempotency, expiration, and deletion.
+
+The Prisma implementation belongs in `packages/db` because that package owns
+the host schema, migrations, database client, and transaction mechanics. It
+implements product-owned types directly and keeps generated Prisma row types
+private. The process-local demo implementation belongs to the API host, while a
+deterministic implementation remains in product testing support.
+
+Extractability is the boundary test: Socratic Draft must be movable to an
+external package without taking host or database implementation code with it.
+Another host can supply different persistence, AI, access, usage, navigation,
+and deployment adapters without recreating product behaviour. Product code must
+not import the API host, database, auth, or AI infrastructure packages.
+
+## 039 — Ordinary Conversation Remains Writing-Oriented
+
+Within The Socratic Draft, an ordinary statement is treated as material the
+user may want to understand and develop through writing. It is not an implicit
+request for practical advice, diagnosis, coaching, or problem-solving. The
+assistant may provide practical advice when the user explicitly asks for it,
+but must otherwise explore the meaning, tension, perspective, or language in
+what the user has shared.
+
+Assistant-generated possibilities remain transient hypotheses. Suggestions,
+possible solutions, inferred concerns, and questions introduced only by the
+assistant do not become canonical idea-map synthesis, substance, or unresolved
+questions unless the user later adopts, confirms, corrects, or meaningfully
+develops them. Prompt policy is backed by a hosted behavioural regression
+scenario because structured output alone cannot prove semantic provenance.
+
+## 040 — Hosts Render Product-Owned Breadcrumb Metadata
+
+Breadcrumbs are part of host navigation and presentation. Website routes render
+the host-owned breadcrumb component directly. A mounted product instead returns
+portable breadcrumb labels and ancestor URLs with its route result; the host
+renders that metadata using the same component.
+
+This keeps product route hierarchy and language under product ownership without
+making product code depend on host UI. Ancestors are links, the current page is
+plain text marked with `aria-current="page"`, private resource identifiers are
+not displayed, and each rendered page has one breadcrumb landmark above its
+main heading.

@@ -7,6 +7,7 @@ import {
 import { ProtectedRoute, useAuthSession } from "apps/client/src/auth";
 import { NavigationLink } from "apps/client/src/navigation";
 import { NotFoundPage } from "apps/client/src/pages/NotFoundPage";
+import { Breadcrumbs } from "apps/client/src/components";
 import { resolveProductRoute } from "apps/client/src/products";
 
 export function ProductRoutePage() {
@@ -30,7 +31,7 @@ export function ProductRoutePage() {
   }
 
   if (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.public) {
-    return route.element;
+    return <><Breadcrumbs items={route.breadcrumbs} />{route.element}</>;
   }
 
   return (
@@ -39,7 +40,7 @@ export function ProductRoutePage() {
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
-        route.element
+        <><Breadcrumbs items={route.breadcrumbs} />{route.element}</>
       )}
     </ProtectedRoute>
   );

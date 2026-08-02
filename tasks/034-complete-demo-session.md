@@ -15,7 +15,8 @@ private, temporary experience before final usage limits are calibrated.
 Composes the baseline capabilities under **Client and API responsibilities** and
 the demo portion of **Persistence architecture** from the product architecture.
 
-- Integrate conversation, idea map, draft, proposals, and session preferences.
+- Integrate conversation, idea map, draft, retained revision history, proposals,
+  and session preferences.
 - Preserve temporary lifecycle and privacy behaviour.
 - Add copy, Markdown download, JSON download, and clear-session controls.
 - Exercise guided and user-led paths.
@@ -32,9 +33,9 @@ the demo portion of **Persistence architecture** from the product architecture.
 - The temporary workspace has one fixed deadline 24 hours after creation.
   Activity does not extend it, and process restart or deployment may remove it
   sooner.
-- Conversation, idea-map, draft, proposal, and workspace-preference content use
-  the same product concepts as owner work but are never durably persisted
-  server-side for the demo.
+- Conversation, idea-map, draft, revision, proposal, and workspace-preference
+  content use the same product concepts as owner work but are never durably
+  persisted server-side for the demo.
 - Clearing removes the complete temporary workspace rather than conversation
   alone. Expiry or early loss returns a stable unavailable result and clears
   stale client identity safely.
@@ -49,6 +50,13 @@ the demo portion of **Persistence architecture** from the product architecture.
   generated prose, IP addresses, or user-agent strings.
 - Do not introduce browser persistence that fragments canonical temporary
   workspace state without a separately approved decision.
+- Product writing and revision history remain server-owned. The client keeps only
+  running app state; do not add cookies, `localStorage`, IndexedDB, or another
+  browser-held recovery layer for workspace content.
+- Preserve Task 031's approved responsive interaction architecture: conversation
+  remains visible beside the toggleable Idea map/Draft workspace on desktop, and
+  smaller screens show one explicitly navigable surface at a time. This task may
+  refine integrated behaviour but does not reopen the final visual design.
 
 ## Out of scope
 
@@ -73,6 +81,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ```txt
 pnpm test
+pnpm test:e2e
 pnpm typecheck
 pnpm build
 git diff --check
@@ -85,17 +94,16 @@ git diff --check
 
 ## Decisions this task must settle
 
-- The versioned JSON export contract, including which conversation, idea,
-  preference, proposal, and draft fields are selectable and included.
+- The versioned JSON export contract, including whether retained draft revisions
+  are included by default or only through an explicit history option, and which
+  conversation, idea, preference, proposal, and draft fields are selectable.
 - The Markdown export order and headings, and whether copy copies only canonical
   draft content or another explicitly selected export.
-- The final integrated workspace layout and accessible focus behavior without
-  turning activity into a mandatory mode selector.
+- Any integrated focus and recovery refinements required beyond Task 031's
+  approved workspace layout, without turning activity into a mandatory mode
+  selector or treating current host styling as final product design.
 - The recovery policy for unsaved local edits when the temporary server workspace
   expires or disappears early.
-- Whether application memory remains the sole temporary state location or a
-  narrowly defined browser-held recovery layer improves resilience without
-  fragmenting canonical workspace state or weakening the privacy promise.
 - The representative guided, user-led, short-form, and long-form measurement
   fixtures. Record request counts, bounded context sizes, input/output tokens,
   and action types in a documented repository file consumed by Task 035.

@@ -6,15 +6,25 @@ import {
 import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
-} from "apps/api/src/adapters";
+} from "apps/api/src/adapters/socratic-draft/conversation-model-adapters";
 import { getCurrentAuthSession } from "packages/auth/src/session";
-import { createSocraticDraftConversationStoreResolver } from "packages/db/src";
+import { createConversationStoreResolver } from "apps/api/src/adapters/socratic-draft/conversation-store-resolver";
+import {
+  DisabledDraftModelAdapter,
+  LlmDraftModelAdapter,
+} from "apps/api/src/adapters/socratic-draft/draft-model-adapters";
+import { createDraftStoreResolver } from "apps/api/src/adapters/socratic-draft/draft-store-resolver";
 import { ConversationService } from "packages/products/src/socratic-draft/server/conversation";
 import { createSocraticDraftApiRoute } from "packages/products/src/socratic-draft/server/http";
 
+const getSocraticDraftDraftStore = createDraftStoreResolver({
+  databaseUrl: process.env.DATABASE_URL,
+});
 const getSocraticDraftConversationStore =
-  createSocraticDraftConversationStoreResolver({
+  createConversationStoreResolver({
     databaseUrl: process.env.DATABASE_URL,
+    onTemporaryClear: (userId, conversationId) =>
+      getSocraticDraftDraftStore.clearTemporary(userId, conversationId),
   });
 
 export const HOSTED_AI_ENABLED_VALUE = "true";
@@ -74,6 +84,28 @@ const socraticDraftConversationService = new ConversationService({
     openAiModel: process.env.OPENAI_MODEL,
   }),
 });
+export function createDraftModel(configuration: {
+  hostedAiEnabled?: string;
+  openAiApiKey?: string;
+  openAiModel?: string;
+}) {
+  if (
+    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
+    !configuration.openAiApiKey?.trim()
+  ) {
+    return new DisabledDraftModelAdapter();
+  }
+  return new LlmDraftModelAdapter(new OpenAiLlmClient({
+    apiKey: configuration.openAiApiKey,
+    model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
+  }));
+}
+
+const draftModel = createDraftModel({
+  hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
+  openAiApiKey: process.env.OPENAI_API_KEY,
+  openAiModel: process.env.OPENAI_MODEL,
+});
 
 export const productsRoute = new Hono();
 
@@ -81,6 +113,8 @@ productsRoute.route(
   "/socratic-draft",
   createSocraticDraftApiRoute({
     conversationService: socraticDraftConversationService,
+    compositionModel: draftModel,
+    proposalModel: draftModel,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
       const access = getTemporaryConversationAccess(session);
@@ -98,6 +132,16 @@ productsRoute.route(
       const access = getTemporaryConversationAccess(session);
 
       return access ? getSocraticDraftConversationStore(access) : null;
+    },
+    getPersistentDraftStore: async (request) => {
+      const session = await getCurrentAuthSession(request.headers);
+      const access = getPersistentConversationAccess(session);
+      return access ? getSocraticDraftDraftStore(access) : null;
+    },
+    getTemporaryDraftStore: async (request) => {
+      const session = await getCurrentAuthSession(request.headers);
+      const access = getTemporaryConversationAccess(session);
+      return access ? getSocraticDraftDraftStore(access) : null;
     },
   }),
 );

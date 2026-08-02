@@ -17,6 +17,8 @@ import {
   HostedAiUnavailableError,
 } from "packages/products/src/socratic-draft/server/conversation";
 import type { ApiResponse } from "packages/shared/src";
+import { createDraftStore } from "packages/products/src/socratic-draft/server/draft";
+import { TestDraftPersistence } from "packages/products/src/socratic-draft/server/testing/test-draft-persistence";
 
 describe("Socratic Draft conversation route", () => {
   it("returns an assistant response and persists the turn through the host store", async () => {
@@ -137,6 +139,49 @@ describe("Socratic Draft conversation route", () => {
         message: "Conversation requests require a message and optional conversationId.",
       },
     });
+  });
+
+  it("rejects stale or inexact attached draft selections", async () => {
+    const conversationStore = createFakeConversationStore();
+    await conversationStore.appendConversationTurn({
+      conversationId: "conversation-1",
+      operationId: "operation-1",
+      userMessage: { role: "user", content: "Earlier thought." },
+      assistantMessage: { role: "assistant", content: "Earlier response." },
+      expectedIdeaMapRevision: 0,
+      ideaMap: { revision: 0, ideas: [] },
+    });
+    const persistence = new TestDraftPersistence();
+    persistence.registerWorkspace("conversation-1");
+    const drafts = createDraftStore(persistence);
+    await drafts.createDraft({
+      conversationId: "conversation-1",
+      draftId: "draft-1",
+      operationId: "compose-1",
+      body: "The exact canonical passage.",
+      createdAt: "2026-08-02T12:00:00.000Z",
+    });
+    const route = createConversationRoute({
+      conversationStore,
+      getDraftStore: async () => drafts,
+    });
+
+    const response = await route.request("/respond", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        conversationId: "conversation-1",
+        message: "Discuss this.",
+        draftSelection: {
+          baseDraftRevision: 1,
+          start: 4,
+          end: 9,
+          selectedText: "wrong",
+        },
+      }),
+    });
+
+    expect(response.status).toBe(409);
   });
 
   it("does not continue an unknown saved conversation", async () => {

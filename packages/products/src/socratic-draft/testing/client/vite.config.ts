@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
@@ -8,7 +9,7 @@ const clientRoot = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
   root: clientRoot,
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       apps: `${repoRoot}/apps`,

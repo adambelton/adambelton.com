@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
-} from "apps/api/src/adapters";
+} from "apps/api/src/adapters/socratic-draft/conversation-model-adapters";
 import type { LlmRequest } from "packages/ai/src";
 import {
   HostedAiDisabledError,

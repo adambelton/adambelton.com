@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../packages/products/src/socratic-draft/client";
 
 :root {
   --background: #f7f4ed;
