@@ -46,11 +46,13 @@ describe("persistent conversation pages", () => {
         "The requested conversation was not found.",
         404,
       ),
+      success(null),
       success(
         conversation("conversation-2", [
           { role: "user", content: "A valid saved thought" },
         ]),
       ),
+      success(null),
     );
 
     const { rerender } = render(
@@ -75,6 +77,7 @@ describe("persistent conversation pages", () => {
           { role: "user", content: "A retained saved thought" },
         ]),
       ),
+      success(null),
       failure(
         "hosted_ai_unavailable",
         "The Socratic Draft could not respond. Try again shortly.",

@@ -9,21 +9,25 @@ import {
   respondInWorkspace,
   type ConversationResponder,
 } from "packages/products/src/socratic-draft/server/workspace";
-import { parseConversationMessage } from "packages/products/src/socratic-draft/server/http/conversation-request";
+import { parseConversationRequest } from "packages/products/src/socratic-draft/server/http/conversation-request";
 import { handleIdeaActionRequest } from "packages/products/src/socratic-draft/server/http/idea-action-handler";
 import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
+import type { DraftStore } from "packages/products/src/socratic-draft/server/draft";
+import { validateDraftSelection } from "packages/products/src/socratic-draft/server/http/draft-selection-context";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
     request: Request,
   ) => Promise<PersistentConversationStore | null>;
   conversationService?: ConversationResponder;
+  getPersistentDraftStore?: (request: Request) => Promise<DraftStore | null>;
 };
 
 export function createConversationsRoute({
   getPersistentConversationStore,
   conversationService = new ConversationService(),
+  getPersistentDraftStore,
 }: CreateConversationsRouteDependencies) {
   const route = new Hono();
 
@@ -102,9 +106,9 @@ export function createConversationsRoute({
     }
 
     const conversationId = context.req.param("conversationId");
-    const message = await parseConversationMessage(context.req.raw);
+    const request = await parseConversationRequest(context.req.raw);
 
-    if (typeof message !== "string") {
+    if (!request) {
       return context.json(
         failure(
           CONVERSATION_ERROR_CODES.invalidRequest,
@@ -114,11 +118,25 @@ export function createConversationsRoute({
       );
     }
 
+    if (request.draftSelection && !await validateDraftSelection({
+      conversationId,
+      drafts: getPersistentDraftStore
+        ? await getPersistentDraftStore(context.req.raw)
+        : null,
+      selection: request.draftSelection,
+    })) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The selected draft passage is stale or invalid.",
+      ), 409);
+    }
+
     const result = await respondInWorkspace({
       conversationId,
-      message,
+      message: request.message,
       conversation: conversationService,
       conversations: conversationStore,
+      draftSelection: request.draftSelection,
     });
 
     if (

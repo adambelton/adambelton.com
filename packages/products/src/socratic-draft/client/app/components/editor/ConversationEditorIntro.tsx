@@ -1,9 +1,6 @@
 export function ConversationEditorIntro() {
   return (
-    <div className="border-t border-[var(--line)] pt-8">
-      <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        Demo
-      </p>
+    <div>
       <h1
         className="m-0 max-w-4xl text-5xl font-semibold leading-none tracking-normal sm:text-7xl"
         id="editor-title"

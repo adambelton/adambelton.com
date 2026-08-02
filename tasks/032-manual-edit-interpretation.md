@@ -16,7 +16,7 @@ Implements **Manual draft edit** and its associated **Concurrency and
 consistency** and **Failure and degraded-state behaviour** rules from the product
 architecture.
 
-- Represent saved edits as product-level changes.
+- Represent saved manual edits and restorations as product-level changes.
 - Distinguish conservative substantive edits from textual maintenance.
 - Let the assistant respond when useful without commenting on every correction.
 - Update relevant idea interpretations while preserving user authority.
@@ -45,10 +45,18 @@ architecture.
 - General preference inference remains out of scope. This slice may expose a
   concise product-level evidence event for the later preference capability, but
   it must not persist or infer a preference itself.
+- Task 031 retains immutable revision snapshots and restoration provenance.
+  Interpretation consumes those product-level changes; it does not introduce a
+  second history mechanism or infer meaning merely from the revision source.
+- A restoration may reflect changed belief, relevance, structure, dissatisfaction
+  with language, or a preference for an earlier expression. The assistant must
+  ask when the distinction matters rather than treating deletion or restoration
+  as automatic rejection or adoption of an idea.
 
 ## Out of scope
 
-- General automatic preference inference or sophisticated semantic diff history.
+- General automatic preference inference, another draft-history mechanism, or
+  retrospective reclassification of all retained revisions.
 
 ## Expected files to create or modify
 
@@ -59,7 +67,8 @@ architecture.
 
 ## Definition of done
 
-- A meaningful edit can change subsequent inquiry and idea summaries.
+- A meaningful manual edit or restoration can change subsequent inquiry and idea
+  summaries after the user establishes the intended meaning.
 - Trivial edits do not produce distracting responses.
 - The user controls whether ambiguous edits are discussed.
 - Classification or commentary failure never rolls back a successful edit.
@@ -70,6 +79,7 @@ architecture.
 
 ```txt
 pnpm test
+pnpm test:e2e
 pnpm typecheck
 pnpm build
 git diff --check
@@ -89,6 +99,8 @@ git diff --check
 - The exact discuss/suppress command and client interaction.
 - Whether classification is synchronous with the save response or follows as a
   separately reported optional outcome.
+- How the interpretation UI refers to the exact changed or restored passages
+  without requiring the user to copy them into conversation.
 
 ## Status
 

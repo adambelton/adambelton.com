@@ -140,12 +140,48 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).toContain(
       "Return at most three unresolved questions",
     );
+    expect(modelRequests[0]?.system).toContain(
+      "material they may want to understand and develop through writing",
+    );
+    expect(modelRequests[0]?.system).toContain(
+      "Offer practical advice only when the user explicitly asks for it",
+    );
     expect(
       JSON.stringify(modelRequests[0]?.outputFormat.schema),
     ).not.toContain("interpretation");
     expect(modelRequests[0]?.maxOutputTokens).toBe(
       MAX_CONVERSATION_OUTPUT_TOKENS,
     );
+  });
+
+  it("supplies attached draft text as discussion-only model context", async () => {
+    const modelRequests: ConversationModelRequest[] = [];
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse(request) {
+          modelRequests.push(request);
+          return { content: "What feels wrong with this passage?" };
+        },
+      },
+    });
+
+    await service.respond({
+      conversationId: "conversation-1",
+      message: "Can we discuss this?",
+      previousMessages: [],
+      draftSelection: {
+        baseDraftRevision: 3,
+        start: 4,
+        end: 16,
+        selectedText: "exact phrase",
+      },
+    });
+
+    expect(modelRequests[0]?.system).toContain("revision 3");
+    expect(modelRequests[0]?.system).toContain("exact phrase");
+    expect(modelRequests[0]?.system).toContain("does not authorize a draft change");
+    expect(modelRequests[0]?.system).toContain("A canonical draft exists");
+    expect(modelRequests[0]?.system).not.toContain("no draft exists");
   });
 
   it("accepts complete input at the byte boundary and rejects one byte over", async () => {

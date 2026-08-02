@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { createPrismaConversationStore } from "packages/db/src/socratic-draft/conversation-store";
-import type { PrismaConversationStoreClient } from "packages/db/src/socratic-draft/conversation-store";
+import { createPrismaConversationPersistence } from "packages/db/src/socratic-draft/conversation-persistence";
+import type { DatabaseClient } from "packages/db/src/client";
+import { createConversationStore } from "packages/products/src/socratic-draft/server/conversation";
 import type { ConversationMessage } from "packages/products/src/socratic-draft/shared";
 import type { IdeaMap } from "packages/products/src/socratic-draft/shared";
 import type { AppendConversationTurnInput } from "packages/products/src/socratic-draft/server/conversation";
 
-describe("Prisma Socratic Draft conversation store", () => {
+describe("Prisma Socratic Draft conversation persistence", () => {
   it("creates an owner-scoped empty conversation ready for its first turn", async () => {
-    const prisma = createFakePrismaConversationStoreClient();
-    const ownerStore = createPrismaConversationStore(prisma, "owner-1");
-    const otherStore = createPrismaConversationStore(prisma, "owner-2");
+    const prisma = createFakePrismaConversationPersistenceClient();
+    const ownerStore = createAdapterFixture(prisma, "owner-1");
+    const otherStore = createAdapterFixture(prisma, "owner-2");
     const conversation = await ownerStore.createConversation();
 
     expect(conversation.messages).toEqual([]);
@@ -33,9 +34,9 @@ describe("Prisma Socratic Draft conversation store", () => {
   });
 
   it("lists, loads, and continues conversations within the configured user scope", async () => {
-    const prisma = createFakePrismaConversationStoreClient();
-    const ownerStore = createPrismaConversationStore(prisma, "owner-1");
-    const otherStore = createPrismaConversationStore(prisma, "owner-2");
+    const prisma = createFakePrismaConversationPersistenceClient();
+    const ownerStore = createAdapterFixture(prisma, "owner-1");
+    const otherStore = createAdapterFixture(prisma, "owner-2");
     const ownerConversation = await ownerStore.createConversation();
 
     await ownerStore.appendConversationTurn(createTurn({
@@ -99,8 +100,8 @@ describe("Prisma Socratic Draft conversation store", () => {
   });
 
   it("rejects one of two overlapping turns instead of duplicating a sequence", async () => {
-    const prisma = createFakePrismaConversationStoreClient();
-    const store = createPrismaConversationStore(prisma, "owner-1");
+    const prisma = createFakePrismaConversationPersistenceClient();
+    const store = createAdapterFixture(prisma, "owner-1");
     const conversation = await store.createConversation();
 
     const results = await Promise.all([
@@ -125,8 +126,8 @@ describe("Prisma Socratic Draft conversation store", () => {
   });
 
   it("retains owner-scoped idea-map revisions and rejects stale replacement", async () => {
-    const prisma = createFakePrismaConversationStoreClient();
-    const store = createPrismaConversationStore(prisma, "owner-1");
+    const prisma = createFakePrismaConversationPersistenceClient();
+    const store = createAdapterFixture(prisma, "owner-1");
     const conversation = await store.createConversation();
     const ideaMap: IdeaMap = {
       revision: 1,
@@ -197,10 +198,21 @@ type FakeMessage = ConversationMessage & {
   position: number;
 };
 
-function createFakePrismaConversationStoreClient(): PrismaConversationStoreClient {
+function createAdapterFixture(
+  prisma: ReturnType<typeof createFakePrismaConversationPersistenceClient>,
+  userId: string,
+) {
+  return createConversationStore(
+    createPrismaConversationPersistence(prisma as unknown as DatabaseClient, userId),
+    { now: () => new Date("2026-07-31T10:00:00.000Z") },
+  );
+}
+
+function createFakePrismaConversationPersistenceClient() {
   const conversations: FakeConversation[] = [];
   const messages: FakeMessage[] = [];
   const revisions: { conversationId: string; revision: number; ideas: unknown }[] = [];
+  const operations: { conversationId: string; operationId: string; kind: string }[] = [];
 
   const transaction = {
     socraticDraftConversation: {
@@ -255,14 +267,28 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
         return input.data;
       },
     },
+    socraticDraftOperation: {
+      async create(input: { data: { conversationId: string; operationId: string; kind: string } }) {
+        operations.push(input.data);
+        return input.data;
+      },
+    },
   };
 
   return {
-    async $transaction(callback) {
+    async $transaction<T>(callback: (client: typeof transaction) => Promise<T>) {
       return callback(transaction);
     },
+    socraticDraftOperation: {
+      async findUnique(input: { where: { conversationId_operationId: { conversationId: string; operationId: string } } }) {
+        return operations.find((operation) =>
+          operation.conversationId === input.where.conversationId_operationId.conversationId &&
+          operation.operationId === input.where.conversationId_operationId.operationId,
+        ) ?? null;
+      },
+    },
     socraticDraftConversation: {
-      async create(input) {
+      async create(input: { data: Omit<FakeConversation, "createdAt" | "updatedAt"> & { createdAt: Date; updatedAt: Date } }) {
         const now = new Date("2026-07-31T10:00:00.000Z");
         const conversation = {
           ...input.data,
@@ -272,7 +298,7 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
         conversations.push(conversation);
         return toConversationRow(conversation, messages, revisions);
       },
-      async findFirst(input) {
+      async findFirst(input: { where: { id: string; userId: string } }) {
         const conversation = conversations.find(
           (candidate) =>
             candidate.id === input.where.id &&
@@ -282,7 +308,7 @@ function createFakePrismaConversationStoreClient(): PrismaConversationStoreClien
           ? toConversationRow(conversation, messages, revisions)
           : null;
       },
-      async findMany(input) {
+      async findMany(input: { where: { userId: string } }) {
         return conversations
           .filter((conversation) => conversation.userId === input.where.userId)
           .sort(

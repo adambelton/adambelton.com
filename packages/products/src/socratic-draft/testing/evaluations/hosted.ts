@@ -23,7 +23,7 @@ import {
   type HostedConversationTurnMetrics,
 } from "packages/products/src/socratic-draft/testing/evaluations/hosted-conversation-evaluation";
 import { HOSTED_CONVERSATION_EVALUATION_SCENARIOS } from "packages/products/src/socratic-draft/testing/evaluations/scenarios";
-import { TestConversationStore } from "packages/products/src/socratic-draft/testing/test-conversation-store";
+import { createTestConversationStore } from "packages/products/src/socratic-draft/server/testing/test-conversation-persistence";
 
 const HOSTED_EVALUATION_ENABLED_VALUE = "true";
 const localEnvPath = fileURLToPath(
@@ -43,7 +43,7 @@ if (!apiKey) {
   throw new Error("OPENAI_API_KEY is required for hosted evaluation.");
 }
 
-const scenario = HOSTED_CONVERSATION_EVALUATION_SCENARIOS.fifaAccountability;
+const scenario = selectScenario(process.env.EVALUATION_SCENARIO);
 const includeContent =
   process.env.EVALUATION_INCLUDE_CONTENT === HOSTED_EVALUATION_ENABLED_VALUE;
 const maximumTurns = parseMaximumTurns(process.env.EVALUATION_MAX_TURNS);
@@ -54,7 +54,7 @@ const model = createMeasuredConversationModel(
   }),
 );
 const conversationService = new ConversationService({ conversationModel: model });
-const conversations = new TestConversationStore();
+const conversations = createTestConversationStore();
 const conversationId = conversations.createConversationId();
 const turnMetrics: HostedConversationTurnMetrics[] = [];
 let previousIdeaMap: IdeaMap = EMPTY_IDEA_MAP;
@@ -83,6 +83,11 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
     measurement.response.content,
   );
   const ideaMap = result.response.ideaMap ?? previousIdeaMap;
+  assertScenarioBehaviour(
+    scenario.id,
+    result.response.message.content,
+    ideaMap,
+  );
   const previousIds = new Set(previousIdeaMap.ideas.map((idea) => idea.id));
   const metrics: HostedConversationTurnMetrics = {
     turn: index + 1,
@@ -181,6 +186,16 @@ function parseMaximumTurns(value: string | undefined) {
   return parsed;
 }
 
+function selectScenario(value: string | undefined) {
+  if (!value) return HOSTED_CONVERSATION_EVALUATION_SCENARIOS.fifaAccountability;
+  const scenario = Object.values(HOSTED_CONVERSATION_EVALUATION_SCENARIOS)
+    .find((candidate) => candidate.id === value);
+  if (!scenario) {
+    throw new Error(`Unknown EVALUATION_SCENARIO: ${value}`);
+  }
+  return scenario;
+}
+
 function getStructuredOutputValidationIssues(content: string): string[] {
   try {
     const parsed = JSON.parse(content) as Record<string, unknown>;
@@ -190,5 +205,34 @@ function getStructuredOutputValidationIssues(content: string): string[] {
     ];
   } catch {
     return ["model output is not valid JSON"];
+  }
+}
+
+function assertScenarioBehaviour(
+  scenarioId: string,
+  assistantResponse: string,
+  ideaMap: IdeaMap,
+) {
+  if (scenarioId !== "hunger-as-writing-material") return;
+  const forbiddenPracticalAdvice = [
+    "dietary restriction",
+    "light snack",
+    "sleep-friendly snack",
+    "strategies to avoid eating",
+  ];
+  const canonicalContent = ideaMap.ideas.flatMap((idea) => [
+    idea.title,
+    idea.synthesis,
+    idea.substance,
+    ...idea.unresolvedQuestions,
+  ]).join(" ").toLowerCase();
+  const response = assistantResponse.toLowerCase();
+  const leaked = forbiddenPracticalAdvice.find((phrase) =>
+    response.includes(phrase) || canonicalContent.includes(phrase)
+  );
+  if (leaked) {
+    throw new Error(
+      `The hunger regression left the writing frame or canonised an assistant hypothesis: ${leaked}`,
+    );
   }
 }

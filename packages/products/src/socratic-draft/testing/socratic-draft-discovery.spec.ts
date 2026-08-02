@@ -29,7 +29,10 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
   await test.step("enrich the criticism without duplicating the idea", async () => {
     await send(page, "He presents every expansion of his power as service to the game, while meaningful scrutiny seems to recede further away.");
     const leadership = idea(page, "Leadership without accountability");
-    await expect(page.getByText("Leadership without accountability")).toHaveCount(1);
+    await expect(
+      page.locator("section[aria-labelledby='idea-map-title']")
+        .getByText("Leadership without accountability", { exact: true }),
+    ).toHaveCount(1);
     await expect(leadership.getByText("Infantino's FIFA presents concentrated power as service to football while resisting meaningful scrutiny.")).toBeVisible();
     await expect(leadership.getByText("Developing. Appears to be central.")).toBeVisible();
     await expect(leadership.getByText("Is the deepest objection concentrated power, hypocrisy, or the damage done to football's legitimacy?")).toBeVisible();

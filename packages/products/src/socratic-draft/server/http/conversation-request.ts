@@ -1,4 +1,7 @@
-import type { ConversationRequest } from "packages/products/src/socratic-draft/shared";
+import type {
+  ConversationRequest,
+  DraftSelection,
+} from "packages/products/src/socratic-draft/shared";
 
 export async function parseConversationRequest(
   request: Request,
@@ -17,9 +20,19 @@ export async function parseConversationRequest(
     return null;
   }
 
+  if (
+    body.draftSelection !== undefined &&
+    !isDraftSelection(body.draftSelection)
+  ) {
+    return null;
+  }
+
   return {
     conversationId: body.conversationId ?? null,
     message: body.message,
+    ...(isDraftSelection(body.draftSelection)
+      ? { draftSelection: body.draftSelection }
+      : {}),
   };
 }
 
@@ -32,4 +45,13 @@ export async function parseConversationMessage(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isDraftSelection(value: unknown): value is DraftSelection {
+  if (value === undefined) return false;
+  if (!isRecord(value)) return false;
+  return typeof value.baseDraftRevision === "number" &&
+    typeof value.start === "number" &&
+    typeof value.end === "number" &&
+    typeof value.selectedText === "string";
 }

@@ -32,8 +32,12 @@ export function renderProductRoute({
   if (segments.length === 0) {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
-      element: <OverviewPage components={components} />,
+      element: <OverviewPage accessLevel={accessLevel} components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft" },
+      ],
     };
   }
 
@@ -46,6 +50,11 @@ export function renderProductRoute({
         />
       ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Editor" },
+      ],
     };
   }
 
@@ -54,6 +63,11 @@ export function renderProductRoute({
       status: PRODUCT_ROUTE_STATUSES.found,
       element: <PrivacyPage components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Privacy" },
+      ],
     };
   }
 
@@ -62,6 +76,11 @@ export function renderProductRoute({
       status: PRODUCT_ROUTE_STATUSES.found,
       element: <ConversationsPage components={components} />,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Conversations" },
+      ],
     };
   }
 
@@ -82,6 +101,12 @@ export function renderProductRoute({
         />
       ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Conversations", href: "/products/socratic-draft/conversations" },
+        { label: "Editor" },
+      ],
     };
   }
 
@@ -99,6 +124,12 @@ export function renderProductRoute({
         />
       ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Conversations", href: "/products/socratic-draft/conversations" },
+        { label: "Conversation" },
+      ],
     };
   }
 

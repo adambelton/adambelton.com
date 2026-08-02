@@ -10,9 +10,6 @@ export function PrivacyPage({
 }: PrivacyPageProps) {
   return (
     <article aria-labelledby="socratic-draft-privacy-title">
-      <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        The Socratic Draft · Privacy
-      </p>
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
         id="socratic-draft-privacy-title"

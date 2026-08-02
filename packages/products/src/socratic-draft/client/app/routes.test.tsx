@@ -39,6 +39,11 @@ describe("renderProductRoute", () => {
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      breadcrumbs: [
+        { label: "Products", href: "/products" },
+        { label: "Socratic Draft", href: "/products/socratic-draft" },
+        { label: "Editor" },
+      ],
     });
   });
 

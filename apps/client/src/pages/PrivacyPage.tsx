@@ -1,4 +1,4 @@
-import { Prose, TextLink } from "apps/client/src/components";
+import { Breadcrumbs, Prose, TextLink } from "apps/client/src/components";
 import { products } from "packages/shared/src";
 
 const productsWithPrivacyInformation = products.filter(
@@ -8,9 +8,7 @@ const productsWithPrivacyInformation = products.filter(
 export function PrivacyPage() {
   return (
     <article aria-labelledby="privacy-title">
-      <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
-        Privacy
-      </p>
+      <Breadcrumbs items={[{ label: "Privacy" }]} />
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
         id="privacy-title"

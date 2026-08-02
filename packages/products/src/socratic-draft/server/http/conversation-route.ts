@@ -13,6 +13,8 @@ import { parseConversationRequest } from "packages/products/src/socratic-draft/s
 import { handleIdeaActionRequest } from "packages/products/src/socratic-draft/server/http/idea-action-handler";
 import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/shared";
 import { failure, success } from "packages/shared/src";
+import type { DraftStore } from "packages/products/src/socratic-draft/server/draft";
+import { validateDraftSelection } from "packages/products/src/socratic-draft/server/http/draft-selection-context";
 
 export type CreateConversationRouteDependencies = {
   conversationStore?: TemporaryConversationStore;
@@ -20,12 +22,14 @@ export type CreateConversationRouteDependencies = {
     request: Request,
   ) => Promise<TemporaryConversationStore | null>;
   conversationService?: ConversationResponder;
+  getDraftStore?: (request: Request) => Promise<DraftStore | null>;
 };
 
 export function createConversationRoute({
   conversationStore,
   getConversationStore,
   conversationService = new ConversationService(),
+  getDraftStore,
 }: CreateConversationRouteDependencies) {
   const route = new Hono();
   route.post("/respond", async (context) => {
@@ -52,11 +56,27 @@ export function createConversationRoute({
       );
     }
 
+    const conversationId = request.conversationId;
+    if (
+      request.draftSelection &&
+      (!conversationId || !await validateDraftSelection({
+        conversationId,
+        drafts: getDraftStore ? await getDraftStore(context.req.raw) : null,
+        selection: request.draftSelection,
+      }))
+    ) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The selected draft passage is stale or invalid.",
+      ), 409);
+    }
+
     const result = await respondInWorkspace({
       conversationId: request.conversationId,
       message: request.message,
       conversation: conversationService,
       conversations: requestConversationStore,
+      draftSelection: request.draftSelection,
     });
 
     if (result.status === CONVERSATION_ERROR_CODES.notFound) {

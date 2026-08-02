@@ -5,6 +5,15 @@ export interface HostedConversationEvaluationScenario {
 }
 
 export const HOSTED_CONVERSATION_EVALUATION_SCENARIOS = {
+  hungerAsWritingMaterial: {
+    id: "hunger-as-writing-material",
+    description:
+      "A regression scenario that must remain writing-oriented and keep assistant-generated practical hypotheses out of canonical idea material.",
+    turns: [
+      "I'm hungry.",
+      "I'm trying to avoid eating. I'm planning on being up late tonight, and if I eat now, I'll be hungry again when I'm trying to fall asleep.",
+    ],
+  },
   fifaAccountability: {
     id: "fifa-accountability",
     description:

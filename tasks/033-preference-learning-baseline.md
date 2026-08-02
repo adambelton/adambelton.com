@@ -72,6 +72,7 @@ Implements **Preference learning**, **Preference evidence**, and the applicable
 
 ```txt
 pnpm test
+pnpm test:e2e
 pnpm typecheck
 pnpm build
 pnpm db:validate

@@ -88,6 +88,8 @@ model SocraticDraftConversation {
   user     User                               @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages SocraticDraftConversationMessage[]
   ideaMapRevisions SocraticDraftIdeaMapRevision[]
+  draft SocraticDraftDraft?
+  operations SocraticDraftOperation[]
 
   @@index([userId, updatedAt])
   @@unique([id, userId])
@@ -123,4 +125,86 @@ model SocraticDraftConversationMessage {
   @@unique([conversationId, position])
   @@index([conversationId])
   @@map("socratic_draft_conversation_messages")
+}
+
+model SocraticDraftDraft {
+  id              String   @id
+  conversationId  String   @unique @map("conversation_id")
+  body            String
+  currentRevision Int      @default(1) @map("current_revision")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  conversation SocraticDraftConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  revisions    SocraticDraftDraftRevision[]
+  proposals    SocraticDraftRevisionProposal[]
+
+  @@map("socratic_draft_drafts")
+}
+
+model SocraticDraftDraftRevision {
+  id                   String   @id @default(uuid())
+  draftId              String   @map("draft_id")
+  revision             Int
+  body                 String
+  source               String
+  proposalId           String?  @map("proposal_id")
+  restoredFromRevision Int?     @map("restored_from_revision")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  draft SocraticDraftDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, revision])
+  @@index([draftId])
+  @@map("socratic_draft_draft_revisions")
+}
+
+model SocraticDraftRevisionProposal {
+  id                      String   @id
+  draftId                 String   @map("draft_id")
+  baseDraftRevision       Int      @map("base_draft_revision")
+  scope                   String
+  originalStart           Int      @map("original_start")
+  originalEnd             Int      @map("original_end")
+  originalContent         String   @map("original_content")
+  userInstruction         String   @map("user_instruction")
+  state                   String
+  currentProposalRevision Int      @default(1) @map("current_proposal_revision")
+  createdAt               DateTime @default(now()) @map("created_at")
+  resolvedAt              DateTime? @map("resolved_at")
+
+  draft    SocraticDraftDraft                    @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  versions SocraticDraftRevisionProposalVersion[]
+
+  @@index([draftId, state])
+  @@map("socratic_draft_revision_proposals")
+}
+
+model SocraticDraftRevisionProposalVersion {
+  id              String   @id @default(uuid())
+  proposalId      String   @map("proposal_id")
+  revision        Int
+  proposedContent String   @map("proposed_content")
+  intendedEffect  String   @map("intended_effect")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  proposal SocraticDraftRevisionProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, revision])
+  @@index([proposalId])
+  @@map("socratic_draft_revision_proposal_versions")
+}
+
+model SocraticDraftOperation {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  operationId    String   @map("operation_id")
+  kind           String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation SocraticDraftConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, operationId])
+  @@index([conversationId])
+  @@map("socratic_draft_operations")
 }

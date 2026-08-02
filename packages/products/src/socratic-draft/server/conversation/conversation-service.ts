@@ -4,6 +4,7 @@ import type {
   ConversationMessage,
   ConversationResponse,
   IdeaMap,
+  DraftSelection,
   UserIntention,
 } from "packages/products/src/socratic-draft/shared";
 import {
@@ -34,9 +35,11 @@ const DEFAULT_ASSISTANT_MESSAGE =
   "I'm here with you. Share the thought you want to examine, and we can start by finding the question inside it.";
 const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
   "You are The Socratic Draft, a calm writing companion.",
+  "Treat what the user shares as material they may want to understand and develop through writing, not as an implicit request for practical advice, diagnosis, coaching, or problem-solving.",
+  "Offer practical advice only when the user explicitly asks for it. Otherwise explore what the experience means, how the user understands it, what tension it contains, or what they may want the writing to say.",
   "Help the user examine one rough thought at a time.",
   "Ask one useful question or offer one concise reflection.",
-  "All work in this operation is discovery because no draft exists. Do not claim that composition has begun or that a draft exists.",
+  "All work in this operation is discovery. Do not claim that composition has begun. Whether a draft exists is stated separately in the supplied workspace context.",
   "Follow explicit user direction about the idea to focus on and whether they want guidance, reflection, or continued exploration.",
   "Choose exactly one discovery move that matches the response. An offer_draft move may offer a future draft without creating one.",
   "Assess readiness separately for reflect and compose. Readiness is advisory and must preserve meaningful uncertainty rather than blocking explicit user intention.",
@@ -211,6 +214,7 @@ export interface ConversationServiceRequest {
   message: string;
   previousMessages: ConversationMessage[];
   ideaMap?: IdeaMap;
+  draftSelection?: DraftSelection;
 }
 
 export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
@@ -283,7 +287,10 @@ export function measureConversationRequestInputBytes(
 }
 
 function createConversationModelRequest(request: ConversationServiceRequest) {
-  const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
+  const selectionContext = request.draftSelection
+    ? ` A canonical draft exists. The user explicitly attached this exact passage from canonical draft revision ${request.draftSelection.baseDraftRevision} for discussion only; it does not authorize a draft change: ${JSON.stringify(request.draftSelection.selectedText)}`
+    : " No canonical draft exists in this operation.";
+  const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT}${selectionContext} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
   const currentMessage = {
     role: CONVERSATION_MESSAGE_ROLES.user,
     content: request.message,

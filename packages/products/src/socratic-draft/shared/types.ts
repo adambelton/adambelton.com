@@ -198,6 +198,7 @@ export type ConversationErrorCode =
 export interface ConversationRequest {
   conversationId: string | null;
   message: string;
+  draftSelection?: DraftSelection;
 }
 
 export interface ConversationResponse {
@@ -233,3 +234,103 @@ export interface TemporaryConversation {
   conversation: Conversation;
   expiresAt: string;
 }
+
+export const DRAFT_REVISION_SOURCES = {
+  initialComposition: "initial_composition",
+  manualEdit: "manual_edit",
+  acceptedProposal: "accepted_proposal",
+  restoration: "restoration",
+} as const;
+
+export type DraftRevisionSource =
+  (typeof DRAFT_REVISION_SOURCES)[keyof typeof DRAFT_REVISION_SOURCES];
+
+export interface DraftRevision {
+  revision: number;
+  body: string;
+  source: DraftRevisionSource;
+  createdAt: string;
+  proposalId: string | null;
+  restoredFromRevision: number | null;
+}
+
+export interface Draft {
+  id: string;
+  conversationId: string;
+  body: string;
+  currentRevision: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const REVISION_PROPOSAL_SCOPES = {
+  passage: "passage",
+  wholeDraft: "whole_draft",
+} as const;
+
+export type RevisionProposalScope =
+  (typeof REVISION_PROPOSAL_SCOPES)[keyof typeof REVISION_PROPOSAL_SCOPES];
+
+export const REVISION_PROPOSAL_STATES = {
+  active: "active",
+  accepted: "accepted",
+  rejected: "rejected",
+  stale: "stale",
+} as const;
+
+export type RevisionProposalState =
+  (typeof REVISION_PROPOSAL_STATES)[keyof typeof REVISION_PROPOSAL_STATES];
+
+export interface DraftSelection {
+  baseDraftRevision: number;
+  start: number;
+  end: number;
+  selectedText: string;
+}
+
+export interface RevisionProposalVersion {
+  revision: number;
+  proposedContent: string;
+  intendedEffect: string;
+  createdAt: string;
+}
+
+export interface RevisionProposal {
+  id: string;
+  draftId: string;
+  baseDraftRevision: number;
+  scope: RevisionProposalScope;
+  originalStart: number;
+  originalEnd: number;
+  originalContent: string;
+  userInstruction: string;
+  state: RevisionProposalState;
+  currentProposalRevision: number;
+  versions: RevisionProposalVersion[];
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+export interface DraftWorkspace {
+  draft: Draft | null;
+  revisions: DraftRevision[];
+  activeProposal: RevisionProposal | null;
+}
+
+export const EMPTY_DRAFT_WORKSPACE: DraftWorkspace = {
+  draft: null,
+  revisions: [],
+  activeProposal: null,
+};
+
+export const DRAFT_ERROR_CODES = {
+  conflict: "draft_conflict",
+  draftAlreadyExists: "draft_already_exists",
+  invalidRequest: "invalid_draft_request",
+  notFound: "draft_not_found",
+  proposalNotActive: "revision_proposal_not_active",
+  unavailable: "draft_unavailable",
+} as const;
+
+export type DraftErrorCode =
+  (typeof DRAFT_ERROR_CODES)[keyof typeof DRAFT_ERROR_CODES];
