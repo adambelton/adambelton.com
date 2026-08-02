@@ -14,6 +14,7 @@ describe("Socratic Draft interaction contracts", () => {
       discovery: "discovery",
     });
     expect(ASSISTANT_MOVES.clarify).toBe("clarify");
+    expect(ASSISTANT_MOVES.offerDraft).toBe("offer_draft");
     expect(READINESS_ACTIONS).toEqual({
       compose: "compose",
       reflect: "reflect",

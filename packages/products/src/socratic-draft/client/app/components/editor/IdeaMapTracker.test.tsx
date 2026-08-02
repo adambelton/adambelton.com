@@ -11,15 +11,15 @@ describe("IdeaMapTracker", () => {
           ideas: [
             {
               id: "idea-1",
-              title: "Freedom without blame",
-              synthesis: "The grief concerns lost agency rather than blame.",
-              substance: "Plans feel conditional, while love and commitment remain intact.",
-              unresolvedQuestions: ["Which freedom matters most?"],
+              title: "Leadership without accountability",
+              synthesis: "Infantino's FIFA uses football's authority while resisting scrutiny.",
+              substance: "Football gives FIFA legitimacy, but its leadership is not the game itself.",
+              unresolvedQuestions: ["How can football withdraw unearned legitimacy?"],
               assistantAssessment: {
                 exploration: "developing",
                 importance: "central",
               },
-              userInterpretation: "This is about agency, not escape.",
+              userInterpretation: "My objection is to unaccountable power, not to football.",
               disposition: "focused",
             },
           ],
@@ -29,11 +29,11 @@ describe("IdeaMapTracker", () => {
       />,
     );
 
-    expect(markup).toContain("Freedom without blame");
-    expect(markup).toContain("The grief concerns lost agency");
+    expect(markup).toContain("Leadership without accountability");
+    expect(markup).toContain("uses football&#x27;s authority");
     expect(markup).toContain("View substance");
-    expect(markup).toContain("Plans feel conditional");
-    expect(markup).toContain("Which freedom matters most?");
+    expect(markup).toContain("Football gives FIFA legitimacy");
+    expect(markup).toContain("How can football withdraw unearned legitimacy?");
     expect(markup).toContain("Developing");
     expect(markup).toContain("Appears to be central");
     expect(markup).toContain("Assessments are qualitative, not objective scores");

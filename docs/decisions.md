@@ -498,3 +498,99 @@ further composition.
 The standalone `articulate` user intention is removed. Concrete intentions and
 operations such as explore, reflect, compose, structure, and revise describe what
 the user asks to do without introducing a persistent workspace mode.
+
+## 030 — Proposal Reviews Preserve Approval Reasoning
+
+Task proposal reviews classify findings as blockers, clarifications,
+implementation decisions, or previously settled decisions. Reviews follow the
+authority order recorded in `AGENTS.md` and must not reopen an intentional,
+approved boundary without citing a conflicting higher-authority rule or genuinely
+new evidence and explaining why implementation cannot resolve it.
+
+Approved proposals retain a concise approval record containing the approval date,
+intentional boundaries, important deferrals, delegated implementation decisions,
+and decisions that should not be reopened casually. The record preserves why a
+task was approved across conversations without changing its scope or granting
+approval for later work.
+
+## 031 — Suggested Replies Are Deferred, Not A Current Contract
+
+The Socratic Draft does not currently expose or retain a suggested-reply
+contract. Free conversation and explicit idea controls are sufficient for the
+current baseline, and assistant-proposed answers risk making assistant language
+look like the user's own discovered material.
+
+Suggested replies may be reconsidered only if observed use shows that people need
+more help steering the conversation. Any future version must be limited to
+direction, selection, confirmation, or authorisation. It must never suggest
+substantive answers, feelings, claims, interpretations, examples, or language
+that could enter the idea map as apparently user-authored material.
+
+## 032 — Discovery Policy Uses Validated Interaction Metadata
+
+Pre-draft conversation activity is derived by the product server as discovery.
+The conversation model selects one discovery move and returns separate readiness
+assessments for reflection and composing a draft, plus any explicit explore,
+reflect, or compose intention expressed by the user. `offer_draft` names the move
+that offers the future draft artifact; it does not emit composition activity or
+create that artifact.
+
+Reflection and composition readiness use qualitative, action-specific values.
+`ready_with_uncertainty` requires a concise grounded explanation. An explicit
+request for an early or rough draft remains user intention even when the
+assistant assesses composition as not ready or ready with uncertainty.
+
+Conversation response, move, readiness, intention, and idea-map proposals share
+one provider-neutral structured model result for the current baseline. Product
+validation treats their fields independently: an invalid classification degrades
+to safe discovery metadata without applying unsafe state or exposing structured
+output as conversation text.
+
+Model context includes the bounded idea-map view and the newest coherent suffix
+of retained conversation that fits with the current message under the existing
+complete-input limit. Truncation never starts with an orphaned assistant reply.
+The UI continues to use ordinary user messages and explicit idea controls; it
+does not add move buttons, a mode selector, a readiness meter, or suggested
+replies. Important readiness uncertainty is explained conversationally.
+
+## 033 — Socratic Draft Terminology Has A Canonical Reference
+
+`docs/products/socratic-draft/terminology.md` is the canonical naming reference
+for Socratic Draft code, prompts, tasks, interface copy, and documentation. It
+clarifies the concepts defined by the product brief and architecture rather than
+introducing a separate product model.
+
+In particular, `Draft` names the private writing artifact, *compose* and
+*composing* describe operations that create or develop it, and `Composition`
+names the activity whose purpose is working on the writing. Assistant moves name
+concrete acts or their objects, so the preferred names remain `offer_draft`,
+`create_draft`, and `revise_draft`. Contributors must identify whether a new term
+names an artifact, activity, operation, move, assessment, intention, command,
+event, or lifecycle fact before adding it.
+
+## 034 — Product Browser Tests Use Dedicated Testing Hosts
+
+Socratic Draft Playwright tests compose the product's real client, HTTP route,
+conversation service, and persistence port inside dedicated test-only client and
+API hosts owned by the product package. The composition supplies a deterministic
+test conversation model and an in-memory product-language store. It does not
+start or import the website/API hosts and therefore does not exercise host auth,
+database, provider, or deployment concerns.
+
+CI runs deterministic unit, integration, type, build, and browser checks. A
+separate opt-in hosted-model evaluation checks the real provider contract and
+selected product-policy behaviour, but remains outside CI because it requires a
+secret, incurs cost, and is not deterministic.
+
+## 035 — Product Tests Are Colocated With Product Behaviour
+
+Tests, fixtures, browser hosts, and evaluations whose subject is Socratic Draft
+product behaviour live within `packages/products/src/socratic-draft`. Component
+and page tests sit beside the product client source they exercise; cross-boundary
+test composition and hosted evaluations live in the product's `testing` folder.
+
+Host applications retain only tests of host mounting, routing, configuration,
+and supplied adapters. Infrastructure packages retain tests of their own
+concrete product adapters. A product-owned evaluation may compose a concrete AI
+provider as a test-only development fixture without adding that provider to the
+product's production dependency boundary.

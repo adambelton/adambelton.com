@@ -1,8 +1,23 @@
 # Tasks
 
+## Proposal review
+
+Proposal reviews distinguish blockers, clarifications, implementation decisions,
+and previously settled decisions using the authority order in `AGENTS.md`.
+
+After approval, the task records a concise `Approval record` containing:
+
+- the approval date;
+- intentional scope boundaries and important deferrals;
+- implementation decisions the task is expected to settle;
+- decisions that were reviewed and should not be reopened without a cited
+  authoritative conflict or genuinely new evidence.
+
+The approval record preserves review reasoning across conversations. It does not
+change the proposal or grant approval for a later task.
+
 ## Planned
 
-- 030 — Meaningful discovery and composition readiness
 - 031 — Private drafts and approved revision proposals
 - 032 — Manual draft-edit interpretation
 - 033 — Preference-learning baseline
@@ -13,6 +28,7 @@
 
 ## Completed
 
+- 030 — Meaningful discovery and composition readiness
 - 029 — Discovery and composition terminology correction
 - 028 — Idea-map baseline
 - 027 — Workspace and capability foundations

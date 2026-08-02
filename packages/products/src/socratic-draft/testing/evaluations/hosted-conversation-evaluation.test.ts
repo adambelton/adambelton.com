@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   summariseHostedConversationEvaluation,
   type HostedConversationTurnMetrics,
-} from "packages/products/src/socratic-draft/server/evaluations/hosted-conversation-evaluation";
+} from "packages/products/src/socratic-draft/testing/evaluations/hosted-conversation-evaluation";
 
 describe("hosted conversation evaluation reporting", () => {
   it("summarises latency, usage, and final idea-map state", () => {

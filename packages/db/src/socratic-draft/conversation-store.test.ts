@@ -133,9 +133,10 @@ describe("Prisma Socratic Draft conversation store", () => {
       ideas: [
         {
           id: "idea-1",
-          title: "Agency",
-          synthesis: "The idea concerns agency.",
-          substance: "Open time and spontaneity have become scarce.",
+          title: "Football is larger than FIFA",
+          synthesis: "Football's legitimacy comes from beyond FIFA's leadership.",
+          substance:
+            "Players, supporters, clubs, and associations give the game its meaning.",
           unresolvedQuestions: [],
           assistantAssessment: {
             exploration: "developing",

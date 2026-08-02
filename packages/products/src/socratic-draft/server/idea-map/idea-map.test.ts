@@ -25,16 +25,21 @@ describe("idea map", () => {
     ).toBeNull();
   });
   it("enriches an existing idea without changing its identity or user meaning", () => {
-    const current = map([idea({ userInterpretation: "This is about agency." })]);
+    const current = map([
+      idea({
+        userInterpretation:
+          "My objection is to unaccountable power, not to football.",
+      }),
+    ]);
     const result = applyProposedIdeas({
       current,
       proposedIdeas: [
         {
           id: "idea-1",
-          title: "A smaller life",
-          synthesis: "The loss concerns agency rather than blame.",
-          substance: "The user misses spontaneity. Plans now feel conditional, while love and commitment remain intact.",
-          unresolvedQuestions: ["Which freedom matters most?"],
+          title: "Leadership without accountability",
+          synthesis: "Infantino's FIFA uses football's authority while resisting scrutiny.",
+          substance: "The user condemns concentrated leadership, while distinguishing FIFA's governors from football itself.",
+          unresolvedQuestions: ["How can football withdraw unearned legitimacy?"],
           disposition: IDEA_DISPOSITIONS.active,
           assistantAssessment: {
             exploration: "developing",
@@ -48,9 +53,10 @@ describe("idea map", () => {
     expect(result.ideaMap.ideas).toHaveLength(1);
     expect(result.ideaMap.ideas[0]).toMatchObject({
       id: "idea-1",
-      title: "A smaller life",
-      userInterpretation: "This is about agency.",
-      substance: expect.stringContaining("Plans now feel conditional"),
+      title: "Leadership without accountability",
+      userInterpretation:
+        "My objection is to unaccountable power, not to football.",
+      substance: expect.stringContaining("distinguishing FIFA's governors"),
     });
   });
 
@@ -158,9 +164,9 @@ function map(ideas: Idea[]): IdeaMap {
 function idea(overrides: Partial<Idea> = {}): Idea {
   return {
     id: "idea-1",
-    title: "Loss of freedom",
-    synthesis: "The user is grieving lost agency.",
-    substance: "Spontaneity and open time have become scarce.",
+    title: "Football is larger than FIFA",
+    synthesis: "Football's legitimacy comes from beyond FIFA's leadership.",
+    substance: "Players, supporters, clubs, and associations give the game its meaning.",
     unresolvedQuestions: [],
     assistantAssessment: {
       exploration: "emerging",

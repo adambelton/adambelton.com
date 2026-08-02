@@ -75,6 +75,8 @@ Top-level apps are named by deployable surface, such as `apps/client` and `apps/
 ## Architecture Rules
 
 - Do not create new architectural patterns without approval.
+- Consult `docs/products/socratic-draft/terminology.md` before introducing or
+  changing Socratic Draft domain names in code, prompts, tasks, or documentation.
 - Do not duplicate shared types inside apps.
 - Platform-wide shared types belong in `packages/shared`.
 - Product-specific types, contracts, and behaviour belong in that product's folder under `packages/products`.
@@ -94,6 +96,10 @@ Top-level apps are named by deployable surface, such as `apps/client` and `apps/
 - Follow `docs/testing.md` for test strategy and regression coverage expectations.
 - Keep project rules tool-agnostic and repo-owned; tool-specific config may point to these docs but should not replace them as the source of truth.
 - Prefer tests that verify observable behaviour, public contracts, and composition boundaries over implementation details.
+- Product behaviour tests, browser scenarios, fixtures, and evaluations belong
+  under the product they exercise. Host apps should retain only tests of host
+  mounting, routing, and supplied adapters; infrastructure packages should
+  retain tests of their own product-specific adapter implementations.
 
 ## Proposal-Before-Implementation Workflow
 
@@ -113,6 +119,47 @@ The proposal must include:
 Do not begin implementation until Adam confirms.
 
 After each completed task, you may suggest the next task, but that suggestion is not approval to begin.
+
+Approved implementation work should use a dedicated `codex/` branch. Before
+merge, run the task's approved local validation and require the repository CI
+checks to pass. Committing, pushing, and opening or merging a pull request remain
+explicit actions and should only be performed when Adam requests them.
+
+## Proposal Review And Approval Records
+
+Review proposals against the following authority order:
+
+1. `AGENTS.md` and current entries in `docs/decisions.md`
+2. the canonical product architecture
+3. the product brief
+4. completed-task outcomes and `progress.md`
+5. the current task proposal
+6. adjacent planned tasks
+7. explicitly historical or superseded documents as context only
+
+Classify every review finding as one of:
+
+- **Blocker:** the proposal is internally contradictory, violates a
+  higher-authority decision, cannot deliver its stated behaviour, or creates an
+  unacceptable unaddressed risk.
+- **Clarification:** wording or detail that would improve the proposal but does
+  not prevent approval.
+- **Implementation decision:** a choice deliberately delegated to the approved
+  task and not evidence that the proposal is incomplete.
+- **Previously settled:** an intentional boundary or decision that must not be
+  reopened without new evidence.
+
+Do not recommend changing previously settled scope unless the review cites the
+exact proposal language, the conflicting higher-authority rule or genuinely new
+evidence, and why the conflict cannot be resolved during implementation. General
+preferences or principles do not override an explicit approved boundary by
+themselves.
+
+When Adam approves a proposal, add an `Approval record` to the task containing
+the approval date, intentional boundaries, important deferrals, implementation
+decisions that remain open, and decisions that should not be reopened. This
+record preserves why the task was approved across conversations; it does not
+expand or replace the approved proposal.
 
 ## Completion Rules
 

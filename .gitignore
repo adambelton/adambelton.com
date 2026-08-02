@@ -11,3 +11,5 @@ coverage/
 .obsidian/
 .neon
 packages/db/src/generated/
+playwright-report/
+test-results/

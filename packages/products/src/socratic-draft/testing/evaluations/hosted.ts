@@ -6,23 +6,28 @@ import {
   OpenAiLlmClient,
   type LlmResponse,
 } from "packages/ai/src";
-import { createInMemoryConversationStore } from "packages/db/src/socratic-draft/in-memory-conversation-store";
 import {
   ConversationService,
-  HOSTED_CONVERSATION_EVALUATION_SCENARIOS,
-  summariseHostedConversationEvaluation,
   type ConversationModel,
   type ConversationModelRequest,
-  type HostedConversationTurnMetrics,
   getProposedIdeaActionsValidationIssues,
   getProposedIdeasValidationIssues,
 } from "packages/products/src/socratic-draft/server";
 import { respondInWorkspace } from "packages/products/src/socratic-draft/server/workspace";
-import type { IdeaMap } from "packages/products/src/socratic-draft/shared";
+import {
+  EMPTY_IDEA_MAP,
+  type IdeaMap,
+} from "packages/products/src/socratic-draft/shared";
+import {
+  summariseHostedConversationEvaluation,
+  type HostedConversationTurnMetrics,
+} from "packages/products/src/socratic-draft/testing/evaluations/hosted-conversation-evaluation";
+import { HOSTED_CONVERSATION_EVALUATION_SCENARIOS } from "packages/products/src/socratic-draft/testing/evaluations/scenarios";
+import { TestConversationStore } from "packages/products/src/socratic-draft/testing/test-conversation-store";
 
 const HOSTED_EVALUATION_ENABLED_VALUE = "true";
 const localEnvPath = fileURLToPath(
-  new URL("../../../../.env.local", import.meta.url),
+  new URL("../../../../../../.env.local", import.meta.url),
 );
 
 loadLocalEnvironment();
@@ -38,7 +43,7 @@ if (!apiKey) {
   throw new Error("OPENAI_API_KEY is required for hosted evaluation.");
 }
 
-const scenario = HOSTED_CONVERSATION_EVALUATION_SCENARIOS.unstructuredTime;
+const scenario = HOSTED_CONVERSATION_EVALUATION_SCENARIOS.fifaAccountability;
 const includeContent =
   process.env.EVALUATION_INCLUDE_CONTENT === HOSTED_EVALUATION_ENABLED_VALUE;
 const maximumTurns = parseMaximumTurns(process.env.EVALUATION_MAX_TURNS);
@@ -49,10 +54,10 @@ const model = createMeasuredConversationModel(
   }),
 );
 const conversationService = new ConversationService({ conversationModel: model });
-const conversations = createInMemoryConversationStore();
-const conversation = await conversations.createConversation();
+const conversations = new TestConversationStore();
+const conversationId = conversations.createConversationId();
 const turnMetrics: HostedConversationTurnMetrics[] = [];
-let previousIdeaMap: IdeaMap = conversation.ideaMap;
+let previousIdeaMap: IdeaMap = EMPTY_IDEA_MAP;
 
 console.log(`Scenario: ${scenario.id}`);
 console.log(scenario.description);
@@ -62,7 +67,7 @@ console.log(`Turns: ${Math.min(maximumTurns, scenario.turns.length)}`);
 for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) {
   const startedAt = Date.now();
   const result = await respondInWorkspace({
-    conversationId: conversation.id,
+    conversationId,
     message,
     conversation: conversationService,
     conversations,
@@ -137,10 +142,10 @@ function createMeasuredConversationModel(
     async createResponse(request: ConversationModelRequest) {
       const startedAt = Date.now();
       const response = await client.createMessage({
-      maxTokens: request.maxOutputTokens,
-      outputFormat: request.outputFormat,
-      system: request.system,
+        maxTokens: request.maxOutputTokens,
         messages: request.messages,
+        outputFormat: request.outputFormat,
+        system: request.system,
       });
       measurement = {
         providerLatencyMs: Date.now() - startedAt,
