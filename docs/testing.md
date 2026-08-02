@@ -58,3 +58,35 @@ Docs-only tasks may validate with:
 ```txt
 git diff --stat
 ```
+
+## Browser End-To-End Tests
+
+Playwright verifies user-observable product flows across a real browser, the
+product client, the product HTTP route, and product orchestration. Socratic
+Draft's browser suite runs against dedicated testing hosts in
+`packages/products/src/socratic-draft/testing`. Those hosts provide a
+deterministic conversation model and a product-language in-memory store.
+
+The suite deliberately does not start `apps/client` or `apps/api`. It does not
+test host authentication, database adapters, deployment configuration, or the
+behaviour of a hosted model. Those boundaries need their own focused tests.
+
+## Hosted Model Evaluations
+
+Real-model checks verify that the configured provider still satisfies the
+conversation contract and behaves within important product-policy bounds. They
+are opt-in because they are non-deterministic, require secrets, and incur cost.
+They do not run in CI and do not replace deterministic tests.
+
+## Test Location
+
+Tests and evaluations of product-owned behaviour are colocated within that
+product package. Socratic Draft client tests live beside its pages and
+components, while its browser fixtures and hosted evaluations live under
+`packages/products/src/socratic-draft/testing`.
+
+Host applications retain only tests of host responsibilities such as mounting
+product routes and supplying adapters. Infrastructure packages retain tests of
+their concrete product adapters, such as the Socratic Draft Prisma store. A
+test-only product evaluation may compose a concrete provider as a development
+fixture; that does not make the provider part of the product runtime boundary.

@@ -7,6 +7,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "e2e:api": "tsx src/socratic-draft/testing/api-host.ts",
+    "e2e:client": "vite --host 127.0.0.1 --config src/socratic-draft/testing/client/vite.config.ts",
+    "evaluate:socratic-draft": "tsx src/socratic-draft/testing/evaluations/hosted.ts",
+    "test:hosted": "tsx src/socratic-draft/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
   },
@@ -16,7 +20,17 @@
     "react": "^19.1.0"
   },
   "devDependencies": {
+    "@adambelton/ai": "workspace:*",
+    "@hono/node-server": "^1.14.4",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.15.34",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^5.0.0",
     "@types/react": "^19.1.8",
-    "typescript": "^5.8.3"
+    "react-dom": "^19.1.0",
+    "happy-dom": "^20.11.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.6"
   }
 }

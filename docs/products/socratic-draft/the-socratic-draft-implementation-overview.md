@@ -78,7 +78,6 @@ The frontend owns:
 - rendering the editor/demo experience
 - capturing user input
 - displaying streamed responses
-- showing suggested replies
 - holding temporary demo state
 - rendering owner/admin screens
 
@@ -482,9 +481,9 @@ export type AssistantMove =
   | "full_reflection"
   | "branch_check"
   | "suggest_research"
-  | "offer_composition"
-  | "compose_private"
-  | "revise_private_entry"
+  | "offer_draft"
+  | "create_draft"
+  | "revise_draft"
   | "offer_publishing";
 
 export type ConversationPhase =
@@ -567,11 +566,6 @@ export type ConversationState = {
   claims: DetectedClaim[];
 };
 
-export type SuggestedReply = {
-  label: string;
-  message: string;
-};
-
 export type SocraticDraftConversationResponse = {
   conversationId: string;
   message: {
@@ -580,7 +574,6 @@ export type SocraticDraftConversationResponse = {
   };
   move: AssistantMove;
   state: ConversationState;
-  suggestedReplies: SuggestedReply[];
 };
 ```
 
@@ -934,7 +927,7 @@ or:
 or:
 
 ```ts
-{ action: "compose_private" }
+{ action: "create_draft" }
 ```
 
 Instead, the frontend sends ordinary user messages.
@@ -963,17 +956,6 @@ It may decide to:
 - compose the private draft
 
 The user experiences this as a natural conversation.
-
-Suggested replies are allowed, but they should be ordinary user messages:
-
-```ts
-{
-  label: "Draft it",
-  message: "Draft it."
-}
-```
-
-not hidden frontend actions.
 
 ## Conversation policy
 
@@ -1020,9 +1002,9 @@ type AssistantMove =
   | "full_reflection"
   | "branch_check"
   | "suggest_research"
-  | "offer_composition"
-  | "compose_private"
-  | "revise_private_entry"
+  | "offer_draft"
+  | "create_draft"
+  | "revise_draft"
   | "offer_publishing";
 ```
 

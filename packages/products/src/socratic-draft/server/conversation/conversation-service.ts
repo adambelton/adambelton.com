@@ -1,13 +1,22 @@
 import type {
+  AssistantMove,
+  AssistantReadiness,
   ConversationMessage,
   ConversationResponse,
   IdeaMap,
+  UserIntention,
 } from "packages/products/src/socratic-draft/shared";
 import {
   ACTIVITIES,
   ASSISTANT_MOVES,
   CONVERSATION_MESSAGE_ROLES,
+  IDEA_ACTION_TYPES,
   IDEA_DISPOSITIONS,
+  IDEA_EXPLORATION_ASSESSMENTS,
+  IDEA_IMPORTANCE_ASSESSMENTS,
+  READINESS_ACTIONS,
+  READINESS_ASSESSMENTS,
+  USER_INTENTIONS,
 } from "packages/products/src/socratic-draft/shared";
 import type { ConversationModel } from "packages/products/src/socratic-draft/server/conversation/conversation-model";
 import {
@@ -16,6 +25,7 @@ import {
   type ProposedIdea,
   type ProposedIdeaAction,
 } from "packages/products/src/socratic-draft/server/idea-map";
+import { TestConversationModel } from "packages/products/src/socratic-draft/server/testing/test-conversation-model";
 
 const DEFAULT_CONVERSATION_ID = "draft-conversation";
 export const MAX_CONVERSATION_INPUT_BYTES = 32 * 1024;
@@ -26,7 +36,13 @@ const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
   "You are The Socratic Draft, a calm writing companion.",
   "Help the user examine one rough thought at a time.",
   "Ask one useful question or offer one concise reflection.",
-  "Do not rewrite the user's thought yet.",
+  "All work in this operation is discovery because no draft exists. Do not claim that composition has begun or that a draft exists.",
+  "Follow explicit user direction about the idea to focus on and whether they want guidance, reflection, or continued exploration.",
+  "Choose exactly one discovery move that matches the response. An offer_draft move may offer a future draft without creating one.",
+  "Assess readiness separately for reflect and compose. Readiness is advisory and must preserve meaningful uncertainty rather than blocking explicit user intention.",
+  "Return one readiness entry for reflect and one for compose. Use not_ready, ready_with_uncertainty, or ready; ready_with_uncertainty requires a concise grounded explanation of the important unresolved uncertainty.",
+  "Reflection is ready only when you can accurately state the current shape without flattening it. Composition is ordinarily ready only after a full reflection has been confirmed or refined and enough of the user's own language exists, but an explicit early composition request remains valid user intention even when readiness is not_ready or ready_with_uncertainty.",
+  "Recognise explore, reflect, or compose intention only when the user expresses it. A compose intention does not create a draft in this operation.",
   "Keep the response brief, grounded, and humane.",
   "Use the supplied idea map to avoid repeating resolved questions and respect user dispositions.",
   "Return the response using the supplied structured output format.",
@@ -47,12 +63,64 @@ const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
 ].join(" ");
 const MAX_CONTEXT_SUBSTANCE_CHARACTERS = 8_000;
 
+export const DISCOVERY_ASSISTANT_MOVES = [
+  ASSISTANT_MOVES.askForExample,
+  ASSISTANT_MOVES.branchCheck,
+  ASSISTANT_MOVES.challenge,
+  ASSISTANT_MOVES.clarify,
+  ASSISTANT_MOVES.distinguish,
+  ASSISTANT_MOVES.fullReflection,
+  ASSISTANT_MOVES.offerDraft,
+  ASSISTANT_MOVES.partialReflection,
+  ASSISTANT_MOVES.probe,
+  ASSISTANT_MOVES.suggestResearch,
+  ASSISTANT_MOVES.surfacePerspective,
+] as const;
+
+const READINESS_ACTION_VALUES = Object.values(READINESS_ACTIONS);
+const READINESS_ASSESSMENT_VALUES = Object.values(READINESS_ASSESSMENTS);
+const USER_INTENTION_VALUES = Object.values(USER_INTENTIONS);
+const ACTIVE_IDEA_DISPOSITION_VALUES = [IDEA_DISPOSITIONS.active] as const;
+const IDEA_EXPLORATION_ASSESSMENT_VALUES = Object.values(
+  IDEA_EXPLORATION_ASSESSMENTS,
+);
+const IDEA_IMPORTANCE_ASSESSMENT_VALUES = Object.values(
+  IDEA_IMPORTANCE_ASSESSMENTS,
+);
+const IDEA_ACTION_TYPE_VALUES = Object.values(IDEA_ACTION_TYPES);
+
 export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
   name: "socratic_draft_conversation",
   schema: {
     type: "object",
     properties: {
       response: { type: "string" },
+      move: {
+        type: "string",
+        enum: DISCOVERY_ASSISTANT_MOVES,
+      },
+      assistantReadiness: {
+        type: "array",
+        minItems: 2,
+        maxItems: 2,
+        items: {
+          type: "object",
+          properties: {
+            action: { type: "string", enum: READINESS_ACTION_VALUES },
+            assessment: {
+              type: "string",
+              enum: READINESS_ASSESSMENT_VALUES,
+            },
+            explanation: { type: ["string", "null"] },
+          },
+          required: ["action", "assessment", "explanation"],
+          additionalProperties: false,
+        },
+      },
+      userIntention: {
+        type: ["string", "null"],
+        enum: [...USER_INTENTION_VALUES, null],
+      },
       proposedIdeas: {
         anyOf: [
           {
@@ -69,17 +137,20 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
                   maxItems: 3,
                   items: { type: "string" },
                 },
-                disposition: { type: "string", enum: ["active"] },
+                disposition: {
+                  type: "string",
+                  enum: ACTIVE_IDEA_DISPOSITION_VALUES,
+                },
                 assistantAssessment: {
                   type: "object",
                   properties: {
                     exploration: {
                       type: "string",
-                      enum: ["emerging", "developing", "well_explored"],
+                      enum: IDEA_EXPLORATION_ASSESSMENT_VALUES,
                     },
                     importance: {
                       type: "string",
-                      enum: ["background", "supporting", "central"],
+                      enum: IDEA_IMPORTANCE_ASSESSMENT_VALUES,
                     },
                   },
                   required: ["exploration", "importance"],
@@ -111,7 +182,7 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
                 ideaId: { type: "string" },
                 action: {
                   type: "string",
-                  enum: ["correct", "dismiss", "focus", "park", "reopen", "satisfy"],
+                  enum: IDEA_ACTION_TYPE_VALUES,
                 },
                 userInterpretation: { type: ["string", "null"] },
               },
@@ -123,7 +194,14 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
         ],
       },
     },
-    required: ["response", "proposedIdeas", "ideaActions"],
+    required: [
+      "response",
+      "move",
+      "assistantReadiness",
+      "userIntention",
+      "proposedIdeas",
+      "ideaActions",
+    ],
     additionalProperties: false,
   },
 } as const;
@@ -155,7 +233,7 @@ export class ConversationService {
   private readonly conversationModel: ConversationModel;
 
   constructor({
-    conversationModel = new StaticConversationModel(),
+    conversationModel = new TestConversationModel(),
   }: ConversationServiceDependencies = {}) {
     this.conversationModel = conversationModel;
   }
@@ -180,15 +258,9 @@ export class ConversationService {
         content: structured.response,
       },
       activity: ACTIVITIES.discovery,
-      move: ASSISTANT_MOVES.probe,
-      assistantReadiness: [],
-      userIntention: null,
-      suggestedReplies: [
-        {
-          label: "Start with a thought",
-          message: request.message,
-        },
-      ],
+      move: structured.move,
+      assistantReadiness: structured.assistantReadiness,
+      userIntention: structured.userIntention,
       proposedIdeas: structured.proposedIdeas,
       proposedIdeaActions: structured.proposedIdeaActions,
     };
@@ -211,18 +283,46 @@ export function measureConversationRequestInputBytes(
 }
 
 function createConversationModelRequest(request: ConversationServiceRequest) {
+  const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
+  const currentMessage = {
+    role: CONVERSATION_MESSAGE_ROLES.user,
+    content: request.message,
+  } as const;
   return {
     maxOutputTokens: MAX_CONVERSATION_OUTPUT_TOKENS,
     outputFormat: CONVERSATION_MODEL_OUTPUT_FORMAT,
-    system: `${SOCRATIC_DRAFT_SYSTEM_PROMPT} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`,
-    messages: [
-      ...request.previousMessages,
-      {
-        role: CONVERSATION_MESSAGE_ROLES.user,
-        content: request.message,
-      },
-    ],
+    system,
+    messages: selectBoundedConversationMessages({
+      currentMessage,
+      previousMessages: request.previousMessages,
+      system,
+    }),
   };
+}
+
+function selectBoundedConversationMessages(input: {
+  currentMessage: ConversationMessage;
+  previousMessages: ConversationMessage[];
+  system: string;
+}) {
+  const messages = [input.currentMessage];
+  for (let index = input.previousMessages.length - 1; index >= 0; index -= 1) {
+    const candidate = [input.previousMessages[index]!, ...messages];
+    if (
+      measureConversationInputBytes({ messages: candidate, system: input.system }) >
+      MAX_CONVERSATION_INPUT_BYTES
+    ) {
+      break;
+    }
+    messages.unshift(input.previousMessages[index]!);
+  }
+  while (
+    messages.length > 1 &&
+    messages[0]?.role === CONVERSATION_MESSAGE_ROLES.assistant
+  ) {
+    messages.shift();
+  }
+  return messages;
 }
 
 export function createBoundedIdeaContext(ideaMap: IdeaMap | undefined) {
@@ -270,6 +370,9 @@ function boundText(value: string, maximumCharacters: number) {
 
 function parseStructuredResponse(content: string): {
   response: string;
+  move: AssistantMove;
+  assistantReadiness: AssistantReadiness[];
+  userIntention: UserIntention | null;
   proposedIdeas: ProposedIdea[] | null;
   proposedIdeaActions: ProposedIdeaAction[] | null;
 } {
@@ -284,6 +387,13 @@ function parseStructuredResponse(content: string): {
     ) {
       return {
         response: parsed.response.trim() || DEFAULT_ASSISTANT_MESSAGE,
+        move: parseAssistantMove("move" in parsed ? parsed.move : null),
+        assistantReadiness: parseAssistantReadiness(
+          "assistantReadiness" in parsed ? parsed.assistantReadiness : null,
+        ),
+        userIntention: parseUserIntention(
+          "userIntention" in parsed ? parsed.userIntention : null,
+        ),
         proposedIdeas:
           "proposedIdeas" in parsed
             ? parseProposedIdeas(parsed.proposedIdeas)
@@ -298,6 +408,7 @@ function parseStructuredResponse(content: string): {
     if (looksLikeStructuredOutput(trimmed)) {
       return {
         response: DEFAULT_ASSISTANT_MESSAGE,
+        ...createDefaultDiscoveryMetadata(),
         proposedIdeas: null,
         proposedIdeaActions: null,
       };
@@ -306,9 +417,70 @@ function parseStructuredResponse(content: string): {
 
   return {
     response: trimmed || DEFAULT_ASSISTANT_MESSAGE,
+    ...createDefaultDiscoveryMetadata(),
     proposedIdeas: null,
     proposedIdeaActions: null,
   };
+}
+
+const DISCOVERY_MOVES = new Set<AssistantMove>(DISCOVERY_ASSISTANT_MOVES);
+
+function createDefaultDiscoveryMetadata(): {
+  move: AssistantMove;
+  assistantReadiness: AssistantReadiness[];
+  userIntention: UserIntention | null;
+} {
+  return {
+    move: ASSISTANT_MOVES.probe,
+    assistantReadiness: [],
+    userIntention: null,
+  };
+}
+
+function parseAssistantMove(value: unknown): AssistantMove {
+  return typeof value === "string" && DISCOVERY_MOVES.has(value as AssistantMove)
+    ? (value as AssistantMove)
+    : ASSISTANT_MOVES.probe;
+}
+
+function parseAssistantReadiness(value: unknown): AssistantReadiness[] {
+  if (!Array.isArray(value)) return [];
+  const actions = new Set<string>();
+  const readiness: AssistantReadiness[] = [];
+  for (const item of value.slice(0, 2)) {
+    if (typeof item !== "object" || item === null) continue;
+    const action = "action" in item ? item.action : null;
+    const assessment = "assessment" in item ? item.assessment : null;
+    if (
+      (action !== READINESS_ACTIONS.reflect && action !== READINESS_ACTIONS.compose) ||
+      (assessment !== READINESS_ASSESSMENTS.notReady &&
+        assessment !== READINESS_ASSESSMENTS.ready &&
+        assessment !== READINESS_ASSESSMENTS.readyWithUncertainty) ||
+      actions.has(action)
+    ) continue;
+    const explanation = "explanation" in item ? item.explanation : null;
+    if (
+      assessment === READINESS_ASSESSMENTS.readyWithUncertainty &&
+      (typeof explanation !== "string" || explanation.trim().length === 0)
+    ) continue;
+    readiness.push({
+      action,
+      assessment,
+      ...(typeof explanation === "string" && explanation.trim()
+        ? { explanation: explanation.trim() }
+        : {}),
+    });
+    actions.add(action);
+  }
+  return readiness;
+}
+
+function parseUserIntention(value: unknown): UserIntention | null {
+  return value === USER_INTENTIONS.explore ||
+    value === USER_INTENTIONS.reflect ||
+    value === USER_INTENTIONS.compose
+    ? value
+    : null;
 }
 
 function looksLikeStructuredOutput(content: string) {
@@ -319,12 +491,4 @@ function stripJsonFence(content: string) {
   return content.startsWith("```json") && content.endsWith("```")
     ? content.slice(7, -3).trim()
     : content;
-}
-
-class StaticConversationModel implements ConversationModel {
-  async createResponse(): Promise<{ content: string }> {
-    return {
-      content: DEFAULT_ASSISTANT_MESSAGE,
-    };
-  }
 }

@@ -112,4 +112,31 @@ git diff --check
 
 ## Status
 
-Proposed. Awaiting approval.
+Complete.
+
+Implemented on 2 August 2026.
+
+## Approval record
+
+Approved by Adam on 2 August 2026 after review against the complete current
+product documentation.
+
+- Separating composition intention from composition execution is intentional.
+  This task may recognise a direct request, express readiness, or offer
+  composition, but Task 031 performs the operation that creates the canonical
+  draft.
+- Every interaction implemented here remains discovery. A model-selected or
+  server-derived activity must not cause this task to emit composition activity.
+- Subtle client steering communicates ordinary user intention and existing idea
+  commands; the client does not choose assistant moves or introduce a persistent
+  mode selector.
+- Suggested replies are not part of this task or the current product contract.
+  They may be reconsidered later only for conversation steering and only under
+  the canonical architecture's strict prohibition on suggested substantive
+  language.
+- The structured result, validation and degraded behaviour, exact steering
+  controls, deterministic evaluation cases, and bounded-context selection remain
+  implementation decisions explicitly delegated to this task.
+- The Task 030/031 boundary must not be reopened merely because composition
+  execution is deferred. Reconsider it only if implementation exposes a concrete
+  contradiction with a higher-authority rule or genuinely new evidence.

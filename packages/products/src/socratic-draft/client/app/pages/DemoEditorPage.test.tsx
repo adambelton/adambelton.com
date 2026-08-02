@@ -203,6 +203,5 @@ function conversationResponse(conversationId: string) {
     move: "probe",
     assistantReadiness: [],
     userIntention: null,
-    suggestedReplies: [],
   };
 }

@@ -133,7 +133,6 @@ describe("respondInWorkspace", () => {
             move: "clarify",
             assistantReadiness: [],
             userIntention: null,
-            suggestedReplies: [],
             proposedIdeas: null,
             proposedIdeaActions: [{ ideaId: "idea-1", action: "dismiss" }],
           };

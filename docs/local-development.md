@@ -113,6 +113,35 @@ Limit a diagnostic run to a smaller number of turns with
 RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true EVALUATION_MAX_TURNS=1 pnpm evaluate:socratic-draft
 ```
 
+Run the shorter hosted contract and product-policy check with:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm test:hosted
+```
+
+This check is deliberately excluded from CI. Run it only when real hosted model
+usage and its cost are intended.
+
+## Socratic Draft Browser Tests
+
+Install the Chromium browser used by Playwright once:
+
+```txt
+pnpm exec playwright install chromium
+```
+
+Run the deterministic discovery flow with:
+
+```txt
+pnpm test:e2e
+```
+
+For local debugging, use `pnpm test:e2e:headed` or `pnpm test:e2e:ui`.
+Playwright starts a dedicated Socratic Draft test API on port 8788 and test
+client on port 3000. These test hosts live inside the product package and do not
+start the website/API hosts, authenticate a real user, connect to Postgres, or
+call a hosted model.
+
 ## Client Host
 
 The Vite client in `apps/client` is the local website host.

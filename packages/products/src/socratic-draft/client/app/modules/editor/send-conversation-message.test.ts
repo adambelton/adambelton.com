@@ -25,7 +25,6 @@ describe("sendConversationMessage", () => {
               move: "probe",
               assistantReadiness: [],
               userIntention: null,
-              suggestedReplies: [],
               expiresAt: "2026-08-02T12:00:00.000Z",
             },
           }),

@@ -57,11 +57,6 @@ export const USER_INTENTIONS = {
 export type UserIntention =
   (typeof USER_INTENTIONS)[keyof typeof USER_INTENTIONS];
 
-export interface SuggestedReply {
-  label: string;
-  message: string;
-}
-
 export const IDEA_EXPLORATION_ASSESSMENTS = {
   emerging: "emerging",
   developing: "developing",
@@ -215,7 +210,6 @@ export interface ConversationResponse {
   move: AssistantMove;
   assistantReadiness: AssistantReadiness[];
   userIntention: UserIntention | null;
-  suggestedReplies: SuggestedReply[];
   ideaMap: IdeaMap;
 }
 

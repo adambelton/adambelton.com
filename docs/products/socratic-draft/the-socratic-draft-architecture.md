@@ -12,6 +12,10 @@ durable technical boundaries through which that product should develop. Task
 proposals still own concrete implementation scope, file changes, contracts, and
 validation. This document is not approval to implement future behaviour.
 
+`docs/products/socratic-draft/terminology.md` is the canonical naming reference
+for the concepts defined by this architecture. It clarifies their grammatical
+and code-level distinctions without changing these boundaries.
+
 The architecture deliberately describes both a small baseline and a richer
 direction. The baseline must not collapse capability boundaries in ways that make
 the intended product difficult to develop later.
@@ -218,6 +222,13 @@ Later direction:
 - better handling of ambiguity, contradiction, examples, and silence;
 - explanations of why a line of inquiry appears important;
 - adaptation to preferences about guidance, directness, and depth.
+
+Suggested replies are not part of the current product contract or baseline. They
+may be reconsidered only if observed use shows that people need more help steering
+the conversation. If introduced, they must express direction, selection,
+confirmation, or authorisation only. They must never suggest substantive
+answers, feelings, claims, interpretations, examples, or language that could be
+mistaken for the user's own discovered idea material.
 
 ### Idea map
 

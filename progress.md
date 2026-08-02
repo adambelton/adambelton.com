@@ -14,7 +14,30 @@ meaningful discovery and composition readiness, approved draft revisions, manual
 interpretation, preference learning, a complete demo session, calibrated usage
 protection, publishing, and admin visibility.
 
+Task 030 has been completed. Its implementation preserves the intentional
+boundary: discovery can recognise composition readiness and intention while Task
+031 performs canonical draft creation.
+
+The Socratic Draft now has a canonical terminology reference distinguishing
+artifacts, activities, operations, assistant moves, readiness, intention,
+commands, events, and lifecycle facts. In particular, a `Draft` is the writing,
+composing is work performed on it, and `Composition` is the activity concerned
+with that work.
+
+The repository now has deterministic Playwright coverage for the Socratic Draft
+discovery flow. It runs against dedicated product-owned test client/API hosts,
+an in-memory product store, and a scripted conversation model without involving
+the website/API hosts, authentication, Postgres, or OpenAI. GitHub Actions runs
+the deterministic test, typecheck, build, and browser suite; an opt-in real-model
+contract evaluation remains outside CI.
+
 ## Implemented
+
+- Dedicated Socratic Draft Playwright testing hosts and a comprehensive discovery-session browser test covering coherent multi-idea exploration, enrichment, assessments, unresolved questions, every visible idea disposition action, user correction, focus transfer, request state, conversation ordering, and clearing without host infrastructure.
+- Product-owned deterministic `TestConversationModel` for unit, integration, and browser scenarios.
+- GitHub Actions validation for tests, typecheck, build, and Playwright Chromium.
+- Opt-in hosted Socratic Draft contract and product-policy evaluation, excluded from CI.
+- Socratic Draft client tests and hosted evaluations are colocated with the product; host and infrastructure packages retain only their mounting and adapter tests.
 
 - Monorepo structure with `apps/client`, `apps/api`, and the intended `packages/*` boundaries.
 - Root `pnpm` workspace configuration.
@@ -58,6 +81,25 @@ protection, publishing, and admin visibility.
 - Socratic Draft interaction contracts separate discovery/composition activity,
   assistant moves, action-specific assistant readiness, and explicit user
   intention without a general conversation-state or lifecycle aggregate.
+- Socratic Draft discovery now selects a grounded assistant move rather than
+  returning a fixed probe, assesses reflection and composition readiness
+  independently, and recognises explicit explore, reflect, and compose intention.
+- The provider-neutral conversation schema derives domain enum values from
+  product-owned `as const` sources, with one explicit discovery-move subset shared
+  by schema generation and semantic validation.
+- Pre-draft activity remains server-derived discovery. An early composition
+  request remains visible intention even when the assistant reports important
+  uncertainty, and `offer_draft` does not claim that a draft already exists.
+- Invalid move, readiness, or intention classifications degrade independently to
+  safe discovery metadata without corrupting the idea map or exposing structured
+  output as conversation text.
+- Conversation model context combines the bounded idea-map view with the newest
+  coherent retained conversation suffix that fits under the complete-input
+  boundary; truncated context never begins with an orphaned assistant reply.
+- Conversation steering remains natural language plus explicit idea controls.
+  The product has no suggested-reply contract, move buttons, persistent mode
+  selector, or readiness meter; important uncertainty is explained in the
+  assistant's conversational response.
 - Workspace orchestration loads conversation context, invokes the conversation
   capability, retains complete turns through the product-owned store operation,
   and reports retained-turn events only after successful persistence.
@@ -176,7 +218,6 @@ protection, publishing, and admin visibility.
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
 - Draft creation and collaborative editing from a conversation.
-- Meaningful discovery and composition-readiness behaviour.
 - Manual draft-edit interpretation and preference learning.
 - Complete demo copy and export flow.
 - Publishing flow from private drafts to public writing.
@@ -204,4 +245,4 @@ protection, publishing, and admin visibility.
 
 ## Next recommended task
 
-Task 030 — Meaningful discovery and composition readiness.
+Task 031 — Private drafts and approved revision proposals.
