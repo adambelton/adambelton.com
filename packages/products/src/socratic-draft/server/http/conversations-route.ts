@@ -122,6 +122,9 @@ export function createConversationsRoute({
     const draftStore = getPersistentDraftStore
       ? await getPersistentDraftStore(context.req.raw)
       : null;
+    const hasDraft = Boolean(
+      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+    );
     if (request.draftSelection && !await validateDraftSelection({
       conversationId,
       drafts: draftStore,
@@ -150,6 +153,7 @@ export function createConversationsRoute({
       conversations: conversationStore,
       draftSelection: request.draftSelection,
       draftChange: request.draftChange,
+      hasDraft,
     });
 
     if (

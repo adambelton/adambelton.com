@@ -19,8 +19,13 @@ export class LlmDraftModelAdapter
     const response = await createDraftMessage(this.llmClient, {
       maxTokens: 8_192,
       system: [
-        "Compose one continuous private draft from only the supplied user-established material.",
-        "Preserve unresolved uncertainty and useful user language.",
+        "Write one continuous private draft in the user's own voice and perspective from only the supplied user-established writing material.",
+        "The result is the writing itself, never a report about the user, the conversation, or the workspace.",
+        "Use first person whenever the supplied material is personal first-person material. Never write phrases such as 'the user reports', 'the user says', 'exact user language', or other provenance commentary.",
+        "Do not quote the user's language merely to show that it came from them; integrate useful language naturally unless an actual quotation belongs in the requested piece.",
+        "The input field names are context, not headings. Never expose labels or sections such as Synthesis, Substance, Assistant assessment, Importance, Exploration, Disposition, User interpretation, or Unresolved questions.",
+        "Unresolved questions describe uncertainty to preserve within the writing when relevant; never reproduce them as a questionnaire or internal checklist.",
+        "Do not mention the assistant, the model, the idea map, readiness, assessment, provenance, or selection mechanics.",
         "Follow the explicit instruction, including requests for deliberately early or rough writing.",
         "Return structured JSON.",
       ].join(" "),

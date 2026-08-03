@@ -7,6 +7,7 @@
     "dev:client": "pnpm --filter @adambelton/client dev",
     "dev:api": "pnpm db:generate && pnpm --filter @adambelton/api dev",
     "evaluate:socratic-draft": "pnpm --filter @adambelton/products evaluate:socratic-draft",
+    "evaluate:socratic-draft-composition": "pnpm --filter @adambelton/api evaluate:socratic-draft-composition",
     "test:hosted": "pnpm --filter @adambelton/products test:hosted",
     "db:generate": "pnpm --filter @adambelton/db prisma:generate",
     "db:validate": "pnpm --filter @adambelton/db prisma:validate",

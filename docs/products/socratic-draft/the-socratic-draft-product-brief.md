@@ -276,6 +276,11 @@ silently shape the idea by storing unconfirmed assistant hypotheses. Questions
 about audience, genre, tone, evidence, and structure belong only when the user
 has begun the corresponding composition work.
 
+These canonical writing fields use the user's first-person perspective. They do
+not report on or quote the user from an assistant's perspective, and they do not
+include assistant assessment, workspace actions, preference evidence, or the
+mechanics by which an edit was discussed.
+
 Two important dimensions are:
 
 - **exploration:** how fully the idea appears to have been understood or expressed;

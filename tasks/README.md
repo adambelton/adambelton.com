@@ -18,17 +18,18 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 033 — Conservative substantive-edit interpretation
-- 034 — Temporary explicit preferences and one guidance path
-- 035 — Complete temporary workspace lifecycle and recovery
-- 036 — Workspace copy and export
-- 037 — Content-free hosted-attempt lifecycle and accounting
-- 038 — Representative hosted-usage measurement
-- 039 — Calibrated atomic usage enforcement
-- 040 — Durable confirmed owner preferences
-- 041 — Host public-writing system
-- 042 — Socratic Draft publishing bridge
-- 043 — Admin visibility
+- 033 — Optional intended draft form
+- 034 — Conservative substantive-edit interpretation
+- 035 — Temporary explicit preferences and one guidance path
+- 036 — Complete temporary workspace lifecycle and recovery
+- 037 — Workspace copy and export
+- 038 — Content-free hosted-attempt lifecycle and accounting
+- 039 — Representative hosted-usage measurement
+- 040 — Calibrated atomic usage enforcement
+- 041 — Durable confirmed owner preferences
+- 042 — Host public-writing system
+- 043 — Socratic Draft publishing bridge
+- 044 — Admin visibility
 
 ## Completed
 

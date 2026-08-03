@@ -177,14 +177,14 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     onAttachSelection(attached);
   }
   return (
-    <section aria-labelledby="draft-title" className="grid gap-5">
+    <section aria-labelledby="draft-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto_auto] gap-5">
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
         <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
       </header>
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
       <textarea
-        className="min-h-[24rem] w-full resize-y border border-[var(--line)] bg-transparent p-4 leading-7"
+        className="h-full min-h-0 w-full resize-none overflow-y-auto border border-[var(--line)] bg-transparent p-4 leading-7"
         id="canonical-draft"
         onBlur={() => void save()}
         onChange={(event) => setBody(event.target.value)}

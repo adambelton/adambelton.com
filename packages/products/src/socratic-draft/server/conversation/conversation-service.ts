@@ -58,8 +58,13 @@ const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
   "A proposed idea disposition must be active. Disposition changes happen only through ideaActions.",
   "assistantAssessment.exploration must be emerging, developing, or well_explored; importance must be background, supporting, or central.",
   "The idea map records only material expressed by the user or assistant language the user has explicitly adopted, confirmed, corrected, or meaningfully developed.",
+  "Write every proposed idea title, synthesis, substance, and unresolved question as the user's own first-person material, not as assistant notes or a report about the user.",
+  "Never use attribution or evidence-tracking phrases such as 'the user reports', 'the user says', 'exact user report', 'the conversation shows', or quotation merely to prove provenance. Preserve useful user language naturally in first person.",
   "Never put your own hypotheses, inferred causes, possible themes, genre suggestions, audience suggestions, structural advice, practical strategies, or unconfirmed interpretations into a title, synthesis, substance, or unresolved question.",
   "Substance may organise and clarify established user material, but every claim in it must be traceable to the conversation. Do not lead the user by canonising what the idea might become.",
+  "Never put draft-edit history, saved-change mechanics, spelling or voice preferences, editing requests, proposal choices, assistant actions, or workspace instructions into canonical idea material. Those facts may guide the current response but are not the idea itself.",
+  "When an exact saved draft change is attached, proposedIdeas and ideaActions must be null. Ask what the change means without canonising an interpretation; a later user response can establish meaning in an ordinary turn.",
+  "If a canonical draft exists and the user asks to edit or revise it, do not claim that this conversation operation changed or will directly change the draft. Ask one necessary clarification when the request is ambiguous, and accurately direct the user to prepare a reviewable proposal alongside the draft. Never add the editing request to the idea map.",
   "Return at most three unresolved questions. Each must arise directly from a tension or uncertainty already expressed by the user and remain appropriate to discovery; do not introduce composition questions about audience, tone, form, evidence, or structure before a draft exists.",
   "You may use private hypotheses only to choose one useful conversational question or explicitly tentative reflection. They are transient reasoning, not idea-map content.",
   "ideaActions must be null unless the user explicitly requests focus, satisfaction, parking, dismissal, reopening, or correction. Each action uses ideaId, action, and a userInterpretation string only for correction; never target a newly proposed idea.",
@@ -134,12 +139,19 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
               properties: {
                 id: { type: ["string", "null"] },
                 title: { type: "string" },
-                synthesis: { type: "string" },
-                substance: { type: "string" },
+                synthesis: {
+                  type: "string",
+                  description: "A concise first-person articulation in the user's own perspective, with no attribution or assistant-facing provenance language.",
+                },
+                substance: {
+                  type: "string",
+                  description: "Rich first-person user-established material, never a transcript, report about the user, preference record, or editing workflow.",
+                },
                 unresolvedQuestions: {
                   type: "array",
                   maxItems: 3,
                   items: { type: "string" },
+                  description: "First-person questions grounded in unresolved user-established meaning, excluding editing, preference, format, and workflow questions.",
                 },
                 disposition: {
                   type: "string",
@@ -217,6 +229,7 @@ export interface ConversationServiceRequest {
   ideaMap?: IdeaMap;
   draftSelection?: DraftSelection;
   draftChange?: DraftChange;
+  hasDraft?: boolean;
 }
 
 export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
@@ -293,7 +306,9 @@ function createConversationModelRequest(request: ConversationServiceRequest) {
     ? ` A canonical draft exists. The user explicitly attached the exact saved change from revision ${request.draftChange.fromRevision} to revision ${request.draftChange.toRevision} for discussion only. Do not treat it as an interpretation, preference, or authorisation to change the draft. Removed text: ${JSON.stringify(request.draftChange.removedText)} Added text: ${JSON.stringify(request.draftChange.addedText)}`
     : request.draftSelection
     ? ` A canonical draft exists. The user explicitly attached this exact passage from canonical draft revision ${request.draftSelection.baseDraftRevision} for discussion only; it does not authorize a draft change: ${JSON.stringify(request.draftSelection.selectedText)}`
-    : " No canonical draft exists in this operation.";
+    : request.hasDraft
+      ? " A canonical draft exists, but no draft text is attached to this conversation operation. Conversation alone cannot change it; revision requests must lead to a reviewable proposal alongside the draft."
+      : " No canonical draft exists in this operation.";
   const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT}${draftContext} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
   const currentMessage = {
     role: CONVERSATION_MESSAGE_ROLES.user,

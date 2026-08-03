@@ -441,6 +441,10 @@ into another shallow identity.
 
 The idea map records material expressed by the user or assistant language the
 user has explicitly adopted, confirmed, corrected, or meaningfully developed.
+Titles, syntheses, substance, and unresolved questions present that material in
+the user's own first-person perspective. They must not describe the user from an
+assistant or analyst perspective, quote the user as evidence, or expose how the
+workspace produced the material.
 Assistant-generated hypotheses may guide a transient conversational move, but
 they are not canonical idea material and must not silently enter titles,
 syntheses, substance, unresolved questions, or the editor UI. Qualitative
@@ -679,6 +683,13 @@ assistant do not become canonical idea-map synthesis, substance, or unresolved
 questions unless the user later adopts, confirms, corrects, or meaningfully
 develops them. Prompt policy is backed by a hosted behavioural regression
 scenario because structured output alone cannot prove semantic provenance.
+
+Draft composition receives only user-facing writing material: an idea's title,
+synthesis, substance, and grounded unresolved questions. Assistant assessment,
+disposition, user-interpretation workflow state, provenance, and workspace
+instructions remain useful product state but are not composition source
+material. A composed draft is continuous user-authored writing, not an
+assistant's report about the user or a rendering of idea-map field labels.
 
 ## 040 — Hosts Render Product-Owned Breadcrumb Metadata
 

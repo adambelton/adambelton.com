@@ -13,7 +13,7 @@ const idea: Idea = {
   id: "idea-1",
   title: "Authorship",
   synthesis: "Review preserves authorship.",
-  substance: "The user remains responsible for accepted language.",
+  substance: "I remain responsible for accepted language.",
   unresolvedQuestions: [],
   assistantAssessment: { exploration: "well_explored", importance: "central" },
   userInterpretation: null,

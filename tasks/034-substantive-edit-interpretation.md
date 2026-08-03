@@ -1,4 +1,4 @@
-# Task 033 — Interpret substantive draft changes conservatively
+# Task 034 — Interpret substantive draft changes conservatively
 
 ## Goal
 
@@ -21,7 +21,7 @@ evaluated without conflating save correctness, diff representation, and model ju
 - Offer optional commentary only when useful or explicitly requested.
 - Offer meaningful change information to the idea map through its public operation.
 - Let the user suppress, reject, or correct an interpretation.
-- Expose minimized preference evidence for Task 034 without retaining a preference.
+- Expose minimized preference evidence for Task 035 without retaining a preference.
 
 ## Out of scope
 

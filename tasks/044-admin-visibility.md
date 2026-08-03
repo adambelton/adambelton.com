@@ -1,4 +1,4 @@
-# Task 043 — Add basic owner admin visibility
+# Task 044 — Add basic owner admin visibility
 
 ## Goal
 
@@ -30,8 +30,8 @@ and data minimisation** without extending the private workspace model.
   authoritative. Non-owner responses must not reveal whether admin data exists.
 - The allowed baseline fields are demo email, derived email domain, product
   accessed, last relevant access, request count/outcome aggregates, and the
-  provider-neutral model-usage fields persisted by Task 037 and governed by
-  Task 039.
+  provider-neutral model-usage fields persisted by Task 038 and governed by
+  Task 040.
 - Admin responses must not contain prompts, conversation messages, idea-map
   content, drafts, proposals, preferences, generated prose, IP addresses,
   user-agent strings, behavioral profiles, provider credentials, or internal

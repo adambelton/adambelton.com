@@ -55,7 +55,7 @@ const model = createMeasuredConversationModel(
 );
 const conversationService = new ConversationService({ conversationModel: model });
 const conversations = createTestConversationStore();
-const conversationId = conversations.createConversationId();
+const conversationId = (await conversations.createConversation()).id;
 const turnMetrics: HostedConversationTurnMetrics[] = [];
 let previousIdeaMap: IdeaMap = EMPTY_IDEA_MAP;
 
@@ -213,6 +213,23 @@ function assertScenarioBehaviour(
   assistantResponse: string,
   ideaMap: IdeaMap,
 ) {
+  if (scenarioId === "first-person-idea-material") {
+    const canonicalParts = ideaMap.ideas.flatMap((idea) => [
+      idea.title,
+      idea.synthesis,
+      idea.substance,
+      ...idea.unresolvedQuestions,
+    ]);
+    const assistantFacing = canonicalParts.find((part) =>
+      /\b(?:the )?user (?:reports?|says?|said|states?|wrote|mentions?)\b|exact user|assistant assessment|the conversation/i.test(part)
+    );
+    if (assistantFacing) {
+      throw new Error(
+        `Canonical idea material used assistant-facing provenance language: ${assistantFacing}`,
+      );
+    }
+    return;
+  }
   if (scenarioId !== "hunger-as-writing-material") return;
   const forbiddenPracticalAdvice = [
     "dietary restriction",

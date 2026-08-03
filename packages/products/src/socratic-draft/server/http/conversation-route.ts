@@ -59,6 +59,10 @@ export function createConversationRoute({
 
     const conversationId = request.conversationId;
     const draftStore = getDraftStore ? await getDraftStore(context.req.raw) : null;
+    const hasDraft = Boolean(
+      conversationId &&
+      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+    );
     if (
       request.draftSelection &&
       (!conversationId || !await validateDraftSelection({
@@ -93,6 +97,7 @@ export function createConversationRoute({
       conversations: requestConversationStore,
       draftSelection: request.draftSelection,
       draftChange: request.draftChange,
+      hasDraft,
     });
 
     if (result.status === CONVERSATION_ERROR_CODES.notFound) {

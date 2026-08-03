@@ -2,6 +2,7 @@ import type {
   DraftCompositionModel,
   RevisionProposalModel,
 } from "packages/products/src/socratic-draft/server/draft/draft-model";
+import { createDraftCompositionIdeaMaterial } from "packages/products/src/socratic-draft/server/draft/draft-model";
 import {
   DRAFT_WRITE_STATUSES,
   type DraftStore,
@@ -52,7 +53,7 @@ export class DraftService {
       throw new InvalidDraftOperationError("Select at least one idea to compose.");
     }
     const generated = await this.compositionModel.compose({
-      selectedIdeas: selected,
+      selectedIdeas: createDraftCompositionIdeaMaterial(selected),
       relevantConversationLanguage: input.relevantConversationLanguage,
       instruction: input.instruction,
     });

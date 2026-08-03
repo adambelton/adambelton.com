@@ -51,6 +51,7 @@ export async function respondInWorkspace(input: {
   conversations: ConversationStore;
   draftSelection?: DraftSelection;
   draftChange?: DraftChange;
+  hasDraft?: boolean;
 }): Promise<RespondInWorkspaceResult> {
   const workspace = input.conversationId
     ? await input.conversations.getConversationWorkspace(input.conversationId)
@@ -70,6 +71,7 @@ export async function respondInWorkspace(input: {
       ideaMap: workspace.ideaMap,
       draftSelection: input.draftSelection,
       draftChange: input.draftChange,
+      hasDraft: input.hasDraft,
     });
   } catch (error) {
     if (error instanceof ConversationInputTooLargeError) {
@@ -89,7 +91,7 @@ export async function respondInWorkspace(input: {
     input.conversationId ?? input.conversations.createConversationId();
   const proposedMap = applyProposedIdeas({
     current: workspace.ideaMap,
-    proposedIdeas: generatedResponse.proposedIdeas,
+    proposedIdeas: input.draftChange ? null : generatedResponse.proposedIdeas,
   });
   let ideaMap =
     proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
@@ -102,7 +104,7 @@ export async function respondInWorkspace(input: {
     proposedIdeaActions,
     ...generatedConversationResponse
   } = generatedResponse;
-  for (const action of proposedIdeaActions ?? []) {
+  for (const action of input.draftChange ? [] : (proposedIdeaActions ?? [])) {
     const actionResult = applyIdeaAction({
       current: ideaMap,
       ideaId: action.ideaId,

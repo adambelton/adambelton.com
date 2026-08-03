@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createDraftStore } from "packages/products/src/socratic-draft/server/draft/draft-store";
 import { TestDraftPersistence } from "packages/products/src/socratic-draft/server/testing/test-draft-persistence";
 import { DraftService } from "packages/products/src/socratic-draft/server/draft/draft-service";
+import type { DraftCompositionModelInput } from "packages/products/src/socratic-draft/server/draft/draft-model";
 import {
   DRAFT_WRITE_STATUSES,
 } from "packages/products/src/socratic-draft/server/draft/draft-store";
@@ -65,6 +66,46 @@ describe("DraftService", () => {
       proposalId: null,
       restoredFromRevision: null,
     });
+  });
+
+  it("supplies composition with writing material rather than internal idea state", async () => {
+    const persistence = new TestDraftPersistence();
+    persistence.registerWorkspace("conversation-1");
+    const compose = vi.fn(async (_input: DraftCompositionModelInput) => ({
+      body: "I remain responsible for the final words.",
+    }));
+    const service = new DraftService(
+      createDraftStore(persistence),
+      { compose },
+      { propose: async () => ({ proposedContent: "unused", intendedEffect: "unused" }) },
+    );
+
+    await service.compose({
+      conversationId: "conversation-1",
+      operationId: "compose-material",
+      selectedIdeaIds: [idea.id],
+      ideas: [idea],
+      relevantConversationLanguage: [],
+      instruction: "Compose in my voice.",
+    });
+
+    expect(compose).toHaveBeenCalledWith({
+      selectedIdeas: [{
+        id: idea.id,
+        title: idea.title,
+        synthesis: idea.synthesis,
+        substance: idea.substance,
+        unresolvedQuestions: idea.unresolvedQuestions,
+      }],
+      relevantConversationLanguage: [],
+      instruction: "Compose in my voice.",
+    });
+    expect(compose.mock.calls[0]?.[0].selectedIdeas[0]).not.toHaveProperty(
+      "assistantAssessment",
+    );
+    expect(compose.mock.calls[0]?.[0].selectedIdeas[0]).not.toHaveProperty(
+      "disposition",
+    );
   });
 
   it("preserves newer work when a manual save is stale", async () => {

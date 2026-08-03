@@ -114,6 +114,9 @@ state. It is distinct from both conversation history and the draft.
   language.
 
 Neither may silently include unconfirmed assistant hypotheses.
+Both are written from the user's first-person perspective rather than as an
+assistant report about the user. Assistant assessment and workspace mechanics
+remain separate product state and are not part of either field.
 
 ## Interaction concepts
 
