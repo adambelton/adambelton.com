@@ -11,7 +11,7 @@ import type {
   IdeaMap,
   DraftSelection,
   DraftChange,
-  DraftWorkspace,
+  DraftingState,
 } from "packages/products/src/socratic-draft/shared";
 import {
   CONVERSATION_ERROR_CODES,
@@ -54,7 +54,7 @@ interface ConversationEditorProps {
     request: IdeaActionRequest,
   ) => Promise<IdeaActionResult>;
   draftPersistenceKind?: DraftPersistenceKind;
-  initialDraftWorkspace?: DraftWorkspace | null;
+  initialDraftingState?: DraftingState | null;
 }
 
 export function ConversationEditor({
@@ -68,7 +68,7 @@ export function ConversationEditor({
   sendMessage = sendConversationMessage,
   sendIdeaAction = sendTemporaryIdeaAction,
   draftPersistenceKind = "temporary",
-  initialDraftWorkspace = null,
+  initialDraftingState = null,
 }: ConversationEditorProps) {
   const draftRef = useRef<DraftPanelHandle>(null);
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -351,7 +351,7 @@ export function ConversationEditor({
               }
               kind={draftPersistenceKind}
               hasDraftOffer={hasDraftOffer}
-              initialWorkspace={initialDraftWorkspace}
+              initialWorkspace={initialDraftingState}
               onDraftCreated={() => {
                 setHasDraftOffer(false);
                 revealSurface("draft");

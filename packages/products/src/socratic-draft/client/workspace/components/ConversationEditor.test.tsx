@@ -10,7 +10,7 @@ import {
   IDEA_DISPOSITIONS,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
-  type DraftWorkspace,
+  type DraftingState,
   type Idea,
 } from "packages/products/src/socratic-draft/shared";
 
@@ -87,7 +87,7 @@ describe("ConversationEditor", () => {
   });
 
   it("does not send a message when required draft saving fails", async () => {
-    const workspace = draftWorkspace("Canonical body.");
+    const workspace = draftingState("Canonical body.");
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(success(workspace))
       .mockResolvedValueOnce(new Response(JSON.stringify({
@@ -116,7 +116,7 @@ describe("ConversationEditor", () => {
   });
 
   it("attaches a saved edit to conversation only after explicit user action", async () => {
-    const workspace = draftWorkspace("Canonical body.");
+    const workspace = draftingState("Canonical body.");
     const changed = {
       fromRevision: 1,
       toRevision: 2,
@@ -126,7 +126,7 @@ describe("ConversationEditor", () => {
       removedText: "Canonical",
       addedText: "Personal",
     };
-    const nextWorkspace: DraftWorkspace = {
+    const nextState: DraftingState = {
       ...workspace,
       draft: { ...workspace.draft!, body: "Personal body.", currentRevision: 2 },
       revisions: [
@@ -135,7 +135,7 @@ describe("ConversationEditor", () => {
       ],
     };
     vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(
-      success({ workspace: nextWorkspace, change: changed }),
+      success({ workspace: nextState, change: changed }),
     ));
     const sendMessage = vi.fn(async () => ({
       conversationId: "conversation-1",
@@ -148,7 +148,7 @@ describe("ConversationEditor", () => {
     }));
     render(<ConversationEditor
       initialConversationId="conversation-1"
-      initialDraftWorkspace={workspace}
+      initialDraftingState={workspace}
       initialIdeaMap={{ revision: 1, ideas: [idea] }}
       sendMessage={sendMessage}
     />);
@@ -178,8 +178,10 @@ function success(data: unknown, status = 200) {
   return new Response(JSON.stringify({ ok: true, data }), { status });
 }
 
-function draftWorkspace(body: string): DraftWorkspace {
+function draftingState(body: string): DraftingState {
   return {
+    format: null,
+    formatRevision: 0,
     draft: {
       id: "draft-1",
       conversationId: "conversation-1",

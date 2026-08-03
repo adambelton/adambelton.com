@@ -221,6 +221,12 @@ It contains three connected representations:
    correctable, alongside limited qualitative assistant assessment.
 3. **Draft** contains the user's canonical current composition of selected ideas.
 
+The drafting capability also retains an optional **Draft Format**: user-provided
+free text describing the intended form of the writing. It may exist before or
+after the Draft. Absence means free-form writing. Saving it does not create a
+Draft or begin Composition, and the current baseline does not yet use it to
+change conversation, composition, revision, or publishing behaviour.
+
 Information can move in both directions. Conversation can change the idea map and
 draft. A manual draft edit can reveal a changed idea, a structural preference, or
 an unresolved question and can therefore affect later conversation.

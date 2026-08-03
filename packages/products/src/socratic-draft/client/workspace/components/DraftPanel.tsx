@@ -6,11 +6,12 @@ import {
   useState,
 } from "react";
 import {
+  DRAFT_FORMAT_MAX_LENGTH,
   REVISION_PROPOSAL_SCOPES,
   type DraftChange,
   type DraftOperationResponse,
   type DraftSelection,
-  type DraftWorkspace,
+  type DraftingState,
   type Idea,
 } from "packages/products/src/socratic-draft/shared";
 import { ComposeDraft } from "packages/products/src/socratic-draft/client/workspace/components/ComposeDraft";
@@ -18,6 +19,7 @@ import { DraftHistory } from "packages/products/src/socratic-draft/client/worksp
 import { ProposalReview } from "packages/products/src/socratic-draft/client/workspace/components/ProposalReview";
 import {
   amendDraftProposal,
+  changeDraftFormat,
   composeDraft,
   loadDraft,
   proposeDraftRevision,
@@ -41,7 +43,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   onAttachChange: (change: DraftChange) => void;
   onDraftAdvanced: () => void;
   hasDraftOffer?: boolean;
-  initialWorkspace?: DraftWorkspace | null;
+  initialWorkspace?: DraftingState | null;
 }>(function DraftPanel({
   conversationId,
   ideas,
@@ -56,39 +58,60 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
 }, ref) {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const historyButtonRef = useRef<HTMLButtonElement>(null);
-  const [workspace, setWorkspace] = useState<DraftWorkspace | null>(initialWorkspace);
+  const formatDirtyRef = useRef(false);
+  const [workspace, setWorkspace] = useState<DraftingState | null>(initialWorkspace);
   const [body, setBody] = useState(initialWorkspace?.draft?.body ?? "");
+  const [format, setFormat] = useState(initialWorkspace?.format ?? "");
   const [selection, setSelection] = useState<DraftSelection | null>(null);
   const [proposalInstruction, setProposalInstruction] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [draftChange, setDraftChange] = useState<DraftChange | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
+      setLoading(false);
       setWorkspace(null);
       setBody("");
+      setFormat("");
+      formatDirtyRef.current = false;
       setDraftChange(null);
       return;
     }
     if (initialWorkspace) {
+      setLoading(false);
       setWorkspace(initialWorkspace);
       setBody(initialWorkspace.draft?.body ?? "");
+      setFormat(initialWorkspace.format ?? "");
+      formatDirtyRef.current = false;
       setDraftChange(null);
       return;
     }
     if (!isActive) return;
+    let isCurrent = true;
+    setLoading(true);
     void loadDraft(kind, conversationId).then((loaded) => {
+      if (!isCurrent) return;
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
+      if (!formatDirtyRef.current) setFormat(loaded?.format ?? "");
       setDraftChange(null);
-    }).catch(() => setStatus("The draft workspace could not be loaded."));
+    }).catch(() => {
+      if (isCurrent) setStatus("The drafting state could not be loaded.");
+    }).finally(() => {
+      if (isCurrent) setLoading(false);
+    });
+    return () => {
+      isCurrent = false;
+    };
   }, [conversationId, initialWorkspace, isActive, kind]);
 
   async function run(
-    operation: () => Promise<DraftWorkspace | DraftOperationResponse | null>,
+    operation: () => Promise<DraftingState | DraftOperationResponse | null>,
     message: string,
+    syncFormat = false,
   ) {
     setBusy(true);
     setStatus(null);
@@ -98,6 +121,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       const nextChange = result && "workspace" in result ? result.change : null;
       setWorkspace(changed);
       setBody(changed?.draft?.body ?? "");
+      if (syncFormat || !formatDirtyRef.current) {
+        setFormat(changed?.format ?? "");
+        formatDirtyRef.current = false;
+      }
       if (changed?.draft?.currentRevision !== workspace?.draft?.currentRevision) {
         setDraftChange(nextChange);
         onDraftAdvanced();
@@ -110,6 +137,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         const current = await loadDraft(kind, conversationId).catch(() => null);
         setWorkspace(current);
         setBody(current?.draft?.body ?? body);
+        if (syncFormat) {
+          setFormat(current?.format ?? "");
+          formatDirtyRef.current = false;
+        }
       }
       return false;
     } finally {
@@ -132,13 +163,79 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
 
   useImperativeHandle(ref, () => ({ save }), [conversationId, workspace, body]);
 
+  const normalizedFormat = format.trim();
+  const savedFormat = workspace?.format ?? "";
+  const formatChanged = normalizedFormat !== savedFormat;
+  const formatControl = (
+    <section aria-labelledby="draft-format-title" className="grid gap-2 border border-[var(--line)] p-4">
+      <h2 className="font-semibold" id="draft-format-title">Draft Format</h2>
+      <label className="text-sm" htmlFor="draft-format">Optional format guidance</label>
+      <input
+        aria-describedby="draft-format-description"
+        className="border border-[var(--line)] bg-transparent px-3 py-2"
+        disabled={busy || loading}
+        id="draft-format"
+        maxLength={DRAFT_FORMAT_MAX_LENGTH}
+        onChange={(event) => {
+          formatDirtyRef.current = true;
+          setFormat(event.target.value);
+        }}
+        placeholder="Free-form writing"
+        type="text"
+        value={format}
+      />
+      <p className="text-sm text-[var(--muted)]" id="draft-format-description">
+        Saved with this writing. The assistant does not use this value yet. Leave it blank for free-form writing.
+      </p>
+      <div className="flex gap-3">
+        <button
+          className="border border-[var(--foreground)] px-3 py-2"
+          disabled={busy || loading || !formatChanged}
+          onClick={() => void run(
+            () => changeDraftFormat(kind, conversationId!, {
+              expectedFormatRevision: workspace?.formatRevision ?? 0,
+              format: normalizedFormat || null,
+            }),
+            normalizedFormat ? "Draft Format saved." : "Draft Format cleared; this writing is free-form.",
+            true,
+          )}
+          type="button"
+        >
+          Save format
+        </button>
+        <button
+          className="underline"
+          disabled={busy || loading || (!format && !savedFormat)}
+          onClick={() => {
+            formatDirtyRef.current = true;
+            setFormat("");
+            if (savedFormat) {
+              void run(
+                () => changeDraftFormat(kind, conversationId!, {
+                  expectedFormatRevision: workspace?.formatRevision ?? 0,
+                  format: null,
+                }),
+                "Draft Format cleared; this writing is free-form.",
+                true,
+              );
+            }
+          }}
+          type="button"
+        >
+          Clear format
+        </button>
+      </div>
+    </section>
+  );
+
   if (!conversationId) {
     return <p className="text-sm text-[var(--muted)]">Begin the conversation to create a draft.</p>;
   }
 
   if (!workspace?.draft) {
     return (
-      <>
+      <div className="grid gap-5">
+        {formatControl}
         <ComposeDraft
           ideas={ideas}
           isBusy={busy}
@@ -152,7 +249,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
           submitLabel={hasDraftOffer ? "Accept offer and compose" : "Compose draft"}
         />
         {status ? <p role="status">{status}</p> : null}
-      </>
+      </div>
     );
   }
 
@@ -177,7 +274,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     onAttachSelection(attached);
   }
   return (
-    <section aria-labelledby="draft-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto_auto] gap-5">
+    <section aria-labelledby="draft-title" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-5">
+      {formatControl}
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
         <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>

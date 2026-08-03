@@ -46,7 +46,7 @@ export function createTemporaryConversationRoute({
     const current = await conversationStore.getCurrentConversation();
     if (current && getTemporaryDraftStore) {
       const drafts = await getTemporaryDraftStore(context.req.raw);
-      await drafts?.deleteDraftWorkspace(current.conversation.id);
+      await drafts?.deleteDraftingState(current.conversation.id);
     }
     await conversationStore.clearCurrentConversation();
     return context.json(success(null));

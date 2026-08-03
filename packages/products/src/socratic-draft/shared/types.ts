@@ -308,7 +308,7 @@ export interface DraftChange {
 }
 
 export interface DraftOperationResponse {
-  workspace: DraftWorkspace;
+  workspace: DraftingState;
   change: DraftChange | null;
 }
 
@@ -335,13 +335,21 @@ export interface RevisionProposal {
   resolvedAt: string | null;
 }
 
-export interface DraftWorkspace {
+export const DRAFT_FORMAT_MAX_LENGTH = 200;
+
+export type DraftFormat = string;
+
+export interface DraftingState {
+  format: DraftFormat | null;
+  formatRevision: number;
   draft: Draft | null;
   revisions: DraftRevision[];
   activeProposal: RevisionProposal | null;
 }
 
-export const EMPTY_DRAFT_WORKSPACE: DraftWorkspace = {
+export const EMPTY_DRAFTING_STATE: DraftingState = {
+  format: null,
+  formatRevision: 0,
   draft: null,
   revisions: [],
   activeProposal: null,

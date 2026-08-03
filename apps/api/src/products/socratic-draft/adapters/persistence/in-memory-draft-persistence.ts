@@ -4,8 +4,8 @@ import {
   type DraftPersistence,
 } from "packages/products/src/socratic-draft/server/capabilities/drafting";
 import {
-  EMPTY_DRAFT_WORKSPACE,
-  type DraftWorkspace,
+  EMPTY_DRAFTING_STATE,
+  type DraftingState,
 } from "packages/products/src/socratic-draft/shared";
 
 export interface InMemoryDraftPersistence extends DraftPersistence {
@@ -13,7 +13,7 @@ export interface InMemoryDraftPersistence extends DraftPersistence {
 }
 
 export function createInMemoryDraftPersistence(): InMemoryDraftPersistence {
-  const workspaces = new Map<string, DraftWorkspace>();
+  const workspaces = new Map<string, DraftingState>();
   const operations = new Map<string, Set<string>>();
 
   return {
@@ -21,7 +21,7 @@ export function createInMemoryDraftPersistence(): InMemoryDraftPersistence {
       if (!workspaces.has(conversationId)) {
         workspaces.set(
           conversationId,
-          structuredClone(EMPTY_DRAFT_WORKSPACE),
+          structuredClone(EMPTY_DRAFTING_STATE),
         );
       }
     },
@@ -57,6 +57,7 @@ export function createInMemoryDraftPersistence(): InMemoryDraftPersistence {
       }
 
       if (
+        current.formatRevision !== input.expectedFormatRevision ||
         (current.draft?.currentRevision ?? null) !==
           input.expectedDraftRevision ||
         (current.activeProposal?.currentProposalRevision ?? null) !==
@@ -68,7 +69,7 @@ export function createInMemoryDraftPersistence(): InMemoryDraftPersistence {
         };
       }
 
-      const next = structuredClone(input.nextWorkspace);
+      const next = structuredClone(input.nextState);
       workspaces.set(input.conversationId, next);
       const nextCompleted = completed ?? new Set<string>();
       nextCompleted.add(input.operationId);

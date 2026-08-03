@@ -47,6 +47,73 @@ function createService() {
 }
 
 describe("DraftService", () => {
+  it("sets, changes, and clears format before a draft without creating content", async () => {
+    const { service } = createService();
+    const set = await service.changeFormat({
+      conversationId: "conversation-1",
+      operationId: "format-1",
+      expectedFormatRevision: 0,
+      format: "  Personal essay  ",
+    });
+    expect(set).toMatchObject({
+      status: DRAFT_WRITE_STATUSES.changed,
+      workspace: { format: "Personal essay", formatRevision: 1, draft: null },
+    });
+
+    const stale = await service.changeFormat({
+      conversationId: "conversation-1",
+      operationId: "format-stale",
+      expectedFormatRevision: 0,
+      format: "Case study",
+    });
+    expect(stale).toMatchObject({
+      status: DRAFT_WRITE_STATUSES.conflict,
+      workspace: { format: "Personal essay", formatRevision: 1 },
+    });
+
+    const cleared = await service.changeFormat({
+      conversationId: "conversation-1",
+      operationId: "format-clear",
+      expectedFormatRevision: 1,
+      format: "   ",
+    });
+    expect(cleared).toMatchObject({
+      status: DRAFT_WRITE_STATUSES.changed,
+      workspace: { format: null, formatRevision: 2, draft: null },
+    });
+  });
+
+  it("preserves pre-draft format through composition without supplying it to the model", async () => {
+    const persistence = new TestDraftPersistence();
+    persistence.registerWorkspace("conversation-1");
+    const compose = vi.fn(async (_input: DraftCompositionModelInput) => ({
+      body: "The original draft.",
+    }));
+    const service = new DraftService(
+      createDraftStore(persistence),
+      { compose },
+      { propose: async () => ({ proposedContent: "unused", intendedEffect: "unused" }) },
+    );
+    await service.changeFormat({
+      conversationId: "conversation-1",
+      operationId: "format-1",
+      expectedFormatRevision: 0,
+      format: "Journal entry",
+    });
+
+    const result = await service.compose({
+      conversationId: "conversation-1",
+      operationId: "compose-after-format",
+      selectedIdeaIds: [idea.id],
+      ideas: [idea],
+      relevantConversationLanguage: [],
+      instruction: "Compose.",
+    });
+
+    expect(result).toMatchObject({ workspace: { format: "Journal entry", formatRevision: 1 } });
+    expect(compose.mock.calls[0]?.[0]).not.toHaveProperty("format");
+  });
+
   it("composes a first canonical revision from explicitly selected ideas", async () => {
     const { service } = createService();
     const result = await service.compose({

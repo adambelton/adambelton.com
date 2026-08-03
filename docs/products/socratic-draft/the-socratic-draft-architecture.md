@@ -119,6 +119,19 @@ The user's canonical current composition of selected ideas. A draft can be
 composed from workspace material and then changed freely by the user. It need not
 contain every important or well-explored idea.
 
+### Draft Format and drafting state
+
+`DraftingState` is the drafting capability's persisted aggregate. It owns an
+optional user-extensible Draft Format and an independent format concurrency
+revision, plus the Draft, immutable draft revisions, and active revision
+proposal when those resources exist. Drafting state may therefore exist while
+`draft` remains null.
+
+Absence of Draft Format means free-form writing. Setting, changing, or clearing
+format does not create content, begin Composition, mutate a Draft, or alter
+conversation, composition, revision, or publishing inputs in the current
+baseline.
+
 ### Discovery and composition
 
 Discovery and composition are activities, not exclusive workspace modes:
@@ -307,6 +320,8 @@ Later direction:
 
 Owns:
 
+- optional Draft Format and its independent concurrency revision;
+- pre-Draft drafting state without empty canonical content;
 - canonical private draft content;
 - draft revision identity or concurrency token;
 - direct user edits;

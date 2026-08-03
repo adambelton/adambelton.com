@@ -82,6 +82,8 @@ model SocraticDraftConversation {
   userId              String   @map("user_id")
   nextMessagePosition Int      @default(0) @map("next_message_position")
   ideaMapRevision     Int      @default(0) @map("idea_map_revision")
+  draftFormat         String?  @map("draft_format")
+  draftFormatRevision Int      @default(0) @map("draft_format_revision")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 

@@ -4,10 +4,10 @@ import {
 } from "packages/products/src/socratic-draft/server/capabilities/drafting/ports/draft-persistence";
 import {
   DRAFT_REVISION_SOURCES,
-  EMPTY_DRAFT_WORKSPACE,
+  EMPTY_DRAFTING_STATE,
   REVISION_PROPOSAL_STATES,
   type DraftRevisionSource,
-  type DraftWorkspace,
+  type DraftingState,
   type RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
 
@@ -53,17 +53,25 @@ export interface CreateRevisionProposalInput {
   createdAt: string;
 }
 
+export interface ChangeDraftFormatInput {
+  conversationId: string;
+  operationId: string;
+  expectedFormatRevision: number;
+  format: string | null;
+}
+
 export type DraftWriteResult =
-  | { status: typeof DRAFT_WRITE_STATUSES.changed; workspace: DraftWorkspace }
-  | { status: typeof DRAFT_WRITE_STATUSES.duplicate; workspace: DraftWorkspace }
-  | { status: typeof DRAFT_WRITE_STATUSES.conflict; workspace: DraftWorkspace }
+  | { status: typeof DRAFT_WRITE_STATUSES.changed; workspace: DraftingState }
+  | { status: typeof DRAFT_WRITE_STATUSES.duplicate; workspace: DraftingState }
+  | { status: typeof DRAFT_WRITE_STATUSES.conflict; workspace: DraftingState }
   | { status: typeof DRAFT_WRITE_STATUSES.notFound }
-  | { status: typeof DRAFT_WRITE_STATUSES.proposalNotActive; workspace: DraftWorkspace };
+  | { status: typeof DRAFT_WRITE_STATUSES.proposalNotActive; workspace: DraftingState };
 
 export interface DraftStore {
-  getDraftWorkspace(conversationId: string): Promise<DraftWorkspace | null>;
+  getDraftingState(conversationId: string): Promise<DraftingState | null>;
   getCompletedDraftOperation(conversationId: string, operationId: string): Promise<DraftWriteResult | null>;
-  deleteDraftWorkspace(conversationId: string): Promise<void>;
+  deleteDraftingState(conversationId: string): Promise<void>;
+  changeDraftFormat(input: ChangeDraftFormatInput): Promise<DraftWriteResult>;
   createDraft(input: CreateDraftInput): Promise<DraftWriteResult>;
   appendDraftRevision(input: AppendDraftRevisionInput): Promise<DraftWriteResult>;
   createRevisionProposal(input: CreateRevisionProposalInput): Promise<DraftWriteResult>;
@@ -90,16 +98,17 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
     conversationId: string;
     operationId: string;
     operationKind: string;
-    current: DraftWorkspace;
-    next: DraftWorkspace;
+    current: DraftingState;
+    next: DraftingState;
   }): Promise<DraftWriteResult> {
     const result = await persistence.commit({
       conversationId: input.conversationId,
       operationId: input.operationId,
       operationKind: input.operationKind,
+      expectedFormatRevision: input.current.formatRevision,
       expectedDraftRevision: input.current.draft?.currentRevision ?? null,
       expectedProposalRevision: input.current.activeProposal?.currentProposalRevision ?? null,
-      nextWorkspace: input.next,
+      nextState: input.next,
     });
     if (result.status === DRAFT_COMMIT_STATUSES.notFound) return { status: DRAFT_WRITE_STATUSES.notFound };
     if (result.status === DRAFT_COMMIT_STATUSES.conflict) return { status: DRAFT_WRITE_STATUSES.conflict, workspace: result.workspace };
@@ -108,9 +117,36 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
   }
 
   return {
-    getDraftWorkspace: (conversationId) => persistence.load(conversationId),
+    getDraftingState: (conversationId) => persistence.load(conversationId),
     getCompletedDraftOperation: duplicate,
-    deleteDraftWorkspace: (conversationId) => persistence.delete(conversationId),
+    deleteDraftingState: (conversationId) => persistence.delete(conversationId),
+
+    async changeDraftFormat(input) {
+      const prior = await duplicate(input.conversationId, input.operationId);
+      if (prior) return prior;
+      const current =
+        (await persistence.load(input.conversationId)) ??
+        (await persistence.initialize(input.conversationId));
+      if (!current) return { status: DRAFT_WRITE_STATUSES.notFound };
+      if (current.formatRevision !== input.expectedFormatRevision) {
+        return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
+      }
+      if (current.format === input.format) {
+        return { status: DRAFT_WRITE_STATUSES.duplicate, workspace: current };
+      }
+      const next: DraftingState = {
+        ...current,
+        format: input.format,
+        formatRevision: current.formatRevision + 1,
+      };
+      return commit({
+        conversationId: input.conversationId,
+        operationId: input.operationId,
+        operationKind: "change_format",
+        current,
+        next,
+      });
+    },
 
     async createDraft(input) {
       const prior = await duplicate(input.conversationId, input.operationId);
@@ -120,7 +156,8 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
         (await persistence.initialize(input.conversationId));
       if (!current) return { status: DRAFT_WRITE_STATUSES.notFound };
       if (current.draft) return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
-      const next: DraftWorkspace = {
+      const next: DraftingState = {
+        ...current,
         draft: { id: input.draftId, conversationId: input.conversationId, body: input.body, currentRevision: 1, createdAt: input.createdAt, updatedAt: input.createdAt },
         revisions: [{ revision: 1, body: input.body, source: DRAFT_REVISION_SOURCES.initialComposition, createdAt: input.createdAt, proposalId: null, restoredFromRevision: null }],
         activeProposal: null,
@@ -136,7 +173,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       if (current.draft.currentRevision !== input.expectedRevision) return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
       if (current.draft.body === input.body) return { status: DRAFT_WRITE_STATUSES.duplicate, workspace: current };
       const revision = input.expectedRevision + 1;
-      const next: DraftWorkspace = {
+      const next: DraftingState = {
         ...current,
         draft: { ...current.draft, body: input.body, currentRevision: revision, updatedAt: input.createdAt },
         revisions: [...current.revisions, { revision, body: input.body, source: input.source, createdAt: input.createdAt, proposalId: input.proposalId ?? null, restoredFromRevision: input.restoredFromRevision ?? null }],
@@ -153,7 +190,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       if (current.activeProposal?.state === REVISION_PROPOSAL_STATES.active) {
         return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
       }
-      const next: DraftWorkspace = {
+      const next: DraftingState = {
         ...current,
         activeProposal: {
           id: input.proposalId, draftId: current.draft.id, baseDraftRevision: input.baseDraftRevision,
@@ -175,7 +212,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       if (!current?.draft || !proposal || proposal.id !== input.proposalId) return { status: DRAFT_WRITE_STATUSES.notFound };
       if (proposal.state !== REVISION_PROPOSAL_STATES.active || proposal.currentProposalRevision !== input.expectedProposalRevision) return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace: current };
       const revision = input.expectedProposalRevision + 1;
-      const next: DraftWorkspace = { ...current, activeProposal: { ...proposal, currentProposalRevision: revision, versions: [...proposal.versions, { revision, proposedContent: input.proposedContent, intendedEffect: input.intendedEffect, createdAt: input.createdAt }] } };
+      const next: DraftingState = { ...current, activeProposal: { ...proposal, currentProposalRevision: revision, versions: [...proposal.versions, { revision, proposedContent: input.proposedContent, intendedEffect: input.intendedEffect, createdAt: input.createdAt }] } };
       return commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: "amend_proposal", current, next });
     },
 
@@ -189,7 +226,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
         proposal.state !== REVISION_PROPOSAL_STATES.active &&
         proposal.state !== REVISION_PROPOSAL_STATES.stale
       ) return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace: current };
-      const next: DraftWorkspace = { ...current, activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.rejected, resolvedAt: input.createdAt } };
+      const next: DraftingState = { ...current, activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.rejected, resolvedAt: input.createdAt } };
       return commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: "reject_proposal", current, next });
     },
 
@@ -201,7 +238,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       if (!current?.draft || !proposal || proposal.id !== input.proposalId) return { status: DRAFT_WRITE_STATUSES.notFound };
       if (proposal.state !== REVISION_PROPOSAL_STATES.active) return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace: current };
       if (current.draft.currentRevision !== input.expectedDraftRevision || proposal.baseDraftRevision !== input.expectedDraftRevision) {
-        const stale: DraftWorkspace = { ...current, activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.stale } };
+        const stale: DraftingState = { ...current, activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.stale } };
         const retained = await commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: "stale_proposal", current, next: stale });
         return "workspace" in retained ? { status: DRAFT_WRITE_STATUSES.conflict, workspace: retained.workspace } : retained;
       }
@@ -211,7 +248,8 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
         ? version.proposedContent
         : current.draft.body.slice(0, proposal.originalStart) + version.proposedContent + current.draft.body.slice(proposal.originalEnd);
       const revision = current.draft.currentRevision + 1;
-      const next: DraftWorkspace = {
+      const next: DraftingState = {
+        ...current,
         draft: { ...current.draft, body, currentRevision: revision, updatedAt: input.createdAt },
         revisions: [...current.revisions, { revision, body, source: DRAFT_REVISION_SOURCES.acceptedProposal, createdAt: input.createdAt, proposalId: proposal.id, restoredFromRevision: null }],
         activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.accepted, resolvedAt: input.createdAt },

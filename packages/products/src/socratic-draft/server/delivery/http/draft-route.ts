@@ -42,8 +42,32 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       return notFound(context);
     }
     return context.json(success(
-      await resolved.drafts.getDraftWorkspace(conversationId),
+      await resolved.drafts.getDraftingState(conversationId),
     ));
+  });
+
+  route.put("/:conversationId/format", async (context) => {
+    const resolved = await resolve(context.req.raw, dependencies);
+    if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return notFound(context);
+    }
+    const body = await readBody(context.req.raw);
+    const expectedFormatRevision = body?.expectedFormatRevision;
+    const format = body?.format;
+    if (
+      typeof expectedFormatRevision !== "number" ||
+      (format !== null && typeof format !== "string")
+    ) {
+      return invalid(context);
+    }
+    return run(context, () => service(resolved.drafts, dependencies).changeFormat({
+      conversationId,
+      operationId: operationId(context.req.raw, body),
+      expectedFormatRevision,
+      format,
+    }));
   });
 
   route.post("/:conversationId/compose", async (context) => {
@@ -272,5 +296,5 @@ function invalid(context: Context, message = "The draft request is invalid.") {
 }
 
 function notFound(context: Context) {
-  return context.json(failure(DRAFT_ERROR_CODES.notFound, "The requested draft workspace was not found."), 404);
+  return context.json(failure(DRAFT_ERROR_CODES.notFound, "The requested drafting state was not found."), 404);
 }

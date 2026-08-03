@@ -733,3 +733,20 @@ Product registry definitions belong to `packages/products`; only platform-wide
 registry types belong to `packages/shared`. Repository-wide dependency tests
 enforce the allowed ownership graph so later work cannot silently erode these
 boundaries.
+
+## 042 — Draft Format Is Optional Drafting State
+
+Socratic Draft owns an optional, user-extensible free-text Draft Format inside
+`DraftingState`. Drafting state may exist before the Draft artifact; setting a
+format does not create empty draft content or begin Composition. Absence means
+free-form writing rather than a persisted `free-form` mode.
+
+Format mutations use their own revision and the drafting operation ledger for
+stale-write protection and idempotency. Temporary adapters retain the value for
+the API-process workspace lifetime, while the Prisma adapter stores it on the
+owner-scoped conversation without requiring a Draft row.
+
+The interface truthfully presents format as saved but not yet used by the
+assistant. Conversation, composition, revision, and publishing inputs remain
+unchanged; defining format semantics or downstream behaviour requires a later
+explicit product decision.

@@ -123,7 +123,7 @@ export function createConversationsRoute({
       ? await getPersistentDraftStore(context.req.raw)
       : null;
     const hasDraft = Boolean(
-      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+      (await draftStore?.getDraftingState(conversationId))?.draft,
     );
     if (request.draftSelection && !await validateDraftSelection({
       conversationId,

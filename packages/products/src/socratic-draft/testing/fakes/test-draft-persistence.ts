@@ -3,14 +3,14 @@ import {
   type DraftCommitInput,
   type DraftPersistence,
 } from "packages/products/src/socratic-draft/server/capabilities/drafting";
-import { EMPTY_DRAFT_WORKSPACE, type DraftWorkspace } from "packages/products/src/socratic-draft/shared";
+import { EMPTY_DRAFTING_STATE, type DraftingState } from "packages/products/src/socratic-draft/shared";
 
 export class TestDraftPersistence implements DraftPersistence {
-  private readonly workspaces = new Map<string, DraftWorkspace>();
+  private readonly workspaces = new Map<string, DraftingState>();
   private readonly operations = new Map<string, Set<string>>();
 
   registerWorkspace(conversationId: string) {
-    this.workspaces.set(conversationId, structuredClone(EMPTY_DRAFT_WORKSPACE));
+    this.workspaces.set(conversationId, structuredClone(EMPTY_DRAFTING_STATE));
   }
 
   async initialize(conversationId: string) {
@@ -37,12 +37,13 @@ export class TestDraftPersistence implements DraftPersistence {
       return { status: DRAFT_COMMIT_STATUSES.duplicate, workspace: structuredClone(current) } as const;
     }
     if (
+      current.formatRevision !== input.expectedFormatRevision ||
       (current.draft?.currentRevision ?? null) !== input.expectedDraftRevision ||
       (current.activeProposal?.currentProposalRevision ?? null) !== input.expectedProposalRevision
     ) {
       return { status: DRAFT_COMMIT_STATUSES.conflict, workspace: structuredClone(current) } as const;
     }
-    const next = structuredClone(input.nextWorkspace);
+    const next = structuredClone(input.nextState);
     this.workspaces.set(input.conversationId, next);
     const operations = completed ?? new Set<string>();
     operations.add(input.operationId);

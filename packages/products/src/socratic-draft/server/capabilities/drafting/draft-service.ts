@@ -10,6 +10,7 @@ import {
 } from "packages/products/src/socratic-draft/server/capabilities/drafting/draft-store";
 import { deriveDraftChange } from "packages/products/src/socratic-draft/server/capabilities/drafting/draft-change";
 import {
+  DRAFT_FORMAT_MAX_LENGTH,
   DRAFT_REVISION_SOURCES,
   REVISION_PROPOSAL_SCOPES,
   type DraftSelection,
@@ -28,7 +29,17 @@ export class DraftService {
   ) {}
 
   load(conversationId: string) {
-    return this.store.getDraftWorkspace(conversationId);
+    return this.store.getDraftingState(conversationId);
+  }
+
+  changeFormat(input: {
+    conversationId: string;
+    operationId: string;
+    expectedFormatRevision: number;
+    format: string | null;
+  }) {
+    const format = normalizeDraftFormat(input.format);
+    return this.store.changeDraftFormat({ ...input, format });
   }
 
   async compose(input: {
@@ -44,7 +55,7 @@ export class DraftService {
       input.operationId,
     );
     if (completed) return completed;
-    const workspace = await this.store.getDraftWorkspace(input.conversationId);
+    const workspace = await this.store.getDraftingState(input.conversationId);
     if (workspace?.draft) {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace };
     }
@@ -93,7 +104,7 @@ export class DraftService {
       input.operationId,
     );
     if (completed) return withDraftChange(completed, input.expectedRevision);
-    const workspace = await this.store.getDraftWorkspace(input.conversationId);
+    const workspace = await this.store.getDraftingState(input.conversationId);
     const restored = workspace?.revisions.find(
       (revision) => revision.revision === input.restoreRevision,
     );
@@ -120,7 +131,7 @@ export class DraftService {
     selection?: DraftSelection;
     userInstruction: string;
   }) {
-    const workspace = await this.store.getDraftWorkspace(input.conversationId);
+    const workspace = await this.store.getDraftingState(input.conversationId);
     if (!workspace?.draft) return { status: DRAFT_WRITE_STATUSES.notFound } as const;
     if (workspace.draft.currentRevision !== input.expectedDraftRevision) {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace } as const;
@@ -168,7 +179,7 @@ export class DraftService {
       input.operationId,
     );
     if (completed) return completed;
-    const workspace = await this.store.getDraftWorkspace(input.conversationId);
+    const workspace = await this.store.getDraftingState(input.conversationId);
     const proposal = workspace?.activeProposal;
     if (!workspace?.draft || !proposal || proposal.id !== input.proposalId) {
       return { status: DRAFT_WRITE_STATUSES.notFound } as const;
@@ -250,6 +261,18 @@ function requireExactBody(body: string) {
     throw new InvalidDraftOperationError("Draft content cannot be empty.");
   }
   return body;
+}
+
+function normalizeDraftFormat(format: string | null) {
+  if (format === null) return null;
+  const value = format.trim();
+  if (!value) return null;
+  if (value.length > DRAFT_FORMAT_MAX_LENGTH) {
+    throw new InvalidDraftOperationError(
+      `Draft Format must be ${DRAFT_FORMAT_MAX_LENGTH} characters or fewer.`,
+    );
+  }
+  return value;
 }
 
 function proposalRange(

@@ -28,7 +28,7 @@ describe("in-memory draft persistence", () => {
 
     expect(created.status).toBe(DRAFT_WRITE_STATUSES.changed);
     expect(retried.status).toBe(DRAFT_WRITE_STATUSES.duplicate);
-    expect(await store.getDraftWorkspace("conversation-1")).toMatchObject({
+    expect(await store.getDraftingState("conversation-1")).toMatchObject({
       draft: { body: "An early draft.", currentRevision: 1 },
     });
   });
