@@ -49,6 +49,30 @@ the intended product difficult to develop later.
 - Making The Socratic Draft responsible for site-level publishing, auth, billing,
   or provider implementations.
 
+## Source organisation
+
+The product's source tree makes its architectural roles explicit:
+
+```txt
+socratic-draft/
+├── shared/                 product vocabulary and contracts
+├── client/                 pages, workspace interface, routes, and UI actions
+├── server/
+│   ├── capabilities/       conversation, Idea Map, and drafting rules
+│   ├── application/        complete operations coordinating capabilities
+│   └── delivery/           inbound HTTP translation
+└── testing/
+    ├── fakes/              deterministic external substitutes
+    ├── fixtures/           reusable product states
+    ├── browser/            complete user journeys
+    └── evaluations/        real-model behavioural checks
+```
+
+Ports live inside the capability that owns the need. Concrete AI and temporary
+persistence adapters live with the API host; durable Prisma adapters live with
+the database package. Tests of one behaviour remain beside that behaviour, but
+production code never imports test support.
+
 ## Core workspace model
 
 A workspace is the private body of work in which discovery and composition take

@@ -1,6 +1,6 @@
-export * from "packages/products/src/socratic-draft/client/app/routes";
+export * from "packages/products/src/socratic-draft/client/routes/routes";
 export type {
   ProductAppComponents,
   ProductNavigationLink,
   ProductNavigationLinkProps,
-} from "packages/products/src/socratic-draft/client/app/product-app-components";
+} from "packages/products/src/socratic-draft/client/product-app-components";

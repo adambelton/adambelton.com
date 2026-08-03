@@ -30,6 +30,17 @@ Code should be easy to change without surprising unrelated parts of the system.
 
 When a directory grows, check whether it still has a clear public entry point and a coherent story. Deep module trees are acceptable only when they reduce cognitive load.
 
+Repository paths are explanatory names. Follow the ownership → architectural
+role → capability → responsibility order defined in `README.md` and
+`docs/architecture.md`. A new file should have one obvious place in that tree.
+If several locations appear equally plausible, resolve the ownership or role
+ambiguity before adding the file.
+
+Suffixes such as `service`, `port`, `adapter`, `store`, `persistence`,
+`fixture`, and `fake` use the repository vocabulary in `README.md`; they are not
+interchangeable. Avoid generic `manager`, `helper`, or `util` names when the
+product operation can be named directly.
+
 ## 3. Tested For Regression
 
 Tests should protect behaviour the project relies on.
@@ -53,3 +64,5 @@ Before completing a task, review changed code against these questions:
 - Are shared contracts defined once in the right package?
 - Are tests focused on behaviour and contracts rather than internals?
 - Would a failure point to a real regression?
+- Does the path identify the owner, role, capability, and responsibility?
+- Is production code independent from test support?

@@ -14,7 +14,65 @@ Client-side route gates are UX affordances only. API/server authorization is the
 
 Shared package boundaries are created early to keep later implementation small and deliberate.
 
+## Organisation system
+
+Repository structure communicates architecture. Every directory level is
+organised by ownership first, architectural role second, and business capability
+third. The repository-wide tree and plain-language vocabulary are documented in
+the root `README.md`. Each product owns its detailed tree, integration guide,
+and diagnostic map in a README at the product root. Both levels are part of
+this architecture.
+
+This order exists to optimise for diagnosis and safe change. Ownership identifies
+who is authoritative about meaning. Architectural role separates rules,
+coordination, delivery, and mechanisms. Capability keeps related product
+decisions together. File responsibility limits the reasons one implementation
+unit changes. A path should therefore answer progressively more specific
+questions rather than mixing unrelated classification systems at one level.
+
+The organisation is governed by these principles:
+
+- **Paths are operational maps.** A contributor should be able to route a bug
+  report from user-visible behaviour to its likely owner without reconstructing
+  the repository's history.
+- **Policy is independent from mechanism.** Product and platform capabilities
+  own meaning; hosts and infrastructure supply provider, protocol, persistence,
+  and deployment mechanics through ports and adapters.
+- **Dependencies flow inward toward meaning.** Composition roots know concrete
+  implementations. Product capabilities know only their own contracts.
+- **Coordination does not absorb capability rules.** Application operations
+  sequence work but do not become alternative domain modules.
+- **Verification follows ownership.** Tests remain beside the behaviour or
+  boundary they prove, while different kinds of reusable test support are named
+  and separated explicitly.
+- **Abstractions require evidence.** New layers, folders, ports, or shared code
+  are introduced only for an implemented responsibility, not anticipated use.
+- **One vocabulary applies everywhere.** The same terms mean the same thing in
+  apps, packages, products, documentation, and tests.
+
+- `apps` are deployable hosts. Their `bootstrap` code starts the runtime and
+  assembles dependencies; `platform` contains host-wide capabilities; `products`
+  mounts individual products and supplies their adapters.
+- `packages` are reusable ownership boundaries. `shared` contains only
+  platform-wide contracts; `products` owns product definitions and behaviour;
+  `auth`, `ai`, and `db` own their named platform or infrastructure concerns.
+- A product's server separates `capabilities`, cross-capability `application`
+  operations, and inbound `delivery`. Required external operations are explicit
+  product-owned `ports` inside the capability that needs them.
+- Concrete adapters live with the host or infrastructure owner that implements
+  the mechanism, never in the product capability that describes the need.
+- Colocated tests protect neighbouring behaviour. Reusable fakes, fixtures,
+  browser journeys, and hosted evaluations use their explicit `testing`
+  subdirectories. Repository-wide dependency checks live under
+  `tests/architecture`.
+
+Generic technical categories must not hide ownership. Empty speculative
+directories and catch-all `helpers`, `utilities`, or `services` folders are not
+part of this architecture. A new role or exception requires an explicit
+decision before code adopts it.
+
 Product-specific architectures may define domain concepts, capability boundaries,
 state ownership, and product flows beneath these host/package rules. The canonical
 Socratic Draft product architecture is
-`docs/products/socratic-draft/the-socratic-draft-architecture.md`.
+`docs/products/socratic-draft/the-socratic-draft-architecture.md`; its concise,
+self-contained navigation guide is `packages/products/src/socratic-draft/README.md`.

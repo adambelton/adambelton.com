@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router";
-import { Prose } from "apps/client/src/components";
+import { Prose } from "apps/client/src/ui/components";
 import { useAuthSession } from "apps/client/src/auth/session";
 
 type ProtectedRouteProps = {
