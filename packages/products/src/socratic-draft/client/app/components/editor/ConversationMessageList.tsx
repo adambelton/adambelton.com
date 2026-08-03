@@ -1,4 +1,8 @@
 import {
+  useLayoutEffect,
+  useRef,
+} from "react";
+import {
   CONVERSATION_MESSAGE_ROLES,
   type ConversationMessage,
 } from "packages/products/src/socratic-draft/shared";
@@ -10,8 +14,28 @@ type ConversationMessageListProps = {
 export function ConversationMessageList({
   messages,
 }: ConversationMessageListProps) {
+  const historyRef = useRef<HTMLDivElement>(null);
+  const followsLatestRef = useRef(true);
+
+  useLayoutEffect(() => {
+    const history = historyRef.current;
+    if (history && followsLatestRef.current) {
+      history.scrollTop = history.scrollHeight;
+    }
+  }, [messages.length]);
+
   return (
-    <ol className="m-0 grid list-none gap-5 p-0" aria-label="Conversation">
+    <div
+      className="min-h-0 overflow-y-auto"
+      data-testid="conversation-history"
+      onScroll={(event) => {
+        const history = event.currentTarget;
+        followsLatestRef.current =
+          history.scrollHeight - history.scrollTop - history.clientHeight <= 24;
+      }}
+      ref={historyRef}
+    >
+    <ol className="m-0 flex min-h-full list-none flex-col justify-end gap-5 p-0" aria-label="Conversation">
       {messages.length === 0 ? (
         <li className="border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
           No messages yet.
@@ -25,6 +49,7 @@ export function ConversationMessageList({
         ))
       )}
     </ol>
+    </div>
   );
 }
 

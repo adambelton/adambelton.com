@@ -15,6 +15,7 @@ import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/s
 import { failure, success } from "packages/shared/src";
 import type { DraftStore } from "packages/products/src/socratic-draft/server/draft";
 import { validateDraftSelection } from "packages/products/src/socratic-draft/server/http/draft-selection-context";
+import { validateDraftChange } from "packages/products/src/socratic-draft/server/http/draft-change-context";
 
 export type CreateConversationRouteDependencies = {
   conversationStore?: TemporaryConversationStore;
@@ -57,17 +58,35 @@ export function createConversationRoute({
     }
 
     const conversationId = request.conversationId;
+    const draftStore = getDraftStore ? await getDraftStore(context.req.raw) : null;
+    const hasDraft = Boolean(
+      conversationId &&
+      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+    );
     if (
       request.draftSelection &&
       (!conversationId || !await validateDraftSelection({
         conversationId,
-        drafts: getDraftStore ? await getDraftStore(context.req.raw) : null,
+        drafts: draftStore,
         selection: request.draftSelection,
       }))
     ) {
       return context.json(failure(
         CONVERSATION_ERROR_CODES.invalidRequest,
         "The selected draft passage is stale or invalid.",
+      ), 409);
+    }
+    if (
+      request.draftChange &&
+      (!conversationId || !await validateDraftChange({
+        conversationId,
+        drafts: draftStore,
+        change: request.draftChange,
+      }))
+    ) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The saved draft change is stale or invalid.",
       ), 409);
     }
 
@@ -77,6 +96,8 @@ export function createConversationRoute({
       conversation: conversationService,
       conversations: requestConversationStore,
       draftSelection: request.draftSelection,
+      draftChange: request.draftChange,
+      hasDraft,
     });
 
     if (result.status === CONVERSATION_ERROR_CODES.notFound) {

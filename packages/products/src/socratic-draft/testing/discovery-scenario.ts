@@ -19,7 +19,7 @@ export function createDiscoveryTestModel() {
       ideas: [newIdea({
         title: "Leadership without accountability",
         synthesis: "Infantino's leadership represents a FIFA that appears insulated from accountability.",
-        substance: "The user's condemnation is directed at Gianni Infantino's leadership of FIFA rather than at football itself.",
+        substance: "My condemnation is directed at Gianni Infantino's leadership of FIFA rather than at football itself.",
         questions: ["What conduct makes that leadership feel intolerable?"],
         exploration: "emerging",
         importance: "central",

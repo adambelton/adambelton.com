@@ -13,6 +13,32 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
     (element) => globalThis.getComputedStyle(element).gridTemplateColumns,
   );
   expect(workspaceColumns.split(" ")).toHaveLength(2);
+  const workspaceLayout = await page.getByTestId("conversation-history").evaluate(
+    (history) => {
+      const column = history.parentElement!;
+      const workspace = column.parentElement!;
+      const composer = column.querySelector("form")!;
+      const messages = history.querySelector("ol")!;
+      const workspaceRect = workspace.getBoundingClientRect();
+      const columnRect = column.getBoundingClientRect();
+      const historyRect = history.getBoundingClientRect();
+      return {
+        workspaceBottom: workspaceRect.bottom,
+        viewportHeight: globalThis.innerHeight,
+        documentHeight: document.documentElement.scrollHeight,
+        columnBottom: columnRect.bottom,
+        composerBottom: composer.getBoundingClientRect().bottom,
+        historyOverflow: globalThis.getComputedStyle(history).overflowY,
+        messagesBottom: messages.getBoundingClientRect().bottom,
+        historyBottom: historyRect.bottom,
+      };
+    },
+  );
+  expect(workspaceLayout.workspaceBottom).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
+  expect(workspaceLayout.documentHeight).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
+  expect(workspaceLayout.historyOverflow).toBe("auto");
+  expect(Math.abs(workspaceLayout.columnBottom - workspaceLayout.composerBottom)).toBeLessThanOrEqual(1);
+  expect(Math.abs(workspaceLayout.historyBottom - workspaceLayout.messagesBottom)).toBeLessThanOrEqual(1);
 
   await page.getByRole("button", { name: "Draft", exact: true }).click();
   await page.getByLabel("Accountability gives legitimacy").check();
@@ -21,10 +47,27 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   const editor = page.getByLabel("Canonical draft");
   await expect(editor).toHaveValue(/Football gives its institutions legitimacy/);
   await expect(page.getByText("Revision 1")).toBeVisible();
+  const draftLayout = await editor.evaluate((draftEditor) => {
+    const draft = draftEditor.closest("section")!;
+    const workspaceSurface = draft.parentElement!;
+    return {
+      draftBottom: draft.getBoundingClientRect().bottom,
+      surfaceBottom: workspaceSurface.getBoundingClientRect().bottom,
+      editorOverflow: globalThis.getComputedStyle(draftEditor).overflowY,
+    };
+  });
+  expect(Math.abs(draftLayout.draftBottom - draftLayout.surfaceBottom)).toBeLessThanOrEqual(1);
+  expect(draftLayout.editorOverflow).toBe("auto");
 
   await editor.fill("Football grants legitimacy, and accountability must follow.");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByText("Revision 2")).toBeVisible();
+  await page.getByRole("button", { name: "Discuss this edit" }).click();
+  await expect(page.getByLabel("Attached draft change")).toContainText("revision 1 to 2");
+  await page.getByLabel("Your next thought").fill("What might this saved edit mean?");
+  await page.getByRole("button", { name: "Send" }).click();
+  await expect(page.getByText("What feels most important to examine in that passage?")).toBeVisible();
+  await expect(page.getByLabel("Attached draft change")).not.toBeVisible();
 
   await page.getByRole("button", { name: "History" }).click();
   await page.getByRole("button", { name: /Revision 1/ }).click();
@@ -70,6 +113,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileNavigation = page.getByRole("navigation", { name: "Workspace views" });
+  await mobileNavigation.getByRole("button", { name: "draft", exact: true }).click();
   await expect(mobileNavigation.getByRole("button", { name: "draft", exact: true })).toHaveAttribute("aria-current", "page");
   await editor.selectText();
   await page.getByRole("button", { name: "Discuss selection" }).click();

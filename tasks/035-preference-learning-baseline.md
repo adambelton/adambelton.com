@@ -1,25 +1,29 @@
-# Task 033 — Establish the preference-learning baseline
+# Task 035 — Establish temporary explicit preferences and one guidance path
 
 ## Goal
 
-Introduce an inspectable, correctable preference capability that improves inquiry,
-composition, and revision without coupling those modules to inference mechanics.
+Introduce an inspectable, correctable workspace preference capability and prove
+one narrow guidance path without durable owner profiling.
 
 ## Why this task is next
 
 The workspace now produces explicit preferences and editorial evidence. A stable
 boundary lets the baseline remain simple while supporting richer later learning.
 
+## Depends on
+
+Task 034.
+
 ## Scope
 
 Implements **Preference learning**, **Preference evidence**, and the applicable
 **Privacy and data minimisation** rules from the product architecture.
 
-- Record workspace-scoped explicit preferences and corrections.
-- Support owner-only confirmed persistent preferences.
+- Record temporary workspace-scoped explicit preferences and corrections.
 - Distinguish evidence, preference, scope, and confirmation.
-- Let the owner inspect, correct, scope, and remove retained preferences.
-- Supply context-relevant guidance to conversation, composition, and revision.
+- Let the user inspect, correct, scope, and remove workspace preferences.
+- Supply context-relevant guidance to one approved operation, initially draft
+  composition, while explicit current instruction takes precedence.
 - Keep demo preferences temporary.
 
 ## Settled constraints
@@ -40,8 +44,7 @@ Implements **Preference learning**, **Preference evidence**, and the applicable
   explicit current user instruction or becomes a mandatory writing rule.
 - Stored evidence is data-minimized: prefer a concise derived statement and safe
   provenance over unnecessary excerpts of private writing.
-- Demo preferences expire with the temporary workspace. Persistent preferences
-  are owner-only, inspectable, and owner-scoped on every durable read and write.
+- Demo preferences expire with the temporary workspace.
 - Confirming, correcting, rescoping, rejecting, superseding, or removing a
   preference changes subsequent guidance without mutating prior conversation or
   draft history.
@@ -54,19 +57,19 @@ Implements **Preference learning**, **Preference evidence**, and the applicable
 ## Expected files to create or modify
 
 - product preference shared/server/client modules
-- product-owned persistence ports and host adapters
-- owner preference UI, schema/migration if required, and tests
+- product-owned preference operations and temporary host adapter
+- workspace preference UI, temporary host adapter, and tests
 - privacy docs, progress, and task index
 
 ## Definition of done
 
 - At least one end-to-end scenario proves that an explicit preference changes a
-  later conversation, composition, or revision result while a conflicting current
+  later composition result while a conflicting current
   instruction still takes precedence.
 - Retained preferences are inspectable, correctable, removable, and scoped.
 - Other capabilities depend only on preference operations, not storage or
   inference internals.
-- Tests, typecheck, build, database validation, and diff checks pass.
+- Tests, typecheck, build, browser behavior, and diff checks pass.
 
 ## Validation commands
 
@@ -75,7 +78,6 @@ pnpm test
 pnpm test:e2e
 pnpm typecheck
 pnpm build
-pnpm db:validate
 git diff --check
 ```
 
@@ -91,12 +93,13 @@ git diff --check
   guidance query.
 - Which provenance is retained for correction and explanation, and which source
   material is deliberately discarded.
-- The explicit confirmation flow that permits owner guidance to become durable.
-- How conflicts, corrections, and supersession are represented without silently
-  rewriting historical evidence.
+- How corrections and removal change current guidance without rewriting prior
+  conversation or draft history.
 
-If schema changes are required, edit the Prisma schema, validate it, generate and
-review the migration, and never hand-edit generated migration SQL.
+## Blast radius
+
+Medium: new product capability, temporary adapter, composition guidance, and UI.
+Durable schema and multi-operation prompt changes are deliberately deferred.
 
 ## Status
 

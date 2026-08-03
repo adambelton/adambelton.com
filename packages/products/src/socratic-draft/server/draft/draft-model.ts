@@ -4,9 +4,26 @@ import type {
 } from "packages/products/src/socratic-draft/shared";
 
 export interface DraftCompositionModelInput {
-  selectedIdeas: Idea[];
+  selectedIdeas: DraftCompositionIdeaMaterial[];
   relevantConversationLanguage: string[];
   instruction: string;
+}
+
+export type DraftCompositionIdeaMaterial = Pick<
+  Idea,
+  "id" | "title" | "synthesis" | "substance" | "unresolvedQuestions"
+>;
+
+export function createDraftCompositionIdeaMaterial(
+  ideas: Idea[],
+): DraftCompositionIdeaMaterial[] {
+  return ideas.map(({ id, title, synthesis, substance, unresolvedQuestions }) => ({
+    id,
+    title,
+    synthesis,
+    substance,
+    unresolvedQuestions,
+  }));
 }
 
 export interface DraftCompositionModel {

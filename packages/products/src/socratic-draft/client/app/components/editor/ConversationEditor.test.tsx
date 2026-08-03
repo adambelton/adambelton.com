@@ -10,6 +10,7 @@ import {
   IDEA_DISPOSITIONS,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
+  type DraftWorkspace,
   type Idea,
 } from "packages/products/src/socratic-draft/shared";
 
@@ -113,13 +114,71 @@ describe("ConversationEditor", () => {
     expect(sendMessage).not.toHaveBeenCalled();
     expect(screen.getByDisplayValue("Do not send this yet.")).toBeTruthy();
   });
+
+  it("attaches a saved edit to conversation only after explicit user action", async () => {
+    const workspace = draftWorkspace("Canonical body.");
+    const changed = {
+      fromRevision: 1,
+      toRevision: 2,
+      scope: "passage" as const,
+      start: 0,
+      end: 9,
+      removedText: "Canonical",
+      addedText: "Personal",
+    };
+    const nextWorkspace: DraftWorkspace = {
+      ...workspace,
+      draft: { ...workspace.draft!, body: "Personal body.", currentRevision: 2 },
+      revisions: [
+        ...workspace.revisions,
+        { ...workspace.revisions[0]!, revision: 2, body: "Personal body.", source: "manual_edit" },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(
+      success({ workspace: nextWorkspace, change: changed }),
+    ));
+    const sendMessage = vi.fn(async () => ({
+      conversationId: "conversation-1",
+      message: { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "What does that edit sharpen?" },
+      activity: ACTIVITIES.discovery,
+      move: ASSISTANT_MOVES.probe,
+      assistantReadiness: [],
+      userIntention: null,
+      ideaMap: { revision: 1, ideas: [idea] },
+    }));
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialDraftWorkspace={workspace}
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      sendMessage={sendMessage}
+    />);
+
+    fireEvent.change(screen.getByLabelText("Canonical draft"), {
+      target: { value: "Personal body." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+    await screen.findByRole("button", { name: "Discuss this edit" });
+    expect(screen.queryByLabelText("Attached draft change")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Discuss this edit" }));
+    expect(screen.getByLabelText("Attached draft change")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Your next thought"), {
+      target: { value: "Help me understand why I made this change." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith({
+      conversationId: "conversation-1",
+      message: "Help me understand why I made this change.",
+      draftChange: changed,
+    }));
+  });
 });
 
 function success(data: unknown, status = 200) {
   return new Response(JSON.stringify({ ok: true, data }), { status });
 }
 
-function draftWorkspace(body: string) {
+function draftWorkspace(body: string): DraftWorkspace {
   return {
     draft: {
       id: "draft-1",

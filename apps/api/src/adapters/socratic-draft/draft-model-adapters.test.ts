@@ -29,6 +29,9 @@ describe("draft model adapters", () => {
       maxTokens: 8_192,
       outputFormat: { name: "socratic_draft_composition" },
     });
+    expect(requests[0]?.system).toContain("user's own voice and perspective");
+    expect(requests[0]?.system).toContain("Never expose labels or sections");
+    expect(requests[0]?.system).toContain("never reproduce them as a questionnaire");
   });
 
   it("maps proposal requests and rejects malformed provider output", async () => {

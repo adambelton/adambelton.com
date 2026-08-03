@@ -15,6 +15,7 @@ import { CONVERSATION_ERROR_CODES } from "packages/products/src/socratic-draft/s
 import { failure, success } from "packages/shared/src";
 import type { DraftStore } from "packages/products/src/socratic-draft/server/draft";
 import { validateDraftSelection } from "packages/products/src/socratic-draft/server/http/draft-selection-context";
+import { validateDraftChange } from "packages/products/src/socratic-draft/server/http/draft-change-context";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
@@ -118,16 +119,30 @@ export function createConversationsRoute({
       );
     }
 
+    const draftStore = getPersistentDraftStore
+      ? await getPersistentDraftStore(context.req.raw)
+      : null;
+    const hasDraft = Boolean(
+      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+    );
     if (request.draftSelection && !await validateDraftSelection({
       conversationId,
-      drafts: getPersistentDraftStore
-        ? await getPersistentDraftStore(context.req.raw)
-        : null,
+      drafts: draftStore,
       selection: request.draftSelection,
     })) {
       return context.json(failure(
         CONVERSATION_ERROR_CODES.invalidRequest,
         "The selected draft passage is stale or invalid.",
+      ), 409);
+    }
+    if (request.draftChange && !await validateDraftChange({
+      conversationId,
+      drafts: draftStore,
+      change: request.draftChange,
+    })) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The saved draft change is stale or invalid.",
       ), 409);
     }
 
@@ -137,6 +152,8 @@ export function createConversationsRoute({
       conversation: conversationService,
       conversations: conversationStore,
       draftSelection: request.draftSelection,
+      draftChange: request.draftChange,
+      hasDraft,
     });
 
     if (

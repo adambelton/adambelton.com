@@ -1,14 +1,18 @@
-# Task 034 — Complete the temporary demo session
+# Task 036 — Harden the complete temporary workspace lifecycle
 
 ## Goal
 
 Let a demo user experience the defining Socratic Draft journey from a rough
-thought through discovery, composition, an editable draft, revision, and export.
+thought through discovery, composition, an editable draft, and revision.
 
 ## Why this task is next
 
 The core capabilities now exist and must work together as one comprehensible,
 private, temporary experience before final usage limits are calibrated.
+
+## Depends on
+
+Tasks 034 and 035.
 
 ## Scope
 
@@ -18,9 +22,8 @@ the demo portion of **Persistence architecture** from the product architecture.
 - Integrate conversation, idea map, draft, retained revision history, proposals,
   and session preferences.
 - Preserve temporary lifecycle and privacy behaviour.
-- Add copy, Markdown download, JSON download, and clear-session controls.
+- Keep clear-session controls coherent across the complete workspace.
 - Exercise guided and user-led paths.
-- Measure representative request, context, and output usage for quota planning.
 - Improve empty, loading, recovery, and unavailable states across the workspace.
 
 ## Settled constraints
@@ -40,11 +43,9 @@ the demo portion of **Persistence architecture** from the product architecture.
   alone. Expiry or early loss returns a stable unavailable result and clears
   stale client identity safely.
 - Hosted-AI disabled, unavailable, or limited states must leave retained work
-  readable, directly editable, copyable, downloadable, and clearable.
+  readable, directly editable, and clearable.
 - Rejected editor text and unsaved local edits remain recoverable where possible;
   a failed model action must not discard them.
-- Copy and download are explicit user-initiated export operations. They do not
-  create server persistence or publish content.
 - Operational usage metadata may persist under the documented privacy boundary,
   but it must not contain prompts, messages, idea content, draft/proposal content,
   generated prose, IP addresses, or user-agent strings.
@@ -70,10 +71,9 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ## Definition of done
 
-- A demo user can complete and export a draft without durable writing persistence.
+- A demo user can complete a draft without durable writing persistence.
 - Both guided discovery and explicit user-led composition work end to end.
-- Representative usage measurements are documented for the next task.
-- Clearing, fixed expiry, early process loss, hosted-AI failure, and export remain
+- Clearing, fixed expiry, early process loss, and hosted-AI failure remain
   coherent across the complete workspace rather than conversation alone.
 - Tests, typecheck, build, and diff checks pass.
 
@@ -90,23 +90,18 @@ git diff --check
 ## Risks / questions
 
 - The combined UI must remain calm despite exposing a rich workspace.
-- Measurement fixtures should represent multiple legitimate writing styles.
 
 ## Decisions this task must settle
 
-- The versioned JSON export contract, including whether retained draft revisions
-  are included by default or only through an explicit history option, and which
-  conversation, idea, preference, proposal, and draft fields are selectable.
-- The Markdown export order and headings, and whether copy copies only canonical
-  draft content or another explicitly selected export.
 - Any integrated focus and recovery refinements required beyond Task 031's
   approved workspace layout, without turning activity into a mandatory mode
   selector or treating current host styling as final product design.
 - The recovery policy for unsaved local edits when the temporary server workspace
   expires or disappears early.
-- The representative guided, user-led, short-form, and long-form measurement
-  fixtures. Record request counts, bounded context sizes, input/output tokens,
-  and action types in a documented repository file consumed by Task 035.
+## Blast radius
+
+Medium: existing temporary orchestration and client recovery states. Export and
+measurement are deliberately separate Tasks 037 and 039.
 
 ## Status
 

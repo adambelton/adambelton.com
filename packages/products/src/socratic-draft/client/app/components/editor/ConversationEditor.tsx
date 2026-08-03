@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type {
   ConversationMessage,
@@ -10,6 +10,7 @@ import type {
   IdeaActionResult,
   IdeaMap,
   DraftSelection,
+  DraftChange,
   DraftWorkspace,
 } from "packages/products/src/socratic-draft/shared";
 import {
@@ -70,6 +71,7 @@ export function ConversationEditor({
   initialDraftWorkspace = null,
 }: ConversationEditorProps) {
   const draftRef = useRef<DraftPanelHandle>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
   const messageInputId = useId();
   const errorId = useId();
   const [conversationId, setConversationId] = useState<string | null>(
@@ -81,6 +83,7 @@ export function ConversationEditor({
   const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
   const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
   const [draftSelection, setDraftSelection] = useState<DraftSelection | null>(null);
+  const [draftChange, setDraftChange] = useState<DraftChange | null>(null);
   const [status, setStatus] = useState<ConversationStatus>(
     CONVERSATION_STATUSES.idle,
   );
@@ -93,6 +96,28 @@ export function ConversationEditor({
   );
   const [surfaceStatus, setSurfaceStatus] = useState<string | null>(null);
   const [hasDraftOffer, setHasDraftOffer] = useState(false);
+
+  useLayoutEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return;
+    const fitWorkspaceToViewport = () => {
+      const workspaceRect = workspace.getBoundingClientRect();
+      const documentTop = workspaceRect.top + globalThis.scrollY;
+      const documentBottom = workspaceRect.bottom + globalThis.scrollY;
+      const trailingPageHeight = Math.max(
+        0,
+        document.documentElement.scrollHeight - documentBottom,
+      );
+      const availableHeight = Math.max(
+        320,
+        globalThis.innerHeight - documentTop - trailingPageHeight,
+      );
+      workspace.style.setProperty("--workspace-height", `${availableHeight}px`);
+    };
+    fitWorkspaceToViewport();
+    globalThis.addEventListener("resize", fitWorkspaceToViewport);
+    return () => globalThis.removeEventListener("resize", fitWorkspaceToViewport);
+  }, []);
 
   function revealSurface(surface: "conversation" | "idea-map" | "draft") {
     setMobileSurface(surface);
@@ -132,6 +157,7 @@ export function ConversationEditor({
         conversationId,
         message: trimmedMessage,
         ...(draftSelection ? { draftSelection } : {}),
+        ...(draftChange ? { draftChange } : {}),
       });
 
       setConversationId(response.conversationId);
@@ -144,6 +170,7 @@ export function ConversationEditor({
         setHasDraftOffer(true);
       }
       setDraftSelection(null);
+      setDraftChange(null);
     } catch (sendError) {
       if (
         sendError instanceof ConversationRequestError &&
@@ -202,6 +229,7 @@ export function ConversationEditor({
       setIdeaMap(EMPTY_IDEA_MAP);
       setMessage("");
       setDraftSelection(null);
+      setDraftChange(null);
       setHasDraftOffer(false);
     } catch (clearError) {
       setError(
@@ -231,9 +259,10 @@ export function ConversationEditor({
         ))}
       </nav>
       {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} gap-8 lg:grid lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:pr-4`}>
+      <div className="mt-8 grid gap-8 lg:h-[var(--workspace-height)] lg:min-h-0 lg:grid-cols-2" ref={workspaceRef}>
+        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} min-h-0 gap-8 lg:grid lg:h-full lg:grid-rows-[minmax(0,1fr)_auto] lg:overflow-hidden lg:pr-4`}>
           <ConversationMessageList messages={messages} />
+          <div className="grid gap-4">
           {hasDraftOffer ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Draft offer">
               <p className="text-sm">The assistant has offered to compose a draft from material you select.</p>
@@ -246,6 +275,15 @@ export function ConversationEditor({
               <button className="mt-2 text-sm underline" onClick={() => setDraftSelection(null)} type="button">Remove attachment</button>
             </aside>
           ) : null}
+          {draftChange ? (
+            <aside className="border border-[var(--line)] p-3" aria-label="Attached draft change">
+              <p className="text-sm"><strong>Saved edit attached:</strong> revision {draftChange.fromRevision} to {draftChange.toRevision}</p>
+              <button className="mt-2 text-sm underline" onClick={() => setDraftChange(null)} type="button">Remove attachment</button>
+            </aside>
+          ) : null}
+          {canClear && messages.length > 0 ? (
+            <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this conversation</button>
+          ) : null}
           <ConversationComposer
             canSubmit={canSubmit}
             error={error}
@@ -256,16 +294,14 @@ export function ConversationEditor({
             onSubmit={handleSubmit}
             status={status}
           />
-          {canClear && messages.length > 0 ? (
-            <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this conversation</button>
-          ) : null}
+          </div>
         </div>
-        <div className="min-h-0 lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto lg:border-l lg:border-[var(--line)] lg:pl-6">
+        <div className="min-h-0 lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)] lg:overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6">
           <div className="mb-6 hidden gap-3 lg:flex" role="group" aria-label="Workspace">
             <button aria-pressed={workspaceView === "idea-map"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("idea-map")} type="button">Idea map</button>
             <button aria-pressed={workspaceView === "draft"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("draft")} type="button">Draft</button>
           </div>
-          <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"}`}>
+          <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"} min-h-0 overflow-y-auto`}>
             <IdeaMapTracker
           ideaMap={ideaMap}
           isBusy={status === CONVERSATION_STATUSES.sending}
@@ -306,7 +342,7 @@ export function ConversationEditor({
             />
             {ideaStatus ? <p className="text-sm text-[var(--muted)]" role="status">{ideaStatus}</p> : null}
           </div>
-          <div className={`${mobileSurface === "draft" ? "block" : "hidden"} ${workspaceView === "draft" ? "lg:block" : "lg:hidden"}`}>
+          <div className={`${mobileSurface === "draft" ? "block" : "hidden"} ${workspaceView === "draft" ? "lg:block" : "lg:hidden"} min-h-0`}>
             <DraftPanel
               conversationId={conversationId}
               ideas={ideaMap.ideas}
@@ -322,7 +358,17 @@ export function ConversationEditor({
               }}
               onAttachSelection={(attached) => {
                 setDraftSelection(attached);
+                setDraftChange(null);
                 revealSurface("conversation");
+              }}
+              onAttachChange={(attached) => {
+                setDraftChange(attached);
+                setDraftSelection(null);
+                revealSurface("conversation");
+              }}
+              onDraftAdvanced={() => {
+                setDraftChange(null);
+                setDraftSelection(null);
               }}
               ref={draftRef}
             />

@@ -25,6 +25,22 @@ stale protection, and exact atomic acceptance. Temporary and Prisma persistence
 are host adapters to product-owned ports, and deterministic browser coverage
 exercises the complete discovery and drafting flows.
 
+Task 032 has been completed. Changed manual saves and restorations now expose a
+bounded exact `DraftChange` derived from adjacent immutable revisions. The user
+can explicitly attach that saved edit to Discovery for discussion; the server
+revalidates it against the current canonical revision, and discussion alone
+does not change the draft, idea map, or any preference evidence.
+
+Task 032's approved manual-testing corrective pass now keeps the desktop editor
+within the viewport with independently scrolling, bottom-anchored conversation
+and draft surfaces. Canonical writing material is expressed in the user's own
+first-person perspective, saved-edit discussion cannot canonise unconfirmed
+interpretation or workflow metadata, and draft composition receives only
+user-facing writing material rather than assistant assessment or idea-map
+scaffolding. Conversational edit requests now direct the user toward the
+existing reviewable proposal path without claiming that an implicit mutation
+occurred.
+
 The corrective pass makes model-backed draft commands idempotent before model
 invocation, preserves exact manual text, serializes durable draft and proposal
 updates, normalizes provider failures, loads persistent draft state with the
@@ -258,7 +274,7 @@ contract evaluation remains outside CI.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Daily usage limits are not implemented yet; the kill switch and per-request
-  bounds reduce immediate exposure but do not replace Task 035 cost protection.
+  bounds reduce immediate exposure but do not replace Tasks 038–040.
 - Autonomous, user-correctable idea merging and splitting remains required before
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after
@@ -267,4 +283,6 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Task 032 — Manual edit interpretation.
+Task 033 — Add optional intended draft form. Its proposal remains subject to
+review after Task 032's corrective pass; intended form is private workspace
+guidance rather than publishing intent, a required mode, or a preference.

@@ -2,11 +2,13 @@ import type {
   DraftCompositionModel,
   RevisionProposalModel,
 } from "packages/products/src/socratic-draft/server/draft/draft-model";
+import { createDraftCompositionIdeaMaterial } from "packages/products/src/socratic-draft/server/draft/draft-model";
 import {
   DRAFT_WRITE_STATUSES,
   type DraftStore,
   type DraftWriteResult,
 } from "packages/products/src/socratic-draft/server/draft/draft-store";
+import { deriveDraftChange } from "packages/products/src/socratic-draft/server/draft/draft-change";
 import {
   DRAFT_REVISION_SOURCES,
   REVISION_PROPOSAL_SCOPES,
@@ -51,7 +53,7 @@ export class DraftService {
       throw new InvalidDraftOperationError("Select at least one idea to compose.");
     }
     const generated = await this.compositionModel.compose({
-      selectedIdeas: selected,
+      selectedIdeas: createDraftCompositionIdeaMaterial(selected),
       relevantConversationLanguage: input.relevantConversationLanguage,
       instruction: input.instruction,
     });
@@ -71,12 +73,13 @@ export class DraftService {
     expectedRevision: number;
     body: string;
   }) {
-    return this.store.appendDraftRevision({
+    const result = await this.store.appendDraftRevision({
       ...input,
       body: requireExactBody(input.body),
       source: DRAFT_REVISION_SOURCES.manualEdit,
       createdAt: this.now().toISOString(),
     });
+    return withDraftChange(result, input.expectedRevision);
   }
 
   async restore(input: {
@@ -89,15 +92,15 @@ export class DraftService {
       input.conversationId,
       input.operationId,
     );
-    if (completed) return completed;
+    if (completed) return withDraftChange(completed, input.expectedRevision);
     const workspace = await this.store.getDraftWorkspace(input.conversationId);
     const restored = workspace?.revisions.find(
       (revision) => revision.revision === input.restoreRevision,
     );
     if (!workspace?.draft || !restored) {
-      return { status: DRAFT_WRITE_STATUSES.notFound } as const;
+      return { status: DRAFT_WRITE_STATUSES.notFound, change: null } as const;
     }
-    return this.store.appendDraftRevision({
+    const result = await this.store.appendDraftRevision({
       conversationId: input.conversationId,
       operationId: input.operationId,
       expectedRevision: input.expectedRevision,
@@ -106,6 +109,7 @@ export class DraftService {
       restoredFromRevision: restored.revision,
       createdAt: this.now().toISOString(),
     });
+    return withDraftChange(result, input.expectedRevision);
   }
 
   async propose(input: {
@@ -214,6 +218,20 @@ export class DraftService {
       createdAt: this.now().toISOString(),
     });
   }
+}
+
+function withDraftChange(result: DraftWriteResult, expectedRevision: number) {
+  if (!("workspace" in result)) return { ...result, change: null };
+  const previous = result.workspace.revisions.find(
+    (revision) => revision.revision === expectedRevision,
+  );
+  const committed = result.workspace.revisions.find(
+    (revision) => revision.revision === expectedRevision + 1,
+  );
+  return {
+    ...result,
+    change: previous && committed ? deriveDraftChange(previous, committed) : null,
+  };
 }
 
 function selectIdeas(ideas: Idea[], selectedIdeaIds: string[]) {

@@ -184,6 +184,64 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).not.toContain("no draft exists");
   });
 
+  it("supplies an exact saved change without canonising its meaning", async () => {
+    const modelRequests: ConversationModelRequest[] = [];
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse(request) {
+          modelRequests.push(request);
+          return { content: "What does that change mean to you?" };
+        },
+      },
+    });
+
+    await service.respond({
+      conversationId: "conversation-1",
+      message: "Help me think about this edit.",
+      previousMessages: [],
+      draftChange: {
+        fromRevision: 2,
+        toRevision: 3,
+        scope: "passage",
+        start: 10,
+        end: 15,
+        removedText: "quiet",
+        addedText: "deliberate",
+      },
+    });
+
+    expect(modelRequests[0]?.system).toContain("revision 2 to revision 3");
+    expect(modelRequests[0]?.system).toContain('Removed text: "quiet"');
+    expect(modelRequests[0]?.system).toContain('Added text: "deliberate"');
+    expect(modelRequests[0]?.system).toContain("Do not treat it as an interpretation");
+    expect(modelRequests[0]?.system).toContain("proposedIdeas and ideaActions must be null");
+    expect(modelRequests[0]?.system).toContain("first-person material");
+    expect(modelRequests[0]?.system).toContain("Never put draft-edit history");
+  });
+
+  it("states the working proposal boundary when a draft exists without attached text", async () => {
+    const modelRequests: ConversationModelRequest[] = [];
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse(request) {
+          modelRequests.push(request);
+          return { content: "Use the proposal review beside your draft." };
+        },
+      },
+    });
+
+    await service.respond({
+      conversationId: "conversation-1",
+      message: "Please edit it.",
+      previousMessages: [],
+      hasDraft: true,
+    });
+
+    expect(modelRequests[0]?.system).toContain("A canonical draft exists");
+    expect(modelRequests[0]?.system).toContain("revision requests must lead to a reviewable proposal");
+    expect(modelRequests[0]?.system).toContain("do not claim that this conversation operation changed");
+  });
+
   it("accepts complete input at the byte boundary and rejects one byte over", async () => {
     const modelRequests: ConversationModelRequest[] = [];
     const service = new ConversationService({
@@ -285,7 +343,7 @@ describe("ConversationService", () => {
                   id: null,
                   title: "Leadership without accountability",
                   synthesis: "Infantino's FIFA uses football's authority while resisting scrutiny.",
-                  substance: "The user distinguishes condemnation of FIFA's leadership from commitment to football itself.",
+                  substance: "I distinguish my condemnation of FIFA's leadership from my commitment to football itself.",
                   unresolvedQuestions: ["How can football withdraw unearned legitimacy?"],
                   disposition: "active",
                   assistantAssessment: {

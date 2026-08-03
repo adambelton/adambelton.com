@@ -5,6 +5,16 @@ export interface HostedConversationEvaluationScenario {
 }
 
 export const HOSTED_CONVERSATION_EVALUATION_SCENARIOS = {
+  firstPersonIdeaMaterial: {
+    id: "first-person-idea-material",
+    description:
+      "Idea-map material must remain first-person writing material rather than assistant-facing evidence notes about the user.",
+    turns: [
+      "My dog is really annoying today.",
+      "He's barking at squirrels and birds in the garden, and it makes me angry.",
+      "I know it is his nature and not his fault, but I also feel responsible because I have not trained him properly.",
+    ],
+  },
   hungerAsWritingMaterial: {
     id: "hunger-as-writing-material",
     description:

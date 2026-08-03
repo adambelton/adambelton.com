@@ -85,7 +85,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       operationId: operationId(context.req.raw, body),
       expectedRevision,
       body: draftBody,
-    }));
+    }), 200, draftOperationResponse);
   });
 
   route.post("/:conversationId/restore", async (context) => {
@@ -102,7 +102,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       operationId: operationId(context.req.raw, body),
       expectedRevision,
       restoreRevision,
-    }));
+    }), 200, draftOperationResponse);
   });
 
   route.post("/:conversationId/proposals", async (context) => {
@@ -195,8 +195,10 @@ function service(store: DraftStore, dependencies: CreateDraftRouteDependencies) 
 
 async function run(
   context: Context,
-  command: () => Promise<DraftWriteResult>,
+  command: () => Promise<DraftWriteResult & { change?: unknown }>,
   successStatus: 200 | 201 = 200,
+  responseData: (result: DraftWriteResult & { change?: unknown }) => unknown =
+    (result) => "workspace" in result ? result.workspace : null,
 ) {
   try {
     const result = await command();
@@ -207,7 +209,7 @@ async function run(
     if (result.status === DRAFT_WRITE_STATUSES.proposalNotActive) {
       return context.json(failure(DRAFT_ERROR_CODES.proposalNotActive, "This revision proposal is no longer active."), 409);
     }
-    return context.json(success(result.workspace), result.status === DRAFT_WRITE_STATUSES.changed ? successStatus : 200);
+    return context.json(success(responseData(result)), result.status === DRAFT_WRITE_STATUSES.changed ? successStatus : 200);
   } catch (error) {
     if (error instanceof InvalidDraftOperationError) return invalid(context, error.message);
     if (error instanceof HostedAiDisabledError) {
@@ -218,6 +220,14 @@ async function run(
     }
     throw error;
   }
+}
+
+function draftOperationResponse(
+  result: DraftWriteResult & { change?: unknown },
+) {
+  return "workspace" in result
+    ? { workspace: result.workspace, change: result.change ?? null }
+    : null;
 }
 
 async function readBody(request: Request): Promise<Record<string, unknown>> {

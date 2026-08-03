@@ -6,14 +6,14 @@ import { createDraftRoute } from "packages/products/src/socratic-draft/server/ht
 import { TestConversationPersistence } from "packages/products/src/socratic-draft/server/testing/test-conversation-persistence";
 import { TestDraftPersistence } from "packages/products/src/socratic-draft/server/testing/test-draft-persistence";
 import type { Idea } from "packages/products/src/socratic-draft/shared";
-import type { DraftWorkspace } from "packages/products/src/socratic-draft/shared";
+import type { DraftOperationResponse, DraftWorkspace } from "packages/products/src/socratic-draft/shared";
 import type { ApiResponse } from "packages/shared/src";
 
 const idea: Idea = {
   id: "idea-1",
   title: "Authorship",
   synthesis: "Review preserves authorship.",
-  substance: "The user remains responsible for accepted language.",
+  substance: "I remain responsible for accepted language.",
   unresolvedQuestions: [],
   assistantAssessment: { exploration: "well_explored", importance: "central" },
   userInterpretation: null,
@@ -61,12 +61,18 @@ describe("draft HTTP route", () => {
     if (!composed.payload.ok) throw new Error("Expected composition to succeed.");
     expect(composed.payload.data.draft).toMatchObject({ body: "The first draft.", currentRevision: 1 });
 
-    const saved = await jsonRequest(app, `/drafts/${conversationId}`, {
+    const saved = await jsonRequest<DraftOperationResponse>(app, `/drafts/${conversationId}`, {
       method: "PUT",
       body: { expectedRevision: 1, body: "My direct edit." },
     });
     if (!saved.payload.ok) throw new Error("Expected save to succeed.");
-    expect(saved.payload.data.draft).toMatchObject({ body: "My direct edit.", currentRevision: 2 });
+    expect(saved.payload.data.workspace.draft).toMatchObject({ body: "My direct edit.", currentRevision: 2 });
+    expect(saved.payload.data.change).toMatchObject({
+      fromRevision: 1,
+      toRevision: 2,
+      removedText: "The first draft.",
+      addedText: "My direct edit.",
+    });
 
     const stale = await jsonRequest(app, `/drafts/${conversationId}`, {
       method: "PUT",
@@ -107,7 +113,7 @@ describe("draft HTTP route", () => {
   });
 });
 
-async function jsonRequest(
+async function jsonRequest<T = DraftWorkspace>(
   app: Hono,
   path: string,
   input: { method: string; body: Record<string, unknown> },
@@ -119,6 +125,6 @@ async function jsonRequest(
   });
   return {
     response,
-    payload: await response.json() as ApiResponse<DraftWorkspace>,
+    payload: await response.json() as ApiResponse<T>,
   };
 }

@@ -198,6 +198,7 @@ export type ConversationErrorCode =
 export interface ConversationRequest {
   conversationId: string | null;
   message: string;
+  draftChange?: DraftChange;
   draftSelection?: DraftSelection;
 }
 
@@ -286,6 +287,29 @@ export interface DraftSelection {
   start: number;
   end: number;
   selectedText: string;
+}
+
+export const DRAFT_CHANGE_SCOPES = {
+  passage: "passage",
+  wholeDraft: "whole_draft",
+} as const;
+
+export type DraftChangeScope =
+  (typeof DRAFT_CHANGE_SCOPES)[keyof typeof DRAFT_CHANGE_SCOPES];
+
+export interface DraftChange {
+  fromRevision: number;
+  toRevision: number;
+  scope: DraftChangeScope;
+  start: number;
+  end: number;
+  removedText: string;
+  addedText: string;
+}
+
+export interface DraftOperationResponse {
+  workspace: DraftWorkspace;
+  change: DraftChange | null;
 }
 
 export interface RevisionProposalVersion {

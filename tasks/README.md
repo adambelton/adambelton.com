@@ -18,16 +18,23 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 031 — Private drafts, revision history, and approved proposals
-- 032 — Manual draft-edit interpretation
-- 033 — Preference-learning baseline
-- 034 — Complete temporary demo session
-- 035 — Calibrated usage limits and cost protection
-- 036 — Publishing flow
-- 037 — Admin visibility
+- 033 — Optional intended draft form
+- 034 — Conservative substantive-edit interpretation
+- 035 — Temporary explicit preferences and one guidance path
+- 036 — Complete temporary workspace lifecycle and recovery
+- 037 — Workspace copy and export
+- 038 — Content-free hosted-attempt lifecycle and accounting
+- 039 — Representative hosted-usage measurement
+- 040 — Calibrated atomic usage enforcement
+- 041 — Durable confirmed owner preferences
+- 042 — Host public-writing system
+- 043 — Socratic Draft publishing bridge
+- 044 — Admin visibility
 
 ## Completed
 
+- 032 — Saved draft-change context and user-directed discussion
+- 031 — Private drafts, revision history, approved proposals, and corrective audit pass
 - 030 — Meaningful discovery and composition readiness
 - 029 — Discovery and composition terminology correction
 - 028 — Idea-map baseline

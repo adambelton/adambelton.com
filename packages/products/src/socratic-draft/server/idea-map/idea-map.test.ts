@@ -38,7 +38,7 @@ describe("idea map", () => {
           id: "idea-1",
           title: "Leadership without accountability",
           synthesis: "Infantino's FIFA uses football's authority while resisting scrutiny.",
-          substance: "The user condemns concentrated leadership, while distinguishing FIFA's governors from football itself.",
+          substance: "I condemn concentrated leadership while distinguishing FIFA's governors from football itself.",
           unresolvedQuestions: ["How can football withdraw unearned legitimacy?"],
           disposition: IDEA_DISPOSITIONS.active,
           assistantAssessment: {
