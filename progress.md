@@ -66,6 +66,12 @@ free-form writing and explicitly states that the assistant does not use the
 saved value yet. Conversation, composition, revision, and publishing behaviour
 remain unchanged.
 
+The authenticated owner editor has also been verified locally through the real
+host composition and Neon `dev`: pre-Draft format set, reload, change, clear,
+and final reload all succeeded without creating draft content. API development
+startup applies committed migrations before launching when `DATABASE_URL` is
+configured, while no-database development retains its in-memory fallback.
+
 The Socratic Draft now has a canonical terminology reference distinguishing
 artifacts, activities, operations, assistant moves, readiness, intention,
 commands, events, and lifecycle facts. In particular, a `Draft` is the writing,

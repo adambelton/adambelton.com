@@ -251,6 +251,9 @@ Every implementation task is only complete when:
 - relevant tests pass
 - typecheck passes
 - the intended flow works end to end, or the task explicitly says it is contract/scaffold-only
+- changes to a mounted user flow are verified locally through the real host
+  composition and configured development adapters, including applying pending
+  migrations; product-only browser hosts do not replace this verification
 - files changed are summarised
 - commands run are listed
 - known gaps are documented

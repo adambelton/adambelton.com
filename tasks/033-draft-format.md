@@ -161,3 +161,12 @@ documentation. No model policy or generation behaviour changes are authorised.
 ## Status
 
 Implemented on 2026-08-03.
+
+Real-host verification completed on 2026-08-03 after applying migration
+`20260803120000_add_socratic_draft_format` to Neon `dev`. The authenticated
+owner editor was exercised through the mounted client, API, Prisma adapter, and
+database: format was set before a Draft, survived reload, changed, cleared, and
+remained absent after a final reload without creating draft content. Browser and
+API logs remained clear. API development startup now applies committed
+migrations automatically when `DATABASE_URL` is configured and preserves the
+intentional in-memory fallback when it is absent.

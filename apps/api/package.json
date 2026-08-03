@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/bootstrap/start-server.ts",
+    "dev": "tsx src/bootstrap/prepare-development.ts && tsx watch src/bootstrap/start-server.ts",
     "evaluate:socratic-draft-composition": "tsx src/products/socratic-draft/testing/hosted-draft-evaluation.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
