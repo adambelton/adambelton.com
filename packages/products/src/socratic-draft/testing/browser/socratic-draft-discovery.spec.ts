@@ -40,6 +40,13 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     expect(emptyLayout.conversationHeight).toBe(emptyLayout.workspaceHeight);
     expect(emptyLayout.workspaceColumnHeight).toBe(emptyLayout.workspaceHeight);
     expect(Math.abs(emptyLayout.composerBottom - emptyLayout.workspaceBottom)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 1440, height: 700 });
+    const compactWorkspaceHeight = await page.getByTestId("workspace").evaluate(
+      (workspace) => workspace.getBoundingClientRect().height,
+    );
+    expect(compactWorkspaceHeight).toBeLessThan(emptyLayout.workspaceHeight);
+    await page.setViewportSize({ width: 1440, height: 1200 });
   });
 
   await test.step("identify the leadership problem", async () => {

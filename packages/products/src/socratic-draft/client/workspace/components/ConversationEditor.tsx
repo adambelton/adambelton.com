@@ -264,8 +264,8 @@ export function ConversationEditor({
         ))}
       </nav>
       {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
-      <div className="mt-8 grid gap-8 lg:h-[var(--workspace-height)] lg:min-h-0 lg:grid-cols-2" data-testid="workspace" ref={workspaceRef}>
-        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} min-h-0 gap-8 lg:grid lg:h-full lg:grid-rows-[minmax(0,1fr)_auto] lg:overflow-hidden lg:pr-4`} data-testid="conversation-column">
+      <div className="mt-8 grid gap-8 lg:grid-cols-2 [@media(min-width:1024px)_and_(min-height:800px)]:h-[var(--workspace-height)] [@media(min-width:1024px)_and_(min-height:800px)]:min-h-0" data-testid="workspace" ref={workspaceRef}>
+        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} min-h-0 gap-8 lg:grid lg:pr-4 [@media(min-width:1024px)_and_(min-height:800px)]:h-full [@media(min-width:1024px)_and_(min-height:800px)]:grid-rows-[minmax(0,1fr)_auto] [@media(min-width:1024px)_and_(min-height:800px)]:overflow-hidden`} data-testid="conversation-column">
           <ConversationMessageList messages={messages} />
           <div className="grid gap-4">
           {hasDraftOffer ? (
@@ -301,7 +301,7 @@ export function ConversationEditor({
           />
           </div>
         </div>
-        <div className="min-h-0 lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)] lg:overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6" data-testid="workspace-column">
+        <div className="min-h-0 lg:grid lg:border-l lg:border-[var(--line)] lg:pl-6 [@media(min-width:1024px)_and_(min-height:800px)]:h-full [@media(min-width:1024px)_and_(min-height:800px)]:grid-rows-[auto_minmax(0,1fr)] [@media(min-width:1024px)_and_(min-height:800px)]:overflow-hidden" data-testid="workspace-column">
           <div className="mb-6 hidden gap-3 lg:flex" role="group" aria-label="Workspace">
             <button aria-pressed={workspaceView === "idea-map"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("idea-map")} type="button">Idea map</button>
             <button aria-pressed={workspaceView === "draft"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("draft")} type="button">Draft</button>
