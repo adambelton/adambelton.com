@@ -101,8 +101,17 @@ export function ConversationEditor({
     const workspace = workspaceRef.current;
     if (!workspace) return;
     const fitWorkspaceToViewport = () => {
-      const documentTop = workspace.getBoundingClientRect().top + globalThis.scrollY;
-      const availableHeight = Math.max(320, globalThis.innerHeight - documentTop - 32);
+      const workspaceRect = workspace.getBoundingClientRect();
+      const documentTop = workspaceRect.top + globalThis.scrollY;
+      const documentBottom = workspaceRect.bottom + globalThis.scrollY;
+      const trailingPageHeight = Math.max(
+        0,
+        document.documentElement.scrollHeight - documentBottom,
+      );
+      const availableHeight = Math.max(
+        320,
+        globalThis.innerHeight - documentTop - trailingPageHeight,
+      );
       workspace.style.setProperty("--workspace-height", `${availableHeight}px`);
     };
     fitWorkspaceToViewport();

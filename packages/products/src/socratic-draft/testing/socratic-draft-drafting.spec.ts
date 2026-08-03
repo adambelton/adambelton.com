@@ -25,6 +25,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
       return {
         workspaceBottom: workspaceRect.bottom,
         viewportHeight: globalThis.innerHeight,
+        documentHeight: document.documentElement.scrollHeight,
         columnBottom: columnRect.bottom,
         composerBottom: composer.getBoundingClientRect().bottom,
         historyOverflow: globalThis.getComputedStyle(history).overflowY,
@@ -34,6 +35,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
     },
   );
   expect(workspaceLayout.workspaceBottom).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
+  expect(workspaceLayout.documentHeight).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
   expect(workspaceLayout.historyOverflow).toBe("auto");
   expect(Math.abs(workspaceLayout.columnBottom - workspaceLayout.composerBottom)).toBeLessThanOrEqual(1);
   expect(Math.abs(workspaceLayout.historyBottom - workspaceLayout.messagesBottom)).toBeLessThanOrEqual(1);
