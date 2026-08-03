@@ -1,79 +1,61 @@
-# Task 032 — Interpret substantive manual draft edits
+# Task 032 — Expose saved draft changes for user-directed discussion
 
 ## Goal
 
-Let direct draft edits inform discovery so composition can reveal new
-meaning, changed claims, structural choices, or discovery gaps.
+Let a user deliberately bring an exact saved edit or restoration into Discovery
+without adding automatic semantic classification or another history mechanism.
 
 ## Why this task is next
 
-Without this feedback path, the assistant treats the draft as output rather than
-another place where the user thinks.
+Task 031 retains exact revisions but subsequent conversation cannot identify the
+change the user just made. This is the smallest vertical bridge from Composition
+back to Discovery and establishes the product contract required by later
+interpretation work.
 
 ## Scope
 
-Implements **Manual draft edit** and its associated **Concurrency and
-consistency** and **Failure and degraded-state behaviour** rules from the product
-architecture.
-
-- Represent saved manual edits and restorations as product-level changes.
-- Distinguish conservative substantive edits from textual maintenance.
-- Let the assistant respond when useful without commenting on every correction.
-- Update relevant idea interpretations while preserving user authority.
-- Allow the user to request or suppress discussion of an edit.
+- Derive a product-owned `DraftChange` from the previous and committed revision.
+- Cover manual saves and restorations using existing immutable revision history.
+- Return the change with a successful operation without changing save atomicity.
+- Offer an explicit “Discuss this edit” action after a changed save or restore.
+- Send bounded exact change context to conversation as discussion-only context.
+- Clear or replace stale change context when the draft advances again.
 
 ## Settled constraints
 
-- Saving canonical user content and interpreting the change are separate
-  outcomes. Every successful save changes canonical draft content even if
-  classification or optional assistant commentary fails.
-- Manual saves use the draft's expected revision contract. A stale save must
-  preserve the newer canonical draft and return a recoverable conflict.
-- The conservative baseline change vocabulary is textual maintenance,
-  composition, conceptual change, and structural change. Classification is an
-  interpretation rather than objective truth.
-- Classification failure must fail quietly after a successful save and must not
-  manufacture idea-map or preference changes.
-- Meaningful change information is offered to the idea map through an explicit
-  product operation. The draft capability must not directly mutate idea-map
-  internals.
-- Optional conversation response is independent of the canonical save and should
-  occur only when useful or explicitly requested. Failure must not roll back the
-  edit.
-- The user can explicitly request discussion or suppress it. Explicit current
-  direction takes precedence over an inferred suggestion to comment.
-- General preference inference remains out of scope. This slice may expose a
-  concise product-level evidence event for the later preference capability, but
-  it must not persist or infer a preference itself.
-- Task 031 retains immutable revision snapshots and restoration provenance.
-  Interpretation consumes those product-level changes; it does not introduce a
-  second history mechanism or infer meaning merely from the revision source.
-- A restoration may reflect changed belief, relevance, structure, dissatisfaction
-  with language, or a preference for an earlier expression. The assistant must
-  ask when the distinction matters rather than treating deletion or restoration
-  as automatic rejection or adoption of an idea.
+- The save or restoration succeeds independently of change derivation or later
+  conversation failure.
+- `DraftChange` uses product language and existing revision identities; it is not
+  a second persisted history, preference, or idea-map mutation.
+- Discussion happens only after an explicit user action in this slice.
+- The context identifies removed and added text conservatively and may represent
+  a whole-document replacement when a useful bounded range cannot be derived.
+- Conversation may ask what the edit means but must not canonise an interpretation
+  until the user establishes it.
+- Product code remains independent of host, database, auth, and AI infrastructure.
 
 ## Out of scope
 
-- General automatic preference inference, another draft-history mechanism, or
-  retrospective reclassification of all retained revisions.
+- Model classification, automatic commentary, automatic idea-map changes,
+  preference evidence, schema changes, or retrospective revision analysis.
 
 ## Expected files to create or modify
 
-- draft change and workspace orchestration modules
-- conversation and idea-map integration
-- client save/discuss interaction and tests
-- progress and task index
+- product draft-change shared/server modules
+- draft operation and HTTP response contracts
+- conversation context handling
+- editor save/restore discussion interaction
+- focused product and browser tests
+- task/progress documentation
 
 ## Definition of done
 
-- A meaningful manual edit or restoration can change subsequent inquiry and idea
-  summaries after the user establishes the intended meaning.
-- Trivial edits do not produce distracting responses.
-- The user controls whether ambiguous edits are discussed.
-- Classification or commentary failure never rolls back a successful edit.
-- Stale edits cannot overwrite newer canonical content.
-- Tests, typecheck, build, and diff checks pass; progress is updated.
+- A changed save and a restoration each expose the exact committed change.
+- The user can attach that change to conversation with one explicit action.
+- Conversation receives revision-bounded discussion context and never changes the
+  canonical draft merely by discussing it.
+- Unchanged saves, stale saves, and failed saves expose no misleading change.
+- Existing Task 031 flows remain green.
 
 ## Validation commands
 
@@ -85,23 +67,34 @@ pnpm build
 git diff --check
 ```
 
-## Risks / questions
+## Risks / implementation decisions
 
-- Fully automatic classification may be unreliable; the baseline should fail
-  quietly and preserve explicit user control.
+- Settle the minimal bounded change representation and replacement fallback.
+- Settle whether the explicit action pre-fills neutral conversation language or
+  attaches context while leaving the composer empty.
+- Keep the slice small: no persistence migration and no new hosted model port.
 
-## Decisions this task must settle
+## Approval record
 
-- The deterministic rules, explicit user action, model classification, or
-  combination used for the conservative baseline.
-- The observable threshold/policy that distinguishes trivial maintenance from a
-  change worth offering to conversation or the idea map.
-- The exact discuss/suppress command and client interaction.
-- Whether classification is synchronous with the save response or follows as a
-  separately reported optional outcome.
-- How the interpretation UI refers to the exact changed or restored passages
-  without requiring the user to copy them into conversation.
+Approved on 2026-08-02 after the post-Task-031 roadmap and blast-radius review.
+
+- This task intentionally proves explicit change handoff before introducing
+  automatic interpretation.
+- Existing revision snapshots remain the only durable draft history.
+- Automatic classification, idea-map offers, and preference evidence are
+  deferred to Task 033 and must not be pulled into this implementation.
+- No database schema change is expected; new evidence is required before
+  expanding that boundary.
+- The task should normally remain within product-owned contracts, orchestration,
+  client interaction, and tests.
 
 ## Status
 
-Proposed. Awaiting approval.
+Completed on 2026-08-03.
+
+The implementation derives bounded exact `DraftChange` values from adjacent
+immutable revisions after changed manual saves and restorations, returns them
+without changing write atomicity, validates them against the current canonical
+revision before conversation use, and exposes them through an explicit one-shot
+“Discuss this edit” attachment. No persistence, automatic interpretation,
+idea-map mutation, or preference evidence was added.

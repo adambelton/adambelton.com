@@ -92,7 +92,7 @@ product architecture.
   retain the unsaved content and do not let a subsequent message appear to use
   server context that excludes it.
 - A successful manual save is canonical immediately and requires no assistant
-  approval. Task 032 interprets the possible meaning of saved edits; its model or
+  approval. Task 033 interprets the possible meaning of saved edits; its model or
   commentary failure must never roll back the save.
 - Editor-level undo and redo may operate on current in-memory editor state.
   Persisted recovery uses revision preview and restoration rather than a
@@ -175,7 +175,7 @@ product architecture.
 
 ### Interpretation and publishing boundaries
 
-- Task 031 records enough manual-edit and restoration provenance for Task 032 to
+- Task 031 records enough manual-edit and restoration provenance for Tasks 032–033 to
   interpret their possible semantic effect. It does not infer that removing
   writing means the user rejects the underlying idea.
 - A later interpretation may ask whether a restoration reflects changed belief,
@@ -282,7 +282,7 @@ Tasks 032–034.
 - Revision history is server-owned product state, never browser persistence.
 - Passage and whole-draft proposals are reviewed adaptively and applied exactly
   without regeneration.
-- Task 032, not this task, owns semantic interpretation of saved edits and
+- Task 033, not this task, owns semantic interpretation of saved edits and
   restorations.
 - The responsive two-column/one-surface workspace behaviour is approved while
   final product look and feel is intentionally deferred.
