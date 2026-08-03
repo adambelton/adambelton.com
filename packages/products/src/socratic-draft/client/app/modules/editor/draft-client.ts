@@ -1,6 +1,7 @@
 import type { ApiResponse } from "packages/shared/src";
 import type {
   DraftSelection,
+  DraftOperationResponse,
   DraftWorkspace,
   RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
@@ -33,7 +34,7 @@ export function saveDraft(
   conversationId: string,
   input: { expectedRevision: number; body: string },
 ) {
-  return request(kind, conversationId, "", mutation("PUT", input));
+  return request<DraftOperationResponse>(kind, conversationId, "", mutation("PUT", input));
 }
 
 export function restoreDraft(
@@ -41,7 +42,7 @@ export function restoreDraft(
   conversationId: string,
   input: { expectedRevision: number; restoreRevision: number },
 ) {
-  return request(kind, conversationId, "/restore", mutation("POST", input));
+  return request<DraftOperationResponse>(kind, conversationId, "/restore", mutation("POST", input));
 }
 
 export function proposeDraftRevision(
@@ -97,7 +98,7 @@ function mutation(method: string, body: object): RequestInit {
   };
 }
 
-async function request(
+async function request<T = DraftWorkspace | null>(
   kind: DraftPersistenceKind,
   conversationId: string,
   suffix: string,
@@ -108,7 +109,7 @@ async function request(
     `/api/products/socratic-draft/${collection}/${encodeURIComponent(conversationId)}${suffix}`,
     init,
   );
-  const payload = await response.json() as ApiResponse<DraftWorkspace | null>;
+  const payload = await response.json() as ApiResponse<T>;
   if (!response.ok || !payload.ok) {
     throw new DraftClientError(
       payload.ok ? "draft_unavailable" : payload.error.code,

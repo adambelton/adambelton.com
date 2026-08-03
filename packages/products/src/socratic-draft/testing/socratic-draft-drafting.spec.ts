@@ -25,6 +25,12 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await editor.fill("Football grants legitimacy, and accountability must follow.");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByText("Revision 2")).toBeVisible();
+  await page.getByRole("button", { name: "Discuss this edit" }).click();
+  await expect(page.getByLabel("Attached draft change")).toContainText("revision 1 to 2");
+  await page.getByLabel("Your next thought").fill("What might this saved edit mean?");
+  await page.getByRole("button", { name: "Send" }).click();
+  await expect(page.getByText("What feels most important to examine in that passage?")).toBeVisible();
+  await expect(page.getByLabel("Attached draft change")).not.toBeVisible();
 
   await page.getByRole("button", { name: "History" }).click();
   await page.getByRole("button", { name: /Revision 1/ }).click();
@@ -70,6 +76,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileNavigation = page.getByRole("navigation", { name: "Workspace views" });
+  await mobileNavigation.getByRole("button", { name: "draft", exact: true }).click();
   await expect(mobileNavigation.getByRole("button", { name: "draft", exact: true })).toHaveAttribute("aria-current", "page");
   await editor.selectText();
   await page.getByRole("button", { name: "Discuss selection" }).click();

@@ -10,6 +10,7 @@ import type {
   IdeaActionResult,
   IdeaMap,
   DraftSelection,
+  DraftChange,
   DraftWorkspace,
 } from "packages/products/src/socratic-draft/shared";
 import {
@@ -81,6 +82,7 @@ export function ConversationEditor({
   const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
   const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
   const [draftSelection, setDraftSelection] = useState<DraftSelection | null>(null);
+  const [draftChange, setDraftChange] = useState<DraftChange | null>(null);
   const [status, setStatus] = useState<ConversationStatus>(
     CONVERSATION_STATUSES.idle,
   );
@@ -132,6 +134,7 @@ export function ConversationEditor({
         conversationId,
         message: trimmedMessage,
         ...(draftSelection ? { draftSelection } : {}),
+        ...(draftChange ? { draftChange } : {}),
       });
 
       setConversationId(response.conversationId);
@@ -144,6 +147,7 @@ export function ConversationEditor({
         setHasDraftOffer(true);
       }
       setDraftSelection(null);
+      setDraftChange(null);
     } catch (sendError) {
       if (
         sendError instanceof ConversationRequestError &&
@@ -202,6 +206,7 @@ export function ConversationEditor({
       setIdeaMap(EMPTY_IDEA_MAP);
       setMessage("");
       setDraftSelection(null);
+      setDraftChange(null);
       setHasDraftOffer(false);
     } catch (clearError) {
       setError(
@@ -244,6 +249,12 @@ export function ConversationEditor({
             <aside className="border border-[var(--line)] p-3" aria-label="Attached draft passage">
               <p className="text-sm"><strong>Draft passage attached:</strong> “{draftSelection.selectedText}”</p>
               <button className="mt-2 text-sm underline" onClick={() => setDraftSelection(null)} type="button">Remove attachment</button>
+            </aside>
+          ) : null}
+          {draftChange ? (
+            <aside className="border border-[var(--line)] p-3" aria-label="Attached draft change">
+              <p className="text-sm"><strong>Saved edit attached:</strong> revision {draftChange.fromRevision} to {draftChange.toRevision}</p>
+              <button className="mt-2 text-sm underline" onClick={() => setDraftChange(null)} type="button">Remove attachment</button>
             </aside>
           ) : null}
           <ConversationComposer
@@ -322,7 +333,17 @@ export function ConversationEditor({
               }}
               onAttachSelection={(attached) => {
                 setDraftSelection(attached);
+                setDraftChange(null);
                 revealSurface("conversation");
+              }}
+              onAttachChange={(attached) => {
+                setDraftChange(attached);
+                setDraftSelection(null);
+                revealSurface("conversation");
+              }}
+              onDraftAdvanced={() => {
+                setDraftChange(null);
+                setDraftSelection(null);
               }}
               ref={draftRef}
             />

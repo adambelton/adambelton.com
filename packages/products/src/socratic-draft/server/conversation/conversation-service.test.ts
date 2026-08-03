@@ -184,6 +184,38 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).not.toContain("no draft exists");
   });
 
+  it("supplies an exact saved change without canonising its meaning", async () => {
+    const modelRequests: ConversationModelRequest[] = [];
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse(request) {
+          modelRequests.push(request);
+          return { content: "What does that change mean to you?" };
+        },
+      },
+    });
+
+    await service.respond({
+      conversationId: "conversation-1",
+      message: "Help me think about this edit.",
+      previousMessages: [],
+      draftChange: {
+        fromRevision: 2,
+        toRevision: 3,
+        scope: "passage",
+        start: 10,
+        end: 15,
+        removedText: "quiet",
+        addedText: "deliberate",
+      },
+    });
+
+    expect(modelRequests[0]?.system).toContain("revision 2 to revision 3");
+    expect(modelRequests[0]?.system).toContain('Removed text: "quiet"');
+    expect(modelRequests[0]?.system).toContain('Added text: "deliberate"');
+    expect(modelRequests[0]?.system).toContain("Do not treat it as an interpretation");
+  });
+
   it("accepts complete input at the byte boundary and rejects one byte over", async () => {
     const modelRequests: ConversationModelRequest[] = [];
     const service = new ConversationService({

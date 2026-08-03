@@ -5,6 +5,7 @@ import type {
   ConversationResponse,
   IdeaMap,
   DraftSelection,
+  DraftChange,
   UserIntention,
 } from "packages/products/src/socratic-draft/shared";
 import {
@@ -215,6 +216,7 @@ export interface ConversationServiceRequest {
   previousMessages: ConversationMessage[];
   ideaMap?: IdeaMap;
   draftSelection?: DraftSelection;
+  draftChange?: DraftChange;
 }
 
 export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
@@ -287,10 +289,12 @@ export function measureConversationRequestInputBytes(
 }
 
 function createConversationModelRequest(request: ConversationServiceRequest) {
-  const selectionContext = request.draftSelection
+  const draftContext = request.draftChange
+    ? ` A canonical draft exists. The user explicitly attached the exact saved change from revision ${request.draftChange.fromRevision} to revision ${request.draftChange.toRevision} for discussion only. Do not treat it as an interpretation, preference, or authorisation to change the draft. Removed text: ${JSON.stringify(request.draftChange.removedText)} Added text: ${JSON.stringify(request.draftChange.addedText)}`
+    : request.draftSelection
     ? ` A canonical draft exists. The user explicitly attached this exact passage from canonical draft revision ${request.draftSelection.baseDraftRevision} for discussion only; it does not authorize a draft change: ${JSON.stringify(request.draftSelection.selectedText)}`
     : " No canonical draft exists in this operation.";
-  const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT}${selectionContext} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
+  const system = `${SOCRATIC_DRAFT_SYSTEM_PROMPT}${draftContext} Current idea map: ${JSON.stringify(createBoundedIdeaContext(request.ideaMap))}`;
   const currentMessage = {
     role: CONVERSATION_MESSAGE_ROLES.user,
     content: request.message,

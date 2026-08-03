@@ -116,6 +116,12 @@ describe("DraftService", () => {
     expect("workspace" in saved && saved.workspace.draft?.body).toBe(
       "\n  Exact author text.  \n",
     );
+    expect(saved.change).toMatchObject({
+      fromRevision: 1,
+      toRevision: 2,
+      removedText: "The original draft.",
+      addedText: "\n  Exact author text.  \n",
+    });
   });
 
   it("does not repeat composition model work for a retried operation", async () => {
@@ -173,6 +179,12 @@ describe("DraftService", () => {
       body: "The original draft.",
       source: "restoration",
       restoredFromRevision: 1,
+    });
+    expect(restored.change).toMatchObject({
+      fromRevision: 2,
+      toRevision: 3,
+      removedText: "Second version.",
+      addedText: "The original draft.",
     });
   });
 

@@ -7,6 +7,8 @@ import {
 } from "react";
 import {
   REVISION_PROPOSAL_SCOPES,
+  type DraftChange,
+  type DraftOperationResponse,
   type DraftSelection,
   type DraftWorkspace,
   type Idea,
@@ -36,6 +38,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   kind: DraftPersistenceKind;
   onDraftCreated: () => void;
   onAttachSelection: (selection: DraftSelection) => void;
+  onAttachChange: (change: DraftChange) => void;
+  onDraftAdvanced: () => void;
   hasDraftOffer?: boolean;
   initialWorkspace?: DraftWorkspace | null;
 }>(function DraftPanel({
@@ -45,6 +49,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   kind,
   onDraftCreated,
   onAttachSelection,
+  onAttachChange,
+  onDraftAdvanced,
   hasDraftOffer = false,
   initialWorkspace = null,
 }, ref) {
@@ -57,35 +63,45 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [draftChange, setDraftChange] = useState<DraftChange | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
       setWorkspace(null);
       setBody("");
+      setDraftChange(null);
       return;
     }
     if (initialWorkspace) {
       setWorkspace(initialWorkspace);
       setBody(initialWorkspace.draft?.body ?? "");
+      setDraftChange(null);
       return;
     }
     if (!isActive) return;
     void loadDraft(kind, conversationId).then((loaded) => {
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
+      setDraftChange(null);
     }).catch(() => setStatus("The draft workspace could not be loaded."));
   }, [conversationId, initialWorkspace, isActive, kind]);
 
   async function run(
-    operation: () => Promise<DraftWorkspace | null>,
+    operation: () => Promise<DraftWorkspace | DraftOperationResponse | null>,
     message: string,
   ) {
     setBusy(true);
     setStatus(null);
     try {
-      const changed = await operation();
+      const result = await operation();
+      const changed = result && "workspace" in result ? result.workspace : result;
+      const nextChange = result && "workspace" in result ? result.change : null;
       setWorkspace(changed);
       setBody(changed?.draft?.body ?? "");
+      if (changed?.draft?.currentRevision !== workspace?.draft?.currentRevision) {
+        setDraftChange(nextChange);
+        onDraftAdvanced();
+      }
       setStatus(message);
       return true;
     } catch (error) {
@@ -188,6 +204,16 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         >
           Discuss selection
         </button>
+        {draftChange ? (
+          <button
+            className="underline"
+            disabled={busy || body !== draft.body}
+            onClick={() => onAttachChange(draftChange)}
+            type="button"
+          >
+            Discuss this edit
+          </button>
+        ) : null}
         {status ? <p role="status">{status}</p> : null}
       </div>
       <section aria-labelledby="revision-proposal-title" className="grid gap-3 border-t border-[var(--line)] pt-5">

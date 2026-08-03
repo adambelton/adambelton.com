@@ -17,6 +17,7 @@ import {
   CONVERSATION_MESSAGE_ROLES,
   type ConversationResponse,
   type DraftSelection,
+  type DraftChange,
 } from "packages/products/src/socratic-draft/shared";
 import {
   applyIdeaAction,
@@ -49,6 +50,7 @@ export async function respondInWorkspace(input: {
   conversation: ConversationResponder;
   conversations: ConversationStore;
   draftSelection?: DraftSelection;
+  draftChange?: DraftChange;
 }): Promise<RespondInWorkspaceResult> {
   const workspace = input.conversationId
     ? await input.conversations.getConversationWorkspace(input.conversationId)
@@ -67,6 +69,7 @@ export async function respondInWorkspace(input: {
       previousMessages: workspace.messages,
       ideaMap: workspace.ideaMap,
       draftSelection: input.draftSelection,
+      draftChange: input.draftChange,
     });
   } catch (error) {
     if (error instanceof ConversationInputTooLargeError) {

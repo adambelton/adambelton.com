@@ -1,5 +1,6 @@
 import type {
   ConversationRequest,
+  DraftChange,
   DraftSelection,
 } from "packages/products/src/socratic-draft/shared";
 
@@ -20,6 +21,13 @@ export async function parseConversationRequest(
     return null;
   }
 
+  if (body.draftChange !== undefined && !isDraftChange(body.draftChange)) {
+    return null;
+  }
+  if (body.draftChange !== undefined && body.draftSelection !== undefined) {
+    return null;
+  }
+
   if (
     body.draftSelection !== undefined &&
     !isDraftSelection(body.draftSelection)
@@ -30,10 +38,22 @@ export async function parseConversationRequest(
   return {
     conversationId: body.conversationId ?? null,
     message: body.message,
+    ...(isDraftChange(body.draftChange) ? { draftChange: body.draftChange } : {}),
     ...(isDraftSelection(body.draftSelection)
       ? { draftSelection: body.draftSelection }
       : {}),
   };
+}
+
+function isDraftChange(value: unknown): value is DraftChange {
+  if (!isRecord(value)) return false;
+  return typeof value.fromRevision === "number" &&
+    typeof value.toRevision === "number" &&
+    (value.scope === "passage" || value.scope === "whole_draft") &&
+    typeof value.start === "number" &&
+    typeof value.end === "number" &&
+    typeof value.removedText === "string" &&
+    typeof value.addedText === "string";
 }
 
 export async function parseConversationMessage(
