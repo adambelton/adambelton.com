@@ -42,10 +42,36 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     expect(Math.abs(emptyLayout.composerBottom - emptyLayout.workspaceBottom)).toBeLessThanOrEqual(1);
 
     await page.setViewportSize({ width: 1440, height: 700 });
-    const compactWorkspaceHeight = await page.getByTestId("workspace").evaluate(
-      (workspace) => workspace.getBoundingClientRect().height,
+    const compactLayout = await page.getByTestId("workspace").evaluate(
+      (workspace) => {
+        const conversationColumn = workspace.querySelector(
+          '[data-testid="conversation-column"]',
+        )!;
+        const composer = conversationColumn.querySelector("form")!;
+        return {
+          workspaceHeight: workspace.getBoundingClientRect().height,
+          workspaceBottom: workspace.getBoundingClientRect().bottom,
+          conversationHeight: conversationColumn.getBoundingClientRect().height,
+          composerBottom: composer.getBoundingClientRect().bottom,
+        };
+      },
     );
-    expect(compactWorkspaceHeight).toBeLessThan(emptyLayout.workspaceHeight);
+    expect(compactLayout.workspaceHeight).toBeGreaterThanOrEqual(320);
+    expect(compactLayout.conversationHeight).toBe(compactLayout.workspaceHeight);
+    expect(Math.abs(compactLayout.composerBottom - compactLayout.workspaceBottom)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const narrowWorkspace = page.getByTestId("workspace");
+    await expect(page.getByTestId("conversation-column")).toBeVisible();
+    expect(await page.getByTestId("conversation-column").evaluate(
+      (column) => column.getBoundingClientRect().height,
+    )).toBe(await narrowWorkspace.evaluate((workspace) => workspace.getBoundingClientRect().height));
+    await page.getByRole("button", { name: "idea map" }).click();
+    await expect(page.getByTestId("workspace-column")).toBeVisible();
+    expect(await page.getByTestId("workspace-column").evaluate(
+      (column) => column.getBoundingClientRect().height,
+    )).toBe(await narrowWorkspace.evaluate((workspace) => workspace.getBoundingClientRect().height));
+    await page.getByRole("button", { name: "conversation" }).click();
     await page.setViewportSize({ width: 1440, height: 1200 });
   });
 
