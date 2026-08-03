@@ -63,6 +63,16 @@ commands, events, and lifecycle facts. In particular, a `Draft` is the writing,
 composing is work performed on it, and `Composition` is the activity concerned
 with that work.
 
+The unnumbered repository-organisation baseline has been implemented without
+changing the numbered roadmap. Source paths now express ownership first,
+architectural role second, and business capability third. Deployable hosts use
+explicit bootstrap, platform, product-mount, and adapter boundaries. Socratic
+Draft separates capability rules, cross-capability application operations,
+inbound delivery, ports, client surfaces, and distinct forms of test support.
+The product registry definition now belongs to `packages/products`, production
+code no longer imports test fakes, obsolete empty scaffolds have been removed,
+and repository-wide dependency tests enforce the documented ownership graph.
+
 The repository now has deterministic Playwright coverage for the Socratic Draft
 discovery flow. It runs against dedicated product-owned test client/API hosts,
 an in-memory product store, and a scripted conversation model without involving
@@ -94,7 +104,7 @@ contract evaluation remains outside CI.
 - Socratic Draft client files organised by responsibility under `pages`,
   `components`, and `modules`, with demo and persistent editor pages named
   explicitly as `DemoEditorPage` and `EditorPage`.
-- Socratic Draft-owned API route surface under `packages/products/src/socratic-draft/server/http`.
+- Socratic Draft-owned API delivery surface under `packages/products/src/socratic-draft/server/delivery/http`.
 - API host mount for product API routes under `/products`.
 - Product route access requirements for authenticated and owner-only Socratic Draft routes.
 - Platform-wide `ACCESS_LEVELS` constant as the source of truth for owner and demo access-level values.
@@ -245,8 +255,8 @@ contract evaluation remains outside CI.
 
 ## Partially implemented
 
-- Product registry exists as a shared constant and is used by the static products page.
-- `packages/ai` has an OpenAI adapter and a test-only fake client, but no streaming, provider routing, or usage tracking yet.
+- Product registry types are platform-wide while the product definitions are owned by `packages/products` and used by the host product catalogue.
+- `packages/ai` has an OpenAI provider and separately located test fake, but no streaming, provider routing, or usage tracking yet.
 - The Socratic Draft conversation service is LLM-backed only when the hosted-AI kill switch and OpenAI configuration are present, but its conversation policy is intentionally minimal.
 - Socratic Draft persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
 

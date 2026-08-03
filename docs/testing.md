@@ -64,7 +64,7 @@ git diff --stat
 Playwright verifies user-observable product flows across a real browser, the
 product client, the product HTTP route, and product orchestration. Socratic
 Draft's browser suite runs against dedicated testing hosts in
-`packages/products/src/socratic-draft/testing`. Those hosts provide a
+`packages/products/src/socratic-draft/testing/browser`. Those hosts provide a
 deterministic conversation model and a product-language in-memory store.
 
 The suite deliberately does not start `apps/client` or `apps/api`. It does not
@@ -82,11 +82,15 @@ They do not run in CI and do not replace deterministic tests.
 
 Tests and evaluations of product-owned behaviour are colocated within that
 product package. Socratic Draft client tests live beside its pages and
-components, while its browser fixtures and hosted evaluations live under
-`packages/products/src/socratic-draft/testing`.
+components. Reusable substitutes live in `testing/fakes`, reusable example
+state in `testing/fixtures`, complete journeys in `testing/browser`, and
+real-model checks in `testing/evaluations`.
 
 Host applications retain only tests of host responsibilities such as mounting
 product routes and supplying adapters. Infrastructure packages retain tests of
 their concrete product adapters, such as the Socratic Draft Prisma store. A
 test-only product evaluation may compose a concrete provider as a development
 fixture; that does not make the provider part of the product runtime boundary.
+
+Repository-wide ownership and production/test dependency rules live under
+`tests/architecture`. Production source must never import `testing` code.

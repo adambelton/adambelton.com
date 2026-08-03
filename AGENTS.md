@@ -44,6 +44,7 @@ packages/ai
 
 packages/products
   Product-specific source of truth. Each product owns its domain model, contracts, server logic, reusable client code, prompts, readiness logic, thread/claim handling, and composition logic.
+```
 
 Each product should use this extractable structure:
 
@@ -54,13 +55,78 @@ packages/products/src/[product-slug]/
     index.ts
     types.ts
   server/
+    capabilities/
+    application/
+    delivery/
     index.ts
   client/
     index.ts
+  testing/
+    fakes/
+    fixtures/
+    browser/
+    evaluations/
 ```
 
 Top-level apps are named by deployable surface, such as `apps/client` and `apps/api`. Product internals are named by reusable runtime boundary: `shared`, `server`, and `client`.
-```
+
+## Repository Organisation
+
+The implemented structure documented in the root `README.md`, each product's
+own `README.md`, and `docs/architecture.md` is mandatory for all future work.
+Organise code by:
+
+1. ownership boundary;
+2. architectural role;
+3. business or product capability;
+4. single file responsibility.
+
+This is a reasoning rule, not only a naming convention. Paths must help a reader
+diagnose behaviour without knowing implementation history. Keep meaning separate
+from mechanism, keep capability rules out of coordination and delivery layers,
+make dependencies point toward stable contracts, colocate verification with its
+owner, and introduce structure only for real implemented responsibilities.
+
+Before placing new code, answer these questions in order:
+
+1. Who owns the meaning?
+2. Is the code a capability rule, application coordination, inbound delivery,
+   an external port, a concrete adapter, presentation, or test support?
+3. Which business or product capability does it concern?
+4. What single reason should the file have to change?
+
+If the proposed path does not communicate those answers, stop and resolve the
+ownership or role ambiguity before implementation.
+
+Do not place different architectural roles at the same directory level merely
+because they all run on the server or client.
+
+- `bootstrap` starts a deployable app and assembles its dependencies.
+- `capabilities` contain rules owned by one product or platform capability.
+- `application` coordinates capabilities for complete user operations.
+- `delivery` exposes operations through HTTP or another inbound mechanism.
+- `ports` describe dependencies required by an owner without implementing them.
+- `adapters` connect ports to concrete host or infrastructure mechanisms.
+- `testing/fakes`, `testing/fixtures`, `testing/browser`, and
+  `testing/evaluations` have the distinct meanings documented in the root
+  `README.md` and the owning product README.
+
+Host product wiring belongs under `apps/[host]/src/products/[product-slug]`.
+Concrete durable product persistence belongs under
+`packages/db/src/adapters/[product-slug]`. Product definitions belong in
+`packages/products`; `packages/shared` contains only platform-wide product
+registry types.
+
+Do not introduce generic dumping-ground directories such as `helpers`,
+`utilities`, or undifferentiated `services`. A directory named `components` is
+allowed only beneath a clearly owned interface capability or shared UI boundary.
+Do not create empty speculative scaffold directories.
+
+When moving or adding code, update the nearest owning README tree if the
+architectural shape changes. The root README remains repository-wide; detailed
+product structure, flows, integration guidance, and diagnostic maps belong in
+the README at that product's root. New architectural roles or exceptions
+require explicit approval and a record in `docs/decisions.md`.
 
 ## Product Dependency Boundary
 
@@ -81,8 +147,10 @@ Top-level apps are named by deployable surface, such as `apps/client` and `apps/
 - Platform-wide shared types belong in `packages/shared`.
 - Product-specific types, contracts, and behaviour belong in that product's folder under `packages/products`.
 - All TypeScript imports and re-exports must use repo-root absolute paths. Do not use relative imports or aliases, even between files in the same folder.
-- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/client/src/components/Prose`.
-- API routes should stay thin and call controllers/services.
+- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
+- Product delivery routes should stay thin and invoke product application or
+  capability operations. Host product mounts assemble dependencies and must not
+  recreate product behaviour.
 - DB access should go through `packages/db`.
 - AI provider access should go through `packages/ai`.
 - Auth/access logic should go through `packages/auth`.

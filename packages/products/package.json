@@ -7,8 +7,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "e2e:api": "tsx src/socratic-draft/testing/api-host.ts",
-    "e2e:client": "vite --host 127.0.0.1 --config src/socratic-draft/testing/client/vite.config.ts",
+    "e2e:api": "tsx src/socratic-draft/testing/browser/api-host.ts",
+    "e2e:client": "vite --host 127.0.0.1 --config src/socratic-draft/testing/browser/client/vite.config.ts",
     "evaluate:socratic-draft": "tsx src/socratic-draft/testing/evaluations/hosted.ts",
     "test:hosted": "tsx src/socratic-draft/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",

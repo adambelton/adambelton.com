@@ -33,6 +33,7 @@ change the proposal or grant approval for a later task.
 
 ## Completed
 
+- Repository organisation baseline (unnumbered maintenance task)
 - 032 — Saved draft-change context and user-directed discussion
 - 031 — Private drafts, revision history, approved proposals, and corrective audit pass
 - 030 — Meaningful discovery and composition readiness

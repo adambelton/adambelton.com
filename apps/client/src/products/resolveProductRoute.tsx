@@ -1,8 +1,8 @@
 import {
-  getProductBySlug,
   PRODUCT_IDS,
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
+import { getProductBySlug } from "packages/products/src/registry";
 import { renderProductRoute as renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
 import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
 import type { AccessLevel } from "packages/shared/src";

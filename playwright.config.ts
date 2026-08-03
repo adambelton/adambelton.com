@@ -4,7 +4,7 @@ const apiUrl = "http://127.0.0.1:8788";
 const clientUrl = "http://127.0.0.1:3000";
 
 export default defineConfig({
-  testDir: "packages/products/src/socratic-draft/testing",
+  testDir: "packages/products/src/socratic-draft/testing/browser",
   testMatch: "**/*.spec.ts",
   fullyParallel: false,
   workers: 1,

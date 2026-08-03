@@ -118,7 +118,7 @@ packages/products/src/[product-slug]/
 
 Because each product folder already provides the product namespace, product-local type names should use direct domain names such as `ConversationRequest`, `ConversationResponse`, and `ConversationState` rather than repeating the product name.
 
-TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server` or `apps/client/src/components/Prose`.
+TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
 
 Top-level apps keep deployable names such as `apps/client` and `apps/api`. Product package internals use reusable runtime boundary names: `shared`, `server`, and `client`.
 
@@ -703,3 +703,33 @@ making product code depend on host UI. Ancestors are links, the current page is
 plain text marked with `aria-current="page"`, private resource identifiers are
 not displayed, and each rendered page has one breadcrumb landmark above its
 main heading.
+
+## 041 — Repository Paths Express Ownership And Architectural Role
+
+Repository source is organised by ownership boundary first, architectural role
+second, business or product capability third, and single file responsibility
+last. Apps are deployable hosts; packages are reusable owners. Product servers
+separate capability rules, cross-capability application operations, and inbound
+delivery. External requirements are product-owned ports, while their concrete
+implementations are host or infrastructure adapters.
+
+This order makes paths usable as diagnostic maps. It keeps stable product
+meaning independent from changing mechanisms, prevents coordination layers from
+absorbing capability rules, directs dependencies toward owned contracts, and
+introduces abstractions only when real implemented responsibilities justify
+them.
+
+The vocabulary and implemented trees in the repository and product READMEs are
+architectural rules, not illustrative suggestions. The root README explains
+the repository as a whole; each product README owns its detailed internal tree,
+flow, integration boundary, and diagnostic map so the product remains
+understandable when developed independently of a host. Production code cannot
+import test support. Colocated tests protect neighbouring behaviour; reusable
+fakes, fixtures, browser journeys, and hosted evaluations have explicit
+distinct locations. Empty speculative scaffolds and undifferentiated helper,
+utility, or service directories are not permitted.
+
+Product registry definitions belong to `packages/products`; only platform-wide
+registry types belong to `packages/shared`. Repository-wide dependency tests
+enforce the allowed ownership graph so later work cannot silently erode these
+boundaries.

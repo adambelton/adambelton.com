@@ -13,7 +13,7 @@ import {
   getProposedIdeaActionsValidationIssues,
   getProposedIdeasValidationIssues,
 } from "packages/products/src/socratic-draft/server";
-import { respondInWorkspace } from "packages/products/src/socratic-draft/server/workspace";
+import { respondInWorkspace } from "packages/products/src/socratic-draft/server/application/workspace";
 import {
   EMPTY_IDEA_MAP,
   type IdeaMap,
@@ -23,7 +23,7 @@ import {
   type HostedConversationTurnMetrics,
 } from "packages/products/src/socratic-draft/testing/evaluations/hosted-conversation-evaluation";
 import { HOSTED_CONVERSATION_EVALUATION_SCENARIOS } from "packages/products/src/socratic-draft/testing/evaluations/scenarios";
-import { createTestConversationStore } from "packages/products/src/socratic-draft/server/testing/test-conversation-persistence";
+import { createTestConversationStore } from "packages/products/src/socratic-draft/testing/fakes/test-conversation-persistence";
 
 const HOSTED_EVALUATION_ENABLED_VALUE = "true";
 const localEnvPath = fileURLToPath(
