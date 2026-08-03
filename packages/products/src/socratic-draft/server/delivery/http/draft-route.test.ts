@@ -6,7 +6,7 @@ import { createDraftRoute } from "packages/products/src/socratic-draft/server/de
 import { TestConversationPersistence } from "packages/products/src/socratic-draft/testing/fakes/test-conversation-persistence";
 import { TestDraftPersistence } from "packages/products/src/socratic-draft/testing/fakes/test-draft-persistence";
 import type { Idea } from "packages/products/src/socratic-draft/shared";
-import type { DraftOperationResponse, DraftWorkspace } from "packages/products/src/socratic-draft/shared";
+import type { DraftOperationResponse, DraftingState } from "packages/products/src/socratic-draft/shared";
 import type { ApiResponse } from "packages/shared/src";
 
 const idea: Idea = {
@@ -83,6 +83,34 @@ describe("draft HTTP route", () => {
     expect(stale.payload.error.code).toBe("draft_conflict");
   });
 
+  it("persists format before a draft and rejects stale changes", async () => {
+    const saved = await jsonRequest(app, `/drafts/${conversationId}/format`, {
+      method: "PUT",
+      body: { expectedFormatRevision: 0, format: "  Case study  " },
+    });
+    expect(saved.response.status).toBe(200);
+    if (!saved.payload.ok) throw new Error("Expected format save to succeed.");
+    expect(saved.payload.data).toMatchObject({
+      format: "Case study",
+      formatRevision: 1,
+      draft: null,
+    });
+
+    const stale = await jsonRequest(app, `/drafts/${conversationId}/format`, {
+      method: "PUT",
+      body: { expectedFormatRevision: 0, format: "Personal essay" },
+    });
+    expect(stale.response.status).toBe(409);
+
+    const loaded = await app.request(`/drafts/${conversationId}`);
+    const payload = await loaded.json() as ApiResponse<DraftingState>;
+    expect(payload.ok && payload.data).toMatchObject({
+      format: "Case study",
+      formatRevision: 1,
+      draft: null,
+    });
+  });
+
   it("reviews and accepts the exact proposed whole draft", async () => {
     await jsonRequest(app, `/drafts/${conversationId}/compose`, {
       method: "POST",
@@ -113,7 +141,7 @@ describe("draft HTTP route", () => {
   });
 });
 
-async function jsonRequest<T = DraftWorkspace>(
+async function jsonRequest<T = DraftingState>(
   app: Hono,
   path: string,
   input: { method: string; body: Record<string, unknown> },

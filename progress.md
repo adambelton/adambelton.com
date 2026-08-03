@@ -57,6 +57,21 @@ coverage exercises concurrent message sequencing, duplicate operations,
 transaction rollback, owner-scoped reads, and workspace cascades; ordinary unit
 and CI runs skip these database-connected tests unless `DATABASE_URL` is supplied.
 
+Task 033 has been implemented. The drafting capability now owns `DraftingState`,
+which may retain an optional free-text Draft Format before or after a Draft
+exists. Set, change, and clear operations are idempotent and protected by an
+independent format revision; temporary and owner work reload the value through
+the same product-owned persistence contract. The editor presents absence as
+free-form writing and explicitly states that the assistant does not use the
+saved value yet. Conversation, composition, revision, and publishing behaviour
+remain unchanged.
+
+The authenticated owner editor has also been verified locally through the real
+host composition and Neon `dev`: pre-Draft format set, reload, change, clear,
+and final reload all succeeded without creating draft content. API development
+startup applies committed migrations before launching when `DATABASE_URL` is
+configured, while no-database development retains its in-memory fallback.
+
 The Socratic Draft now has a canonical terminology reference distinguishing
 artifacts, activities, operations, assistant moves, readiness, intention,
 commands, events, and lifecycle facts. In particular, a `Draft` is the writing,
@@ -82,6 +97,9 @@ contract evaluation remains outside CI.
 
 ## Implemented
 
+- Optional drafting-owned Draft Format with pre-Draft state, independent
+  concurrency, temporary and Prisma persistence, honest editor controls, and
+  deterministic product, HTTP, adapter, client, and browser coverage.
 - Dedicated Socratic Draft Playwright testing hosts and a comprehensive discovery-session browser test covering coherent multi-idea exploration, enrichment, assessments, unresolved questions, every visible idea disposition action, user correction, focus transfer, request state, conversation ordering, and clearing without host infrastructure.
 - Product-owned deterministic `TestConversationModel` for unit, integration, and browser scenarios.
 - GitHub Actions validation for tests, typecheck, build, and Playwright Chromium.
@@ -293,6 +311,5 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Task 033 — Add optional intended draft form. Its proposal remains subject to
-review after Task 032's corrective pass; intended form is private workspace
-guidance rather than publishing intent, a required mode, or a preference.
+Task 034 — Add conservative substantive-edit interpretation, subject to its own
+proposal review and explicit approval.

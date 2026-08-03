@@ -61,7 +61,7 @@ export function createConversationRoute({
     const draftStore = getDraftStore ? await getDraftStore(context.req.raw) : null;
     const hasDraft = Boolean(
       conversationId &&
-      (await draftStore?.getDraftWorkspace(conversationId))?.draft,
+      (await draftStore?.getDraftingState(conversationId))?.draft,
     );
     if (
       request.draftSelection &&

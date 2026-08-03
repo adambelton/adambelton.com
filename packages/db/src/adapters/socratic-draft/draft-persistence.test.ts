@@ -4,6 +4,38 @@ import { createPrismaDraftPersistence } from "packages/db/src/adapters/socratic-
 import { createDraftStore } from "packages/products/src/socratic-draft/server/capabilities/drafting";
 
 describe("Prisma Socratic Draft draft persistence", () => {
+  it("persists owner-scoped format without creating a draft row", async () => {
+    const database = createFakeDraftDatabase([
+      { id: "conversation-1", userId: "owner-1" },
+    ]);
+    const store = createDraftStore(createPrismaDraftPersistence(
+      database.client,
+      "owner-1",
+    ));
+
+    const changed = await store.changeDraftFormat({
+      conversationId: "conversation-1",
+      operationId: "format-1",
+      expectedFormatRevision: 0,
+      format: "Project write-up",
+    });
+    expect(changed).toMatchObject({
+      status: "changed",
+      workspace: { format: "Project write-up", formatRevision: 1, draft: null },
+    });
+
+    const reloaded = createDraftStore(createPrismaDraftPersistence(
+      database.client,
+      "owner-1",
+    ));
+    await expect(reloaded.getDraftingState("conversation-1")).resolves.toMatchObject({
+      format: "Project write-up",
+      formatRevision: 1,
+      draft: null,
+      revisions: [],
+    });
+  });
+
   it("retains owner-scoped immutable revisions and rejects stale saves", async () => {
     const database = createFakeDraftDatabase([
       { id: "conversation-1", userId: "owner-1" },
@@ -26,7 +58,7 @@ describe("Prisma Socratic Draft draft persistence", () => {
     });
     expect(composed.status).toBe("changed");
     await expect(
-      otherOwner.getDraftWorkspace("conversation-1"),
+      otherOwner.getDraftingState("conversation-1"),
     ).resolves.toBeNull();
 
     const saved = await owner.appendDraftRevision({
@@ -48,7 +80,7 @@ describe("Prisma Socratic Draft draft persistence", () => {
       createdAt: "2026-08-02T12:02:00.000Z",
     });
     expect(stale.status).toBe("conflict");
-    await expect(owner.getDraftWorkspace("conversation-1")).resolves.toMatchObject({
+    await expect(owner.getDraftingState("conversation-1")).resolves.toMatchObject({
       draft: { body: "Owner edit.", currentRevision: 2 },
       revisions: [
         { revision: 1, source: "initial_composition" },
@@ -59,7 +91,7 @@ describe("Prisma Socratic Draft draft persistence", () => {
       database.client,
       "owner-1",
     ));
-    await expect(reloadedOwner.getDraftWorkspace("conversation-1")).resolves.toMatchObject({
+    await expect(reloadedOwner.getDraftingState("conversation-1")).resolves.toMatchObject({
       draft: { body: "Owner edit.", currentRevision: 2 },
       revisions: [{ revision: 1 }, { revision: 2 }],
     });
@@ -128,7 +160,12 @@ describe("Prisma Socratic Draft draft persistence", () => {
   });
 });
 
-type ConversationRow = { id: string; userId: string };
+type ConversationRow = {
+  id: string;
+  userId: string;
+  draftFormat?: string | null;
+  draftFormatRevision?: number;
+};
 type DraftRow = {
   id: string;
   conversationId: string;
@@ -193,6 +230,8 @@ function createFakeDraftDatabase(conversations: ConversationRow[]) {
       candidate.conversationId === conversation.id
     );
     return {
+      draftFormat: conversation.draftFormat ?? null,
+      draftFormatRevision: conversation.draftFormatRevision ?? 0,
       draft: draft ? {
         ...draft,
         revisions: revisions
@@ -215,6 +254,25 @@ function createFakeDraftDatabase(conversations: ConversationRow[]) {
   }
 
   const transaction = {
+    socraticDraftConversation: {
+      async updateMany(input: {
+        where: {
+          id: string;
+          userId: string;
+          draftFormatRevision: number;
+        };
+        data: { draftFormat: string | null; draftFormatRevision: number };
+      }) {
+        const conversation = conversations.find((candidate) =>
+          candidate.id === input.where.id &&
+          candidate.userId === input.where.userId &&
+          (candidate.draftFormatRevision ?? 0) === input.where.draftFormatRevision
+        );
+        if (!conversation) return { count: 0 };
+        Object.assign(conversation, input.data);
+        return { count: 1 };
+      },
+    },
     socraticDraftDraft: {
       async create(input: { data: DraftRow }) {
         drafts.push({ ...input.data });

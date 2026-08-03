@@ -43,7 +43,7 @@ export function createDraftStoreResolver(configuration: {
   resolve.clearTemporary = async (userId: string, conversationId: string) => {
     const store = temporaryStores.get(userId);
     if (!store) return;
-    await store.deleteDraftWorkspace(conversationId);
+    await store.deleteDraftingState(conversationId);
     temporaryStores.delete(userId);
   };
 

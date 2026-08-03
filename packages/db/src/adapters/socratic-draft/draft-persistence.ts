@@ -6,8 +6,8 @@ import {
   type DraftPersistence,
 } from "packages/products/src/socratic-draft/server/capabilities/drafting";
 import {
-  EMPTY_DRAFT_WORKSPACE,
-  type DraftWorkspace,
+  EMPTY_DRAFTING_STATE,
+  type DraftingState,
   type RevisionProposalScope,
   type RevisionProposalState,
 } from "packages/products/src/socratic-draft/shared";
@@ -16,10 +16,10 @@ export function createPrismaDraftPersistence(
   prisma: DatabaseClient,
   userId: string,
 ): DraftPersistence {
-  async function load(conversationId: string): Promise<DraftWorkspace | null> {
+  async function load(conversationId: string): Promise<DraftingState | null> {
     const conversation = await prisma.socraticDraftConversation.findFirst({
       where: { id: conversationId, userId },
-      select: { draft: { select: {
+      select: { draftFormat: true, draftFormatRevision: true, draft: { select: {
         id: true, conversationId: true, body: true, currentRevision: true, createdAt: true, updatedAt: true,
         revisions: { orderBy: { revision: "asc" }, select: { revision: true, body: true, source: true, createdAt: true, proposalId: true, restoredFromRevision: true } },
         proposals: { orderBy: { createdAt: "desc" }, take: 1, select: {
@@ -30,12 +30,20 @@ export function createPrismaDraftPersistence(
       } } },
     });
     if (!conversation) return null;
-    if (!conversation.draft) return structuredClone(EMPTY_DRAFT_WORKSPACE);
+    if (!conversation.draft) {
+      return {
+        ...structuredClone(EMPTY_DRAFTING_STATE),
+        format: conversation.draftFormat,
+        formatRevision: conversation.draftFormatRevision,
+      };
+    }
     const draft = conversation.draft;
     const proposal = draft.proposals[0];
     return {
+      format: conversation.draftFormat,
+      formatRevision: conversation.draftFormatRevision,
       draft: { id: draft.id, conversationId: draft.conversationId, body: draft.body, currentRevision: draft.currentRevision, createdAt: draft.createdAt.toISOString(), updatedAt: draft.updatedAt.toISOString() },
-      revisions: draft.revisions.map((revision) => ({ ...revision, source: revision.source as DraftWorkspace["revisions"][number]["source"], createdAt: revision.createdAt.toISOString() })),
+      revisions: draft.revisions.map((revision) => ({ ...revision, source: revision.source as DraftingState["revisions"][number]["source"], createdAt: revision.createdAt.toISOString() })),
       activeProposal: proposal ? {
         ...proposal,
         scope: proposal.scope as RevisionProposalScope,
@@ -53,7 +61,7 @@ export function createPrismaDraftPersistence(
         where: { id: conversationId, userId },
         select: { id: true },
       });
-      return exists ? structuredClone(EMPTY_DRAFT_WORKSPACE) : null;
+      return exists ? structuredClone(EMPTY_DRAFTING_STATE) : null;
     },
 
     async loadCompletedOperation(conversationId, operationId) {
@@ -77,6 +85,7 @@ export function createPrismaDraftPersistence(
       });
       if (duplicate) return { status: DRAFT_COMMIT_STATUSES.duplicate, workspace: current };
       if (
+        current.formatRevision !== input.expectedFormatRevision ||
         (current.draft?.currentRevision ?? null) !== input.expectedDraftRevision ||
         (current.activeProposal?.currentProposalRevision ?? null) !== input.expectedProposalRevision
       ) return { status: DRAFT_COMMIT_STATUSES.conflict, workspace: current };
@@ -85,7 +94,19 @@ export function createPrismaDraftPersistence(
       try {
         committed = await prisma.$transaction(async (transaction) => {
         await transaction.socraticDraftOperation.create({ data: { conversationId: input.conversationId, operationId: input.operationId, kind: input.operationKind } });
-        const next = input.nextWorkspace;
+        const next = input.nextState;
+        const stateUpdated = await transaction.socraticDraftConversation.updateMany({
+          where: {
+            id: input.conversationId,
+            userId,
+            draftFormatRevision: input.expectedFormatRevision,
+          },
+          data: {
+            draftFormat: next.format,
+            draftFormatRevision: next.formatRevision,
+          },
+        });
+        if (stateUpdated.count !== 1) throw new DraftCommitConflictError();
         if (!current.draft && next.draft) {
           await transaction.socraticDraftDraft.create({ data: {
             id: next.draft.id, conversationId: input.conversationId, body: next.draft.body,

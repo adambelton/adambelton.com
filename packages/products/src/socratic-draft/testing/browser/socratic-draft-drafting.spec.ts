@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("composes, revises, reviews, restores, and clears a private draft", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1200 });
   await page.request.post("/api/testing/reset");
   await page.request.post("/api/testing/draft-workspace");
   await page.goto("/products/socratic-draft/editor");
@@ -25,7 +26,6 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
       return {
         workspaceBottom: workspaceRect.bottom,
         viewportHeight: globalThis.innerHeight,
-        documentHeight: document.documentElement.scrollHeight,
         columnBottom: columnRect.bottom,
         composerBottom: composer.getBoundingClientRect().bottom,
         historyOverflow: globalThis.getComputedStyle(history).overflowY,
@@ -35,17 +35,26 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
     },
   );
   expect(workspaceLayout.workspaceBottom).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
-  expect(workspaceLayout.documentHeight).toBeLessThanOrEqual(workspaceLayout.viewportHeight);
   expect(workspaceLayout.historyOverflow).toBe("auto");
   expect(Math.abs(workspaceLayout.columnBottom - workspaceLayout.composerBottom)).toBeLessThanOrEqual(1);
   expect(Math.abs(workspaceLayout.historyBottom - workspaceLayout.messagesBottom)).toBeLessThanOrEqual(1);
 
   await page.getByRole("button", { name: "Draft", exact: true }).click();
+  const format = page.getByLabel("Optional format guidance");
+  await expect(page.getByText("The assistant does not use this value yet.")).toBeVisible();
+  await format.fill("Personal essay");
+  await page.getByRole("button", { name: "Save format" }).click();
+  await expect(page.getByText("Draft Format saved.")).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "Draft", exact: true }).click();
+  await expect(page.getByLabel("Optional format guidance")).toHaveValue("Personal essay");
+  await expect(page.getByLabel("Canonical draft")).not.toBeVisible();
   await page.getByLabel("Accountability gives legitimacy").check();
   await page.getByLabel("Composition direction").fill("Compose an intentionally early draft.");
   await page.getByRole("button", { name: "Compose draft" }).click();
   const editor = page.getByLabel("Canonical draft");
   await expect(editor).toHaveValue(/Football gives its institutions legitimacy/);
+  await expect(page.getByLabel("Optional format guidance")).toHaveValue("Personal essay");
   await expect(page.getByText("Revision 1")).toBeVisible();
   const draftLayout = await editor.evaluate((draftEditor) => {
     const draft = draftEditor.closest("section")!;

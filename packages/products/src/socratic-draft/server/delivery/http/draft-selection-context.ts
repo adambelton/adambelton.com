@@ -7,7 +7,7 @@ export async function validateDraftSelection(input: {
   selection?: DraftSelection;
 }) {
   if (!input.selection) return true;
-  const draft = (await input.drafts?.getDraftWorkspace(input.conversationId))?.draft;
+  const draft = (await input.drafts?.getDraftingState(input.conversationId))?.draft;
   if (!draft || draft.currentRevision !== input.selection.baseDraftRevision) {
     return false;
   }

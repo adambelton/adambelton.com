@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 test("develops and negotiates a complete discovery conversation", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1200 });
   await test.step("open the temporary discovery workspace", async () => {
     const reset = await page.request.post("/api/testing/reset");
     expect(reset.ok()).toBe(true);
@@ -13,6 +14,65 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     await expect(page.getByText("This demo conversation is temporary.", { exact: false })).toBeVisible();
     await expect(page.getByRole("list", { name: "Conversation" })).toContainText("No messages yet.");
     await expect(page.getByRole("heading", { name: "Idea map" })).not.toBeVisible();
+    const emptyLayout = await page.getByTestId("workspace").evaluate(
+      (workspace) => {
+        const conversationColumn = workspace.querySelector(
+          '[data-testid="conversation-column"]',
+        )!;
+        const workspaceColumn = workspace.querySelector(
+          '[data-testid="workspace-column"]',
+        )!;
+        const composer = conversationColumn.querySelector("form")!;
+        const footer = document.querySelector("footer");
+        return {
+          viewportBottom: globalThis.innerHeight,
+          pageContentBottom: footer?.getBoundingClientRect().bottom ?? globalThis.innerHeight,
+          workspaceHeight: workspace.getBoundingClientRect().height,
+          conversationHeight: conversationColumn.getBoundingClientRect().height,
+          workspaceColumnHeight: workspaceColumn.getBoundingClientRect().height,
+          workspaceBottom: workspace.getBoundingClientRect().bottom,
+          composerBottom: composer.getBoundingClientRect().bottom,
+        };
+      },
+    );
+    expect(Math.abs(emptyLayout.pageContentBottom - emptyLayout.viewportBottom)).toBeLessThanOrEqual(1);
+    expect(emptyLayout.workspaceHeight).toBeGreaterThan(320);
+    expect(emptyLayout.conversationHeight).toBe(emptyLayout.workspaceHeight);
+    expect(emptyLayout.workspaceColumnHeight).toBe(emptyLayout.workspaceHeight);
+    expect(Math.abs(emptyLayout.composerBottom - emptyLayout.workspaceBottom)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 1440, height: 700 });
+    const compactLayout = await page.getByTestId("workspace").evaluate(
+      (workspace) => {
+        const conversationColumn = workspace.querySelector(
+          '[data-testid="conversation-column"]',
+        )!;
+        const composer = conversationColumn.querySelector("form")!;
+        return {
+          workspaceHeight: workspace.getBoundingClientRect().height,
+          workspaceBottom: workspace.getBoundingClientRect().bottom,
+          conversationHeight: conversationColumn.getBoundingClientRect().height,
+          composerBottom: composer.getBoundingClientRect().bottom,
+        };
+      },
+    );
+    expect(compactLayout.workspaceHeight).toBeGreaterThanOrEqual(320);
+    expect(compactLayout.conversationHeight).toBe(compactLayout.workspaceHeight);
+    expect(Math.abs(compactLayout.composerBottom - compactLayout.workspaceBottom)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const narrowWorkspace = page.getByTestId("workspace");
+    await expect(page.getByTestId("conversation-column")).toBeVisible();
+    expect(await page.getByTestId("conversation-column").evaluate(
+      (column) => column.getBoundingClientRect().height,
+    )).toBe(await narrowWorkspace.evaluate((workspace) => workspace.getBoundingClientRect().height));
+    await page.getByRole("button", { name: "idea map" }).click();
+    await expect(page.getByTestId("workspace-column")).toBeVisible();
+    expect(await page.getByTestId("workspace-column").evaluate(
+      (column) => column.getBoundingClientRect().height,
+    )).toBe(await narrowWorkspace.evaluate((workspace) => workspace.getBoundingClientRect().height));
+    await page.getByRole("button", { name: "conversation" }).click();
+    await page.setViewportSize({ width: 1440, height: 1200 });
   });
 
   await test.step("identify the leadership problem", async () => {

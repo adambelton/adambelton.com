@@ -8,7 +8,7 @@ export async function validateDraftChange(input: {
   change?: DraftChange;
 }) {
   if (!input.change) return true;
-  const workspace = await input.drafts?.getDraftWorkspace(input.conversationId);
+  const workspace = await input.drafts?.getDraftingState(input.conversationId);
   if (
     !workspace?.draft ||
     workspace.draft.currentRevision !== input.change.toRevision

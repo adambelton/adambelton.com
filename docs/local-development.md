@@ -36,6 +36,10 @@ Apply committed migrations to the selected database branch:
 set -a; source .env.local; set +a; pnpm db:migrate:deploy
 ```
 
+`pnpm dev:api` generates the Prisma client and applies committed migrations
+automatically before starting the API. The explicit migration command remains
+available for deployment and database-only workflows.
+
 Validate the Prisma schema and generate the Prisma client:
 
 ```txt

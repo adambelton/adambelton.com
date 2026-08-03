@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Conversation, DraftWorkspace } from "packages/products/src/socratic-draft/shared";
+import type { Conversation, DraftingState } from "packages/products/src/socratic-draft/shared";
 import { ConversationEditor } from "packages/products/src/socratic-draft/client/workspace/components/ConversationEditor";
 import { sendPersistentConversationMessage } from "packages/products/src/socratic-draft/client/workspace/actions/send-conversation-message";
 import { sendPersistentIdeaAction } from "packages/products/src/socratic-draft/client/workspace/actions/send-idea-action";
@@ -15,7 +15,7 @@ export function EditorPage({
 }: EditorPageProps) {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [draftWorkspace, setDraftWorkspace] = useState<DraftWorkspace | null>(null);
+  const [draftingState, setDraftingState] = useState<DraftingState | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -27,10 +27,10 @@ export function EditorPage({
       loadConversation(conversationId),
       loadDraft("persistent", conversationId),
     ])
-      .then(([loadedConversation, loadedDraftWorkspace]) => {
+      .then(([loadedConversation, loadedDraftingState]) => {
         if (isCurrent) {
           setConversation(loadedConversation);
-          setDraftWorkspace(loadedDraftWorkspace);
+          setDraftingState(loadedDraftingState);
         }
       })
       .catch((loadError: unknown) => {
@@ -62,7 +62,7 @@ export function EditorPage({
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}
-      initialDraftWorkspace={draftWorkspace}
+      initialDraftingState={draftingState}
       sendIdeaAction={sendPersistentIdeaAction}
       sendMessage={(request) =>
         sendPersistentConversationMessage({

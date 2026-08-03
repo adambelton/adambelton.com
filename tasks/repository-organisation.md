@@ -132,5 +132,5 @@ git diff --check
 
 ### Suggested next task
 
-Resume the unchanged numbered roadmap with Task 033: optional intended draft
-form.
+Resume the numbered roadmap with the revised and approved Task 033: optional
+Draft Format.

@@ -202,6 +202,12 @@ merge pull requests for this repository. The connector may be used for optional
 read-only structured repository, issue, or pull-request context when it is more
 useful than `gh`.
 
+The sandbox may incorrectly report the existing `gh` authentication token as
+invalid because it cannot reach GitHub. If a sandboxed `gh auth status` or other
+GitHub command reports an authentication or network failure, retry it with
+escalated network access before asking Adam to reauthenticate. Treat only the
+outside-sandbox result as authoritative.
+
 ## Proposal Review And Approval Records
 
 Review proposals against the following authority order:
@@ -245,6 +251,9 @@ Every implementation task is only complete when:
 - relevant tests pass
 - typecheck passes
 - the intended flow works end to end, or the task explicitly says it is contract/scaffold-only
+- changes to a mounted user flow are verified locally through the real host
+  composition and configured development adapters, including applying pending
+  migrations; product-only browser hosts do not replace this verification
 - files changed are summarised
 - commands run are listed
 - known gaps are documented

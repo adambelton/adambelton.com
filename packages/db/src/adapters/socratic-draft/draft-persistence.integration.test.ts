@@ -69,7 +69,7 @@ describe.skipIf(!databaseUrl)("Prisma draft persistence integration", () => {
       DRAFT_WRITE_STATUSES.changed,
       DRAFT_WRITE_STATUSES.conflict,
     ].sort());
-    const workspace = await store.getDraftWorkspace(conversationId);
+    const workspace = await store.getDraftingState(conversationId);
     expect(workspace?.draft?.currentRevision).toBe(2);
     expect(workspace?.revisions).toHaveLength(2);
   });

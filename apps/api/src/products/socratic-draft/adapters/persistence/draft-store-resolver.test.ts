@@ -45,7 +45,7 @@ describe("Socratic Draft draft store resolver", () => {
 
     await resolve.clearTemporary("visitor-1", "conversation-1");
 
-    await expect(store!.getDraftWorkspace("conversation-1")).resolves.toBeNull();
+    await expect(store!.getDraftingState("conversation-1")).resolves.toBeNull();
     expect(resolve({
       isSignedIn: true,
       isOwner: false,

@@ -57,7 +57,8 @@ User action
   → result returned to the interface
 ```
 
-The product owns the meaning of conversations, ideas, and drafts, including the
+The product owns the meaning of conversations, ideas, and drafting state,
+including optional Draft Format guidance and the
 operations it requires from AI and storage. It does not own a particular model,
 database, website, or deployment. That separation allows the product to be
 developed in isolation and later integrated into a host.
@@ -87,6 +88,7 @@ contracts rather than importing internal implementation files.
 | Assistant asks the wrong question | `server/capabilities/conversation` |
 | Incorrect idea appears or changes | `server/capabilities/idea-map` |
 | Draft composition, revision, or proposal is wrong | `server/capabilities/drafting` |
+| Draft Format is not retained or is applied unexpectedly | `server/capabilities/drafting` |
 | Several product parts interact incorrectly | `server/application/workspace` |
 | Request validation or HTTP status is wrong | `server/delivery/http` |
 | Editor layout or interaction is wrong | `client/workspace` |
@@ -108,6 +110,13 @@ Within a capability, the filename identifies the next decision:
 Files inside `ports` describe requirements, not concrete OpenAI or database
 implementations. Follow a port outward to a host adapter only when the product
 requirement is correct but the external mechanism is not.
+
+`DraftingState` is the drafting capability's persisted aggregate. It can exist
+before a `Draft`: an optional free-text Draft Format and its concurrency revision
+are retained independently of canonical draft content, draft revisions, and
+revision proposals. An absent format means free-form writing. The current
+product saves and displays format but deliberately does not supply it to
+conversation, composition, revision, or publishing behaviour.
 
 ## Testing the product
 

@@ -44,6 +44,20 @@ idea.
 Use *draft* when naming the writing itself: draft body, draft revision, create a
 draft, revise the draft.
 
+### Draft Format
+
+- **Grammatical role:** product state owned by the drafting capability.
+- **Preferred type name:** `DraftFormat` within `DraftingState`.
+- **Meaning:** optional user-provided free-text guidance naming the intended form
+  of the writing, such as a journal entry, case study, or personal essay.
+- **Lifecycle:** may be set, changed, or cleared before or after a Draft exists.
+- **Absence:** means free-form writing; it is not a separate persisted mode.
+- **Current limitation:** saved and inspectable, but not yet supplied to
+  conversation, composition, revision, or publishing behaviour.
+
+Draft Format is not draft content, audience, visibility, publishing intent,
+voice preference, structure instruction, readiness, activity, or user intention.
+
 ### Compose and composing
 
 - **Grammatical role:** verb and gerund; operation language.
@@ -79,6 +93,13 @@ not begun merely because the assistant or user discusses composing.
 The private body of connected work in which Discovery and Composition occur. It
 coordinates conversation history, the idea map, and an optional draft without
 merging them into one state object.
+
+### Drafting state
+
+The drafting capability's persisted aggregate, represented by `DraftingState`.
+It owns optional Draft Format state and, once composition succeeds, the Draft,
+its revision history, and any active revision proposal. Drafting state may exist
+before a Draft; its existence does not begin Composition.
 
 ### Conversation history
 

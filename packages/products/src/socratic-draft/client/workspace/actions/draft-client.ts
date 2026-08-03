@@ -2,7 +2,7 @@ import type { ApiResponse } from "packages/shared/src";
 import type {
   DraftSelection,
   DraftOperationResponse,
-  DraftWorkspace,
+  DraftingState,
   RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
 
@@ -27,6 +27,14 @@ export function composeDraft(
   input: { selectedIdeaIds: string[]; instruction: string },
 ) {
   return request(kind, conversationId, "/compose", mutation("POST", input));
+}
+
+export function changeDraftFormat(
+  kind: DraftPersistenceKind,
+  conversationId: string,
+  input: { expectedFormatRevision: number; format: string | null },
+) {
+  return request(kind, conversationId, "/format", mutation("PUT", input));
 }
 
 export function saveDraft(
@@ -98,7 +106,7 @@ function mutation(method: string, body: object): RequestInit {
   };
 }
 
-async function request<T = DraftWorkspace | null>(
+async function request<T = DraftingState | null>(
   kind: DraftPersistenceKind,
   conversationId: string,
   suffix: string,
@@ -114,7 +122,7 @@ async function request<T = DraftWorkspace | null>(
     throw new DraftClientError(
       payload.ok ? "draft_unavailable" : payload.error.code,
       payload.ok
-        ? "The draft workspace could not be updated."
+        ? "The drafting state could not be updated."
         : payload.error.message,
     );
   }
