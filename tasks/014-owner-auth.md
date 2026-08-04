@@ -10,7 +10,7 @@ Add a minimal real authentication foundation for the website using passwordless 
 
 ## Why This Task Is Next
 
-The product app boundary now exists, so the host can gate product routes without making products depend on auth infrastructure. Auth is the next platform capability needed before owner-persisted Socratic Draft entries, usage restrictions, and publishing controls.
+The product app boundary now exists, so the host can gate product routes without making products depend on auth infrastructure. Auth is the next platform capability needed before owner-persisted ThoughtForm entries, usage restrictions, and publishing controls.
 
 ## Scope
 
@@ -26,9 +26,9 @@ The product app boundary now exists, so the host can gate product routes without
 - Require sign-in for product app routes past `/products`.
 - Keep `/products` public as the product overview.
 - Redirect successful sign-ins to `/products` by default.
-- Allow signed-in non-owner users to access the Socratic Draft editor as ephemeral users.
-- Add a product-owned owner-only Socratic Draft entries route with a minimal empty state.
-- Treat `isOwner` as the initial policy source for whether Socratic Draft content may be persisted.
+- Allow signed-in non-owner users to access the ThoughtForm editor as ephemeral users.
+- Add a product-owned owner-only ThoughtForm entries route with a minimal empty state.
+- Treat `isOwner` as the initial policy source for whether ThoughtForm content may be persisted.
 - Document that published writing is a separate host-owned public query, not the product's private/working entries collection.
 - Update env examples and local development docs.
 - Add contract-focused tests for owner derivation and route/session behaviour where practical.
@@ -44,7 +44,7 @@ The product app boundary now exists, so the host can gate product routes without
 - OAuth, passwords, passkeys, or social sign-in.
 - Custom email template design beyond a plain useful magic-link email.
 - Product packages importing auth, Prisma, Resend, or Next.js APIs.
-- `apps/api` owning Socratic Draft-internal API route trees or request parsing.
+- `apps/api` owning ThoughtForm-internal API route trees or request parsing.
 
 ## Expected Files To Create Or Modify
 
@@ -57,9 +57,9 @@ The product app boundary now exists, so the host can gate product routes without
 - `apps/api/src/routes/products.ts`
 - `apps/web/app/sign-in/page.tsx`
 - `apps/web/app/products/[[...productPath]]/page.tsx`
-- `packages/products/src/socratic-draft/client/app/entries/*`
-- `packages/products/src/socratic-draft/client/app/routes.tsx`
-- `packages/products/src/socratic-draft/client/app/routes.test.tsx`
+- `packages/products/src/thoughtform/client/app/entries/*`
+- `packages/products/src/thoughtform/client/app/routes.tsx`
+- `packages/products/src/thoughtform/client/app/routes.test.tsx`
 - `apps/web/next.config.ts`
 - `.env.example`
 - `docs/local-development.md`
@@ -81,8 +81,8 @@ The product app boundary now exists, so the host can gate product routes without
 - Product app routes require an authenticated session.
 - Product API routes are host-mounted but product-owned below the host mount.
 - Successful sign-in redirects to `/products` by default.
-- Signed-in non-owner users can access `/products/socratic-draft/editor` as ephemeral users.
-- `/products/socratic-draft/entries` exists as a product-owned route, requires owner access, and shows a minimal empty state.
+- Signed-in non-owner users can access `/products/thoughtform/editor` as ephemeral users.
+- `/products/thoughtform/entries` exists as a product-owned route, requires owner access, and shows a minimal empty state.
 - Signed-in non-owner users do not get persistence access by default.
 - Products remain auth-infrastructure agnostic.
 - Product-facing persistence selection receives product-neutral access context, not Better Auth sessions.
@@ -108,7 +108,7 @@ rg -n "(from|import|export).*['\"]@adambelton/" apps packages --glob '!**/packag
 - The Resend API key must stay in local/host env only and must never be committed.
 - Cookie/domain settings may need a second pass when production hosting is chosen.
 - The exact API mounting shape for Better Auth in Hono should be verified against current Better Auth docs during implementation.
-- The Socratic Draft entries route should stay intentionally thin in this task so auth does not quietly turn into full entry management.
+- ThoughtForm entries route should stay intentionally thin in this task so auth does not quietly turn into full entry management.
 
 ## Resolved Decisions
 
@@ -131,11 +131,11 @@ rg -n "(from|import|export).*['\"]@adambelton/" apps packages --glob '!**/packag
 - Added a minimal `/logout` page and header auth link.
 - Protected product app routes behind host-side session checks.
 - Allowed signed-in non-owner users into the editor as ephemeral users.
-- Moved Socratic Draft API route behaviour into the product package and kept `apps/api` as the host mount point.
+- Moved ThoughtForm API route behaviour into the product package and kept `apps/api` as the host mount point.
 - Updated the conversation endpoint to require a session through host-injected access context and persist through Prisma only for owner sessions.
-- Moved Socratic Draft in-memory and Prisma-backed entry-store adapter selection into `packages/db`.
-- Added product-owned owner-only `/products/socratic-draft/entries` placeholder route.
-- Documented that Socratic Draft private/working entries are product-owned, while published writing is host-owned.
+- Moved ThoughtForm in-memory and Prisma-backed entry-store adapter selection into `packages/db`.
+- Added product-owned owner-only `/products/thoughtform/entries` placeholder route.
+- Documented that ThoughtForm private/working entries are product-owned, while published writing is host-owned.
 
 ## Validation Results
 

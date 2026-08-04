@@ -4,7 +4,7 @@ const apiUrl = "http://127.0.0.1:8788";
 const clientUrl = "http://127.0.0.1:3000";
 
 export default defineConfig({
-  testDir: "packages/products/src/socratic-draft/testing/browser",
+  testDir: "packages/products/src/thoughtform/testing/browser",
   testMatch: "**/*.spec.ts",
   fullyParallel: false,
   workers: 1,
@@ -26,7 +26,7 @@ export default defineConfig({
   webServer: [
     {
       command: "pnpm --filter @adambelton/products e2e:api",
-      url: `${apiUrl}/products/socratic-draft/temporary-conversation/current`,
+      url: `${apiUrl}/products/thoughtform/temporary-conversation/current`,
       reuseExistingServer: false,
       timeout: 30_000,
     },

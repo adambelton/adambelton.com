@@ -32,7 +32,7 @@ The Vite scaffold works. The next step is to replace placeholder scaffold UI wit
 
 - Do not remove `apps/web`.
 - Do not port magic-link auth behaviour.
-- Do not mount Socratic Draft product routes yet.
+- Do not mount ThoughtForm product routes yet.
 - Do not implement published writing.
 - Do not add new product UI.
 - Do not change API behaviour.

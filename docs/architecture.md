@@ -73,6 +73,6 @@ decision before code adopts it.
 
 Product-specific architectures may define domain concepts, capability boundaries,
 state ownership, and product flows beneath these host/package rules. The canonical
-Socratic Draft product architecture is
-`docs/products/socratic-draft/the-socratic-draft-architecture.md`; its concise,
-self-contained navigation guide is `packages/products/src/socratic-draft/README.md`.
+ThoughtForm product architecture is
+`docs/products/thoughtform/the-thoughtform-architecture.md`; its concise,
+self-contained navigation guide is `packages/products/src/thoughtform/README.md`.

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Complete the user-facing Socratic Draft demo lifecycle around the temporary
+Complete the user-facing ThoughtForm demo lifecycle around the temporary
 conversation behavior established in Task 024.
 
 Make the demo editor clearly communicate that its conversation is temporary,
@@ -27,14 +27,14 @@ manually testable before Task 026 adds usage limits and cost protection.
 
 ## Scope
 
-- Add a Socratic Draft-owned temporary-conversation representation containing the
+- Add a ThoughtForm-owned temporary-conversation representation containing the
   current conversation and its fixed `expiresAt` deadline.
 - Make product route semantics determine conversation persistence:
-  `/products/socratic-draft/editor` always uses the authenticated user's single
+  `/products/thoughtform/editor` always uses the authenticated user's single
   temporary conversation, including when the user is the owner, while
-  `/products/socratic-draft/conversations/:id/editor` uses the identified
+  `/products/thoughtform/conversations/:id/editor` uses the identified
   persistent conversation and remains owner-only.
-- Keep `/products/socratic-draft/conversations` as the owner-only persistent
+- Keep `/products/thoughtform/conversations` as the owner-only persistent
   conversation index. Add a working create-conversation action there that creates
   a persistent conversation first and then navigates to its ID-addressed editor.
 - Make the server API enforce the same temporary/persistent distinction rather
@@ -57,7 +57,7 @@ manually testable before Task 026 adds usage limits and cost protection.
   sooner.
 - Do not show temporary-demo lifecycle messaging in the persistent owner editor
   or saved owner conversation routes. The owner using
-  `/products/socratic-draft/editor` is deliberately using the temporary demo and
+  `/products/thoughtform/editor` is deliberately using the temporary demo and
   must see the same lifecycle messaging and behavior as another demo user.
 - When restoration finds no current conversation, open a clean editor without
   treating that expected state as an error.
@@ -110,27 +110,27 @@ The exact split may change during implementation if a smaller, clearer structure
 emerges, but the expected surfaces are:
 
 - temporary-conversation types under
-  `packages/products/src/socratic-draft/shared/`
+  `packages/products/src/thoughtform/shared/`
 - the shared conversation response or temporary lifecycle result contract under
-  `packages/products/src/socratic-draft/shared/`
+  `packages/products/src/thoughtform/shared/`
 - the temporary conversation store port under
-  `packages/products/src/socratic-draft/server/conversation/`
+  `packages/products/src/thoughtform/server/conversation/`
 - the main conversation route, temporary conversation HTTP routes, and their
   tests under
-  `packages/products/src/socratic-draft/server/http/`
-- conversation store adapters and tests under `packages/db/src/socratic-draft/`
+  `packages/products/src/thoughtform/server/http/`
+- conversation store adapters and tests under `packages/db/src/thoughtform/`
 - temporary conversation and conversation-request client helpers and their tests
-  under `packages/products/src/socratic-draft/client/app/modules/editor/`
+  under `packages/products/src/thoughtform/client/app/modules/editor/`
 - shared editor UI under
-  `packages/products/src/socratic-draft/client/app/components/editor/`
+  `packages/products/src/thoughtform/client/app/components/editor/`
 - persistent conversation helpers under
-  `packages/products/src/socratic-draft/client/app/modules/conversations/`
+  `packages/products/src/thoughtform/client/app/modules/conversations/`
 - persistent conversation UI under
-  `packages/products/src/socratic-draft/client/app/components/conversations/`
+  `packages/products/src/thoughtform/client/app/components/conversations/`
 - demo, persistent editor, conversation index, and conversation detail pages
-  under `packages/products/src/socratic-draft/client/app/pages/`
+  under `packages/products/src/thoughtform/client/app/pages/`
 - product client route definitions and tests under
-  `packages/products/src/socratic-draft/client/app/`
+  `packages/products/src/thoughtform/client/app/`
 - host client product-route composition needed to preserve the owner-only route
   gates and navigate after persistent creation
 - host API composition needed to resolve temporary and persistent operations by
@@ -154,15 +154,15 @@ emerges, but the expected surfaces are:
   temporary and that its 24-hour lifetime begins on first submission.
 - A non-owner with a current conversation can see its absolute expiry in local
   time and that it may become unavailable sooner after restart or deployment.
-- The owner can use `/products/socratic-draft/editor` to exercise the real
+- The owner can use `/products/thoughtform/editor` to exercise the real
   temporary lifecycle without reading or writing persistent conversations.
 - Persistent owner editor and saved-conversation surfaces do not show demo expiry
   messaging.
-- Non-owner users cannot access `/products/socratic-draft/conversations` or an
+- Non-owner users cannot access `/products/thoughtform/conversations` or an
   ID-addressed persistent editor.
 - The owner conversation index provides a working create action. Creating a
   persistent conversation establishes its ID and navigates to
-  `/products/socratic-draft/conversations/:id/editor`.
+  `/products/thoughtform/conversations/:id/editor`.
 - Tests prove that temporary and persistent client routes and server operations
   cannot cross storage modes.
 - An absent conversation on initial restoration produces a normal empty editor.

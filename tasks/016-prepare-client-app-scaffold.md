@@ -39,7 +39,7 @@ Task 015 documented the client-first host direction. The safest next step is to 
 - Do not remove or rename `apps/web`.
 - Do not port the real shared website shell yet.
 - Do not port auth behaviour yet.
-- Do not mount Socratic Draft product routes yet.
+- Do not mount ThoughtForm product routes yet.
 - Do not change API behaviour.
 - Do not add health-tech product code.
 - Do not commit until reviewed and explicitly approved.

@@ -6,13 +6,13 @@ Complete.
 
 ## Goal
 
-Add the first minimal Socratic Draft editor/demo page that can send a user message to the conversation endpoint and render the assistant response.
+Add the first minimal ThoughtForm editor/demo page that can send a user message to the conversation endpoint and render the assistant response.
 
 ## Scope
 
-- Add `/products/socratic-draft/editor`.
+- Add `/products/thoughtform/editor`.
 - Add a minimal client-side conversation UI.
-- Send messages to `POST /products/socratic-draft/conversation/respond`.
+- Send messages to `POST /products/thoughtform/conversation/respond`.
 - Track `entryId` in client state after the first response.
 - Render user and assistant messages.
 - Handle empty input, loading state, and basic error state.
@@ -24,7 +24,7 @@ Add the first minimal Socratic Draft editor/demo page that can send a user messa
 ## Out Of Scope
 
 - Full writing editor.
-- Rich Socratic Draft UI design.
+- Rich ThoughtForm UI design.
 - React Aria installation.
 - Streaming responses.
 - Auth/access control.
@@ -35,7 +35,7 @@ Add the first minimal Socratic Draft editor/demo page that can send a user messa
 
 ## Definition Of Done
 
-- `/products/socratic-draft/editor` renders a usable minimal conversation UI.
+- `/products/thoughtform/editor` renders a usable minimal conversation UI.
 - User can submit a non-empty message and see the assistant response.
 - The returned `entryId` is retained for subsequent messages.
 - Empty input cannot be submitted.
@@ -54,7 +54,7 @@ pnpm typecheck
 
 ## Completed Notes
 
-- Added a minimal editor page under `/products/socratic-draft/editor`.
+- Added a minimal editor page under `/products/thoughtform/editor`.
 - Added a product-specific web request helper for the conversation endpoint.
 - Added a Next.js rewrite so `/api/*` proxies to the local Hono API host.
 - Added request-helper tests for success and API failure.

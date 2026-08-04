@@ -25,7 +25,7 @@ and data minimisation** without extending the private workspace model.
 ## Settled constraints
 
 - Admin visibility is a host-owned operational surface and must not extend or
-  inspect the private Socratic Draft workspace model.
+  inspect the private ThoughtForm workspace model.
 - Both the client route and API are owner-only, with server authorization
   authoritative. Non-owner responses must not reveal whether admin data exists.
 - The allowed baseline fields are demo email, derived email domain, product

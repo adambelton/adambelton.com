@@ -22,9 +22,9 @@ model User {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  accounts                   Account[]
-  sessions                   Session[]
-  socraticDraftConversations SocraticDraftConversation[]
+  accounts                 Account[]
+  sessions                 Session[]
+  thoughtFormConversations ThoughtFormConversation[]
 
   @@map("users")
 }
@@ -77,28 +77,26 @@ model Verification {
   @@map("verifications")
 }
 
-model SocraticDraftConversation {
+model ThoughtFormConversation {
   id                  String   @id
   userId              String   @map("user_id")
   nextMessagePosition Int      @default(0) @map("next_message_position")
   ideaMapRevision     Int      @default(0) @map("idea_map_revision")
-  draftFormat         String?  @map("draft_format")
-  draftFormatRevision Int      @default(0) @map("draft_format_revision")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  user     User                               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages SocraticDraftConversationMessage[]
-  ideaMapRevisions SocraticDraftIdeaMapRevision[]
-  draft SocraticDraftDraft?
-  operations SocraticDraftOperation[]
+  user             User                             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages         ThoughtFormConversationMessage[]
+  ideaMapRevisions ThoughtFormIdeaMapRevision[]
+  draft            ThoughtFormDraft?
+  operations       ThoughtFormOperation[]
 
-  @@index([userId, updatedAt])
   @@unique([id, userId])
-  @@map("socratic_draft_conversations")
+  @@index([userId, updatedAt])
+  @@map("thoughtform_conversations")
 }
 
-model SocraticDraftIdeaMapRevision {
+model ThoughtFormIdeaMapRevision {
   id             String   @id @default(uuid())
   conversationId String   @map("conversation_id")
   revision       Int
@@ -107,14 +105,14 @@ model SocraticDraftIdeaMapRevision {
   sourceId       String   @map("source_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  conversation SocraticDraftConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation ThoughtFormConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, revision])
   @@index([conversationId])
-  @@map("socratic_draft_idea_map_revisions")
+  @@map("thoughtform_idea_map_revisions")
 }
 
-model SocraticDraftConversationMessage {
+model ThoughtFormConversationMessage {
   id             String                  @id @default(uuid())
   conversationId String                  @map("conversation_id")
   role           ConversationMessageRole
@@ -122,14 +120,14 @@ model SocraticDraftConversationMessage {
   position       Int
   createdAt      DateTime                @default(now()) @map("created_at")
 
-  conversation SocraticDraftConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation ThoughtFormConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, position])
   @@index([conversationId])
-  @@map("socratic_draft_conversation_messages")
+  @@map("thoughtform_conversation_messages")
 }
 
-model SocraticDraftDraft {
+model ThoughtFormDraft {
   id              String   @id
   conversationId  String   @unique @map("conversation_id")
   body            String
@@ -137,14 +135,14 @@ model SocraticDraftDraft {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  conversation SocraticDraftConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  revisions    SocraticDraftDraftRevision[]
-  proposals    SocraticDraftRevisionProposal[]
+  conversation ThoughtFormConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  revisions    ThoughtFormDraftRevision[]
+  proposals    ThoughtFormRevisionProposal[]
 
-  @@map("socratic_draft_drafts")
+  @@map("thoughtform_drafts")
 }
 
-model SocraticDraftDraftRevision {
+model ThoughtFormDraftRevision {
   id                   String   @id @default(uuid())
   draftId              String   @map("draft_id")
   revision             Int
@@ -154,35 +152,35 @@ model SocraticDraftDraftRevision {
   restoredFromRevision Int?     @map("restored_from_revision")
   createdAt            DateTime @default(now()) @map("created_at")
 
-  draft SocraticDraftDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  draft ThoughtFormDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
 
   @@unique([draftId, revision])
   @@index([draftId])
-  @@map("socratic_draft_draft_revisions")
+  @@map("thoughtform_draft_revisions")
 }
 
-model SocraticDraftRevisionProposal {
-  id                      String   @id
-  draftId                 String   @map("draft_id")
-  baseDraftRevision       Int      @map("base_draft_revision")
+model ThoughtFormRevisionProposal {
+  id                      String    @id
+  draftId                 String    @map("draft_id")
+  baseDraftRevision       Int       @map("base_draft_revision")
   scope                   String
-  originalStart           Int      @map("original_start")
-  originalEnd             Int      @map("original_end")
-  originalContent         String   @map("original_content")
-  userInstruction         String   @map("user_instruction")
+  originalStart           Int       @map("original_start")
+  originalEnd             Int       @map("original_end")
+  originalContent         String    @map("original_content")
+  userInstruction         String    @map("user_instruction")
   state                   String
-  currentProposalRevision Int      @default(1) @map("current_proposal_revision")
-  createdAt               DateTime @default(now()) @map("created_at")
+  currentProposalRevision Int       @default(1) @map("current_proposal_revision")
+  createdAt               DateTime  @default(now()) @map("created_at")
   resolvedAt              DateTime? @map("resolved_at")
 
-  draft    SocraticDraftDraft                    @relation(fields: [draftId], references: [id], onDelete: Cascade)
-  versions SocraticDraftRevisionProposalVersion[]
+  draft    ThoughtFormDraft                     @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  versions ThoughtFormRevisionProposalVersion[]
 
   @@index([draftId, state])
-  @@map("socratic_draft_revision_proposals")
+  @@map("thoughtform_revision_proposals")
 }
 
-model SocraticDraftRevisionProposalVersion {
+model ThoughtFormRevisionProposalVersion {
   id              String   @id @default(uuid())
   proposalId      String   @map("proposal_id")
   revision        Int
@@ -190,23 +188,23 @@ model SocraticDraftRevisionProposalVersion {
   intendedEffect  String   @map("intended_effect")
   createdAt       DateTime @default(now()) @map("created_at")
 
-  proposal SocraticDraftRevisionProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposal ThoughtFormRevisionProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
 
   @@unique([proposalId, revision])
   @@index([proposalId])
-  @@map("socratic_draft_revision_proposal_versions")
+  @@map("thoughtform_revision_proposal_versions")
 }
 
-model SocraticDraftOperation {
+model ThoughtFormOperation {
   id             String   @id @default(uuid())
   conversationId String   @map("conversation_id")
   operationId    String   @map("operation_id")
   kind           String
   createdAt      DateTime @default(now()) @map("created_at")
 
-  conversation SocraticDraftConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation ThoughtFormConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, operationId])
   @@index([conversationId])
-  @@map("socratic_draft_operations")
+  @@map("thoughtform_operations")
 }

@@ -1,2 +1,2 @@
 export * from "packages/db/src/client/database-client";
-export * from "packages/db/src/adapters/socratic-draft";
+export * from "packages/db/src/adapters/thoughtform";

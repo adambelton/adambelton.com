@@ -5,22 +5,22 @@ import { productRoutePath } from "apps/client/src/products/productRoutePath";
 describe("productRoutePath", () => {
   it("matches nested product routes with a product slug and wildcard path", () => {
     expect(
-      matchPath(productRoutePath, "/products/socratic-draft/editor")
+      matchPath(productRoutePath, "/products/thoughtform/editor")
     ).toMatchObject({
       params: {
         "*": "editor",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       },
     });
   });
 
   it("matches the product root with an empty wildcard path", () => {
     expect(
-      matchPath(productRoutePath, "/products/socratic-draft")
+      matchPath(productRoutePath, "/products/thoughtform")
     ).toMatchObject({
       params: {
         "*": "",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       },
     });
   });

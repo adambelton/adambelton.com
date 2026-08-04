@@ -17,9 +17,9 @@ It includes:
 - usage tracking/admin
 - product-specific domain logic
 
-The first product is **The Socratic Draft**.
+The first product is **ThoughtForm**.
 
-The Socratic Draft is the first product inside this system, not the whole app.
+ThoughtForm is the first product inside this system, not the whole app.
 
 ## Package Boundaries
 
@@ -141,13 +141,13 @@ require explicit approval and a record in `docs/decisions.md`.
 ## Architecture Rules
 
 - Do not create new architectural patterns without approval.
-- Consult `docs/products/socratic-draft/terminology.md` before introducing or
-  changing Socratic Draft domain names in code, prompts, tasks, or documentation.
+- Consult `docs/products/thoughtform/terminology.md` before introducing or
+  changing ThoughtForm domain names in code, prompts, tasks, or documentation.
 - Do not duplicate shared types inside apps.
 - Platform-wide shared types belong in `packages/shared`.
 - Product-specific types, contracts, and behaviour belong in that product's folder under `packages/products`.
 - All TypeScript imports and re-exports must use repo-root absolute paths. Do not use relative imports or aliases, even between files in the same folder.
-- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
+- Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/thoughtform/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
 - Product delivery routes should stay thin and invoke product application or
   capability operations. Host product mounts assemble dependencies and must not
   recreate product behaviour.

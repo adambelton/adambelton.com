@@ -5,7 +5,7 @@ import {
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
-import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
+import type { ProductAppComponents } from "packages/products/src/thoughtform/client";
 
 const testProductAppComponents: ProductAppComponents = {
   navigate: () => undefined,
@@ -15,13 +15,13 @@ const testProductAppComponents: ProductAppComponents = {
 };
 
 describe("resolveProductRoute", () => {
-  it("mounts the Socratic Draft product root", () => {
+  it("mounts the ThoughtForm product root", () => {
     expect(
       resolveProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
@@ -35,7 +35,7 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "editor",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
@@ -49,7 +49,7 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.demo,
         components: testProductAppComponents,
         path: "privacy",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       }),
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
@@ -63,7 +63,7 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
@@ -77,7 +77,7 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations/conversation-1",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       }),
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
@@ -91,7 +91,7 @@ describe("resolveProductRoute", () => {
         accessLevel: ACCESS_LEVELS.owner,
         components: testProductAppComponents,
         path: "conversations/conversation-1/editor",
-        productSlug: "socratic-draft",
+        productSlug: "thoughtform",
       }),
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,

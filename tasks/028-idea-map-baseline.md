@@ -122,7 +122,7 @@ in **State ownership** from the product architecture.
 
 ## Expected files to create or modify
 
-- idea-map domain/client/server modules under the Socratic Draft product
+- idea-map domain/client/server modules under the ThoughtForm product
 - workspace orchestration and product HTTP contracts
 - product-owned persistence ports plus temporary and durable host adapters;
   Prisma schema and generated migration where durable owner state requires them

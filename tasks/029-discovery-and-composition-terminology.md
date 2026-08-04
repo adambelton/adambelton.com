@@ -2,7 +2,7 @@
 
 ## Goal
 
-Correct the Socratic Draft's conceptual vocabulary so its two activities are
+Correct the ThoughtForm's conceptual vocabulary so its two activities are
 discovery and composition. Discovery includes finding language for what the user
 means. Composition creates and continually develops the canonical draft.
 
@@ -49,7 +49,7 @@ that ambiguity from spreading into prompts, controls, and evaluations.
 ## Validation commands
 
 ```txt
-rg -n -i "articulat" docs tasks progress.md packages/products/src/socratic-draft
+rg -n -i "articulat" docs tasks progress.md packages/products/src/thoughtform
 pnpm test
 pnpm typecheck
 pnpm build

@@ -2,8 +2,9 @@
 
 ## Goal
 
-Let a demo user experience the defining Socratic Draft journey from a rough
-thought through discovery, composition, an editable draft, and revision.
+Let a demo user experience the defining ThoughtForm journey from a rough
+thought through exploration and an inspectable Idea Map, with optional
+composition, an editable Draft, and revision when expression is useful.
 
 ## Why this task is next
 
@@ -12,15 +13,15 @@ private, temporary experience before final usage limits are calibrated.
 
 ## Depends on
 
-Tasks 034 and 035.
+The three approved unnumbered conversational-thinking correction tasks.
 
 ## Scope
 
 Composes the baseline capabilities under **Client and API responsibilities** and
 the demo portion of **Persistence architecture** from the product architecture.
 
-- Integrate conversation, idea map, draft, retained revision history, proposals,
-  and session preferences.
+- Integrate conversation, idea map, optional draft, retained revision history,
+  and proposals.
 - Preserve temporary lifecycle and privacy behaviour.
 - Keep clear-session controls coherent across the complete workspace.
 - Exercise guided and user-led paths.
@@ -28,7 +29,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ## Settled constraints
 
-- `/products/socratic-draft/editor` remains the temporary workspace for every
+- `/products/thoughtform/editor` remains the temporary workspace for every
   authenticated user, including the owner. Owner persistence continues through
   the separate ID-addressed conversation/workspace routes.
 - Each authenticated user has at most one current temporary workspace, isolated
@@ -36,7 +37,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 - The temporary workspace has one fixed deadline 24 hours after creation.
   Activity does not extend it, and process restart or deployment may remove it
   sooner.
-- Conversation, idea-map, draft, revision, proposal, and workspace-preference
+- Conversation, idea-map, draft, revision, and proposal
   content use the same product concepts as owner work but are never durably
   persisted server-side for the demo.
 - Clearing removes the complete temporary workspace rather than conversation
@@ -61,17 +62,19 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ## Out of scope
 
-- Demo persistence, publishing, live research, or long-term demo preferences.
+- Demo content persistence, host public-website delivery, preference learning, or
+  live research.
 
 ## Expected files to create or modify
 
-- Socratic Draft client workspace and integration modules
+- ThoughtForm client workspace and integration modules
 - temporary workspace server/store contracts and adapters
 - end-to-end behavioural tests, privacy docs, progress, and task index
 
 ## Definition of done
 
-- A demo user can complete a draft without durable writing persistence.
+- A demo user can explore and organise material without a Draft and can create
+  and refine a first-person Draft without durable content persistence when useful.
 - Both guided discovery and explicit user-led composition work end to end.
 - Clearing, fixed expiry, early process loss, and hosted-AI failure remain
   coherent across the complete workspace rather than conversation alone.
@@ -100,9 +103,9 @@ git diff --check
   expires or disappears early.
 ## Blast radius
 
-Medium: existing temporary orchestration and client recovery states. Export and
-measurement are deliberately separate Tasks 037 and 039.
+Medium: existing temporary orchestration and client recovery states. Usage
+measurement remains deliberately separate in Task 039; product export is retired.
 
 ## Status
 
-Proposed. Awaiting approval.
+Proposed. Requires a fresh review after the three unnumbered corrections.

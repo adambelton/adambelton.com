@@ -45,7 +45,7 @@ ownership**, and **Package and dependency boundaries** at baseline depth.
 
 ## Expected files to create or modify
 
-- Socratic Draft `shared`, `server`, and tests
+- ThoughtForm `shared`, `server`, and tests
 - product architecture and decision log if concrete contracts settle a decision
 - progress and task index
 

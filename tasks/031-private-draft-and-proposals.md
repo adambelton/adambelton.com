@@ -290,12 +290,12 @@ Tasks 032, 034, and 035.
   product-owned stores over product-owned persistence ports. Prisma, temporary
   in-memory, and test implementations supply persistence mechanics without
   redefining product contracts or behaviour.
-- Extractability is an acceptance criterion: moving Socratic Draft into an
+- Extractability is an acceptance criterion: moving ThoughtForm into an
   external package may require packaging changes but must not require any host
   implementation or missing product behaviour to move with it. Product code
   must not depend on the API host, database, auth, or AI infrastructure.
 - Host adapters may import product-owned ports and types to implement them. They
-  must not introduce parallel Socratic Draft record contracts; Prisma row types
+  must not introduce parallel ThoughtForm record contracts; Prisma row types
   remain private implementation details of the durable adapter.
 - These decisions should not be reopened during implementation without a cited
   higher-authority conflict or genuinely new evidence.
@@ -326,7 +326,7 @@ Breadcrumb navigation addendum approved on 2026-08-02:
   landmark in the same visual position.
 - Ancestors are navigable, the current page is non-linked and marked with
   `aria-current="page"`, and private conversation identifiers never appear.
-- The host owns breadcrumb rendering. Socratic Draft owns portable breadcrumb
+- The host owns breadcrumb rendering. ThoughtForm owns portable breadcrumb
   metadata for its routes and remains independent of host UI components.
 - Primary navigation, route paths, responsive collapsing, and breadcrumb menus
   remain unchanged or deferred.

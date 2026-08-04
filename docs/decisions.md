@@ -4,7 +4,7 @@
 
 This repo is the single repo for Adam's personal website, public writing, product pages, product demos, shared API/server, auth, database, AI infrastructure, usage tracking, and admin.
 
-The Socratic Draft is the first product inside this system, not the whole app.
+ThoughtForm is the first product inside this system, not the whole app.
 
 ## 002 — Final-Shaped Package Scaffold From Day One
 
@@ -30,7 +30,7 @@ Do not create ad hoc duplicate types inside apps or feature folders.
 
 ## 004 — Product-Specific Logic Belongs in packages/products
 
-The Socratic Draft conversation policy, prompts, activity, moves, readiness logic, thread handling, claim handling, and composition behaviour belong in `packages/products`.
+ThoughtForm conversation policy, prompts, activity, moves, readiness logic, thread handling, claim handling, and composition behaviour belong in `packages/products`.
 
 ## 005 — API Routes Stay Thin
 
@@ -38,9 +38,9 @@ The Socratic Draft conversation policy, prompts, activity, moves, readiness logi
 
 Host apps may know which products are installed and where they are mounted. They should not own product-internal route trees, product request parsing, product response shape, or product business logic.
 
-## 006 — Frontend Does Not Choose Socratic Draft Assistant Moves
+## 006 — Frontend Does Not Choose ThoughtForm Assistant Moves
 
-For The Socratic Draft, the frontend should send ordinary user messages. The backend conversation service chooses the assistant move.
+For ThoughtForm, the frontend should send ordinary user messages. The backend conversation service chooses the assistant move.
 
 The frontend should not send explicit actions like `challenge`, `reflect`, or `create_draft` as the core interaction model.
 
@@ -54,7 +54,7 @@ Owner writing may be persisted.
 
 Published writing belongs to the personal website's writing system.
 
-The Socratic Draft persists conversations as the history of idea exploration. A conversation may later produce a mutable private `Draft` that the user and AI shape together. Publishing creates a site-level `WritingPost` from that draft; neither the private conversation nor the working draft is itself public writing.
+ThoughtForm persists conversations as the history of idea exploration. A conversation may later produce a mutable private `Draft` that the user and AI shape together. Publishing creates a site-level `WritingPost` from that draft; neither the private conversation nor the working draft is itself public writing.
 
 Conversation messages remain the interaction history. Draft content is a separate future domain object so direct user edits and AI-requested revisions do not have to masquerade as conversation messages.
 
@@ -66,7 +66,7 @@ Styling should use Tailwind CSS and small owned components for the public site.
 
 Do not add broad component libraries such as daisyUI, shadcn/ui, MUI, Chakra, Mantine, Ant Design, styled-components, or similar without explicit approval.
 
-The shared website foundation should stay neutral. Product-specific visual languages, including The Socratic Draft's final UI direction, should be decided later in product-specific work.
+The shared website foundation should stay neutral. Product-specific visual languages, including ThoughtForm's final UI direction, should be decided later in product-specific work.
 
 Accessibility should be built in from the start.
 
@@ -118,7 +118,7 @@ packages/products/src/[product-slug]/
 
 Because each product folder already provides the product namespace, product-local type names should use direct domain names such as `ConversationRequest`, `ConversationResponse`, and `ConversationState` rather than repeating the product name.
 
-TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/socratic-draft/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
+TypeScript imports and re-exports must use repo-root absolute paths rather than relative paths or aliases, even within the same folder. This keeps imports consistent and easy to map to files. Import paths should start from top-level folders such as `apps/` or `packages/`, for example `packages/products/src/thoughtform/server/capabilities/conversation` or `apps/client/src/ui/components/Prose`.
 
 Top-level apps keep deployable names such as `apps/client` and `apps/api`. Product package internals use reusable runtime boundary names: `shared`, `server`, and `client`.
 
@@ -216,10 +216,10 @@ Do not commit generated third-party Neon agent skill snapshots. Project policy a
 
 Product packages own product client screens and product-relative route handling. Host apps own framework routing, layouts, redirects, `notFound` handling, auth/session gates, and deployment concerns.
 
-For the client host, `apps/client` should expose a small React Router route mount for products and dispatch into product-owned route renderers. A product route such as `/products/socratic-draft/editor` is interpreted by the host as:
+For the client host, `apps/client` should expose a small React Router route mount for products and dispatch into product-owned route renderers. A product route such as `/products/thoughtform/editor` is interpreted by the host as:
 
 - host mount: `/products`
-- product slug: `socratic-draft`
+- product slug: `thoughtform`
 - product-owned route segments: `["editor"]`
 
 The product package should not define Next.js file-system routes or import Next.js APIs. It may depend on React for reusable product client components, but its app surface should stay framework-light enough to be mounted by another host later.
@@ -228,7 +228,7 @@ Product route renderers should return neutral route results, such as `found` wit
 
 This keeps products extractable while still allowing the personal website to provide shared shell, auth, AI adapters, persistence adapters, and URL placement.
 
-The same boundary applies to product API routes. `apps/api` may mount a product entrypoint such as `/products/socratic-draft`, but the product package owns the product-relative API route tree below that mount. The API host supplies product-neutral request context and adapters, such as signed-in/owner access state and conversation-store implementations.
+The same boundary applies to product API routes. `apps/api` may mount a product entrypoint such as `/products/thoughtform`, but the product package owns the product-relative API route tree below that mount. The API host supplies product-neutral request context and adapters, such as signed-in/owner access state and conversation-store implementations.
 
 ## 017 — Owner Auth And Product Persistence
 
@@ -240,9 +240,9 @@ The initial authorization model is `isOwner` on the user record. It is derived s
 
 `isOwner` governs owner-only product persistence and future publishing capability. Product-specific roles or granular permission tables should wait until the product set actually needs them.
 
-Signed-in non-owner users may access the Socratic Draft editor as ephemeral users while no real AI is connected. They should not get persistence access by default.
+Signed-in non-owner users may access the ThoughtForm editor as ephemeral users while no real AI is connected. They should not get persistence access by default.
 
-Socratic Draft conversations and future private working drafts belong to the Socratic Draft product app. Published writing belongs to the host website as a public-read writing system. Publishing is the bridge between a private draft and that public writing system and should be implemented separately.
+ThoughtForm conversations and future private working drafts belong to the ThoughtForm product app. Published writing belongs to the host website as a public-read writing system. Publishing is the bridge between a private draft and that public writing system and should be implemented separately.
 
 Products remain auth-infrastructure agnostic. Product packages may define route access requirements in product terms, but host apps enforce those requirements using the host auth/session system.
 
@@ -288,17 +288,17 @@ Host UI may wrap the functional adapter with host styling, such as `TextLink`. P
 
 Product packages should not import OpenAI SDKs, provider configuration, API keys, or concrete AI infrastructure.
 
-Socratic Draft owns the product-level conversation model contract it needs. The host API app wires that contract to `packages/ai`, which owns provider-specific adapters such as the OpenAI client.
+ThoughtForm owns the product-level conversation model contract it needs. The host API app wires that contract to `packages/ai`, which owns provider-specific adapters such as the OpenAI client.
 
 The first real model integration uses the official OpenAI SDK through the Responses API. `OPENAI_API_KEY` supplies credentials and `OPENAI_MODEL` selects the model, defaulting to `gpt-5-mini`.
 
 Tests should use fake product model adapters rather than live OpenAI calls.
 
-The initial prompt should stay intentionally small: ask one useful question or offer one concise reflection, avoid rewriting the user's thought, and keep the response brief. More sophisticated Socratic Draft conversation policy should be added through later product-specific tasks.
+The initial prompt should stay intentionally small: ask one useful question or offer one concise reflection, avoid rewriting the user's thought, and keep the response brief. More sophisticated ThoughtForm conversation policy should be added through later product-specific tasks.
 
 ## 021 — Conversation, Draft, And Writing Lifecycle
 
-The Socratic Draft uses three distinct domain concepts:
+ThoughtForm uses three distinct domain concepts:
 
 - A `Conversation` is the inquiry between the user and the assistant. It owns ordered conversation messages and may exist before any writing artifact has been created.
 - A `Draft` is private writing produced and collaboratively shaped from a conversation through user edits and AI-assisted edits.
@@ -312,7 +312,7 @@ Persistent conversation messages use a per-conversation atomic sequence. The sam
 
 ## 022 — Temporary Conversation Privacy Lifecycle
 
-Each authenticated non-owner may have one current Socratic Draft conversation in application memory. It is isolated by authenticated user, uses an unguessable conversation identifier, and expires at a fixed deadline 24 hours after creation. Activity does not extend the deadline.
+Each authenticated non-owner may have one current ThoughtForm conversation in application memory. It is isolated by authenticated user, uses an unguessable conversation identifier, and expires at a fixed deadline 24 hours after creation. Activity does not extend the deadline.
 
 Temporary conversations are recoverable after reload or navigation only while the relevant application-process memory remains available. Process restarts, deployments, and multi-instance routing may remove them sooner and must fall back safely to an empty editor. This is intentional ephemeral behaviour, not durable continuity.
 
@@ -324,17 +324,17 @@ Product-specific privacy explanations are product-owned routes and documentation
 
 ## 023 — Conversation Routes Define Persistence Semantics
 
-Socratic Draft conversation persistence is selected by the operation and resource
+ThoughtForm conversation persistence is selected by the operation and resource
 being addressed, not solely by whether the authenticated user is the owner.
 
-`/products/socratic-draft/editor` is the temporary demo editor for every
+`/products/thoughtform/editor` is the temporary demo editor for every
 authenticated user, including the owner. It operates on that user's single
 temporary application-memory conversation and does not expose the temporary
 conversation identifier in the browser URL.
 
-`/products/socratic-draft/conversations` is the owner-only persistent conversation
+`/products/thoughtform/conversations` is the owner-only persistent conversation
 index. Creating a persistent conversation establishes its identity before editing
-and navigates to `/products/socratic-draft/conversations/:id/editor`. An
+and navigates to `/products/thoughtform/conversations/:id/editor`. An
 ID-addressed persistent editor uses only the owner-scoped persistent store and
 does not show temporary-demo lifecycle messaging.
 
@@ -346,7 +346,7 @@ authorization and store selection are authoritative.
 
 ## 024 — Shared Inquiry And Articulation Workspace
 
-The Socratic Draft is a shared inquiry and articulation workspace built from
+ThoughtForm is a shared inquiry and articulation workspace built from
 three connected representations: conversation history, an inspectable idea map,
 and a user-owned private draft.
 
@@ -370,7 +370,7 @@ either a monolithic workspace service or disconnected infrastructure layers.
 
 ## 025 — Activity, Move, Readiness, And Lifecycle Are Separate
 
-The Socratic Draft does not use a general conversation phase as the source of
+ThoughtForm does not use a general conversation phase as the source of
 truth for intellectual progress.
 
 Discovery and articulation classify the primary purpose of a particular
@@ -390,7 +390,7 @@ phase enum.
 
 ## 026 — Hosted AI Fails Closed Without Fake Product Responses
 
-Socratic Draft model-backed actions require both `HOSTED_AI_ENABLED=true` and
+ThoughtForm model-backed actions require both `HOSTED_AI_ENABLED=true` and
 valid provider configuration supplied by the API host. A missing flag, any other
 flag value, or missing provider configuration disables those actions while
 allowing unrelated website and API behaviour to continue. This is an explicit
@@ -401,7 +401,7 @@ hosted AI with a fake model. The fake LLM client remains a deterministic test
 adapter only. Product-owned failure semantics distinguish disabled configuration,
 oversized conversation input, and temporary provider unavailability.
 
-Socratic Draft owns a provider-neutral 32 KiB complete-input boundary, measured
+ThoughtForm owns a provider-neutral 32 KiB complete-input boundary, measured
 as UTF-8 bytes across system instructions, retained conversation history, and the
 new user message. It also owns a required provisional 1,024-token output cap that
 the host passes through the provider-neutral AI client to OpenAI. Later
@@ -484,7 +484,7 @@ editing semantics.
 
 ## 029 — Discovery And Composition Are The Product Activities
 
-The Socratic Draft uses discovery and composition as its two interaction-scoped
+ThoughtForm uses discovery and composition as its two interaction-scoped
 activities. This supersedes the articulation terminology in Decisions 024, 025,
 and 027 without changing their separation of activity, move, readiness,
 intention, and resource-derived lifecycle.
@@ -519,7 +519,7 @@ approval for later work.
 
 ## 031 — Suggested Replies Are Deferred, Not A Current Contract
 
-The Socratic Draft does not currently expose or retain a suggested-reply
+ThoughtForm does not currently expose or retain a suggested-reply
 contract. Free conversation and explicit idea controls are sufficient for the
 current baseline, and assistant-proposed answers risk making assistant language
 look like the user's own discovered material.
@@ -557,10 +557,10 @@ The UI continues to use ordinary user messages and explicit idea controls; it
 does not add move buttons, a mode selector, a readiness meter, or suggested
 replies. Important readiness uncertainty is explained conversationally.
 
-## 033 — Socratic Draft Terminology Has A Canonical Reference
+## 033 — ThoughtForm Terminology Has A Canonical Reference
 
-`docs/products/socratic-draft/terminology.md` is the canonical naming reference
-for Socratic Draft code, prompts, tasks, interface copy, and documentation. It
+`docs/products/thoughtform/terminology.md` is the canonical naming reference
+for ThoughtForm code, prompts, tasks, interface copy, and documentation. It
 clarifies the concepts defined by the product brief and architecture rather than
 introducing a separate product model.
 
@@ -574,7 +574,7 @@ event, or lifecycle fact before adding it.
 
 ## 034 — Product Browser Tests Use Dedicated Testing Hosts
 
-Socratic Draft Playwright tests compose the product's real client, HTTP route,
+ThoughtForm Playwright tests compose the product's real client, HTTP route,
 conversation service, and persistence port inside dedicated test-only client and
 API hosts owned by the product package. The composition supplies a deterministic
 test conversation model and an in-memory product-language store. It does not
@@ -588,8 +588,8 @@ secret, incurs cost, and is not deterministic.
 
 ## 035 — Product Tests Are Colocated With Product Behaviour
 
-Tests, fixtures, browser hosts, and evaluations whose subject is Socratic Draft
-product behaviour live within `packages/products/src/socratic-draft`. Component
+Tests, fixtures, browser hosts, and evaluations whose subject is ThoughtForm
+product behaviour live within `packages/products/src/thoughtform`. Component
 and page tests sit beside the product client source they exercise; cross-boundary
 test composition and hosted evaluations live in the product's `testing` folder.
 
@@ -616,7 +616,7 @@ is explicitly reconfigured and verified.
 
 ## 037 — Draft Changes Use Persisted Linear Revision History
 
-The Socratic Draft retains one continuous canonical draft per workspace and an
+ThoughtForm retains one continuous canonical draft per workspace and an
 append-only sequence of complete revision snapshots. Initial composition,
 changed manual saves, accepted assistant proposals, and restoration of an older
 snapshot all create new monotonically numbered revisions. Restoration never
@@ -643,10 +643,10 @@ editing, and final product visual design remain outside the approved baseline.
 
 ## 038 — Product-Owned Persistence Ports Preserve Extractability
 
-Socratic Draft defines its persistence contracts, persistence-facing snapshots,
+ThoughtForm defines its persistence contracts, persistence-facing snapshots,
 commands, results, and every domain transition inside the product package. A
 host adapter may depend on those definitions to implement them, but it must not
-define a parallel Socratic Draft record model or decide product behaviour.
+define a parallel ThoughtForm record model or decide product behaviour.
 
 The product-owned conversation and draft stores are each implemented once over
 injected persistence ports. Conversation retention and idea-map replacement,
@@ -662,7 +662,7 @@ implements product-owned types directly and keeps generated Prisma row types
 private. The process-local demo implementation belongs to the API host, while a
 deterministic implementation remains in product testing support.
 
-Extractability is the boundary test: Socratic Draft must be movable to an
+Extractability is the boundary test: ThoughtForm must be movable to an
 external package without taking host or database implementation code with it.
 Another host can supply different persistence, AI, access, usage, navigation,
 and deployment adapters without recreating product behaviour. Product code must
@@ -670,7 +670,7 @@ not import the API host, database, auth, or AI infrastructure packages.
 
 ## 039 — Ordinary Conversation Remains Writing-Oriented
 
-Within The Socratic Draft, an ordinary statement is treated as material the
+Within ThoughtForm, an ordinary statement is treated as material the
 user may want to understand and develop through writing. It is not an implicit
 request for practical advice, diagnosis, coaching, or problem-solving. The
 assistant may provide practical advice when the user explicitly asks for it,
@@ -736,7 +736,7 @@ boundaries.
 
 ## 042 — Draft Format Is Optional Drafting State
 
-Socratic Draft owns an optional, user-extensible free-text Draft Format inside
+ThoughtForm owns an optional, user-extensible free-text Draft Format inside
 `DraftingState`. Drafting state may exist before the Draft artifact; setting a
 format does not create empty draft content or begin Composition. Absence means
 free-form writing rather than a persisted `free-form` mode.
@@ -753,7 +753,7 @@ explicit product decision.
 
 ## 043 — The Canonical Draft Remains Normalized Plain Text
 
-The private Draft remains normalized plain text. Socratic Draft helps the user
+The private Draft remains normalized plain text. ThoughtForm helps the user
 discover, organise, test, and develop the substance of their thinking; it does
 not own document headings, emphasis, lists, quotations, links, code, images, or
 publishing presentation.
@@ -770,7 +770,7 @@ Document formatting remains a destination concern. This does not require the
 owner to adopt a CMS and does not prevent a later export adapter, but export must
 not redefine the canonical Draft without a new product decision supported by
 observed need. The investigation is recorded in
-`docs/products/socratic-draft/semantic-editor-investigation.md`.
+`docs/products/thoughtform/semantic-editor-investigation.md`.
 
 ## 044 — Saved Draft Changes Receive Revision-Validated Provisional Interpretation
 
@@ -778,7 +778,7 @@ Obvious textual maintenance is suppressed by a deliberately narrow deterministic
 classifier. Every other exact, current `DraftChange` is classified and answered
 in one bounded model request through a drafting-owned port. The API host supplies
 the provider adapter; product classification, interpretation, conflict, and
-reconciliation rules remain inside Socratic Draft.
+reconciliation rules remain inside ThoughtForm.
 
 Canonical draft persistence completes and returns before interpretation starts.
 The automatic follow-up revalidates the revision-bounded change, so latency or
@@ -797,3 +797,139 @@ only after user-established refinement, contextual distinction, position
 choice, idea separation, integrated intentional tension, or dismissal. Richer
 latest user language is retained in ordinary idea substance; Draft Format and
 preference learning remain outside this behaviour.
+
+## 045 — ThoughtForm Is A Conversational Thinking Workspace
+
+ThoughtForm helps a person explore, organise, and express what they think
+or feel about a subject. Conversation and the Idea Map support Discovery and may
+remain valuable without any Draft. When useful, Composition creates or develops
+an optional private Draft containing the user's first-person articulation of
+their current understanding.
+
+Articulation describes the product outcome and characteristic recognition value:
+the user can inspect the whole expression and judge, “Yes, that is what I think
+or feel.” It is not a third formal activity, command, lifecycle phase, completion
+state, or objective claim that the user's understanding is final. `Draft`,
+compose, and `Composition` remain accurate artifact, operation, and internal
+activity terms. Product-facing language may say “put this into words” or “bring
+this together.”
+
+Creating a Draft is optional. A conversation-only or conversation-plus-Idea-Map
+workspace is valid product use and must not be presented as failure,
+incompletion, or a reason the user must continue. Any Draft is canonical private
+plain text written as the user's first-person expression, not an assistant report,
+diagnosis, or authoritative explanation of the user. It may preserve uncertainty,
+mixed feelings, contradiction, missing information, and provisional conclusions.
+
+Draft Format is removed from the canonical product model and its existing
+implementation will be deleted through a separate approved migration task. It
+must not be hidden indefinitely, renamed, or converted into preference state.
+Preference learning, inferred profiles, product-owned export, and product
+publishing are not planned capabilities. Potential future guidance must earn its
+own approval and, at minimum, be explicit, inspectable, correctable, narrowly
+scoped, and subordinate to the current instruction.
+
+Public writing remains a later host-website concern after ThoughtForm v1 is
+ready for release. The intended owner workflow begins with manual copy/paste into
+locally prepared Markdown, followed by a host-owned static-content pipeline. No
+ThoughtForm publishing bridge is planned.
+
+The product remains an owner-used portfolio demo rather than a commercial or
+mental-health product. It may support sensitive reflection and offer personal
+clarity or catharsis, but it is not a therapist, diagnostic tool, clinical
+intervention, crisis service, or source of mental-health efficacy claims. Its
+primary validation is sustained usefulness to the owner in production; automated
+and hosted evaluations establish engineering and policy evidence only.
+
+This decision supersedes the earlier writing-tool framing in the canonical
+product documents, the product-publishing bridge portions of Decisions 008, 021,
+and 023, the formal
+articulation prohibition in Decision 029 only to the extent that articulation is
+now the product outcome rather than an activity, the Draft Format direction in
+Decision 042, and the possible product export direction in Decision 043. It does
+not change the host ownership of any later public-writing system, the separation
+of Discovery and Composition activities, user authority, revision safety,
+privacy, or product extractability.
+
+## 046 — Draft Format Is Removed Completely
+
+Draft Format, its independent revision, mutation operation, HTTP route, client
+controls, temporary state, durable adapter fields, and database columns are
+removed rather than hidden or converted into another guidance concept.
+
+`DraftingState` now contains only the optional canonical Draft, immutable
+revisions, and the active revision proposal. Draft operations use Draft and
+proposal revisions for optimistic concurrency; there is no pre-Draft format
+revision acting as a general drafting-state lock. Concurrent first composition
+remains protected by the unique one-Draft-per-conversation database relationship,
+operation idempotency, and transactional conflict mapping.
+
+The schema change was originally generated as a narrow two-column removal and
+applied without changing conversation, Idea Map, Draft, revision, or proposal
+data. That incremental migration was later retired by the explicitly approved
+pre-production migration-history reset in Decision 048.
+
+This decision completes and operationalises the Draft Format boundary in
+Decision 045 and supersedes Decision 042. Historical Task 033 and progress
+records remain evidence of the earlier implementation, not current product
+behaviour.
+
+## 047 — Conversational Thinking Policy And Safety Boundary
+
+The mounted ThoughtForm opens by asking what the person would like to think
+through. It supports questions, experiences, decisions, and ideas without
+assuming a writing goal. Conversation and the Idea Map are valid on their own;
+Draft readiness is advice rather than a gate, and the assistant may offer an
+optional articulation without implying unfinished work.
+
+Ordinary inquiry uses one concise grounded reflection, distinction, or
+observation followed by one useful question when inquiry should continue. The
+conversation policy must preserve mixed feelings, uncertainty, contradiction,
+provisional conclusions, and open questions. Composition creates the minimum
+coherent first-person plain-text expression supported by established material:
+one sentence, a paragraph, a list, or a longer account. It must not manufacture
+resolution, confidence, causes, advice, or an assistant analysis.
+
+The portfolio demo is not therapy, diagnosis, crisis response, or professional
+support. Sensitive reflection remains allowed, but product copy makes that
+boundary explicit and directs immediate-danger cases toward local emergency or
+crisis support and a trusted person. This is a proportionate safety boundary,
+not mental-health positioning.
+
+Deterministic browser coverage and bounded hosted evaluations cover personal
+reflection, mixed or unresolved feelings, practical decisions, ideas or
+arguments, early articulation, correction, and valid no-Draft use. Hosted
+structured-output validation is a hard evaluation failure. These checks provide
+engineering evidence only; production usefulness to the owner remains the
+product validation described by Decision 045.
+
+## 048 — The Product Is Renamed To ThoughtForm
+
+The product formerly called Socratic Draft is now `ThoughtForm`. The new name
+describes its corrected purpose: conversation gives thoughts form through
+exploration, organisation, and optional expression without assuming that the
+user intends to publish writing.
+
+`ThoughtForm` is the public and PascalCase identity. `thoughtForm` is the
+camelCase identity. `thoughtform` is the product id, slug, route segment, package
+path, API path, structured-output prefix, evaluation command, and database table
+prefix. A leading article is not part of the name. Valid domain concepts such as
+Draft, Discovery, Composition, conversation, and Idea Map remain unchanged.
+
+This is a complete identity replacement, not an alias. There are no compatibility
+redirects, dual package exports, legacy API mounts, or persistence mappings. Old
+URLs stop resolving. Historical task and architecture material is updated to use
+the current identity so examples and diagnostic paths remain executable; the
+former name is retained only where this decision and the approved rename task
+must explain the change.
+
+Because the repository and Neon branch are pre-production and their development
+data was explicitly declared disposable, all ten prior migrations were deleted,
+the development schema was reset, and Prisma generated and applied one new
+schema-first initial migration: `20260804154812_initial`. It contains the complete
+current platform schema, including Better Auth tables and the eight
+`thoughtform_*` product tables. No data migration or preservation contract
+exists for this reset.
+
+This decision supersedes the old product identity wherever it appears in earlier
+decisions without changing their substantive architecture or behaviour.

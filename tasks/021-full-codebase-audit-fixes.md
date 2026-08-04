@@ -12,7 +12,7 @@ Fix accepted findings from the full-codebase architecture and quality audit afte
 - Replace logout placeholder copy.
 - Avoid full-page reloads for product-internal navigation by passing a host-owned functional link adapter into product routes.
 - Keep product link styling product-owned rather than passing a host design-system wrapper into products.
-- Ensure the Socratic Draft conversation endpoint reads existing conversation history before calling the conversation service.
+- Ensure the ThoughtForm conversation endpoint reads existing conversation history before calling the conversation service.
 
 ## Out of scope
 

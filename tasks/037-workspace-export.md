@@ -1,5 +1,11 @@
 # Task 037 — Export a temporary workspace deliberately
 
+> **Retired on 2026-08-04.** Product-owned Markdown/JSON export is outside the
+> corrected ThoughtForm boundary. Plain-text content can be copied manually;
+> any later local-Markdown or static-content pipeline belongs to host-website
+> delivery after product v1. This proposal is historical context and is not
+> approved for implementation.
+
 ## Goal
 
 Let a demo user copy the canonical draft and download explicit Markdown or
@@ -60,4 +66,4 @@ host persistence changes are expected.
 
 ## Status
 
-Proposed. Awaiting completion of Task 036.
+Retired. Not planned.

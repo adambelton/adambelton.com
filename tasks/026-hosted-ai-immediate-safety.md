@@ -20,10 +20,10 @@ Implements the product architecture sections **AI architecture**, **Failure and
 degraded-state behaviour**, and the hosted boundary in **Principal flows**.
 
 - Require explicit `HOSTED_AI_ENABLED=true` configuration and a non-empty
-  `OPENAI_API_KEY` before Socratic Draft can make hosted model calls.
+  `OPENAI_API_KEY` before ThoughtForm can make hosted model calls.
 - Treat any other enable-flag value, a missing enable flag, or missing provider
   configuration as a disabled product state. The wider website and API may
-  continue running, but Socratic Draft must not accept model-backed actions.
+  continue running, but ThoughtForm must not accept model-backed actions.
 - Remove the automatic fake-model fallback from API composition. Keep the fake
   client only as a deterministic test adapter.
 - Validate a 32 KiB maximum complete conversation-input size before calling the
@@ -49,7 +49,7 @@ degraded-state behaviour**, and the hosted boundary in **Principal flows**.
 
 ## Expected files to create or modify
 
-- Socratic Draft model and HTTP contracts under `packages/products`
+- ThoughtForm model and HTTP contracts under `packages/products`
 - provider-neutral AI contracts and adapters under `packages/ai`
 - API composition/configuration under `apps/api`
 - demo failure presentation under the product client
@@ -63,7 +63,7 @@ degraded-state behaviour**, and the hosted boundary in **Principal flows**.
 - Hosted AI remains disabled unless `HOSTED_AI_ENABLED` is exactly `true` and
   required OpenAI configuration is present.
 - Disabled or unconfigured hosted AI does not prevent unrelated website and API
-  behaviour from running, but Socratic Draft model-backed actions fail closed
+  behaviour from running, but ThoughtForm model-backed actions fail closed
   with `hosted_ai_disabled` and make no provider calls or persistence changes.
 - The API never silently substitutes fake conversation responses when hosted AI
   is disabled, unconfigured, or unavailable.

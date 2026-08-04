@@ -6,7 +6,7 @@ Complete.
 
 ## Goal
 
-Port product mounting from the deprecated Next host into the Vite client using React Router, including the current Socratic Draft editor route.
+Port product mounting from the deprecated Next host into the Vite client using React Router, including the current ThoughtForm editor route.
 
 ## Why This Task Is Next
 
@@ -16,7 +16,7 @@ The Vite client now owns the public shell and auth UX. Product mounting is the r
 
 - Add a Vite client route for `/products/:productSlug/*`.
 - Dispatch product paths from the host into product-owned route renderers.
-- Mount the existing Socratic Draft overview, editor, and entries routes.
+- Mount the existing ThoughtForm overview, editor, and entries routes.
 - Preserve owner-only access handling for product routes that require it.
 - Add minimal contract-focused tests for host product route resolution.
 - Update task/progress docs.
@@ -24,9 +24,9 @@ The Vite client now owns the public shell and auth UX. Product mounting is the r
 ## Out Of Scope
 
 - Do not remove `apps/web`.
-- Do not redesign the Socratic Draft UI.
+- Do not redesign the ThoughtForm UI.
 - Do not change persistence, publishing, auth, or AI behavior.
-- Do not add new product routes beyond the existing Socratic Draft routes.
+- Do not add new product routes beyond the existing ThoughtForm routes.
 - Do not commit until reviewed and explicitly approved.
 
 ## Expected Files To Create Or Modify
@@ -39,11 +39,11 @@ The Vite client now owns the public shell and auth UX. Product mounting is the r
 
 ## Definition Of Done
 
-- `/products/socratic-draft` renders through the Vite client.
-- `/products/socratic-draft/editor` renders through the Vite client.
-- `/products/socratic-draft/entries` preserves owner-only access handling.
+- `/products/thoughtform` renders through the Vite client.
+- `/products/thoughtform/editor` renders through the Vite client.
+- `/products/thoughtform/entries` preserves owner-only access handling.
 - Unknown product routes produce a not-found state.
-- The product package remains the source of truth for Socratic Draft route behavior.
+- The product package remains the source of truth for ThoughtForm route behavior.
 - Existing auth gating still protects product routes.
 
 ## Validation Commands
@@ -66,9 +66,9 @@ Verify:
 
 ```txt
 /products
-/products/socratic-draft
-/products/socratic-draft/editor
-/products/socratic-draft/entries
+/products/thoughtform
+/products/thoughtform/editor
+/products/thoughtform/entries
 /products/not-real
 ```
 
@@ -80,8 +80,8 @@ Verify:
 ## Completed Notes
 
 - Added a Vite client product mount at `/products/:productSlug/*`.
-- Added a host-owned product route page that dispatches Socratic Draft URLs into the Socratic Draft product-owned route renderer.
-- Mounted the existing Socratic Draft overview, editor, and entries routes through React Router.
+- Added a host-owned product route page that dispatches ThoughtForm URLs into the ThoughtForm product-owned route renderer.
+- Mounted the existing ThoughtForm overview, editor, and entries routes through React Router.
 - Preserved owner-only route handling for product routes that require owner access.
 - Added contract-focused tests for host product route resolution.
 - Added React Router `matchPath` coverage for the product route pattern.

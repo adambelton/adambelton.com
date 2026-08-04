@@ -18,15 +18,28 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 035 — Temporary explicit preferences and one guidance path
 - 036 — Complete temporary workspace lifecycle and recovery
-- 037 — Workspace copy and export
 - 038 — Content-free hosted-attempt lifecycle and accounting
 - 039 — Representative hosted-usage measurement
 - 040 — Calibrated atomic usage enforcement
-- 041 — Durable confirmed owner preferences
-- 042 — Host public-writing system
-- 043 — Socratic Draft publishing bridge
+
+The unnumbered correction tasks must be completed before the remaining planned
+product work is reviewed or resumed. Task 036 will require a fresh dependency
+and language review after the corrections; preference learning must no longer be
+a prerequisite.
+
+Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
+from them—explicit current guidance, user correction, inspectability, narrow
+scope, and current instructions taking precedence—will be retained as deferred
+design considerations by the course-correction task. Output-format guidance,
+inferred profiles, and cross-work preference learning are not planned product
+capabilities.
+
+Task 037 is retired because export is outside the ThoughtForm product
+boundary. Tasks 042 and 043 are removed from the active product sequence. Public
+writing remains valid later host-website delivery work after ThoughtForm v1
+is ready for release, expected to begin with local Markdown content and static
+site pages rather than a product publishing capability.
 
 ## In progress
 
@@ -35,6 +48,10 @@ change the proposal or grant approval for a later task.
 
 ## Completed
 
+- Rename the product to ThoughtForm (unnumbered)
+- ThoughtForm conversational-thinking course correction (unnumbered)
+- Remove ThoughtForm Format (unnumbered)
+- Align the ThoughtForm conversational-thinking experience (unnumbered)
 - 034 — Conservative substantive-edit interpretation
 - 033 — Optional Draft Format
 - Repository organisation baseline (unnumbered maintenance task)
@@ -52,12 +69,12 @@ change the proposal or grant approval for a later task.
 - 003 — Minimal styling foundation
 - 004 — Static site routes with empty writing collection
 - 005 — Adopt code quality and testing guidelines
-- 006 — Socratic Draft product boundary and conversation service
+- 006 — ThoughtForm product boundary and conversation service
 - 007 — Product dependency boundary
 - 008 — Conversation endpoint with in-memory host adapter
 - 009 — Public site accessibility baseline
 - 010 — Editor UI wired to fake conversation endpoint
-- 011 — Prisma database schema and Socratic Draft repository
+- 011 — Prisma database schema and ThoughtForm repository
 - 012 — Neon development database setup
 - 013 — Mountable product app boundary
 - 014 — Owner auth

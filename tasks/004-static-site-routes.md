@@ -11,10 +11,10 @@ Set up the static public site structure with `/` as the writing collection entry
 - Make `/` the writing collection page with an honest empty state.
 - Add `/about`.
 - Add `/products`.
-- Add `/products/socratic-draft`.
+- Add `/products/thoughtform`.
 - Update header navigation to link only to implemented static pages.
 - Render `/products` from the shared product registry.
-- Keep `/products/socratic-draft` minimal with `In Development` placeholder text.
+- Keep `/products/thoughtform` minimal with `In Development` placeholder text.
 - Update progress and task tracking.
 
 ## Out of Scope
@@ -23,7 +23,7 @@ Set up the static public site structure with `/` as the writing collection entry
 - Individual writing routes.
 - Placeholder article previews.
 - CMS or markdown loading.
-- Socratic Draft editor.
+- ThoughtForm editor.
 - Product demo links.
 - Auth, API, database, AI, demo mode, or admin.
 - Fake interactions.
@@ -33,7 +33,7 @@ Set up the static public site structure with `/` as the writing collection entry
 - `/` is the writing collection entry point with an honest empty state.
 - `/about` renders.
 - `/products` renders from the shared registry.
-- `/products/socratic-draft` renders with `In Development` placeholder text.
+- `/products/thoughtform` renders with `In Development` placeholder text.
 - Header navigation only links to implemented pages.
 - No writing posts or fake article previews are added.
 - No product-specific app behaviour is added.
@@ -45,5 +45,5 @@ Set up the static public site structure with `/` as the writing collection entry
 
 - The root page now describes the writing collection and says there are no published pieces yet.
 - Static about and products routes exist.
-- The Socratic Draft product page is static and intentionally minimal.
+- ThoughtForm product page is static and intentionally minimal.
 - No runtime product behaviour was added.

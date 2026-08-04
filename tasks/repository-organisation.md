@@ -27,7 +27,7 @@ or priority of Tasks 033–044.
 ## Scope
 
 - Document and enforce the repository organisation vocabulary.
-- Reorganise the client host, API host, platform packages, and Socratic Draft
+- Reorganise the client host, API host, platform packages, and ThoughtForm
   package around explicit architectural roles.
 - Move product registry data to the product package while retaining platform
   registry types in the shared package.
@@ -81,7 +81,7 @@ behaviour or the numbered roadmap.
   progress, and this approval record.
 - Client and API host source trees.
 - AI, auth, database, shared, and products package source trees and entry points.
-- Socratic Draft client, server, ports, delivery, persistence adapters, and test
+- ThoughtForm client, server, ports, delivery, persistence adapters, and test
   support paths.
 - Repository-wide architecture tests and product-registry ownership coverage.
 
@@ -89,7 +89,7 @@ The documentation records both the implemented tree and the principles behind
 it: paths as diagnostic maps, separation of meaning from mechanism, inward
 dependency direction, capability ownership, verification ownership, and
 evidence-driven rather than speculative structure. Repository-wide guidance
-lives in the root README, while the Socratic Draft owns a self-contained README
+lives in the root README, while the ThoughtForm owns a self-contained README
 for its detailed structure, flow, integration boundary, and diagnostic map.
 
 ### Commands run
@@ -100,7 +100,7 @@ pnpm test:e2e
 pnpm typecheck
 pnpm build
 pnpm db:validate
-pnpm vitest run packages/db/src/adapters/socratic-draft/conversation-persistence.integration.test.ts packages/db/src/adapters/socratic-draft/draft-persistence.integration.test.ts
+pnpm vitest run packages/db/src/adapters/thoughtform/conversation-persistence.integration.test.ts packages/db/src/adapters/thoughtform/draft-persistence.integration.test.ts
 PORT=8790 pnpm dev:api
 git diff --check
 ```
@@ -108,7 +108,7 @@ git diff --check
 ### What works end to end
 
 - The public client and API build from their explicit bootstrap locations.
-- Socratic Draft mounts through the reorganised host adapters and retains the
+- ThoughtForm mounts through the reorganised host adapters and retains the
   same HTTP paths, product contracts, demo behaviour, owner persistence, and
   complete browser journeys.
 - Product definitions resolve from their product-owned registry.

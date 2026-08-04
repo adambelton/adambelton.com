@@ -8,9 +8,9 @@ import { PRODUCT_IDS } from "packages/shared/src/products";
 
 describe("product registry", () => {
   it("keeps product definitions in the product package", () => {
-    const socraticDraft = getProductById(PRODUCT_IDS.socraticDraft);
+    const thoughtForm = getProductById(PRODUCT_IDS.thoughtForm);
 
-    expect(socraticDraft).toBe(products[0]);
-    expect(getProductBySlug("socratic-draft")).toBe(socraticDraft);
+    expect(thoughtForm).toBe(products[0]);
+    expect(getProductBySlug("thoughtform")).toBe(thoughtForm);
   });
 });
