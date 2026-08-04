@@ -439,6 +439,13 @@ function createFakeConversationStore(): TemporaryConversationStore {
       return { status: "retained" };
     },
 
+    async appendAssistantMessage(input) {
+      const existingMessages = conversations.get(input.conversationId) ?? [];
+      conversations.set(input.conversationId, [...existingMessages, input.assistantMessage]);
+      ideaMaps.set(input.conversationId, input.ideaMap);
+      return { status: "retained" };
+    },
+
     async replaceIdeaMap(input) {
       const current = ideaMaps.get(input.conversationId);
       if (!current) return { status: "conversation_unavailable" };

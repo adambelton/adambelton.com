@@ -167,6 +167,23 @@ Lifecycle is derived from resources that actually exist, such as a private draft
 or publishing preparation, rather than stored in a general conversation-phase
 enum.
 
+A successful changed save or restoration also creates a revision-bounded
+workspace event. Drafting deterministically suppresses only obvious textual
+maintenance, then asks its saved-change interpretation port to classify and
+respond to remaining changes. The save response is returned before that model
+work begins. The follow-up operation revalidates the exact current
+`DraftChange`, retains an assistant-only provisional response without inventing
+a user utterance, and may add inspectable potential conflicts. Failure leaves
+the saved revision intact and returns the exact current change for ordinary
+conversation recovery.
+
+Potential conflicts record known uncertainty where established material appears
+incompatible; open questions record material that is not yet established. A
+potential conflict may be within one idea, between ideas, or between established
+substance and a saved edit. Conversation may remove it only after the user
+resolves or dismisses it, and any established resolution remains ordinary idea
+substance in the user's latest language.
+
 ## Authority and invariants
 
 The following rules are architectural invariants:
@@ -195,6 +212,9 @@ The following rules are architectural invariants:
     a move describes the assistant's technique; neither is a workspace phase.
 12. Readiness is action-specific and advisory, while lifecycle is derived from
     real resources.
+13. A saved-edit interpretation is provisional; neither its wording nor a
+    potential conflict becomes established idea substance without subsequent
+    user confirmation, clarification, or elaboration.
 
 ## Capability architecture
 

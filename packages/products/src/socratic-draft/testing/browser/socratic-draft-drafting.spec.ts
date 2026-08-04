@@ -71,12 +71,9 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await editor.fill("Football grants legitimacy, and accountability must follow.");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByText("Revision 2")).toBeVisible();
-  await page.getByRole("button", { name: "Discuss this edit" }).click();
-  await expect(page.getByLabel("Attached draft change")).toContainText("revision 1 to 2");
-  await page.getByLabel("Your next thought").fill("What might this saved edit mean?");
-  await page.getByRole("button", { name: "Send" }).click();
-  await expect(page.getByText("What feels most important to examine in that passage?")).toBeVisible();
-  await expect(page.getByLabel("Attached draft change")).not.toBeVisible();
+  await expect(page.getByText("It sounds as though this edit changes what matters to you. Is that right?")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Discuss this edit" })).not.toBeVisible();
+  await page.getByRole("button", { name: "Draft", exact: true }).click();
 
   await page.getByRole("button", { name: "History" }).click();
   await page.getByRole("button", { name: /Revision 1/ }).click();

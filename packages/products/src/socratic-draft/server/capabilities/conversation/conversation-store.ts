@@ -30,6 +30,14 @@ export interface ReplaceIdeaMapInput {
   ideaMap: IdeaMap;
 }
 
+export interface AppendAssistantMessageInput {
+  conversationId: string;
+  operationId: string;
+  assistantMessage: ConversationMessage;
+  expectedIdeaMapRevision: number;
+  ideaMap: IdeaMap;
+}
+
 export const CONVERSATION_TURN_RETENTION_STATUSES = {
   conflict: "conflict",
   retained: "retained",
@@ -48,6 +56,7 @@ export interface ConversationStore {
     ideaMap: IdeaMap;
   } | null>;
   appendConversationTurn(input: AppendConversationTurnInput): Promise<AppendConversationTurnResult>;
+  appendAssistantMessage(input: AppendAssistantMessageInput): Promise<AppendConversationTurnResult>;
   replaceIdeaMap(input: ReplaceIdeaMapInput): Promise<AppendConversationTurnResult>;
 }
 
@@ -132,6 +141,28 @@ export function createConversationStore(
             input.userMessage,
             input.assistantMessage,
           ],
+          ideaMap: input.ideaMap,
+          updatedAt: now().toISOString(),
+        },
+      }));
+    },
+
+    async appendAssistantMessage(input) {
+      const current = await persistence.load(input.conversationId);
+      if (!current) {
+        return { status: CONVERSATION_TURN_RETENTION_STATUSES.unavailable };
+      }
+      if (current.ideaMap.revision !== input.expectedIdeaMapRevision) {
+        return { status: CONVERSATION_TURN_RETENTION_STATUSES.conflict };
+      }
+      return commitResult(await persistence.commit({
+        conversationId: input.conversationId,
+        operationId: input.operationId,
+        operationKind: "saved_edit_response",
+        expectedIdeaMapRevision: input.expectedIdeaMapRevision,
+        nextSnapshot: {
+          ...current,
+          messages: [...current.messages, input.assistantMessage],
           ideaMap: input.ideaMap,
           updatedAt: now().toISOString(),
         },

@@ -57,6 +57,14 @@ User action
   → result returned to the interface
 ```
 
+A changed draft save is returned immediately with its exact revision-bounded
+`DraftChange`. The client then launches the product's saved-edit interpretation
+operation. Obvious maintenance stops deterministically; meaningful changes can
+retain an assistant-only provisional response and inspectable potential
+conflicts. If interpretation fails, the exact still-current change is attached
+to ordinary conversation, while a later draft revision invalidates that
+attachment.
+
 The product owns the meaning of conversations, ideas, and drafting state,
 including optional Draft Format guidance and the
 operations it requires from AI and storage. It does not own a particular model,

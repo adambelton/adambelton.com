@@ -19,6 +19,30 @@ The product can now respond to a saved edit as a meaningful workspace event
 without conflating draft-save correctness, exact change representation, model
 judgement, or preference learning.
 
+## Approval record
+
+Approved on 2026-08-04.
+
+- Saved draft changes become workspace events, but obvious textual maintenance
+  remains eligible for deterministic suppression without a model request.
+- The saved draft remains canonical and successful even when classification,
+  response generation, or later commentary fails.
+- Assistant interpretations remain provisional and cannot alter canonical idea
+  substance until the user confirms, clarifies, or elaborates the meaning.
+- Richer current user language takes precedence over an earlier assistant
+  paraphrase; a bare confirmation may adopt the assistant's wording.
+- Potential conflicts are distinct from open questions and remain pending until
+  user-established meaning resolves or intentionally explains the tension.
+- Draft Format remains behaviourally inert and preference learning remains
+  deferred to Task 035.
+- No separate interpretation record, revision-history mechanism, or database
+  migration is authorised without new evidence and explicit approval.
+- The bounded model-call shape, minimal `PotentialConflict` contract, retained
+  assistant-response representation, public conflict-resolution operations, and
+  failure-recovery presentation remain implementation decisions for this task.
+- These boundaries should not be reopened during implementation without new
+  evidence and explicit approval.
+
 ## Scope
 
 - Treat every changed draft save or restoration as a workspace event eligible
@@ -196,4 +220,41 @@ requires separate proposal review and approval before implementation.
 
 ## Status
 
-Proposed. Awaiting review and explicit approval.
+Implemented on 2026-08-04.
+
+## Completion audit
+
+- Changed saves and restorations return the exact `DraftChange` before the client
+  starts the separately revision-validated interpretation request. Deterministic
+  classification suppresses narrow whitespace, punctuation, and boundary-casing
+  maintenance; all other changes use one bounded drafting-owned model port.
+- Meaningful changes retain one assistant-only provisional response. They do not
+  fabricate a user message or update idea substance, and the manual mounted-host
+  walkthrough observed the successful revision before the hosted response.
+- Potential conflicts have validated within-idea, between-idea, and saved-edit
+  scopes, are rendered separately from unresolved questions, and survive ordinary
+  idea mutations. Public resolution operations remove only named conflicts while
+  retaining established meaning in ordinary substance.
+- Conversation reconciliation explicitly prefers richer current user language.
+  Deterministic orchestration coverage proves that a restated resolution updates
+  substance and removes the matching conflict; the real hosted mounted flow did
+  the same for an explanation-to-answerability change without asking for another
+  confirmation.
+- Dismissal remains an ordinary conversation outcome with no automatic idea-map
+  mutation. Failed interpretation preserves the saved draft and attaches the
+  exact current change for an ordinary retry; advancing the draft clears the
+  attachment and invalidates late interpretation results.
+- The placeholder “Discuss this edit” action is removed. Selected-passage
+  discussion remains available, and Draft Format is absent from classification,
+  model input, reconciliation, and presentation changes.
+- Model, capability, application, HTTP, adapter, client, and browser regressions
+  are covered. `pnpm test`, `pnpm test:e2e`, `pnpm typecheck`, `pnpm build`, and
+  `git diff --check` pass. A three-turn hosted evaluation passed with the intended
+  `gpt-5-mini` model, and browser console inspection found no warnings or errors.
+- The complete branch diff was checked against `origin/main`: product meaning
+  remains in `packages/products`, host code only supplies the concrete AI adapter,
+  imports remain repo-root absolute, test-host behavior is not duplicated into
+  production hosts, documentation claims match observed evidence, and no schema
+  or migration change was introduced.
+- Browser inspection is recorded as browser verification only; no human
+  assistive-technology verification is claimed.

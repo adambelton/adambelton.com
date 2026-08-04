@@ -257,6 +257,7 @@ function createPersistentConversationStore(): PersistentConversationStore {
         ? { messages: conversation.messages, ideaMap: conversation.ideaMap }
         : null,
     appendConversationTurn: async () => ({ status: "retained" }),
+    appendAssistantMessage: async () => ({ status: "retained" }),
     replaceIdeaMap: async () => ({ status: "retained" }),
     listConversations: async () => [conversation],
     getConversation: async (conversationId) =>

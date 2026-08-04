@@ -17,6 +17,7 @@ export type CreateSocraticDraftApiRouteDependencies =
     CreateConversationsRouteDependencies &
     CreateTemporaryConversationRouteDependencies & {
       compositionModel: DraftCompositionModel;
+      interpretationModel: CreateDraftRouteDependencies["interpretationModel"];
       proposalModel: RevisionProposalModel;
       getPersistentDraftStore: CreateDraftRouteDependencies["getDraftStore"];
       getTemporaryDraftStore: CreateDraftRouteDependencies["getDraftStore"];
@@ -38,12 +39,14 @@ export function createSocraticDraftApiRoute(
   route.route("/conversations", createConversationsRoute(dependencies));
   route.route("/drafts", createDraftRoute({
     compositionModel: dependencies.compositionModel,
+    interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,
     getConversationStore: dependencies.getPersistentConversationStore,
     getDraftStore: dependencies.getPersistentDraftStore,
   }));
   route.route("/temporary-drafts", createDraftRoute({
     compositionModel: dependencies.compositionModel,
+    interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,
     getConversationStore: dependencies.getTemporaryConversationStore,
     getDraftStore: dependencies.getTemporaryDraftStore,

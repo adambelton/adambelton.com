@@ -22,7 +22,7 @@ export const CONVERSATION_COMMIT_STATUSES = {
 export interface ConversationCommitInput {
   conversationId: string;
   operationId: string;
-  operationKind: "conversation_turn" | "idea_action";
+  operationKind: "conversation_turn" | "saved_edit_response" | "idea_action";
   expectedIdeaMapRevision: number;
   nextSnapshot: ConversationPersistenceSnapshot;
 }

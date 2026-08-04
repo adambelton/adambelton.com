@@ -85,6 +85,13 @@ app.route(
         body: selectedIdeas.map((idea) => idea.substance).join("\n\n"),
       }),
     },
+    interpretationModel: {
+      interpret: async () => ({
+        type: "conceptual_change",
+        assistantMessage: "It sounds as though this edit changes what matters to you. Is that right?",
+        potentialConflicts: [],
+      }),
+    },
     proposalModel: {
       propose: async ({ originalContent, userInstruction }) => ({
         proposedContent: `${originalContent}\n\n${userInstruction}`,

@@ -22,6 +22,7 @@ import {
 import {
   applyIdeaAction,
   applyProposedIdeas,
+  removeResolvedPotentialConflicts,
   IDEA_MAP_UPDATE_STATUSES,
 } from "packages/products/src/socratic-draft/server/capabilities/idea-map";
 
@@ -102,6 +103,7 @@ export async function respondInWorkspace(input: {
   const {
     proposedIdeas: _proposedIdeas,
     proposedIdeaActions,
+    resolvedPotentialConflictIds,
     ...generatedConversationResponse
   } = generatedResponse;
   for (const action of input.draftChange ? [] : (proposedIdeaActions ?? [])) {
@@ -119,6 +121,17 @@ export async function respondInWorkspace(input: {
       break;
     }
     ideaMap = actionResult.ideaMap;
+  }
+  if (!invalidIdeaChanges && !input.draftChange && resolvedPotentialConflictIds?.length) {
+    const conflictResult = removeResolvedPotentialConflicts({
+      current: ideaMap,
+      conflictIds: resolvedPotentialConflictIds,
+    });
+    if (conflictResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
+      invalidIdeaChanges = true;
+    } else {
+      ideaMap = conflictResult.ideaMap;
+    }
   }
   if (invalidIdeaChanges) {
     ideaMap = workspace.ideaMap;

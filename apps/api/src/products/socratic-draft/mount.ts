@@ -7,6 +7,10 @@ import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
 } from "apps/api/src/products/socratic-draft/adapters/ai/conversation-model-adapter";
+import {
+  DisabledDraftChangeInterpretationModelAdapter,
+  LlmDraftChangeInterpretationModelAdapter,
+} from "apps/api/src/products/socratic-draft/adapters/ai/draft-change-interpretation-model-adapter";
 import { getCurrentAuthSession } from "packages/auth/src/server/session";
 import { createConversationStoreResolver } from "apps/api/src/products/socratic-draft/adapters/persistence/conversation-store-resolver";
 import {
@@ -101,7 +105,29 @@ export function createDraftModel(configuration: {
   }));
 }
 
+export function createDraftChangeInterpretationModel(configuration: {
+  hostedAiEnabled?: string;
+  openAiApiKey?: string;
+  openAiModel?: string;
+}) {
+  if (
+    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
+    !configuration.openAiApiKey?.trim()
+  ) {
+    return new DisabledDraftChangeInterpretationModelAdapter();
+  }
+  return new LlmDraftChangeInterpretationModelAdapter(new OpenAiLlmClient({
+    apiKey: configuration.openAiApiKey,
+    model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
+  }));
+}
+
 const draftModel = createDraftModel({
+  hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
+  openAiApiKey: process.env.OPENAI_API_KEY,
+  openAiModel: process.env.OPENAI_MODEL,
+});
+const draftChangeInterpretationModel = createDraftChangeInterpretationModel({
   hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL,
@@ -114,6 +140,7 @@ socraticDraftRoute.route(
   createSocraticDraftApiRoute({
     conversationService: socraticDraftConversationService,
     compositionModel: draftModel,
+    interpretationModel: draftChangeInterpretationModel,
     proposalModel: draftModel,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
