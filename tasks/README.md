@@ -18,7 +18,6 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 034 — Conservative substantive-edit interpretation
 - 035 — Temporary explicit preferences and one guidance path
 - 036 — Complete temporary workspace lifecycle and recovery
 - 037 — Workspace copy and export
@@ -28,11 +27,15 @@ change the proposal or grant approval for a later task.
 - 041 — Durable confirmed owner preferences
 - 042 — Host public-writing system
 - 043 — Socratic Draft publishing bridge
+
+## In progress
+
 - 044 — Admin visibility
 - 045 — Dedicated Neon test-database workflow
 
 ## Completed
 
+- 034 — Conservative substantive-edit interpretation
 - 033 — Optional Draft Format
 - Repository organisation baseline (unnumbered maintenance task)
 - 032 — Saved draft-change context and user-directed discussion

@@ -102,15 +102,53 @@ export interface Idea {
   disposition: IdeaDisposition;
 }
 
+export const POTENTIAL_CONFLICT_SCOPES = {
+  withinIdea: "within_idea",
+  betweenIdeas: "between_ideas",
+  savedEdit: "saved_edit",
+} as const;
+
+export type PotentialConflictScope =
+  (typeof POTENTIAL_CONFLICT_SCOPES)[keyof typeof POTENTIAL_CONFLICT_SCOPES];
+
+export interface PotentialConflict {
+  id: string;
+  scope: PotentialConflictScope;
+  summary: string;
+  explanation: string;
+  ideaIds: string[];
+  draftChange: Pick<DraftChange, "fromRevision" | "toRevision"> | null;
+}
+
 export interface IdeaMap {
   revision: number;
   ideas: Idea[];
+  potentialConflicts?: PotentialConflict[];
 }
 
 export const EMPTY_IDEA_MAP: IdeaMap = {
   revision: 0,
   ideas: [],
+  potentialConflicts: [],
 };
+
+export const POTENTIAL_CONFLICT_RESOLUTION_TYPES = {
+  refine: "refine",
+  distinguishContexts: "distinguish_contexts",
+  choosePosition: "choose_position",
+  separateIdeas: "separate_ideas",
+  integrateTension: "integrate_tension",
+  dismiss: "dismiss",
+} as const;
+
+export type PotentialConflictResolutionType =
+  (typeof POTENTIAL_CONFLICT_RESOLUTION_TYPES)[keyof typeof POTENTIAL_CONFLICT_RESOLUTION_TYPES];
+
+export interface PotentialConflictResolutionRequest {
+  expectedRevision: number;
+  resolution: PotentialConflictResolutionType;
+  userEstablishedMeaning?: string;
+}
 
 export const IDEA_ACTION_TYPES = {
   correct: "correct",
@@ -307,9 +345,32 @@ export interface DraftChange {
   addedText: string;
 }
 
+export const DRAFT_CHANGE_INTERPRETATION_TYPES = {
+  textualMaintenance: "textual_maintenance",
+  composition: "composition",
+  conceptualChange: "conceptual_change",
+  structuralChange: "structural_change",
+} as const;
+
+export type DraftChangeInterpretationType =
+  (typeof DRAFT_CHANGE_INTERPRETATION_TYPES)[keyof typeof DRAFT_CHANGE_INTERPRETATION_TYPES];
+
+export interface DraftChangeInterpretation {
+  type: DraftChangeInterpretationType;
+  assistantMessage: ConversationMessage | null;
+  potentialConflicts: PotentialConflict[];
+}
+
+export interface DraftOperationInterpretation {
+  status: "not_needed" | "responded" | "failed";
+  response?: ConversationResponse;
+  failureStage?: "workspace" | "generation" | "interpretation" | "retention";
+}
+
 export interface DraftOperationResponse {
   workspace: DraftingState;
   change: DraftChange | null;
+  interpretation?: DraftOperationInterpretation;
 }
 
 export interface RevisionProposalVersion {

@@ -62,6 +62,14 @@ function createFakeTemporaryConversationStore(): TemporaryConversationStore {
       }
       return { status: "conversation_unavailable" };
     },
+    async appendAssistantMessage(input) {
+      if (conversation?.id === input.conversationId) {
+        conversation.messages.push(input.assistantMessage);
+        conversation.ideaMap = input.ideaMap;
+        return { status: "retained" };
+      }
+      return { status: "conversation_unavailable" };
+    },
     async replaceIdeaMap(input) {
       if (conversation?.id !== input.conversationId) {
         return { status: "conversation_unavailable" };

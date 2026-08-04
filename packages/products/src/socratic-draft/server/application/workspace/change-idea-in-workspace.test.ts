@@ -47,6 +47,7 @@ function createStore(
     createConversationId: () => "conversation-1",
     getConversationWorkspace: async () => ({ messages: [], ideaMap: current() }),
     appendConversationTurn: async () => ({ status: "retained" }),
+    appendAssistantMessage: async () => ({ status: "retained" }),
     replaceIdeaMap: async (input) => ({ status: replace(input.ideaMap) }),
   };
 }

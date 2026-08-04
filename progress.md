@@ -72,6 +72,25 @@ and final reload all succeeded without creating draft content. API development
 startup applies committed migrations before launching when `DATABASE_URL` is
 configured, while no-database development retains its in-memory fallback.
 
+Task 034 has been implemented. Every changed manual save or restoration now
+returns its exact revision-bounded change before a separate automatic follow-up.
+Obvious textual maintenance is suppressed deterministically; meaningful edits
+receive one bounded provisional interpretation that is retained as an
+assistant-only message. Potential conflicts are inspectable separately from
+open questions and are removed only after user-established resolution, with the
+user's richer latest wording retained as ordinary idea substance. Interpretation
+failure never rolls back the saved revision and instead attaches the exact
+current change to ordinary conversation for recovery. The temporary manual
+“Discuss this edit” bridge has been removed, while selected-passage discussion
+and behaviourally inert Draft Format remain unchanged.
+
+The complete authenticated flow was verified through the real local client, API,
+Neon development adapter, and hosted model: a substantive edit saved immediately,
+received an automatic provisional response and potential conflict, and a later
+explicit restatement updated the idea and removed the conflict. A trivial edit
+produced no assistant response. Automated unit, browser, typecheck, build, diff,
+and a focused hosted evaluation also pass.
+
 The Socratic Draft now has a canonical terminology reference distinguishing
 artifacts, activities, operations, assistant moves, readiness, intention,
 commands, events, and lifecycle facts. In particular, a `Draft` is the writing,
@@ -284,7 +303,7 @@ contract evaluation remains outside CI.
 - Individual writing pages.
 - Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
-- Manual draft-edit interpretation and preference learning.
+- Preference learning from confirmed edit patterns.
 - Complete demo copy and export flow.
 - Publishing flow from private drafts to public writing.
 - Admin UI.
@@ -311,8 +330,8 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Task 034 — Add conservative substantive-edit interpretation, subject to its own
-proposal review and explicit approval.
+Task 035 — Add temporary explicit preferences and one guidance path, subject to
+its own proposal review and explicit approval.
 
 ## Historical semantic-editor investigation
 

@@ -771,3 +771,29 @@ owner to adopt a CMS and does not prevent a later export adapter, but export mus
 not redefine the canonical Draft without a new product decision supported by
 observed need. The investigation is recorded in
 `docs/products/socratic-draft/semantic-editor-investigation.md`.
+
+## 044 — Saved Draft Changes Receive Revision-Validated Provisional Interpretation
+
+Obvious textual maintenance is suppressed by a deliberately narrow deterministic
+classifier. Every other exact, current `DraftChange` is classified and answered
+in one bounded model request through a drafting-owned port. The API host supplies
+the provider adapter; product classification, interpretation, conflict, and
+reconciliation rules remain inside Socratic Draft.
+
+Canonical draft persistence completes and returns before interpretation starts.
+The automatic follow-up revalidates the revision-bounded change, so latency or
+failure cannot block, roll back, or misreport a successful save. A later revision
+invalidates the old operation and its client recovery attachment.
+
+An automatic response is retained as one assistant message without a fabricated
+user utterance. It remains provisional. Failure attaches the exact current
+change to the ordinary composer; no separate pending-interpretation record is
+persisted.
+
+The Idea Map may retain minimal potential conflicts within one idea, between
+ideas, or between established substance and a saved edit. These are known
+uncertainties rather than open questions. Ordinary conversation removes them
+only after user-established refinement, contextual distinction, position
+choice, idea separation, integrated intentional tension, or dismissal. Richer
+latest user language is retained in ordinary idea substance; Draft Format and
+preference learning remain outside this behaviour.

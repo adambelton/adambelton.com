@@ -366,10 +366,24 @@ export function ConversationEditor({
                 setDraftChange(null);
                 revealSurface("conversation");
               }}
-              onAttachChange={(attached) => {
-                setDraftChange(attached);
-                setDraftSelection(null);
-                revealSurface("conversation");
+              onDraftInterpretation={(interpretation, change) => {
+                if (interpretation?.status === "responded" && interpretation.response) {
+                  setMessages((current) => [...current, interpretation.response!.message]);
+                  setIdeaMap(interpretation.response.ideaMap);
+                  setDraftChange(null);
+                  setDraftSelection(null);
+                  onResponse?.(interpretation.response);
+                  revealSurface("conversation");
+                  return;
+                }
+                if (interpretation?.status === "failed" && change) {
+                  setDraftChange(change);
+                  setDraftSelection(null);
+                  setError("The draft was saved, but the assistant could not interpret this edit. Add a message to retry with the saved edit attached.");
+                  revealSurface("conversation");
+                  return;
+                }
+                setDraftChange(null);
               }}
               onDraftAdvanced={() => {
                 setDraftChange(null);

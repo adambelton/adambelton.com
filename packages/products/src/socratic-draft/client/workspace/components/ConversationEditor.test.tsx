@@ -115,7 +115,7 @@ describe("ConversationEditor", () => {
     expect(screen.getByDisplayValue("Do not send this yet.")).toBeTruthy();
   });
 
-  it("attaches a saved edit to conversation only after explicit user action", async () => {
+  it("shows an automatic saved-edit response without fabricating a user message", async () => {
     const workspace = draftingState("Canonical body.");
     const changed = {
       fromRevision: 1,
@@ -134,9 +134,21 @@ describe("ConversationEditor", () => {
         { ...workspace.revisions[0]!, revision: 2, body: "Personal body.", source: "manual_edit" },
       ],
     };
-    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(
-      success({ workspace: nextState, change: changed }),
-    ));
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(success({ workspace: nextState, change: changed }))
+      .mockResolvedValueOnce(success({
+          status: "responded",
+          response: {
+            conversationId: "conversation-1",
+            message: { role: "assistant", content: "It sounds as though personal responsibility matters more here. Is that right?" },
+            activity: "discovery",
+            move: "clarify",
+            assistantReadiness: [],
+            userIntention: null,
+            ideaMap: { revision: 1, ideas: [idea] },
+          },
+      })),
+    );
     const sendMessage = vi.fn(async () => ({
       conversationId: "conversation-1",
       message: { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "What does that edit sharpen?" },
@@ -157,18 +169,49 @@ describe("ConversationEditor", () => {
       target: { value: "Personal body." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
-    await screen.findByRole("button", { name: "Discuss this edit" });
+    await screen.findByText("It sounds as though personal responsibility matters more here. Is that right?");
+    expect(screen.queryByRole("button", { name: "Discuss this edit" })).toBeNull();
     expect(screen.queryByLabelText("Attached draft change")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Discuss this edit" }));
-    expect(screen.getByLabelText("Attached draft change")).toBeTruthy();
-    fireEvent.change(screen.getByLabelText("Your next thought"), {
-      target: { value: "Help me understand why I made this change." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    expect(sendMessage).not.toHaveBeenCalled();
+  });
 
+  it("attaches the exact saved change after automatic response failure", async () => {
+    const workspace = draftingState("Canonical body.");
+    const changed = {
+      fromRevision: 1, toRevision: 2, scope: "passage" as const,
+      start: 0, end: 9, removedText: "Canonical", addedText: "Personal",
+    };
+    const nextState: DraftingState = {
+      ...workspace,
+      draft: { ...workspace.draft!, body: "Personal body.", currentRevision: 2 },
+      revisions: [...workspace.revisions, { ...workspace.revisions[0]!, revision: 2, body: "Personal body.", source: "manual_edit" }],
+    };
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(success({ workspace: nextState, change: changed }))
+      .mockResolvedValueOnce(success({ status: "failed" })),
+    );
+    const sendMessage = vi.fn(async () => ({
+      conversationId: "conversation-1",
+      message: { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "What changed for you?" },
+      activity: ACTIVITIES.discovery,
+      move: ASSISTANT_MOVES.probe,
+      assistantReadiness: [], userIntention: null,
+      ideaMap: { revision: 1, ideas: [idea] },
+    }));
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialDraftingState={workspace}
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      sendMessage={sendMessage}
+    />);
+    fireEvent.change(screen.getByLabelText("Canonical draft"), { target: { value: "Personal body." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+    await screen.findByLabelText("Attached draft change");
+    fireEvent.change(screen.getByLabelText("Your next thought"), { target: { value: "Help me understand this." } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
     await waitFor(() => expect(sendMessage).toHaveBeenCalledWith({
       conversationId: "conversation-1",
-      message: "Help me understand why I made this change.",
+      message: "Help me understand this.",
       draftChange: changed,
     }));
   });

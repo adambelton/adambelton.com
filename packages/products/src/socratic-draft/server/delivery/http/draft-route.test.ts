@@ -43,6 +43,13 @@ describe("draft HTTP route", () => {
       getConversationStore: async () => conversations,
       getDraftStore: async () => drafts,
       compositionModel: { compose: async () => ({ body: "The first draft." }) },
+      interpretationModel: {
+        interpret: async () => ({
+          type: "composition",
+          assistantMessage: "It sounds as though this wording is provisional. Is that right?",
+          potentialConflicts: [],
+        }),
+      },
       proposalModel: {
         propose: async () => ({
           proposedContent: "The reviewed draft.",
@@ -72,6 +79,18 @@ describe("draft HTTP route", () => {
       toRevision: 2,
       removedText: "The first draft.",
       addedText: "My direct edit.",
+    });
+    expect(saved.payload.data.interpretation).toBeUndefined();
+
+    const interpreted = await jsonRequest(app, `/drafts/${conversationId}/interpret-change`, {
+      method: "POST",
+      body: { change: saved.payload.data.change },
+    });
+    expect(interpreted.response.status).toBe(200);
+    if (!interpreted.payload.ok) throw new Error("Expected interpretation to succeed.");
+    expect(interpreted.payload.data).toMatchObject({
+      status: "responded",
+      response: { message: { role: "assistant" } },
     });
 
     const stale = await jsonRequest(app, `/drafts/${conversationId}`, {

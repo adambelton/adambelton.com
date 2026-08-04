@@ -146,6 +146,13 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).toContain(
       "Offer practical advice only when the user explicitly asks for it",
     );
+    expect(modelRequests[0]?.system).toContain("my settled view is");
+    expect(modelRequests[0]?.system).toContain(
+      "must return the matching existing conflict id",
+    );
+    expect(modelRequests[0]?.system).toContain(
+      "use the richer current user wording",
+    );
     expect(
       JSON.stringify(modelRequests[0]?.outputFormat.schema),
     ).not.toContain("interpretation");

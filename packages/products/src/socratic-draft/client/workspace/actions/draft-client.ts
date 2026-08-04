@@ -2,6 +2,7 @@ import type { ApiResponse } from "packages/shared/src";
 import type {
   DraftSelection,
   DraftOperationResponse,
+  DraftOperationInterpretation,
   DraftingState,
   RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
@@ -51,6 +52,19 @@ export function restoreDraft(
   input: { expectedRevision: number; restoreRevision: number },
 ) {
   return request<DraftOperationResponse>(kind, conversationId, "/restore", mutation("POST", input));
+}
+
+export function interpretDraftChange(
+  kind: DraftPersistenceKind,
+  conversationId: string,
+  change: import("packages/products/src/socratic-draft/shared").DraftChange,
+) {
+  return request<DraftOperationInterpretation>(
+    kind,
+    conversationId,
+    "/interpret-change",
+    mutation("POST", { change }),
+  );
 }
 
 export function proposeDraftRevision(

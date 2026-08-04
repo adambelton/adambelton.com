@@ -64,6 +64,11 @@ const SOCRATIC_DRAFT_SYSTEM_PROMPT = [
   "Substance may organise and clarify established user material, but every claim in it must be traceable to the conversation. Do not lead the user by canonising what the idea might become.",
   "Never put draft-edit history, saved-change mechanics, spelling or voice preferences, editing requests, proposal choices, assistant actions, or workspace instructions into canonical idea material. Those facts may guide the current response but are not the idea itself.",
   "When an exact saved draft change is attached, proposedIdeas and ideaActions must be null. Ask what the change means without canonising an interpretation; a later user response can establish meaning in an ordinary turn.",
+  "When the preceding assistant message provisionally interprets a saved edit, treat the user's reply as authoritative: dismissal changes no idea substance; confirmation or clarification may update established substance; and richer current user wording must replace rather than be flattened into the assistant's earlier paraphrase.",
+  "Potential conflicts are known tensions in established material, distinct from open questions. Ask toward resolution when relevant. Return resolvedPotentialConflictIds only when the user resolves one by refinement, contextual distinction, choosing a position, separating ideas, integrating an intentional explained tension, or dismissing a mistaken conflict.",
+  "When resolving rather than dismissing a potential conflict, proposedIdeas must retain the user's established resolution in ordinary substance using the user's latest language. Never remove a conflict based only on your own inference.",
+  "An explicit statement such as 'my settled view is', 'this replaces my earlier claim', 'I mean these in different contexts', 'I intend to preserve this tension', or 'that conflict is mistaken' establishes a resolution. In that same response you must return the matching existing conflict id in resolvedPotentialConflictIds and must not ask the user to confirm it again.",
+  "If the user both confirms and restates a resolution, use the richer current user wording in proposedIdeas. A bare confirmation may adopt the preceding assistant wording, but an earlier assistant paraphrase must never replace richer current user language.",
   "If a canonical draft exists and the user asks to edit or revise it, do not claim that this conversation operation changed or will directly change the draft. Ask one necessary clarification when the request is ambiguous, and accurately direct the user to prepare a reviewable proposal alongside the draft. Never add the editing request to the idea map.",
   "Return at most three unresolved questions. Each must arise directly from a tension or uncertainty already expressed by the user and remain appropriate to discovery; do not introduce composition questions about audience, tone, form, evidence, or structure before a draft exists.",
   "You may use private hypotheses only to choose one useful conversational question or explicitly tentative reflection. They are transient reasoning, not idea-map content.",
@@ -209,6 +214,13 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
           { type: "null" },
         ],
       },
+      resolvedPotentialConflictIds: {
+        description: "Existing potential-conflict ids explicitly resolved or dismissed by the user's current message; never ids inferred resolved by the assistant alone.",
+        anyOf: [
+          { type: "array", items: { type: "string" } },
+          { type: "null" },
+        ],
+      },
     },
     required: [
       "response",
@@ -217,6 +229,7 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
       "userIntention",
       "proposedIdeas",
       "ideaActions",
+      "resolvedPotentialConflictIds",
     ],
     additionalProperties: false,
   },
@@ -235,6 +248,7 @@ export interface ConversationServiceRequest {
 export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
   proposedIdeas: ProposedIdea[] | null;
   proposedIdeaActions: ProposedIdeaAction[] | null;
+  resolvedPotentialConflictIds?: string[] | null;
 };
 
 export interface ConversationServiceDependencies {
@@ -282,6 +296,7 @@ export class ConversationService {
       userIntention: structured.userIntention,
       proposedIdeas: structured.proposedIdeas,
       proposedIdeaActions: structured.proposedIdeaActions,
+      resolvedPotentialConflictIds: structured.resolvedPotentialConflictIds,
     };
   }
 }
@@ -385,6 +400,10 @@ export function createBoundedIdeaContext(ideaMap: IdeaMap | undefined) {
       userInterpretation: idea.userInterpretation,
       disposition: idea.disposition,
     })),
+    potentialConflicts: (ideaMap.potentialConflicts ?? []).map((conflict) => ({
+      ...conflict,
+      explanation: boundText(conflict.explanation, 1_000),
+    })),
   };
 }
 
@@ -401,6 +420,7 @@ function parseStructuredResponse(content: string): {
   userIntention: UserIntention | null;
   proposedIdeas: ProposedIdea[] | null;
   proposedIdeaActions: ProposedIdeaAction[] | null;
+  resolvedPotentialConflictIds: string[] | null;
 } {
   const trimmed = content.trim();
   try {
@@ -428,6 +448,10 @@ function parseStructuredResponse(content: string): {
           "ideaActions" in parsed
             ? parseProposedIdeaActions(parsed.ideaActions)
             : null,
+        resolvedPotentialConflictIds:
+          "resolvedPotentialConflictIds" in parsed
+            ? parseStringArray(parsed.resolvedPotentialConflictIds)
+            : null,
       };
     }
   } catch {
@@ -437,6 +461,7 @@ function parseStructuredResponse(content: string): {
         ...createDefaultDiscoveryMetadata(),
         proposedIdeas: null,
         proposedIdeaActions: null,
+        resolvedPotentialConflictIds: null,
       };
     }
   }
@@ -446,7 +471,14 @@ function parseStructuredResponse(content: string): {
     ...createDefaultDiscoveryMetadata(),
     proposedIdeas: null,
     proposedIdeaActions: null,
+    resolvedPotentialConflictIds: null,
   };
+}
+
+function parseStringArray(value: unknown): string[] | null {
+  return Array.isArray(value) && value.every((candidate) => typeof candidate === "string" && candidate.trim())
+    ? value.map((candidate) => candidate.trim())
+    : null;
 }
 
 const DISCOVERY_MOVES = new Set<AssistantMove>(DISCOVERY_ASSISTANT_MOVES);

@@ -37,6 +37,27 @@ export function IdeaMapTracker({ ideaMap, isBusy, onAction }: IdeaMapTrackerProp
           A negotiable record of what you have explored. Assessments are qualitative, not objective scores.
         </p>
       </div>
+      {(ideaMap.potentialConflicts ?? []).length > 0 ? (
+        <section aria-labelledby="potential-conflicts-title" className="mb-5 border border-[var(--line)] p-4">
+          <h3 className="font-semibold" id="potential-conflicts-title">Potential conflicts</h3>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            Explored material that may pull in incompatible directions. These are distinct from open questions and remain provisional until you resolve them.
+          </p>
+          <div className="mt-3 grid gap-3">
+            {(ideaMap.potentialConflicts ?? []).map((conflict) => (
+              <article className="border-t border-[var(--line)] pt-3" key={conflict.id}>
+                <h4 className="font-medium">{conflict.summary}</h4>
+                <p className="mt-1 text-sm">{conflict.explanation}</p>
+                {conflict.draftChange ? (
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    Saved edit: revision {conflict.draftChange.fromRevision} to {conflict.draftChange.toRevision}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <div className="grid gap-3">
         {ideaMap.ideas.map((idea) => (
           <IdeaRow

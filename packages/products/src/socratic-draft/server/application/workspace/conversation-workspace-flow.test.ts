@@ -11,6 +11,7 @@ describe("respondInWorkspace", () => {
         appendedTurns.push(turn);
         return { status: "retained" };
       },
+      appendAssistantMessage: async () => ({ status: "retained" }),
     });
 
     const result = await respondInWorkspace({
@@ -118,6 +119,7 @@ describe("respondInWorkspace", () => {
         retainedTurn = turn;
         return { status: "retained" };
       },
+      appendAssistantMessage: async () => ({ status: "retained" }),
       replaceIdeaMap: async () => ({ status: "retained" }),
     };
     const result = await respondInWorkspace({
@@ -146,6 +148,101 @@ describe("respondInWorkspace", () => {
     });
     expect(retainedTurn).toMatchObject({ ideaMap: { revision: 2 } });
   });
+
+  it("retains the user's richer resolution and removes the matching potential conflict", async () => {
+    let retainedTurn: Parameters<ConversationStore["appendConversationTurn"]>[0] | null = null;
+    const settledMeaning =
+      "Legitimacy requires answerability: affected people must be able to challenge reasons and receive a response.";
+    const store = createStore({
+      getConversationWorkspace: async () => ({
+        messages: [],
+        ideaMap: {
+          revision: 2,
+          ideas: [
+            {
+              id: "idea-1",
+              title: "Legitimacy and explanation",
+              synthesis: "Legitimacy depends on explaining decisions.",
+              substance: "Institutions owe affected people an explanation.",
+              unresolvedQuestions: [],
+              assistantAssessment: {
+                exploration: "developing",
+                importance: "central",
+              },
+              userInterpretation: null,
+              disposition: "active",
+            },
+          ],
+          potentialConflicts: [
+            {
+              id: "conflict-1",
+              scope: "within_idea",
+              summary: "Explanation or answerability",
+              explanation: "The newer standard may replace the earlier one.",
+              ideaIds: ["idea-1"],
+              draftChange: null,
+            },
+          ],
+        },
+      }),
+      appendConversationTurn: async (turn) => {
+        retainedTurn = turn;
+        return { status: "retained" };
+      },
+    });
+
+    const result = await respondInWorkspace({
+      conversationId: "conversation-1",
+      message: `My settled view is that ${settledMeaning}`,
+      conversations: store,
+      conversation: {
+        async respond() {
+          return {
+            conversationId: "conversation-1",
+            message: { role: "assistant", content: "That settles the distinction." },
+            activity: "discovery",
+            move: "full_reflection",
+            assistantReadiness: [],
+            userIntention: null,
+            proposedIdeas: [
+              {
+                id: "idea-1",
+                title: "Legitimacy and answerability",
+                synthesis: "Legitimacy depends on answerability.",
+                substance: settledMeaning,
+                unresolvedQuestions: [],
+                disposition: "active",
+                assistantAssessment: {
+                  exploration: "developing",
+                  importance: "central",
+                },
+              },
+            ],
+            proposedIdeaActions: null,
+            resolvedPotentialConflictIds: ["conflict-1"],
+          };
+        },
+      },
+    });
+
+    expect(result).toMatchObject({
+      status: "responded",
+      response: {
+        ideaMap: {
+          revision: 3,
+          ideas: [{ substance: settledMeaning }],
+          potentialConflicts: [],
+        },
+      },
+    });
+    expect(retainedTurn).toMatchObject({
+      ideaMap: {
+        revision: 3,
+        ideas: [{ substance: settledMeaning }],
+        potentialConflicts: [],
+      },
+    });
+  });
 });
 
 function createStore(
@@ -158,6 +255,7 @@ function createStore(
       ideaMap: { revision: 0, ideas: [] },
     }),
     appendConversationTurn: async () => ({ status: "retained" }),
+    appendAssistantMessage: async () => ({ status: "retained" }),
     replaceIdeaMap: async () => ({ status: "retained" }),
     ...overrides,
   };

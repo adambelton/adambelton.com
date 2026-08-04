@@ -10,6 +10,7 @@ import {
   REVISION_PROPOSAL_SCOPES,
   type DraftChange,
   type DraftOperationResponse,
+  type DraftOperationInterpretation,
   type DraftSelection,
   type DraftingState,
   type Idea,
@@ -22,6 +23,7 @@ import {
   changeDraftFormat,
   composeDraft,
   loadDraft,
+  interpretDraftChange,
   proposeDraftRevision,
   resolveDraftProposal,
   restoreDraft,
@@ -40,7 +42,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   kind: DraftPersistenceKind;
   onDraftCreated: () => void;
   onAttachSelection: (selection: DraftSelection) => void;
-  onAttachChange: (change: DraftChange) => void;
+  onDraftInterpretation: (
+    interpretation: DraftOperationInterpretation | undefined,
+    change: DraftChange | null,
+  ) => void;
   onDraftAdvanced: () => void;
   hasDraftOffer?: boolean;
   initialWorkspace?: DraftingState | null;
@@ -51,7 +56,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   kind,
   onDraftCreated,
   onAttachSelection,
-  onAttachChange,
+  onDraftInterpretation,
   onDraftAdvanced,
   hasDraftOffer = false,
   initialWorkspace = null,
@@ -59,6 +64,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const historyButtonRef = useRef<HTMLButtonElement>(null);
   const formatDirtyRef = useRef(false);
+  const interpretationRevisionRef = useRef<number | null>(null);
   const [workspace, setWorkspace] = useState<DraftingState | null>(initialWorkspace);
   const [body, setBody] = useState(initialWorkspace?.draft?.body ?? "");
   const [format, setFormat] = useState(initialWorkspace?.format ?? "");
@@ -68,7 +74,6 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const [draftChange, setDraftChange] = useState<DraftChange | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
@@ -76,8 +81,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setWorkspace(null);
       setBody("");
       setFormat("");
+      interpretationRevisionRef.current = null;
       formatDirtyRef.current = false;
-      setDraftChange(null);
       return;
     }
     if (initialWorkspace) {
@@ -86,7 +91,6 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setBody(initialWorkspace.draft?.body ?? "");
       setFormat(initialWorkspace.format ?? "");
       formatDirtyRef.current = false;
-      setDraftChange(null);
       return;
     }
     if (!isActive) return;
@@ -97,7 +101,6 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
       if (!formatDirtyRef.current) setFormat(loaded?.format ?? "");
-      setDraftChange(null);
     }).catch(() => {
       if (isCurrent) setStatus("The drafting state could not be loaded.");
     }).finally(() => {
@@ -126,8 +129,21 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         formatDirtyRef.current = false;
       }
       if (changed?.draft?.currentRevision !== workspace?.draft?.currentRevision) {
-        setDraftChange(nextChange);
+        interpretationRevisionRef.current = nextChange?.toRevision ?? null;
         onDraftAdvanced();
+        if (nextChange && conversationId) {
+          void interpretDraftChange(kind, conversationId, nextChange)
+            .then((interpretation) => {
+              if (interpretationRevisionRef.current === nextChange.toRevision) {
+                onDraftInterpretation(interpretation, nextChange);
+              }
+            })
+            .catch(() => {
+              if (interpretationRevisionRef.current === nextChange.toRevision) {
+                onDraftInterpretation({ status: "failed" }, nextChange);
+              }
+            });
+        }
       }
       setStatus(message);
       return true;
@@ -302,16 +318,6 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         >
           Discuss selection
         </button>
-        {draftChange ? (
-          <button
-            className="underline"
-            disabled={busy || body !== draft.body}
-            onClick={() => onAttachChange(draftChange)}
-            type="button"
-          >
-            Discuss this edit
-          </button>
-        ) : null}
         {status ? <p role="status">{status}</p> : null}
       </div>
       <section aria-labelledby="revision-proposal-title" className="grid gap-3 border-t border-[var(--line)] pt-5">

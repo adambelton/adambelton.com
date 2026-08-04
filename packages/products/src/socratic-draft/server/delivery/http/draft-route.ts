@@ -10,6 +10,7 @@ import {
   DraftService,
   InvalidDraftOperationError,
   type DraftCompositionModel,
+  type DraftChangeInterpretationModel,
   type DraftStore,
   type DraftWriteResult,
   type RevisionProposalModel,
@@ -20,12 +21,15 @@ import {
   type DraftSelection,
   type RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
+import { interpretSavedDraftChange } from "packages/products/src/socratic-draft/server/application/workspace";
+import { validateDraftChange } from "packages/products/src/socratic-draft/server/delivery/http/draft-change-context";
 import { failure, success } from "packages/shared/src";
 
 type Resolver<T> = (request: Request) => Promise<T | null>;
 
 export interface CreateDraftRouteDependencies {
   compositionModel: DraftCompositionModel;
+  interpretationModel: DraftChangeInterpretationModel;
   getConversationStore: Resolver<ConversationStore>;
   getDraftStore: Resolver<DraftStore>;
   proposalModel: RevisionProposalModel;
@@ -104,8 +108,9 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (typeof expectedRevision !== "number" || typeof draftBody !== "string") {
       return invalid(context);
     }
+    const conversationId = context.req.param("conversationId");
     return run(context, () => service(resolved.drafts, dependencies).save({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       operationId: operationId(context.req.raw, body),
       expectedRevision,
       body: draftBody,
@@ -121,12 +126,36 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (typeof expectedRevision !== "number" || typeof restoreRevision !== "number") {
       return invalid(context);
     }
+    const conversationId = context.req.param("conversationId");
     return run(context, () => service(resolved.drafts, dependencies).restore({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       operationId: operationId(context.req.raw, body),
       expectedRevision,
       restoreRevision,
     }), 200, draftOperationResponse);
+  });
+
+  route.post("/:conversationId/interpret-change", async (context) => {
+    const resolved = await resolve(context.req.raw, dependencies);
+    if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    const body = await readBody(context.req.raw);
+    const change = isDraftChange(body.change) ? body.change : null;
+    if (!change || !await validateDraftChange({
+      conversationId,
+      drafts: resolved.drafts,
+      change,
+    })) return invalid(context, "The saved draft change is stale or invalid.");
+    const interpretation = await interpretSavedDraftChange({
+      conversationId,
+      change,
+      model: dependencies.interpretationModel,
+      conversations: resolved.conversations,
+    });
+    if (interpretation.status === "failed") {
+      console.warn(`Saved-edit interpretation failed during ${interpretation.failureStage ?? "unknown"}.`);
+    }
+    return context.json(success(interpretation));
   });
 
   route.post("/:conversationId/proposals", async (context) => {
@@ -221,7 +250,7 @@ async function run(
   context: Context,
   command: () => Promise<DraftWriteResult & { change?: unknown }>,
   successStatus: 200 | 201 = 200,
-  responseData: (result: DraftWriteResult & { change?: unknown }) => unknown =
+  responseData: (result: DraftWriteResult & { change?: unknown }) => unknown | Promise<unknown> =
     (result) => "workspace" in result ? result.workspace : null,
 ) {
   try {
@@ -233,7 +262,7 @@ async function run(
     if (result.status === DRAFT_WRITE_STATUSES.proposalNotActive) {
       return context.json(failure(DRAFT_ERROR_CODES.proposalNotActive, "This revision proposal is no longer active."), 409);
     }
-    return context.json(success(responseData(result)), result.status === DRAFT_WRITE_STATUSES.changed ? successStatus : 200);
+    return context.json(success(await responseData(result)), result.status === DRAFT_WRITE_STATUSES.changed ? successStatus : 200);
   } catch (error) {
     if (error instanceof InvalidDraftOperationError) return invalid(context, error.message);
     if (error instanceof HostedAiDisabledError) {
@@ -252,6 +281,13 @@ function draftOperationResponse(
   return "workspace" in result
     ? { workspace: result.workspace, change: result.change ?? null }
     : null;
+}
+
+function isDraftChange(value: unknown): value is import("packages/products/src/socratic-draft/shared").DraftChange {
+  if (!value || typeof value !== "object") return false;
+  const change = value as Record<string, unknown>;
+  return typeof change.fromRevision === "number" && typeof change.toRevision === "number" &&
+    typeof change.removedText === "string" && typeof change.addedText === "string";
 }
 
 async function readBody(request: Request): Promise<Record<string, unknown>> {

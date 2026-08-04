@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  addPotentialConflicts,
   applyIdeaAction,
   applyProposedIdeas,
   MAX_ACTIVE_IDEAS,
   parseProposedIdeas,
+  resolvePotentialConflict,
 } from "packages/products/src/socratic-draft/server/capabilities/idea-map";
 import {
   IDEA_ACTION_TYPES,
@@ -13,6 +15,37 @@ import {
 } from "packages/products/src/socratic-draft/shared";
 
 describe("idea map", () => {
+  it("keeps potential conflicts distinct and retains an established resolution as substance", () => {
+    const current = map([idea()]);
+    const added = addPotentialConflicts({
+      current,
+      conflicts: [{
+        id: "conflict-1",
+        scope: "within_idea",
+        summary: "Two standards pull apart",
+        explanation: "Both positions are established but not reconciled.",
+        ideaIds: [current.ideas[0]!.id],
+        draftChange: null,
+      }],
+    });
+    expect(added.status).toBe("changed");
+    expect(added.ideaMap.potentialConflicts).toHaveLength(1);
+    expect(added.ideaMap.ideas[0]?.unresolvedQuestions).toEqual(current.ideas[0]?.unresolvedQuestions);
+
+    const resolved = resolvePotentialConflict({
+      current: added.ideaMap,
+      conflictId: "conflict-1",
+      request: {
+        expectedRevision: added.ideaMap.revision,
+        resolution: "integrate_tension",
+        userEstablishedMeaning: "I deliberately use one standard for myself and another for institutions.",
+      },
+    });
+    expect(resolved.status).toBe("changed");
+    expect(resolved.ideaMap.potentialConflicts).toEqual([]);
+    expect(resolved.ideaMap.ideas[0]?.substance).toContain("I deliberately use one standard");
+  });
+
   it("rejects an unbounded list of unresolved questions", () => {
     expect(
       parseProposedIdeas([
