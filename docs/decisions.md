@@ -751,27 +751,23 @@ assistant. Conversation, composition, revision, and publishing inputs remain
 unchanged; defining format semantics or downstream behaviour requires a later
 explicit product decision.
 
-## 043 — Canonical Draft Content Is Versioned Constrained Markdown
+## 043 — The Canonical Draft Remains Normalized Plain Text
 
-The private Draft uses product-owned, versioned constrained Markdown as its
-canonical representation. Supported meaning is deliberately limited to prose,
-headings one through four, emphasis and strong text, lists, quotations, safe
-links, thematic breaks, code, and semantic image placeholders. HTML, MDX/JSX,
-unknown directives, unsafe links, and publishing or layout instructions are
-rejected before persistence.
+The private Draft remains normalized plain text. Socratic Draft helps the user
+discover, organise, test, and develop the substance of their thinking; it does
+not own document headings, emphasis, lists, quotations, links, code, images, or
+publishing presentation.
 
-Canonical serialization is deterministic and ends with one newline. Complete
-immutable Markdown snapshots remain the persistence and review boundary;
-semantic selections and classified changes are derived from canonical content,
-not retained as Lexical nodes or editor transactions. MDXEditor is a replaceable
-product-client adapter and its internal JSON is never canonical.
+A constrained semantic Markdown editor was investigated and prototyped. Although
+technically feasible, it duplicated part of the mature document editor or
+publishing tool the writer would still need, while substantially expanding
+selection, proposal, revision comparison, normalization, migration, paste,
+accessibility, and export responsibilities. Plain text remains an honest and
+accessible representation when presented as plain text rather than simulated
+document structure.
 
-Existing rows default explicitly to `plain_text`. They are escaped into semantic
-Markdown for editing without rewriting retained snapshots or interpreting old
-punctuation as structure. Their first intentional edit or restoration creates a
-new `semantic_markdown` revision at schema version 1.
-
-Image placeholders express an intention within the writing; they are not assets.
-Uploads, public rendering, typography, layout, and publication remain separate
-future concerns. Draft Format remains independent, optional, and behaviourally
-inert.
+Document formatting remains a destination concern. This does not require the
+owner to adopt a CMS and does not prevent a later export adapter, but export must
+not redefine the canonical Draft without a new product decision supported by
+observed need. The investigation is recorded in
+`docs/products/socratic-draft/semantic-editor-investigation.md`.

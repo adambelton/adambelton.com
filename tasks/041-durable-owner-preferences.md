@@ -1,4 +1,4 @@
-# Task 042 — Add durable confirmed owner preferences
+# Task 041 — Add durable confirmed owner preferences
 
 ## Goal
 
@@ -7,7 +7,7 @@ guidance and relevant queries for conversation and revision.
 
 ## Depends on
 
-Tasks 035 and 036.
+Tasks 034 and 035.
 
 ## Why this task is next
 
@@ -60,4 +60,4 @@ git diff --check
 
 ## Status
 
-Proposed. Awaiting completion of Tasks 035 and 036.
+Proposed. Awaiting completion of Tasks 034 and 035.

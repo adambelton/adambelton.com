@@ -1,4 +1,4 @@
-# Task 036 — Establish temporary explicit preferences and one guidance path
+# Task 035 — Establish temporary explicit preferences and one guidance path
 
 ## Goal
 
@@ -12,7 +12,7 @@ boundary lets the baseline remain simple while supporting richer later learning.
 
 ## Depends on
 
-Task 035.
+Task 034.
 
 ## Scope
 

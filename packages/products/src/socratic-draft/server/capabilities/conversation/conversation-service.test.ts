@@ -207,7 +207,6 @@ describe("ConversationService", () => {
         end: 15,
         removedText: "quiet",
         addedText: "deliberate",
-        kinds: ["text"],
       },
     });
 

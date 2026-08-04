@@ -1,5 +1,4 @@
 import type { DraftStore } from "packages/products/src/socratic-draft/server/capabilities/drafting";
-import { canonicalDraftMarkdown } from "packages/products/src/socratic-draft/server/capabilities/drafting/semantic-markdown";
 import type { DraftSelection } from "packages/products/src/socratic-draft/shared";
 
 export async function validateDraftSelection(input: {
@@ -12,10 +11,9 @@ export async function validateDraftSelection(input: {
   if (!draft || draft.currentRevision !== input.selection.baseDraftRevision) {
     return false;
   }
-  const body = canonicalDraftMarkdown(draft.body, draft.contentFormat);
   return input.selection.start >= 0 &&
     input.selection.end > input.selection.start &&
-    input.selection.end <= body.length &&
-    body.slice(input.selection.start, input.selection.end) ===
+    input.selection.end <= draft.body.length &&
+    draft.body.slice(input.selection.start, input.selection.end) ===
       input.selection.selectedText;
 }

@@ -7,8 +7,6 @@ import {
 } from "react";
 import {
   DRAFT_FORMAT_MAX_LENGTH,
-  DRAFT_CONTENT_FORMATS,
-  legacyPlainTextToSemanticMarkdown,
   REVISION_PROPOSAL_SCOPES,
   type DraftChange,
   type DraftOperationResponse,
@@ -30,10 +28,6 @@ import {
   saveDraft,
   type DraftPersistenceKind,
 } from "packages/products/src/socratic-draft/client/workspace/actions/draft-client";
-import {
-  SemanticDraftEditor,
-  type SemanticDraftEditorHandle,
-} from "packages/products/src/socratic-draft/client/workspace/editor/SemanticDraftEditor";
 
 export interface DraftPanelHandle {
   save(): Promise<boolean>;
@@ -62,11 +56,11 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   hasDraftOffer = false,
   initialWorkspace = null,
 }, ref) {
-  const editorRef = useRef<SemanticDraftEditorHandle>(null);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
   const historyButtonRef = useRef<HTMLButtonElement>(null);
   const formatDirtyRef = useRef(false);
   const [workspace, setWorkspace] = useState<DraftingState | null>(initialWorkspace);
-  const [body, setBody] = useState(editorBody(initialWorkspace));
+  const [body, setBody] = useState(initialWorkspace?.draft?.body ?? "");
   const [format, setFormat] = useState(initialWorkspace?.format ?? "");
   const [selection, setSelection] = useState<DraftSelection | null>(null);
   const [proposalInstruction, setProposalInstruction] = useState("");
@@ -89,7 +83,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     if (initialWorkspace) {
       setLoading(false);
       setWorkspace(initialWorkspace);
-      setBody(editorBody(initialWorkspace));
+      setBody(initialWorkspace.draft?.body ?? "");
       setFormat(initialWorkspace.format ?? "");
       formatDirtyRef.current = false;
       setDraftChange(null);
@@ -101,7 +95,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     void loadDraft(kind, conversationId).then((loaded) => {
       if (!isCurrent) return;
       setWorkspace(loaded);
-      setBody(editorBody(loaded));
+      setBody(loaded?.draft?.body ?? "");
       if (!formatDirtyRef.current) setFormat(loaded?.format ?? "");
       setDraftChange(null);
     }).catch(() => {
@@ -126,7 +120,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       const changed = result && "workspace" in result ? result.workspace : result;
       const nextChange = result && "workspace" in result ? result.change : null;
       setWorkspace(changed);
-      setBody(editorBody(changed));
+      setBody(changed?.draft?.body ?? "");
       if (syncFormat || !formatDirtyRef.current) {
         setFormat(changed?.format ?? "");
         formatDirtyRef.current = false;
@@ -142,7 +136,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       if (conversationId) {
         const current = await loadDraft(kind, conversationId).catch(() => null);
         setWorkspace(current);
-        setBody(editorBody(current) || body);
+        setBody(current?.draft?.body ?? body);
         if (syncFormat) {
           setFormat(current?.format ?? "");
           formatDirtyRef.current = false;
@@ -155,7 +149,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   }
 
   async function save() {
-    if (!conversationId || !workspace?.draft || body === editorBody(workspace)) {
+    if (!conversationId || !workspace?.draft || body === workspace.draft.body) {
       return true;
     }
     return run(
@@ -260,17 +254,14 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   }
 
   const draft = workspace.draft;
-  const savedEditorBody = editorBody(workspace);
   function readCurrentSelection() {
-    const selectedMarkdown = editorRef.current?.selectedMarkdown() ?? "";
-    if (!selectedMarkdown) return null;
-    const start = body.indexOf(selectedMarkdown);
-    if (start < 0) return null;
+    const editor = editorRef.current;
+    if (!editor || editor.selectionEnd <= editor.selectionStart) return null;
     return {
       baseDraftRevision: draft.currentRevision,
-      start,
-      end: start + selectedMarkdown.length,
-      selectedText: selectedMarkdown,
+      start: editor.selectionStart,
+      end: editor.selectionEnd,
+      selectedText: editor.value.slice(editor.selectionStart, editor.selectionEnd),
     };
   }
   function attachCurrentSelection() {
@@ -289,23 +280,23 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
         <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
       </header>
-      <div className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-2 overflow-hidden">
-        <button className="w-fit underline" onClick={() => editorRef.current?.focus()} type="button">Enter draft editor</button>
-        <SemanticDraftEditor
-          disabled={busy || loading}
-          key={`${draft.id}:${draft.currentRevision}`}
-          markdown={body}
-          onChange={setBody}
-          onSelectionChange={() => setSelection(readCurrentSelection())}
-          ref={editorRef}
-        />
-        <button className="w-fit underline" type="button">Leave draft editor</button>
-      </div>
+      <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
+      <textarea
+        className="h-full min-h-0 w-full resize-none overflow-y-auto border border-[var(--line)] bg-transparent p-4 leading-7"
+        id="canonical-draft"
+        onBlur={() => void save()}
+        onChange={(event) => setBody(event.target.value)}
+        onSelect={() => {
+          setSelection(readCurrentSelection());
+        }}
+        ref={editorRef}
+        value={body}
+      />
       <div className="flex items-center gap-3">
-        <button className="border border-[var(--foreground)] px-4 py-2" disabled={busy || body === savedEditorBody} onClick={() => void save()} type="button">Save draft</button>
+        <button className="border border-[var(--foreground)] px-4 py-2" disabled={busy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
         <button
           className="underline"
-          disabled={busy || body !== savedEditorBody}
+          disabled={busy || body !== draft.body}
           onClick={attachCurrentSelection}
           type="button"
         >
@@ -314,7 +305,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         {draftChange ? (
           <button
             className="underline"
-            disabled={busy || body !== savedEditorBody}
+            disabled={busy || body !== draft.body}
             onClick={() => onAttachChange(draftChange)}
             type="button"
           >
@@ -379,7 +370,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             <textarea onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
             <button
               className="w-fit border border-[var(--foreground)] px-4 py-2"
-              disabled={busy || !proposalInstruction.trim() || body !== savedEditorBody}
+              disabled={busy || !proposalInstruction.trim() || body !== draft.body}
               onClick={() => {
                 const currentSelection = readCurrentSelection();
                 setSelection(currentSelection);
@@ -422,11 +413,3 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     </section>
   );
 });
-
-function editorBody(workspace: DraftingState | null | undefined) {
-  const draft = workspace?.draft;
-  if (!draft) return "";
-  return draft.contentFormat === DRAFT_CONTENT_FORMATS.semanticMarkdown
-    ? draft.body
-    : legacyPlainTextToSemanticMarkdown(draft.body);
-}

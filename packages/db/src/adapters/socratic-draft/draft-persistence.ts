@@ -7,7 +7,6 @@ import {
 } from "packages/products/src/socratic-draft/server/capabilities/drafting";
 import {
   EMPTY_DRAFTING_STATE,
-  type DraftContentFormat,
   type DraftingState,
   type RevisionProposalScope,
   type RevisionProposalState,
@@ -21,8 +20,8 @@ export function createPrismaDraftPersistence(
     const conversation = await prisma.socraticDraftConversation.findFirst({
       where: { id: conversationId, userId },
       select: { draftFormat: true, draftFormatRevision: true, draft: { select: {
-        id: true, conversationId: true, body: true, contentFormat: true, schemaVersion: true, currentRevision: true, createdAt: true, updatedAt: true,
-        revisions: { orderBy: { revision: "asc" }, select: { revision: true, body: true, contentFormat: true, schemaVersion: true, source: true, createdAt: true, proposalId: true, restoredFromRevision: true } },
+        id: true, conversationId: true, body: true, currentRevision: true, createdAt: true, updatedAt: true,
+        revisions: { orderBy: { revision: "asc" }, select: { revision: true, body: true, source: true, createdAt: true, proposalId: true, restoredFromRevision: true } },
         proposals: { orderBy: { createdAt: "desc" }, take: 1, select: {
           id: true, draftId: true, baseDraftRevision: true, scope: true, originalStart: true, originalEnd: true,
           originalContent: true, userInstruction: true, state: true, currentProposalRevision: true, createdAt: true, resolvedAt: true,
@@ -43,8 +42,8 @@ export function createPrismaDraftPersistence(
     return {
       format: conversation.draftFormat,
       formatRevision: conversation.draftFormatRevision,
-      draft: { id: draft.id, conversationId: draft.conversationId, body: draft.body, contentFormat: draft.contentFormat as DraftContentFormat, schemaVersion: draft.schemaVersion, currentRevision: draft.currentRevision, createdAt: draft.createdAt.toISOString(), updatedAt: draft.updatedAt.toISOString() },
-      revisions: draft.revisions.map((revision) => ({ ...revision, contentFormat: revision.contentFormat as DraftContentFormat, source: revision.source as DraftingState["revisions"][number]["source"], createdAt: revision.createdAt.toISOString() })),
+      draft: { id: draft.id, conversationId: draft.conversationId, body: draft.body, currentRevision: draft.currentRevision, createdAt: draft.createdAt.toISOString(), updatedAt: draft.updatedAt.toISOString() },
+      revisions: draft.revisions.map((revision) => ({ ...revision, source: revision.source as DraftingState["revisions"][number]["source"], createdAt: revision.createdAt.toISOString() })),
       activeProposal: proposal ? {
         ...proposal,
         scope: proposal.scope as RevisionProposalScope,
@@ -111,13 +110,12 @@ export function createPrismaDraftPersistence(
         if (!current.draft && next.draft) {
           await transaction.socraticDraftDraft.create({ data: {
             id: next.draft.id, conversationId: input.conversationId, body: next.draft.body,
-            contentFormat: next.draft.contentFormat, schemaVersion: next.draft.schemaVersion,
             currentRevision: next.draft.currentRevision, createdAt: new Date(next.draft.createdAt), updatedAt: new Date(next.draft.updatedAt),
           } });
         } else if (current.draft && next.draft) {
           const updated = await transaction.socraticDraftDraft.updateMany({
             where: { id: current.draft.id, conversation: { userId }, currentRevision: input.expectedDraftRevision ?? undefined },
-            data: { body: next.draft.body, contentFormat: next.draft.contentFormat, schemaVersion: next.draft.schemaVersion, currentRevision: next.draft.currentRevision, updatedAt: new Date(next.draft.updatedAt) },
+            data: { body: next.draft.body, currentRevision: next.draft.currentRevision, updatedAt: new Date(next.draft.updatedAt) },
           });
           if (updated.count !== 1) throw new DraftCommitConflictError();
         }
@@ -125,7 +123,6 @@ export function createPrismaDraftPersistence(
         for (const revision of next.revisions.slice(current.revisions.length)) {
           await transaction.socraticDraftDraftRevision.create({ data: {
             draftId: next.draft!.id, revision: revision.revision, body: revision.body, source: revision.source,
-            contentFormat: revision.contentFormat, schemaVersion: revision.schemaVersion,
             proposalId: revision.proposalId, restoredFromRevision: revision.restoredFromRevision, createdAt: new Date(revision.createdAt),
           } });
         }

@@ -14,10 +14,6 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
     (element) => globalThis.getComputedStyle(element).gridTemplateColumns,
   );
   expect(workspaceColumns.split(" ")).toHaveLength(2);
-  const workspaceWidth = await page.getByTestId("workspace").evaluate(
-    (workspace) => workspace.getBoundingClientRect().width,
-  );
-  expect(workspaceWidth).toBeGreaterThanOrEqual(1_300);
   const workspaceLayout = await page.getByTestId("conversation-history").evaluate(
     (history) => {
       const column = history.parentElement!;
@@ -56,9 +52,8 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await page.getByLabel("Accountability gives legitimacy").check();
   await page.getByLabel("Composition direction").fill("Compose an intentionally early draft.");
   await page.getByRole("button", { name: "Compose draft" }).click();
-  const editorSurface = page.getByLabel("Canonical draft");
-  const editor = editorSurface.locator('[contenteditable="true"]');
-  await expect(editor).toContainText(/Football gives its institutions legitimacy/);
+  const editor = page.getByLabel("Canonical draft");
+  await expect(editor).toHaveValue(/Football gives its institutions legitimacy/);
   await expect(page.getByLabel("Optional format guidance")).toHaveValue("Personal essay");
   await expect(page.getByText("Revision 1")).toBeVisible();
   const draftLayout = await editor.evaluate((draftEditor) => {
@@ -72,12 +67,6 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   });
   expect(Math.abs(draftLayout.draftBottom - draftLayout.surfaceBottom)).toBeLessThanOrEqual(1);
   expect(draftLayout.editorOverflow).toBe("auto");
-  const paragraphSpacing = await editor.evaluate((surface) => {
-    const paragraphs = surface.querySelectorAll("p");
-    if (!paragraphs[0] || !paragraphs[1]) return 0;
-    return paragraphs[1].getBoundingClientRect().top - paragraphs[0].getBoundingClientRect().bottom;
-  });
-  expect(paragraphSpacing).toBeGreaterThanOrEqual(15);
 
   await editor.fill("Football grants legitimacy, and accountability must follow.");
   await page.getByRole("button", { name: "Save draft" }).click();
@@ -103,20 +92,11 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await expect(page.getByRole("heading", { name: "Proposed content" })).toBeVisible();
   await page.getByRole("button", { name: "Accept proposal" }).click();
   await expect(page.getByRole("paragraph").filter({ hasText: "Revision 4" })).toBeVisible();
-  await expect(editor).toContainText(/End with a direct demand for accountability/);
+  await expect(editor).toHaveValue(/End with a direct demand for accountability/);
 
-  await editor.evaluate((element) => {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    let text = walker.nextNode();
-    while (text && (text.textContent?.length ?? 0) < 8) text = walker.nextNode();
-    if (!text) throw new Error("Expected draft text.");
-    const range = document.createRange();
-    range.setStart(text, 0);
-    range.setEnd(text, 8);
-    const selection = globalThis.getSelection();
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-    element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+  await editor.evaluate((element: HTMLTextAreaElement) => {
+    element.focus();
+    element.setSelectionRange(0, 8);
   });
   await page.getByPlaceholder("Describe the change you want to review.").fill("Use firmer language in this passage.");
   await page.getByRole("button", { name: "Prepare proposal" }).click();
@@ -126,10 +106,9 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await page.getByRole("button", { name: "Amend proposal" }).click();
   await expect(page.getByText("Keep the passage concise.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Reject", exact: true }).click();
-  await expect(editor).not.toContainText(/Keep the passage concise/);
+  await expect(editor).not.toHaveValue(/Keep the passage concise/);
 
-  await editor.click();
-  await page.keyboard.press("ArrowLeft");
+  await editor.evaluate((element: HTMLTextAreaElement) => element.setSelectionRange(0, 0));
   await page.getByPlaceholder("Describe the change you want to review.").fill("Prepare a whole-draft alternative.");
   await page.getByRole("button", { name: "Prepare proposal" }).click();
   await expect(page.getByRole("heading", { name: "Current content" })).toBeVisible();
@@ -138,7 +117,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await page.getByRole("button", { name: "Save draft" }).click();
   await page.getByRole("button", { name: "Accept proposal" }).click();
   await expect(page.getByRole("heading", { name: "This proposal is stale" })).toBeVisible();
-  await expect(editor).toContainText("Newer canonical writing that must be preserved.");
+  await expect(editor).toHaveValue("Newer canonical writing that must be preserved.");
   await page.getByRole("button", { name: "Dismiss stale proposal" }).click();
 
   await page.setViewportSize({ width: 390, height: 844 });

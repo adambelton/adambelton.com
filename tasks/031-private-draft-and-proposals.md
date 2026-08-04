@@ -92,7 +92,7 @@ product architecture.
   retain the unsaved content and do not let a subsequent message appear to use
   server context that excludes it.
 - A successful manual save is canonical immediately and requires no assistant
-  approval. Task 035 interprets the possible meaning of saved edits; its model or
+  approval. Task 034 interprets the possible meaning of saved edits; its model or
   commentary failure must never roll back the save.
 - Editor-level undo and redo may operate on current in-memory editor state.
   Persisted recovery uses revision preview and restoration rather than a
@@ -273,7 +273,7 @@ review the migration, and never hand-edit generated migration SQL.
 
 Approved on 2026-08-02 after review against the product brief, canonical
 architecture, terminology, completed Task 030 behaviour, testing strategy, and
-Tasks 032, 035, and 036.
+Tasks 032, 034, and 035.
 
 - One continuous canonical draft is retained through complete immutable revision
   snapshots; paragraphs are selectable presentation regions, not domain objects.
@@ -282,7 +282,7 @@ Tasks 032, 035, and 036.
 - Revision history is server-owned product state, never browser persistence.
 - Passage and whole-draft proposals are reviewed adaptively and applied exactly
   without regeneration.
-- Task 035, not this task, owns semantic interpretation of saved edits and
+- Task 034, not this task, owns semantic interpretation of saved edits and
   restorations.
 - The responsive two-column/one-surface workspace behaviour is approved while
   final product look and feel is intentionally deferred.

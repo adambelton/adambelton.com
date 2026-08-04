@@ -1,4 +1,4 @@
-# Task 035 — Interpret substantive draft changes conservatively
+# Task 034 — Interpret substantive draft changes conservatively
 
 ## Goal
 
@@ -8,18 +8,15 @@ user-established meaning into the idea map without weakening user authority.
 
 ## Depends on
 
-Task 034.
-
-Tasks 032 and 033 are also complete. Draft Format remains behaviourally inert and
-is not an input to this task.
+Tasks 032 and 033. Draft Format remains behaviourally inert and is not an input
+to this task.
 
 ## Why this task is next
 
-Task 034 evolves the exact revision-bounded `DraftChange` to represent canonical
-semantic Markdown without exposing editor metadata, but the user must still
-attach a saved change through the temporary “Discuss this edit” bridge. The
-product can now respond to a saved edit as a meaningful workspace event without
-conflating draft-save correctness, exact semantic change representation, model
+Task 032 provides an exact revision-bounded `DraftChange`, but the user must
+still attach a saved change through the temporary “Discuss this edit” bridge.
+The product can now respond to a saved edit as a meaningful workspace event
+without conflating draft-save correctness, exact change representation, model
 judgement, or preference learning.
 
 ## Scope
@@ -86,7 +83,7 @@ judgement, or preference learning.
 ## Out of scope
 
 - Preference evidence, preference inference, preference storage, or advance work
-  on Task 036.
+  on Task 035.
 - Retrospective classification of existing revisions or another draft-history
   mechanism.
 - A separately persisted pending-interpretation entity.

@@ -1,4 +1,4 @@
-# Task 037 — Harden the complete temporary workspace lifecycle
+# Task 036 — Harden the complete temporary workspace lifecycle
 
 ## Goal
 
@@ -12,7 +12,7 @@ private, temporary experience before final usage limits are calibrated.
 
 ## Depends on
 
-Tasks 035 and 036.
+Tasks 034 and 035.
 
 ## Scope
 
@@ -101,7 +101,7 @@ git diff --check
 ## Blast radius
 
 Medium: existing temporary orchestration and client recovery states. Export and
-measurement are deliberately separate Tasks 038 and 040.
+measurement are deliberately separate Tasks 037 and 039.
 
 ## Status
 

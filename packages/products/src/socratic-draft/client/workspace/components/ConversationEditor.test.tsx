@@ -14,26 +14,6 @@ import {
   type Idea,
 } from "packages/products/src/socratic-draft/shared";
 
-vi.mock("packages/products/src/socratic-draft/client/workspace/editor/SemanticDraftEditor", async () => {
-  const React = await import("react");
-  return {
-    SemanticDraftEditor: React.forwardRef(function TestSemanticDraftEditor(
-      props: { markdown: string; onChange: (value: string) => void },
-      ref: React.ForwardedRef<{ focus(): void; selectedMarkdown(): string }>,
-    ) {
-      const textarea = React.useRef<HTMLTextAreaElement>(null);
-      React.useImperativeHandle(ref, () => ({
-        focus: () => textarea.current?.focus(),
-        selectedMarkdown: () => textarea.current?.value.slice(
-          textarea.current.selectionStart,
-          textarea.current.selectionEnd,
-        ) ?? "",
-      }));
-      return <textarea aria-label="Canonical draft" onChange={(event) => props.onChange(event.target.value)} ref={textarea} value={props.markdown} />;
-    }),
-  };
-});
-
 const idea: Idea = {
   id: "idea-1",
   title: "Accountability",

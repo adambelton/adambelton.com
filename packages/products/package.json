@@ -16,12 +16,7 @@
   },
   "dependencies": {
     "@adambelton/shared": "workspace:*",
-    "@mdxeditor/editor": "^4.2.0",
     "hono": "^4.8.4",
-    "mdast-util-directive": "^3.1.0",
-    "mdast-util-from-markdown": "^2.0.3",
-    "mdast-util-to-markdown": "^2.1.2",
-    "micromark-extension-directive": "^4.0.0",
     "react": "^19.1.0",
     "react-aria-components": "^1.20.0"
   },

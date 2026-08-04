@@ -1,4 +1,4 @@
-# Task 039 — Record hosted attempt lifecycles safely
+# Task 038 — Record hosted attempt lifecycles safely
 
 ## Goal
 
@@ -12,7 +12,7 @@ with the new attempt lifecycle, persistence, and integration of every model-back
 
 ## Depends on
 
-Tasks 036 and 037.
+Tasks 035 and 036.
 
 ## Scope
 
@@ -66,7 +66,7 @@ git diff --check
 ## Blast radius
 
 High but bounded: every hosted action, API composition, usage contracts, and one
-schema migration. User-facing limit policy and UI are deferred to Task 041.
+schema migration. User-facing limit policy and UI are deferred to Task 040.
 
 ## Risks / questions
 
@@ -76,4 +76,4 @@ schema migration. User-facing limit policy and UI are deferred to Task 041.
 
 ## Status
 
-Proposed. Awaiting Tasks 036 and 037 and a fresh approval review.
+Proposed. Awaiting Tasks 035 and 036 and a fresh approval review.

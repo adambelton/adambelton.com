@@ -1,4 +1,4 @@
-# Task 038 — Export a temporary workspace deliberately
+# Task 037 — Export a temporary workspace deliberately
 
 ## Goal
 
@@ -7,7 +7,7 @@ versioned JSON exports without creating persistence or publication.
 
 ## Depends on
 
-Task 037.
+Task 036.
 
 ## Why this task is next
 
@@ -60,4 +60,4 @@ host persistence changes are expected.
 
 ## Status
 
-Proposed. Awaiting completion of Task 037.
+Proposed. Awaiting completion of Task 036.

@@ -53,7 +53,6 @@ describe("respondInWorkspace", () => {
         end: 22,
         removedText: "I blame myself for it.",
         addedText: "",
-        kinds: ["text"],
       },
       conversation: {
         respond: async () => ({

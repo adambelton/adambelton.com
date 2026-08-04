@@ -260,6 +260,31 @@ Every implementation task is only complete when:
 - `progress.md` is updated
 - `docs/decisions.md` is updated if a decision changed
 
+Before reporting an implementation task complete, perform and record a
+requirement-by-requirement completion audit against the approved proposal. For
+each scope item and definition-of-done criterion, cite concrete implementation
+and validation evidence or mark it incomplete. Passing tests, typecheck, build,
+or a successful happy-path walkthrough are necessary evidence, but do not by
+themselves establish completion.
+
+The completion audit must also inspect the complete branch diff against its
+merge base for:
+
+- ownership and dependency-boundary violations;
+- product behaviour or presentation placed in a host;
+- duplicated decisions or implementation across production and test hosts;
+- approved implementation decisions that were left unsettled;
+- unsupported claims in `progress.md`, READMEs, manual-verification records, or
+  decision records;
+- migrations that were not produced through the approved schema-first,
+  generated-migration workflow.
+
+If any approved criterion lacks evidence, or any blocker remains, the task must
+be reported as incomplete. Record the gap explicitly rather than weakening or
+silently reinterpreting the approved criterion. Documentation must distinguish
+automated checks, browser inspection, and human assistive-technology
+verification; one must not be claimed as another.
+
 ## End-of-Task Report Format
 
 Use this report format at the end of each implementation task:
