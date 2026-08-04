@@ -95,7 +95,6 @@ describe("DraftService", () => {
         title: idea.title,
         synthesis: idea.synthesis,
         substance: idea.substance,
-        unresolvedQuestions: idea.unresolvedQuestions,
       }],
       relevantConversationLanguage: [],
       instruction: "Compose in my voice.",
@@ -105,6 +104,9 @@ describe("DraftService", () => {
     );
     expect(compose.mock.calls[0]?.[0].selectedIdeas[0]).not.toHaveProperty(
       "disposition",
+    );
+    expect(compose.mock.calls[0]?.[0].selectedIdeas[0]).not.toHaveProperty(
+      "unresolvedQuestions",
     );
   });
 

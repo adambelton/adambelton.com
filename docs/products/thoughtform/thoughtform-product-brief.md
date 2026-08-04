@@ -2,7 +2,7 @@
 
 ## Status and authority
 
-This is the canonical product brief for ThoughtForm. It defines what the
+This document is the canonical product brief for ThoughtForm. It defines what the
 product is for and the experience it should create. The product architecture
 defines its durable technical boundaries, and the terminology reference defines
 the language used in code, prompts, tasks, interface copy, and documentation.

@@ -72,6 +72,7 @@ export function DemoEditorPage({
         components={components}
         onAcknowledge={() => {
           acknowledgePrivacy(getSessionStorage());
+          setIsLoading(true);
           setHasAcknowledged(true);
         }}
       />

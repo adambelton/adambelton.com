@@ -93,10 +93,10 @@ workspace experience.
 
 ## Expected files to create or modify
 
-- `docs/products/thoughtform/the-thoughtform-product-brief.md`
+- `docs/products/thoughtform/thoughtform-product-brief.md`
 - `docs/products/thoughtform/terminology.md`
-- `docs/products/thoughtform/the-thoughtform-architecture.md`
-- `docs/products/thoughtform/the-thoughtform-implementation-overview.md`
+- `docs/products/thoughtform/thoughtform-architecture.md`
+- `docs/products/thoughtform/thoughtform-implementation-overview.md`
 - ThoughtForm privacy and safety documentation
 - `docs/decisions.md`
 - `docs/product-roadmap.md`
@@ -243,7 +243,7 @@ directions and separated later public writing into host-website delivery.
 
 ```txt
 rg -n -i "writing tool|writing workspace|draft format|preference|publishing|export|articulat|composition" README.md docs tasks progress.md packages/products/src/thoughtform/README.md
-rg -n -i "writing tool|writing workspace|blank page|preference learning|product publishing|publishing bridge|product-owned export|draft format" README.md packages/products/src/thoughtform/README.md docs/products/thoughtform/the-thoughtform-product-brief.md docs/products/thoughtform/the-thoughtform-architecture.md docs/products/thoughtform/terminology.md docs/products/thoughtform/privacy-and-data-lifecycle.md docs/product-roadmap.md docs/decisions.md tasks/README.md progress.md
+rg -n -i "writing tool|writing workspace|blank page|preference learning|product publishing|publishing bridge|product-owned export|draft format" README.md packages/products/src/thoughtform/README.md docs/products/thoughtform/thoughtform-product-brief.md docs/products/thoughtform/thoughtform-architecture.md docs/products/thoughtform/terminology.md docs/products/thoughtform/privacy-and-data-lifecycle.md docs/product-roadmap.md docs/decisions.md tasks/README.md progress.md
 pnpm test
 pnpm typecheck
 pnpm build

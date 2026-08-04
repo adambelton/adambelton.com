@@ -60,9 +60,7 @@ export function ConversationComposer({
         disabled={!canSubmit}
         type="submit"
       >
-        {status === CONVERSATION_STATUSES.sending
-          ? "Sending..."
-          : status === CONVERSATION_STATUSES.disabled
+        {status === CONVERSATION_STATUSES.disabled
             ? "Unavailable"
             : "Send"}
       </button>

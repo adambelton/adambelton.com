@@ -43,15 +43,18 @@ Shared authentication, contact, and platform-provider processing is documented i
 
 - Conversation messages, explicitly attached draft passages, composition
   material, and proposal instructions are sent from the browser to the application API and
-  then to the OpenAI Responses API.
-- Every request sets `store: false`, disabling optional Responses API
-  application-state storage for this flow.
-- OpenAI's documentation reviewed on 1 August 2026 states that API data is not
-  used to train models unless the API customer opts in. It also states that
-  abuse-monitoring logs may contain prompts and responses and are ordinarily
-  retained for up to 30 days, with exceptions including legal or safety needs.
-- This application does not have enterprise Zero Data Retention or Modified Abuse
-  Monitoring controls and does not claim zero provider retention.
+  then to the active host-selected profile from ThoughtForm's supported
+  Anthropic and OpenAI list. The mounted interface derives the active provider
+  disclosure at runtime; changing a model does not require editing privacy copy.
+- Anthropic's commercial API information reviewed on 4 August 2026 states that
+  API data is not used for training unless an agreement states otherwise. Its
+  standard retention information states that API inputs and outputs are deleted
+  within 30 days, with exceptions including usage-policy enforcement and legal
+  requirements.
+- This application does not claim an Anthropic Zero Data Retention arrangement.
+- OpenAI remains an explicitly selectable host provider. Its Responses client
+  continues to set `store: false`, which disables optional application-state
+  storage but does not establish Zero Data Retention.
 
 Application code does not intentionally log conversation message bodies or
 generated writing. Deployment-level access and request logging must be checked
@@ -91,11 +94,11 @@ Mitigations: the UI and product privacy page call restoration best effort and
 safely start with an empty editor when content is unavailable. Shared ephemeral
 infrastructure or sticky routing is deliberately out of scope.
 
-### OpenAI policy drift
+### Hosted-provider policy drift
 
 Risk: the dated provider summary becomes inaccurate.
 
-Mitigations: link official OpenAI sources, avoid guarantees about provider
+Mitigations: link official provider sources, avoid guarantees about provider
 behavior, and review before launches or changes to model infrastructure.
 
 ## When to revisit

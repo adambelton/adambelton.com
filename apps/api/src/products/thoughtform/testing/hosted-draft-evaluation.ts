@@ -36,10 +36,6 @@ const result = await adapter.compose({
     title: "My dog is barking",
     synthesis: "My dog's barking makes me angry, even though I know he is reacting naturally.",
     substance: "My dog barks at squirrels and birds in the garden. It makes me angry. I know it is his nature and not his fault, but I also feel responsible because I have not trained him properly.",
-    unresolvedQuestions: [
-      "What does my anger make me want to do?",
-      "How can I acknowledge responsibility without turning it into self-blame?",
-    ],
   }],
   relevantConversationLanguage: [
     "My dog is really annoying today.",

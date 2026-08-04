@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { ACCESS_LEVELS, type AccessLevel } from "packages/shared/src";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 import { TextLink } from "packages/products/src/thoughtform/client/ui/TextLink";
+import { AiProcessingDisclosureLoader } from "packages/products/src/thoughtform/client/workspace/components/AiProcessingDisclosureLoader";
 
 type PrivacyAcknowledgementProps = {
   accessLevel: AccessLevel;
@@ -35,12 +36,7 @@ export function PrivacyAcknowledgement({
         Your thinking and this demo
       </h1>
       <div className="mt-8 grid max-w-2xl gap-5 text-base leading-7 text-[var(--muted)]">
-        <p className="m-0">
-          Messages are sent through this site&apos;s server to OpenAI to generate
-          a response. OpenAI may retain API content for abuse monitoring under
-          its current policies even though this site disables optional response
-          storage.
-        </p>
+        <AiProcessingDisclosureLoader Link={Link} />
         <p className="m-0">
           {accessLevel === ACCESS_LEVELS.owner
             ? "As the site owner, your conversations may be saved in the site's database."
@@ -65,13 +61,6 @@ export function PrivacyAcknowledgement({
           and the site-wide{" "}
           <TextLink href="/privacy" Link={Link}>
             privacy information
-          </TextLink>
-          . You can also verify the current{" "}
-          <TextLink
-            href="https://platform.openai.com/docs/models/default-usage-policies-by-endpoint"
-            Link={Link}
-          >
-            OpenAI data controls
           </TextLink>
           .
         </p>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { app } from "apps/api/src/bootstrap/create-api";
 import {
+  AI_PROVIDERS,
   createConversationModel,
   createDraftModel,
   getPersistentConversationAccess,
@@ -17,33 +18,66 @@ import {
 import type { ApiResponse } from "packages/shared/src";
 
 describe("products API route mount", () => {
-  it("enables OpenAI only with the exact kill-switch value and a non-empty key", () => {
+  it("selects Anthropic only with the exact kill-switch value and its own key", () => {
     expect(
       createConversationModel({
         hostedAiEnabled: "true",
-        openAiApiKey: "test-key",
+        provider: AI_PROVIDERS.anthropic,
+        anthropicApiKey: "test-key",
       }),
     ).toBeInstanceOf(LlmConversationModelAdapter);
     expect(
       createConversationModel({
         hostedAiEnabled: "false",
-        openAiApiKey: "test-key",
+        provider: AI_PROVIDERS.anthropic,
+        anthropicApiKey: "test-key",
       }),
     ).toBeInstanceOf(DisabledConversationModelAdapter);
     expect(createDraftModel({
       hostedAiEnabled: "true",
-      openAiApiKey: "test-key",
+      provider: AI_PROVIDERS.anthropic,
+      anthropicApiKey: "test-key",
     })).toBeInstanceOf(LlmDraftModelAdapter);
     expect(createDraftModel({
       hostedAiEnabled: "false",
-      openAiApiKey: "test-key",
+      provider: AI_PROVIDERS.anthropic,
+      anthropicApiKey: "test-key",
     })).toBeInstanceOf(DisabledDraftModelAdapter);
     expect(
       createConversationModel({
         hostedAiEnabled: "true",
-        openAiApiKey: "   ",
+        provider: AI_PROVIDERS.anthropic,
+        anthropicApiKey: "   ",
       }),
     ).toBeInstanceOf(DisabledConversationModelAdapter);
+  });
+
+  it("retains explicitly selected OpenAI without falling back between providers", () => {
+    expect(createConversationModel({
+      hostedAiEnabled: "true",
+      provider: AI_PROVIDERS.openAi,
+      openAiApiKey: "test-key",
+    })).toBeInstanceOf(LlmConversationModelAdapter);
+    expect(createConversationModel({
+      hostedAiEnabled: "true",
+      provider: AI_PROVIDERS.anthropic,
+      openAiApiKey: "test-key",
+    })).toBeInstanceOf(DisabledConversationModelAdapter);
+    expect(createConversationModel({
+      hostedAiEnabled: "true",
+      provider: "unknown",
+      anthropicApiKey: "test-key",
+      openAiApiKey: "test-key",
+    })).toBeInstanceOf(DisabledConversationModelAdapter);
+  });
+
+  it("rejects model slugs outside ThoughtForm's explicitly supported profiles", () => {
+    expect(createConversationModel({
+      hostedAiEnabled: "true",
+      provider: AI_PROVIDERS.anthropic,
+      anthropicApiKey: "test-key",
+      anthropicModel: "claude-unknown",
+    })).toBeInstanceOf(DisabledConversationModelAdapter);
   });
 
   it("selects temporary operations for the owner without granting persistence to demo users", () => {
@@ -93,6 +127,15 @@ describe("products API route mount", () => {
         message: "Sign in to continue the conversation.",
       },
     });
+  });
+
+  it("exposes supported-provider disclosure without exposing configuration secrets", async () => {
+    const response = await app.request("/products/thoughtform/ai-disclosure");
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(JSON.stringify(body)).toContain("Anthropic");
+    expect(JSON.stringify(body)).toContain("OpenAI");
+    expect(JSON.stringify(body)).not.toContain("apiKey");
   });
 
   it("does not expose persistent conversations without owner access", async () => {

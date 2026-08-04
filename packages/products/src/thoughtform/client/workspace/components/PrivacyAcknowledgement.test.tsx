@@ -26,5 +26,6 @@ describe("ThoughtForm privacy acknowledgement", () => {
     expect(markup).toContain(
       'href="/products/thoughtform/privacy"',
     );
+    expect(markup).toContain("Current AI processing information is loading");
   });
 });

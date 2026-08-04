@@ -199,10 +199,9 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
 async function send(page: Page, message: string) {
   const composer = page.getByLabel("What are you thinking?");
   await composer.fill(message);
-  const response = page.waitForResponse((candidate) => candidate.url().endsWith("/conversation/respond") && candidate.request().method() === "POST");
   await page.getByRole("button", { name: "Send" }).click();
-  await expect(page.getByRole("button", { name: "Sending..." })).toBeDisabled();
-  await response;
+  await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+  await expect(page.getByRole("status", { name: "" }).filter({ hasText: "ThoughtForm is considering your message." })).toBeVisible();
   await expect(composer).toBeEnabled();
   await expect(composer).toHaveValue("");
 }

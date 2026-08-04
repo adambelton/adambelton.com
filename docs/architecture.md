@@ -74,5 +74,5 @@ decision before code adopts it.
 Product-specific architectures may define domain concepts, capability boundaries,
 state ownership, and product flows beneath these host/package rules. The canonical
 ThoughtForm product architecture is
-`docs/products/thoughtform/the-thoughtform-architecture.md`; its concise,
+`docs/products/thoughtform/thoughtform-architecture.md`; its concise,
 self-contained navigation guide is `packages/products/src/thoughtform/README.md`.

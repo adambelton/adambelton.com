@@ -36,6 +36,7 @@ import {
 import { sendTemporaryIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
 import { DraftPanel, type DraftPanelHandle } from "packages/products/src/thoughtform/client/workspace/components/DraftPanel";
 import type { DraftPersistenceKind } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
+import { ResponseFormingIndicator } from "packages/products/src/thoughtform/client/workspace/components/ResponseFormingIndicator";
 
 interface ConversationEditorProps {
   canClear?: boolean;
@@ -288,6 +289,9 @@ export function ConversationEditor({
           ) : null}
           {canClear && messages.length > 0 ? (
             <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this conversation</button>
+          ) : null}
+          {status === CONVERSATION_STATUSES.sending ? (
+            <ResponseFormingIndicator />
           ) : null}
           <ConversationComposer
             canSubmit={canSubmit}

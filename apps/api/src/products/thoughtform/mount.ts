@@ -1,8 +1,18 @@
 import { Hono } from "hono";
 import {
+  AnthropicLlmClient,
+  DEFAULT_ANTHROPIC_MODEL,
   DEFAULT_OPENAI_MODEL,
+  type LlmClient,
   OpenAiLlmClient,
+  getAiProviderDisclosure,
+  listAiProviderDisclosures,
 } from "packages/ai/src";
+import {
+  isSupportedThoughtFormAiProfile,
+  THOUGHTFORM_AI_PROFILES,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-ai-profile";
+import { ThoughtFormLlmClientAdapter } from "apps/api/src/products/thoughtform/adapters/ai/thoughtform-llm-client-adapter";
 import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
@@ -32,6 +42,19 @@ const getThoughtFormConversationStore =
   });
 
 export const HOSTED_AI_ENABLED_VALUE = "true";
+export const AI_PROVIDERS = {
+  anthropic: THOUGHTFORM_AI_PROFILES.anthropic,
+  openAi: THOUGHTFORM_AI_PROFILES.openAi,
+} as const;
+
+type HostedAiConfiguration = {
+  hostedAiEnabled?: string;
+  provider?: string;
+  anthropicApiKey?: string;
+  anthropicModel?: string;
+  openAiApiKey?: string;
+  openAiModel?: string;
+};
 
 type ProductConversationSession = {
   user: { id: string; isOwner: boolean };
@@ -61,79 +84,96 @@ export function getPersistentConversationAccess(
     : null;
 }
 
-export function createConversationModel(configuration: {
-  hostedAiEnabled?: string;
-  openAiApiKey?: string;
-  openAiModel?: string;
-}) {
-  if (
-    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
-    !configuration.openAiApiKey?.trim()
-  ) {
+export function createLlmClient(
+  configuration: HostedAiConfiguration,
+): LlmClient | null {
+  if (configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE) return null;
+
+  if (configuration.provider === AI_PROVIDERS.anthropic) {
+    if (!configuration.anthropicApiKey?.trim()) return null;
+    const model = configuration.anthropicModel ?? DEFAULT_ANTHROPIC_MODEL;
+    if (!isSupportedThoughtFormAiProfile(configuration.provider, model)) return null;
+    return new ThoughtFormLlmClientAdapter(configuration.provider, new AnthropicLlmClient({
+      apiKey: configuration.anthropicApiKey,
+      model,
+    }));
+  }
+
+  if (configuration.provider === AI_PROVIDERS.openAi) {
+    if (!configuration.openAiApiKey?.trim()) return null;
+    const model = configuration.openAiModel ?? DEFAULT_OPENAI_MODEL;
+    if (!isSupportedThoughtFormAiProfile(configuration.provider, model)) return null;
+    return new ThoughtFormLlmClientAdapter(configuration.provider, new OpenAiLlmClient({
+      apiKey: configuration.openAiApiKey,
+      model,
+    }));
+  }
+
+  return null;
+}
+
+export function createConversationModel(configuration: HostedAiConfiguration) {
+  const client = createLlmClient(configuration);
+  if (!client) {
     return new DisabledConversationModelAdapter();
   }
-
-  return new LlmConversationModelAdapter(
-    new OpenAiLlmClient({
-      apiKey: configuration.openAiApiKey,
-      model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
-    }),
-  );
+  return new LlmConversationModelAdapter(client);
 }
 
-const thoughtFormConversationService = new ConversationService({
-  conversationModel: createConversationModel({
-    hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
-    openAiApiKey: process.env.OPENAI_API_KEY,
-    openAiModel: process.env.OPENAI_MODEL,
-  }),
-});
-export function createDraftModel(configuration: {
-  hostedAiEnabled?: string;
-  openAiApiKey?: string;
-  openAiModel?: string;
-}) {
-  if (
-    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
-    !configuration.openAiApiKey?.trim()
-  ) {
+export function createDraftModel(configuration: HostedAiConfiguration) {
+  const client = createLlmClient(configuration);
+  if (!client) {
     return new DisabledDraftModelAdapter();
   }
-  return new LlmDraftModelAdapter(new OpenAiLlmClient({
-    apiKey: configuration.openAiApiKey,
-    model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
-  }));
+  return new LlmDraftModelAdapter(client);
 }
 
-export function createDraftChangeInterpretationModel(configuration: {
-  hostedAiEnabled?: string;
-  openAiApiKey?: string;
-  openAiModel?: string;
-}) {
-  if (
-    configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE ||
-    !configuration.openAiApiKey?.trim()
-  ) {
+export function createDraftChangeInterpretationModel(
+  configuration: HostedAiConfiguration,
+) {
+  const client = createLlmClient(configuration);
+  if (!client) {
     return new DisabledDraftChangeInterpretationModelAdapter();
   }
-  return new LlmDraftChangeInterpretationModelAdapter(new OpenAiLlmClient({
-    apiKey: configuration.openAiApiKey,
-    model: configuration.openAiModel ?? DEFAULT_OPENAI_MODEL,
-  }));
+  return new LlmDraftChangeInterpretationModelAdapter(client);
 }
 
-const draftModel = createDraftModel({
+const hostedAiConfiguration = {
   hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
+  provider: process.env.AI_PROVIDER,
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  anthropicModel: process.env.ANTHROPIC_MODEL,
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL,
-});
-const draftChangeInterpretationModel = createDraftChangeInterpretationModel({
-  hostedAiEnabled: process.env.HOSTED_AI_ENABLED,
-  openAiApiKey: process.env.OPENAI_API_KEY,
-  openAiModel: process.env.OPENAI_MODEL,
+} satisfies HostedAiConfiguration;
+const hostedLlmClient = createLlmClient(hostedAiConfiguration);
+const conversationModel = hostedLlmClient
+  ? new LlmConversationModelAdapter(hostedLlmClient)
+  : new DisabledConversationModelAdapter();
+const draftModel = hostedLlmClient
+  ? new LlmDraftModelAdapter(hostedLlmClient)
+  : new DisabledDraftModelAdapter();
+const draftChangeInterpretationModel = hostedLlmClient
+  ? new LlmDraftChangeInterpretationModelAdapter(hostedLlmClient)
+  : new DisabledDraftChangeInterpretationModelAdapter();
+const thoughtFormConversationService = new ConversationService({
+  conversationModel,
 });
 
 export const thoughtFormRoute = new Hono();
+
+thoughtFormRoute.get("/ai-disclosure", (context) =>
+  context.json({
+    ok: true as const,
+    data: {
+      activeProvider:
+        hostedAiConfiguration.hostedAiEnabled === HOSTED_AI_ENABLED_VALUE
+          ? getAiProviderDisclosure(hostedAiConfiguration.provider ?? "")
+          : null,
+      supportedProviders: listAiProviderDisclosures(),
+    },
+  }),
+);
 
 thoughtFormRoute.route(
   "/",

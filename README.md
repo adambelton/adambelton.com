@@ -126,7 +126,7 @@ responsibility in the path and filename.
 | Product access or host dependency assembly | `apps/api/src/products/thoughtform/mount.ts` |
 | Demo storage behaves incorrectly | API ThoughtForm persistence adapters |
 | Owner data behaves incorrectly | DB ThoughtForm adapters |
-| OpenAI request mechanics are wrong | `packages/ai/src/providers` |
+| Hosted-model provider request mechanics are wrong | `packages/ai/src/providers` |
 | ThoughtForm behaviour or interface | Its [product guide](packages/products/src/thoughtform/README.md) |
 
 ## Testing locations
