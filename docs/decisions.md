@@ -750,3 +750,28 @@ The interface truthfully presents format as saved but not yet used by the
 assistant. Conversation, composition, revision, and publishing inputs remain
 unchanged; defining format semantics or downstream behaviour requires a later
 explicit product decision.
+
+## 043 — Canonical Draft Content Is Versioned Constrained Markdown
+
+The private Draft uses product-owned, versioned constrained Markdown as its
+canonical representation. Supported meaning is deliberately limited to prose,
+headings one through four, emphasis and strong text, lists, quotations, safe
+links, thematic breaks, code, and semantic image placeholders. HTML, MDX/JSX,
+unknown directives, unsafe links, and publishing or layout instructions are
+rejected before persistence.
+
+Canonical serialization is deterministic and ends with one newline. Complete
+immutable Markdown snapshots remain the persistence and review boundary;
+semantic selections and classified changes are derived from canonical content,
+not retained as Lexical nodes or editor transactions. MDXEditor is a replaceable
+product-client adapter and its internal JSON is never canonical.
+
+Existing rows default explicitly to `plain_text`. They are escaped into semantic
+Markdown for editing without rewriting retained snapshots or interpreting old
+punctuation as structure. Their first intentional edit or restoration creates a
+new `semantic_markdown` revision at schema version 1.
+
+Image placeholders express an intention within the writing; they are not assets.
+Uploads, public rendering, typography, layout, and publication remain separate
+future concerns. Draft Format remains independent, optional, and behaviourally
+inert.

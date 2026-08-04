@@ -21,7 +21,7 @@ packages/products/src/socratic-draft/
 ├── client/                                    What the user sees
 │   ├── pages/                                 Complete product pages
 │   ├── conversations/                         Saved-conversation interface and actions
-│   ├── workspace/                             Conversation, Idea Map and draft editor
+│   ├── workspace/                             Conversation, Idea Map and semantic draft editor
 │   ├── routes/                                Product-owned route decisions
 │   └── ui/                                    Small product-owned presentation helpers
 │
@@ -62,6 +62,47 @@ including optional Draft Format guidance and the
 operations it requires from AI and storage. It does not own a particular model,
 database, website, or deployment. That separation allows the product to be
 developed in isolation and later integrated into a host.
+
+The Draft body is versioned constrained semantic Markdown. Drafting owns its
+grammar, deterministic normalization, safe-link and placeholder validation,
+legacy plain-text projection, immutable revisions, semantic selections, and
+classified derived changes. The client contains one MDXEditor adapter; editor
+state and Lexical node identities never cross the product boundary.
+
+## Semantic editor implementation boundary
+
+`client/workspace/editor/SemanticDraftEditor.tsx` is the only production module
+that imports MDXEditor. It translates the product's constrained Markdown into
+one editing engine; it does not define canonical meaning. Future editor work
+must preserve these implementation constraints:
+
+- MDXEditor emits a single trailing newline. Server normalization owns that
+  canonical rule, so client output must always pass through drafting validation.
+- A restricted plugin set limits visible controls but is not a security
+  boundary. Source mode, arbitrary HTML, MDX/JSX, and unknown directives remain
+  excluded and are rejected on the server.
+- The adapter's `getSelectionMarkdown()` and `insertMarkdown()` methods support
+  structured selection and exact replacement. Lexical keys and editor positions
+  must never be stored; product selections stay bound to a canonical revision
+  and are revalidated against canonical Markdown.
+- Link and image-placeholder fields are product-owned because the engine's
+  built-in dialogs did not provide the required labelling and focus behaviour.
+  Dialog close paths must restore focus deliberately.
+- `Enter draft editor` and the focusable `Leave draft editor` control are the
+  explicit keyboard routes around the contenteditable surface.
+- Image placeholders are custom `image-placeholder` container directives. Their
+  description, purpose, proposed alt text, and caption are semantic Draft
+  content. Real images require a future product port returning a logical private
+  asset reference; blobs, data URLs, upload persistence, and publication assets
+  do not belong in this adapter.
+- Server-driven loads, restoration, and proposal acceptance remount the adapter
+  by immutable Draft revision. Unsaved editor state must not be mistaken for a
+  canonical revision or silently merged across a revision change.
+
+Reconsider MDXEditor only when implementation evidence identifies a concrete
+failure in semantic range addressing, exact structured replacement, keyboard or
+screen-reader operation, or required extensibility. General editor preference is
+not sufficient evidence to reopen the decision.
 
 ## Integration boundary
 

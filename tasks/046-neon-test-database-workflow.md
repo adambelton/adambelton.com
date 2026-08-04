@@ -1,4 +1,4 @@
-# Task 045 — Add a dedicated Neon test-database workflow
+# Task 046 — Add a dedicated Neon test-database workflow
 
 ## Goal
 

@@ -8,7 +8,7 @@ existing scaffold with it without changing user-visible behaviour.
 ## Approval record
 
 Approved on 2026-08-03 as an unnumbered task that does not change the numbering
-or priority of Tasks 033–044.
+or priority of Tasks 033–045.
 
 - The work is behaviour-preserving and must not add product capabilities,
   database migrations, API contract changes, or visual redesign.

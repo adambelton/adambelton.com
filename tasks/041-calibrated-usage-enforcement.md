@@ -1,4 +1,4 @@
-# Task 040 — Enforce calibrated atomic usage budgets
+# Task 041 — Enforce calibrated atomic usage budgets
 
 ## Goal
 
@@ -7,7 +7,7 @@ per-user demo and global safeguards without losing recoverable work.
 
 ## Depends on
 
-Tasks 038 and 039.
+Tasks 039 and 040.
 
 ## Why this task is next
 
@@ -73,4 +73,4 @@ git diff --check
 
 ## Status
 
-Blocked on Tasks 038 and 039. Not approvable yet.
+Blocked on Tasks 039 and 040. Not approvable yet.

@@ -1,4 +1,4 @@
-# Task 039 — Measure representative hosted usage
+# Task 040 — Measure representative hosted usage
 
 ## Goal
 
@@ -7,7 +7,7 @@ journeys so usage limits can be calibrated from evidence.
 
 ## Depends on
 
-Tasks 035–038.
+Tasks 036–039.
 
 ## Why this task is next
 
@@ -18,7 +18,7 @@ Limits need evidence from the complete capability set rather than arbitrary turn
 - Define guided, user-led, short-form, and long-form hosted fixtures.
 - Record request counts, action types, bounded context sizes, and token metadata.
 - Exclude private fixture content from the committed measurement report.
-- Add concrete recommendations consumed by Task 040.
+- Add concrete recommendations consumed by Task 041.
 
 ## Out of scope
 
@@ -28,7 +28,7 @@ Limits need evidence from the complete capability set rather than arbitrary turn
 
 - hosted evaluation scenarios and measurement summarizers
 - privacy-safe committed measurement report
-- concrete calibration inputs for Tasks 038 and 040
+- concrete calibration inputs for Tasks 039 and 041
 
 ## Definition of done
 

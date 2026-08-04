@@ -1,4 +1,4 @@
-# Task 043 — Publish a private draft through the host writing adapter
+# Task 044 — Publish a private draft through the host writing adapter
 
 ## Goal
 
@@ -7,7 +7,7 @@ a Socratic Draft private draft.
 
 ## Depends on
 
-Task 042.
+Task 043.
 
 ## Why this task is next
 
@@ -44,7 +44,7 @@ than co-designing public persistence and private publication in one change.
 ## Blast radius
 
 Medium: product publishing port, owner UI, API authorization, and the host writing
-adapter. Public rendering and schema are already established by Task 042.
+adapter. Public rendering and schema are already established by Task 043.
 
 ## Validation commands
 
@@ -64,4 +64,4 @@ git diff --check
 
 ## Status
 
-Proposed. Awaiting Task 042.
+Proposed. Awaiting Task 043.

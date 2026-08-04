@@ -66,6 +66,23 @@ free-form writing and explicitly states that the assistant does not use the
 saved value yet. Conversation, composition, revision, and publishing behaviour
 remain unchanged.
 
+The semantic-editor investigation established MDXEditor's deterministic
+Markdown, structured selection, exact replacement, and custom-directive
+capabilities. Its durable constraints now live with the implemented product:
+MDXEditor remains behind one adapter, server-side Markdown validation is
+authoritative, source mode is excluded, and link, placeholder, and focus
+behaviour are product-owned.
+
+Task 034's implementation and authenticated owner verification are complete,
+with only a human VoiceOver speech-output pass remaining. Canonical Draft bodies are now versioned,
+deterministically normalized constrained Markdown validated before every write
+and model-derived proposal. A product-owned MDXEditor adapter exposes the
+supported semantic controls without source mode or uploads. Legacy plain-text
+snapshots retain their original representation metadata and are escaped for
+editing without falsifying old structure. Semantic selections and classified
+changes remain revision-bound product contracts, and image placeholders remain
+intentions rather than assets.
+
 The authenticated owner editor has also been verified locally through the real
 host composition and Neon `dev`: pre-Draft format set, reload, change, clear,
 and final reload all succeeded without creating draft content. API development
@@ -302,7 +319,7 @@ contract evaluation remains outside CI.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Daily usage limits are not implemented yet; the kill switch and per-request
-  bounds reduce immediate exposure but do not replace Tasks 038–040.
+  bounds reduce immediate exposure but do not replace Tasks 039–041.
 - Autonomous, user-correctable idea merging and splitting remains required before
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after
@@ -311,5 +328,5 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Task 034 — Add conservative substantive-edit interpretation, subject to its own
-proposal review and explicit approval.
+Task 035 — Interpret substantive saved Draft edits, subject to its own proposal
+review and explicit approval.

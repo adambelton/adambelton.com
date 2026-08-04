@@ -44,6 +44,12 @@ idea.
 Use *draft* when naming the writing itself: draft body, draft revision, create a
 draft, revise the draft.
 
+The Draft body is canonical constrained semantic Markdown. Document structure
+expresses the organisation and meaning of the private writing; it does not imply
+public presentation or publication. An image placeholder records an intended
+image's description, purpose, proposed alt text, and optional caption without
+representing an uploaded asset.
+
 ### Draft Format
 
 - **Grammatical role:** product state owned by the drafting capability.

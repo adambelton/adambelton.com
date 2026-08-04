@@ -18,18 +18,19 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 034 — Conservative substantive-edit interpretation
-- 035 — Temporary explicit preferences and one guidance path
-- 036 — Complete temporary workspace lifecycle and recovery
-- 037 — Workspace copy and export
-- 038 — Content-free hosted-attempt lifecycle and accounting
-- 039 — Representative hosted-usage measurement
-- 040 — Calibrated atomic usage enforcement
-- 041 — Durable confirmed owner preferences
-- 042 — Host public-writing system
-- 043 — Socratic Draft publishing bridge
-- 044 — Admin visibility
-- 045 — Dedicated Neon test-database workflow
+- 034 — Canonical semantic Markdown and focused rich editor
+- 035 — Conservative substantive-edit interpretation
+- 036 — Temporary explicit preferences and one guidance path
+- 037 — Complete temporary workspace lifecycle and recovery
+- 038 — Workspace copy and export
+- 039 — Content-free hosted-attempt lifecycle and accounting
+- 040 — Representative hosted-usage measurement
+- 041 — Calibrated atomic usage enforcement
+- 042 — Durable confirmed owner preferences
+- 043 — Host public-writing system
+- 044 — Socratic Draft publishing bridge
+- 045 — Admin visibility
+- 046 — Dedicated Neon test-database workflow
 
 ## Completed
 

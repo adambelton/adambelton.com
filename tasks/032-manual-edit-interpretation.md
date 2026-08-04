@@ -82,7 +82,7 @@ Approved on 2026-08-02 after the post-Task-031 roadmap and blast-radius review.
   automatic interpretation.
 - Existing revision snapshots remain the only durable draft history.
 - Automatic classification, idea-map offers, and preference evidence are
-  deferred to Task 034 and must not be pulled into this implementation.
+  deferred to Task 035 and must not be pulled into this implementation.
 - No database schema change is expected; new evidence is required before
   expanding that boundary.
 - The task should normally remain within product-owned contracts, orchestration,
