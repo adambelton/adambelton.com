@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { DraftChange } from "packages/products/src/socratic-draft/shared";
 import { createDraftStore } from "packages/products/src/socratic-draft/server/capabilities/drafting";
 import { validateDraftChange } from "packages/products/src/socratic-draft/server/delivery/http/draft-change-context";
 import { TestDraftPersistence } from "packages/products/src/socratic-draft/testing/fakes/test-draft-persistence";
@@ -23,7 +24,7 @@ describe("validateDraftChange", () => {
       source: "manual_edit",
       createdAt: "2026-08-03T09:01:00.000Z",
     });
-    const change = {
+    const change: DraftChange = {
       fromRevision: 1,
       toRevision: 2,
       scope: "passage" as const,
@@ -31,6 +32,7 @@ describe("validateDraftChange", () => {
       end: 9,
       removedText: "careful",
       addedText: "clearer",
+      kinds: ["text"],
     };
 
     expect(await validateDraftChange({ conversationId: "conversation-1", drafts, change })).toBe(true);

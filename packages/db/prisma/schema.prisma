@@ -133,6 +133,8 @@ model SocraticDraftDraft {
   id              String   @id
   conversationId  String   @unique @map("conversation_id")
   body            String
+  contentFormat   String   @default("plain_text") @map("content_format")
+  schemaVersion   Int?     @map("schema_version")
   currentRevision Int      @default(1) @map("current_revision")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -149,6 +151,8 @@ model SocraticDraftDraftRevision {
   draftId              String   @map("draft_id")
   revision             Int
   body                 String
+  contentFormat        String   @default("plain_text") @map("content_format")
+  schemaVersion        Int?     @map("schema_version")
   source               String
   proposalId           String?  @map("proposal_id")
   restoredFromRevision Int?     @map("restored_from_revision")

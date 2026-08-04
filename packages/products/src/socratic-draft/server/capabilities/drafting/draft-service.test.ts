@@ -126,7 +126,7 @@ describe("DraftService", () => {
     });
 
     expect(result.status).toBe(DRAFT_WRITE_STATUSES.changed);
-    expect("workspace" in result && result.workspace.draft?.body).toBe("The original draft.");
+    expect("workspace" in result && result.workspace.draft?.body).toBe("The original draft.\n");
     expect("workspace" in result && result.workspace.revisions[0]).toMatchObject({
       revision: 1,
       source: "initial_composition",
@@ -200,10 +200,10 @@ describe("DraftService", () => {
     });
 
     expect(stale.status).toBe(DRAFT_WRITE_STATUSES.conflict);
-    expect("workspace" in stale && stale.workspace.draft?.body).toBe("Newer canonical work.");
+    expect("workspace" in stale && stale.workspace.draft?.body).toBe("Newer canonical work.\n");
   });
 
-  it("preserves exact author whitespace in a manual save", async () => {
+  it("normalizes incidental author whitespace in a manual save", async () => {
     const { service } = createService();
     await service.compose({
       conversationId: "conversation-1",
@@ -222,13 +222,13 @@ describe("DraftService", () => {
     });
 
     expect("workspace" in saved && saved.workspace.draft?.body).toBe(
-      "\n  Exact author text.  \n",
+      "Exact author text.\n",
     );
     expect(saved.change).toMatchObject({
       fromRevision: 1,
       toRevision: 2,
       removedText: "The original draft.",
-      addedText: "\n  Exact author text.  \n",
+      addedText: "Exact author text.",
     });
   });
 
@@ -284,7 +284,7 @@ describe("DraftService", () => {
     expect("workspace" in restored && restored.workspace.revisions).toHaveLength(3);
     expect("workspace" in restored && restored.workspace.revisions[2]).toMatchObject({
       revision: 3,
-      body: "The original draft.",
+      body: "The original draft.\n",
       source: "restoration",
       restoredFromRevision: 1,
     });
@@ -316,7 +316,7 @@ describe("DraftService", () => {
     if (!("workspace" in proposed) || !proposed.workspace) {
       throw new Error("Expected the revision proposal to be retained.");
     }
-    expect(proposed.workspace.draft?.body).toBe("The original draft.");
+    expect(proposed.workspace.draft?.body).toBe("The original draft.\n");
     const proposalId = proposed.workspace.activeProposal?.id;
     expect(proposalId).toBeTruthy();
 
@@ -327,7 +327,7 @@ describe("DraftService", () => {
       expectedDraftRevision: 1,
       createdAt: "2026-08-02T12:01:00.000Z",
     });
-    expect("workspace" in accepted && accepted.workspace.draft?.body).toBe("The reviewed draft.");
+    expect("workspace" in accepted && accepted.workspace.draft?.body).toBe("The reviewed draft.\n");
     expect("workspace" in accepted && accepted.workspace.revisions[1]).toMatchObject({
       source: "accepted_proposal",
       proposalId,
@@ -375,7 +375,7 @@ describe("DraftService", () => {
       operationId: "dismiss-1",
     });
 
-    expect("workspace" in dismissed && dismissed.workspace.draft?.body).toBe("Newer canonical work.");
+    expect("workspace" in dismissed && dismissed.workspace.draft?.body).toBe("Newer canonical work.\n");
     expect("workspace" in dismissed && dismissed.workspace.activeProposal?.state).toBe("rejected");
   });
 });

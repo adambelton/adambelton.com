@@ -246,9 +246,21 @@ export const DRAFT_REVISION_SOURCES = {
 export type DraftRevisionSource =
   (typeof DRAFT_REVISION_SOURCES)[keyof typeof DRAFT_REVISION_SOURCES];
 
+export const DRAFT_CONTENT_FORMATS = {
+  plainText: "plain_text",
+  semanticMarkdown: "semantic_markdown",
+} as const;
+
+export type DraftContentFormat =
+  (typeof DRAFT_CONTENT_FORMATS)[keyof typeof DRAFT_CONTENT_FORMATS];
+
+export const SEMANTIC_DRAFT_SCHEMA_VERSION = 1;
+
 export interface DraftRevision {
   revision: number;
   body: string;
+  contentFormat?: DraftContentFormat;
+  schemaVersion?: number | null;
   source: DraftRevisionSource;
   createdAt: string;
   proposalId: string | null;
@@ -259,6 +271,8 @@ export interface Draft {
   id: string;
   conversationId: string;
   body: string;
+  contentFormat?: DraftContentFormat;
+  schemaVersion?: number | null;
   currentRevision: number;
   createdAt: string;
   updatedAt: string;
@@ -297,6 +311,18 @@ export const DRAFT_CHANGE_SCOPES = {
 export type DraftChangeScope =
   (typeof DRAFT_CHANGE_SCOPES)[keyof typeof DRAFT_CHANGE_SCOPES];
 
+export const DRAFT_CHANGE_KINDS = {
+  text: "text",
+  mark: "mark",
+  link: "link",
+  blockStructure: "block_structure",
+  code: "code",
+  imagePlaceholder: "image_placeholder",
+} as const;
+
+export type DraftChangeKind =
+  (typeof DRAFT_CHANGE_KINDS)[keyof typeof DRAFT_CHANGE_KINDS];
+
 export interface DraftChange {
   fromRevision: number;
   toRevision: number;
@@ -305,6 +331,7 @@ export interface DraftChange {
   end: number;
   removedText: string;
   addedText: string;
+  kinds: DraftChangeKind[];
 }
 
 export interface DraftOperationResponse {

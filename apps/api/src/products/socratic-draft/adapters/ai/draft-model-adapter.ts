@@ -27,6 +27,7 @@ export class LlmDraftModelAdapter
         "Unresolved questions describe uncertainty to preserve within the writing when relevant; never reproduce them as a questionnaire or internal checklist.",
         "Do not mention the assistant, the model, the idea map, readiness, assessment, provenance, or selection mechanics.",
         "Follow the explicit instruction, including requests for deliberately early or rough writing.",
+        "Write the body as constrained semantic Markdown. You may use paragraphs, headings levels 1 through 4, strong or emphasis, ordered or unordered lists, block quotations, safe links, thematic breaks, fenced code, and image-placeholder container directives. Never use HTML, MDX, JSX, tables, embeds, or another directive.",
         "Return structured JSON.",
       ].join(" "),
       messages: [{ role: "user", content: JSON.stringify(input) }],
@@ -51,6 +52,7 @@ export class LlmDraftModelAdapter
       system: [
         "Prepare an exact bounded revision proposal without changing canonical content.",
         "Return only replacement content for the requested scope and a concise intended effect.",
+        "Preserve and return constrained semantic Markdown: paragraphs, headings levels 1 through 4, strong or emphasis, ordered or unordered lists, block quotations, safe links, thematic breaks, fenced code, and image-placeholder container directives only. Never return HTML, MDX, JSX, tables, embeds, or another directive.",
         "Do not add unsupported meaning. Return structured JSON.",
       ].join(" "),
       messages: [{ role: "user", content: JSON.stringify(input) }],

@@ -248,7 +248,10 @@ export function ConversationEditor({
   }
 
   return (
-    <section aria-labelledby="editor-title">
+    <section
+      aria-labelledby="editor-title"
+      className="lg:relative lg:left-1/2 lg:w-[calc(100vw-4rem)] lg:max-w-[1440px] lg:-translate-x-1/2"
+    >
       <ConversationEditorIntro />
       <nav aria-label="Workspace views" className="mt-8 flex gap-3 lg:hidden">
         {(["conversation", "idea-map", "draft"] as const).map((surface) => (

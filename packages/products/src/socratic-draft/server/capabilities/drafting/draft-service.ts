@@ -10,8 +10,15 @@ import {
 } from "packages/products/src/socratic-draft/server/capabilities/drafting/draft-store";
 import { deriveDraftChange } from "packages/products/src/socratic-draft/server/capabilities/drafting/draft-change";
 import {
+  canonicalDraftMarkdown,
+  InvalidSemanticMarkdownError,
+  normalizeSemanticMarkdown,
+} from "packages/products/src/socratic-draft/server/capabilities/drafting/semantic-markdown";
+import {
+  DRAFT_CONTENT_FORMATS,
   DRAFT_FORMAT_MAX_LENGTH,
   DRAFT_REVISION_SOURCES,
+  SEMANTIC_DRAFT_SCHEMA_VERSION,
   REVISION_PROPOSAL_SCOPES,
   type DraftSelection,
   type Idea,
@@ -68,12 +75,14 @@ export class DraftService {
       relevantConversationLanguage: input.relevantConversationLanguage,
       instruction: input.instruction,
     });
-    const body = requireBody(generated.body);
+    const body = requireSemanticBody(generated.body);
     return this.store.createDraft({
       conversationId: input.conversationId,
       draftId: globalThis.crypto.randomUUID(),
       operationId: input.operationId,
       body,
+      contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown,
+      schemaVersion: SEMANTIC_DRAFT_SCHEMA_VERSION,
       createdAt: this.now().toISOString(),
     });
   }
@@ -86,7 +95,9 @@ export class DraftService {
   }) {
     const result = await this.store.appendDraftRevision({
       ...input,
-      body: requireExactBody(input.body),
+      body: requireSemanticBody(input.body),
+      contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown,
+      schemaVersion: SEMANTIC_DRAFT_SCHEMA_VERSION,
       source: DRAFT_REVISION_SOURCES.manualEdit,
       createdAt: this.now().toISOString(),
     });
@@ -115,7 +126,9 @@ export class DraftService {
       conversationId: input.conversationId,
       operationId: input.operationId,
       expectedRevision: input.expectedRevision,
-      body: restored.body,
+      body: canonicalDraftMarkdown(restored.body, restored.contentFormat),
+      contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown,
+      schemaVersion: SEMANTIC_DRAFT_SCHEMA_VERSION,
       source: DRAFT_REVISION_SOURCES.restoration,
       restoredFromRevision: restored.revision,
       createdAt: this.now().toISOString(),
@@ -139,14 +152,18 @@ export class DraftService {
     if (workspace.activeProposal?.state === "active") {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace } as const;
     }
-    const range = proposalRange(
+    const canonicalBody = canonicalDraftMarkdown(
       workspace.draft.body,
+      workspace.draft.contentFormat,
+    );
+    const range = proposalRange(
+      canonicalBody,
       input.expectedDraftRevision,
       input.scope,
       input.selection,
     );
     const generated = await this.proposalModel.propose({
-      draftBody: workspace.draft.body,
+      draftBody: canonicalBody,
       scope: input.scope,
       originalContent: range.originalContent,
       userInstruction: input.userInstruction,
@@ -162,7 +179,7 @@ export class DraftService {
       originalContent: range.originalContent,
       userInstruction: input.userInstruction.trim(),
       intendedEffect: generated.intendedEffect.trim(),
-      proposedContent: requireBody(generated.proposedContent),
+      proposedContent: requireSemanticReplacement(canonicalBody, range, generated.proposedContent),
       createdAt: this.now().toISOString(),
     });
   }
@@ -190,8 +207,12 @@ export class DraftService {
     ) {
       return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace } as const;
     }
+    const canonicalBody = canonicalDraftMarkdown(
+      workspace.draft.body,
+      workspace.draft.contentFormat,
+    );
     const generated = await this.proposalModel.propose({
-      draftBody: workspace.draft.body,
+      draftBody: canonicalBody,
       scope: proposal.scope,
       originalContent: proposal.originalContent,
       userInstruction: input.userInstruction,
@@ -202,7 +223,10 @@ export class DraftService {
       operationId: input.operationId,
       expectedProposalRevision: input.expectedProposalRevision,
       intendedEffect: generated.intendedEffect.trim(),
-      proposedContent: requireBody(generated.proposedContent),
+      proposedContent: requireSemanticReplacement(canonicalBody, {
+        start: proposal.originalStart,
+        end: proposal.originalEnd,
+      }, generated.proposedContent),
       createdAt: this.now().toISOString(),
     });
   }
@@ -250,17 +274,35 @@ function selectIdeas(ideas: Idea[], selectedIdeaIds: string[]) {
   return ideas.filter((idea) => ids.has(idea.id));
 }
 
-function requireBody(body: string) {
-  const value = body.trim();
-  if (!value) throw new InvalidDraftOperationError("Draft content cannot be empty.");
-  return value;
+function requireSemanticBody(body: string) {
+  try {
+    return normalizeSemanticMarkdown(body);
+  } catch (error) {
+    if (error instanceof InvalidSemanticMarkdownError) {
+      throw new InvalidDraftOperationError(error.message);
+    }
+    throw error;
+  }
 }
 
-function requireExactBody(body: string) {
-  if (!body.trim()) {
-    throw new InvalidDraftOperationError("Draft content cannot be empty.");
+function requireSemanticReplacement(
+  canonicalBody: string,
+  range: { start: number; end: number },
+  replacement: string,
+) {
+  if (range.start === 0 && range.end === canonicalBody.length) {
+    return requireSemanticBody(replacement);
   }
-  return body;
+  const candidate = canonicalBody.slice(0, range.start) + replacement + canonicalBody.slice(range.end);
+  const normalized = requireSemanticBody(candidate);
+  const prefix = canonicalBody.slice(0, range.start);
+  const suffix = canonicalBody.slice(range.end);
+  if (!normalized.startsWith(prefix) || !normalized.endsWith(suffix)) {
+    throw new InvalidDraftOperationError(
+      "The proposed passage does not preserve the surrounding document structure.",
+    );
+  }
+  return normalized.slice(prefix.length, normalized.length - suffix.length);
 }
 
 function normalizeDraftFormat(format: string | null) {

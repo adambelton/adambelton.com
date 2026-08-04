@@ -3,13 +3,17 @@ import {
   type DraftPersistence,
 } from "packages/products/src/socratic-draft/server/capabilities/drafting/ports/draft-persistence";
 import {
+  DRAFT_CONTENT_FORMATS,
   DRAFT_REVISION_SOURCES,
+  SEMANTIC_DRAFT_SCHEMA_VERSION,
+  type DraftContentFormat,
   EMPTY_DRAFTING_STATE,
   REVISION_PROPOSAL_STATES,
   type DraftRevisionSource,
   type DraftingState,
   type RevisionProposalScope,
 } from "packages/products/src/socratic-draft/shared";
+import { canonicalDraftMarkdown } from "packages/products/src/socratic-draft/server/capabilities/drafting/semantic-markdown";
 
 export const DRAFT_WRITE_STATUSES = {
   changed: "changed",
@@ -24,6 +28,8 @@ export interface CreateDraftInput {
   draftId: string;
   operationId: string;
   body: string;
+  contentFormat?: DraftContentFormat;
+  schemaVersion?: number | null;
   createdAt: string;
 }
 
@@ -32,6 +38,8 @@ export interface AppendDraftRevisionInput {
   operationId: string;
   expectedRevision: number;
   body: string;
+  contentFormat?: DraftContentFormat;
+  schemaVersion?: number | null;
   source: Exclude<DraftRevisionSource, "initial_composition">;
   proposalId?: string;
   restoredFromRevision?: number;
@@ -158,8 +166,8 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       if (current.draft) return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
       const next: DraftingState = {
         ...current,
-        draft: { id: input.draftId, conversationId: input.conversationId, body: input.body, currentRevision: 1, createdAt: input.createdAt, updatedAt: input.createdAt },
-        revisions: [{ revision: 1, body: input.body, source: DRAFT_REVISION_SOURCES.initialComposition, createdAt: input.createdAt, proposalId: null, restoredFromRevision: null }],
+        draft: { id: input.draftId, conversationId: input.conversationId, body: input.body, contentFormat: input.contentFormat ?? DRAFT_CONTENT_FORMATS.plainText, schemaVersion: input.schemaVersion ?? null, currentRevision: 1, createdAt: input.createdAt, updatedAt: input.createdAt },
+        revisions: [{ revision: 1, body: input.body, contentFormat: input.contentFormat ?? DRAFT_CONTENT_FORMATS.plainText, schemaVersion: input.schemaVersion ?? null, source: DRAFT_REVISION_SOURCES.initialComposition, createdAt: input.createdAt, proposalId: null, restoredFromRevision: null }],
         activeProposal: null,
       };
       return commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: "compose", current, next });
@@ -175,8 +183,8 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       const revision = input.expectedRevision + 1;
       const next: DraftingState = {
         ...current,
-        draft: { ...current.draft, body: input.body, currentRevision: revision, updatedAt: input.createdAt },
-        revisions: [...current.revisions, { revision, body: input.body, source: input.source, createdAt: input.createdAt, proposalId: input.proposalId ?? null, restoredFromRevision: input.restoredFromRevision ?? null }],
+        draft: { ...current.draft, body: input.body, contentFormat: input.contentFormat ?? current.draft.contentFormat ?? DRAFT_CONTENT_FORMATS.plainText, schemaVersion: input.schemaVersion ?? current.draft.schemaVersion ?? null, currentRevision: revision, updatedAt: input.createdAt },
+        revisions: [...current.revisions, { revision, body: input.body, contentFormat: input.contentFormat ?? current.draft.contentFormat ?? DRAFT_CONTENT_FORMATS.plainText, schemaVersion: input.schemaVersion ?? current.draft.schemaVersion ?? null, source: input.source, createdAt: input.createdAt, proposalId: input.proposalId ?? null, restoredFromRevision: input.restoredFromRevision ?? null }],
       };
       return commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: input.source, current, next });
     },
@@ -244,14 +252,18 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
       }
       const version = proposal.versions.find((item) => item.revision === proposal.currentProposalRevision);
       if (!version) return { status: DRAFT_WRITE_STATUSES.notFound };
+      const canonicalBody = canonicalDraftMarkdown(
+        current.draft.body,
+        current.draft.contentFormat,
+      );
       const body = proposal.scope === "whole_draft"
         ? version.proposedContent
-        : current.draft.body.slice(0, proposal.originalStart) + version.proposedContent + current.draft.body.slice(proposal.originalEnd);
+        : canonicalBody.slice(0, proposal.originalStart) + version.proposedContent + canonicalBody.slice(proposal.originalEnd);
       const revision = current.draft.currentRevision + 1;
       const next: DraftingState = {
         ...current,
-        draft: { ...current.draft, body, currentRevision: revision, updatedAt: input.createdAt },
-        revisions: [...current.revisions, { revision, body, source: DRAFT_REVISION_SOURCES.acceptedProposal, createdAt: input.createdAt, proposalId: proposal.id, restoredFromRevision: null }],
+        draft: { ...current.draft, body, contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown, schemaVersion: SEMANTIC_DRAFT_SCHEMA_VERSION, currentRevision: revision, updatedAt: input.createdAt },
+        revisions: [...current.revisions, { revision, body, contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown, schemaVersion: SEMANTIC_DRAFT_SCHEMA_VERSION, source: DRAFT_REVISION_SOURCES.acceptedProposal, createdAt: input.createdAt, proposalId: proposal.id, restoredFromRevision: null }],
         activeProposal: { ...proposal, state: REVISION_PROPOSAL_STATES.accepted, resolvedAt: input.createdAt },
       };
       return commit({ conversationId: input.conversationId, operationId: input.operationId, operationKind: "accept_proposal", current, next });

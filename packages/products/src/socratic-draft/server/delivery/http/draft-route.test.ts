@@ -59,14 +59,14 @@ describe("draft HTTP route", () => {
     });
     expect(composed.response.status).toBe(201);
     if (!composed.payload.ok) throw new Error("Expected composition to succeed.");
-    expect(composed.payload.data.draft).toMatchObject({ body: "The first draft.", currentRevision: 1 });
+    expect(composed.payload.data.draft).toMatchObject({ body: "The first draft.\n", currentRevision: 1 });
 
     const saved = await jsonRequest<DraftOperationResponse>(app, `/drafts/${conversationId}`, {
       method: "PUT",
       body: { expectedRevision: 1, body: "My direct edit." },
     });
     if (!saved.payload.ok) throw new Error("Expected save to succeed.");
-    expect(saved.payload.data.workspace.draft).toMatchObject({ body: "My direct edit.", currentRevision: 2 });
+    expect(saved.payload.data.workspace.draft).toMatchObject({ body: "My direct edit.\n", currentRevision: 2 });
     expect(saved.payload.data.change).toMatchObject({
       fromRevision: 1,
       toRevision: 2,
@@ -128,15 +128,15 @@ describe("draft HTTP route", () => {
       throw new Error("Expected proposal to succeed.");
     }
     const proposalId = proposed.payload.data.activeProposal.id;
-    expect(proposed.payload.data.draft.body).toBe("The first draft.");
-    expect(proposed.payload.data.activeProposal.versions[0]?.proposedContent).toBe("The reviewed draft.");
+    expect(proposed.payload.data.draft.body).toBe("The first draft.\n");
+    expect(proposed.payload.data.activeProposal.versions[0]?.proposedContent).toBe("The reviewed draft.\n");
 
     const accepted = await jsonRequest(app, `/drafts/${conversationId}/proposals/${proposalId}/accept`, {
       method: "POST",
       body: { expectedDraftRevision: 1 },
     });
     if (!accepted.payload.ok) throw new Error("Expected acceptance to succeed.");
-    expect(accepted.payload.data.draft).toMatchObject({ body: "The reviewed draft.", currentRevision: 2 });
+    expect(accepted.payload.data.draft).toMatchObject({ body: "The reviewed draft.\n", currentRevision: 2 });
     expect(accepted.payload.data.revisions[1]).toMatchObject({ source: "accepted_proposal", proposalId });
   });
 });

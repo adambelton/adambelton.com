@@ -82,7 +82,7 @@ app.route(
     getTemporaryDraftStore: async () => draftStore,
     compositionModel: {
       compose: async ({ selectedIdeas }) => ({
-        body: selectedIdeas.map((idea) => idea.substance).join("\n\n"),
+        body: `${selectedIdeas.map((idea) => idea.substance).join("\n\n")}\n\nA second paragraph verifies semantic spacing.`,
       }),
     },
     proposalModel: {

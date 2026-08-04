@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { deriveDraftChange } from "packages/products/src/socratic-draft/server/capabilities/drafting/draft-change";
-import { DRAFT_REVISION_SOURCES, type DraftRevision } from "packages/products/src/socratic-draft/shared";
+import { DRAFT_CONTENT_FORMATS, DRAFT_REVISION_SOURCES, type DraftRevision } from "packages/products/src/socratic-draft/shared";
 
 function revision(revisionNumber: number, body: string): DraftRevision {
   return {
     revision: revisionNumber,
     body,
+    contentFormat: DRAFT_CONTENT_FORMATS.semanticMarkdown,
+    schemaVersion: 1,
     source: revisionNumber === 1
       ? DRAFT_REVISION_SOURCES.initialComposition
       : DRAFT_REVISION_SOURCES.manualEdit,
@@ -28,12 +30,20 @@ describe("deriveDraftChange", () => {
       end: 14,
       removedText: "careful",
       addedText: "clearer",
+      kinds: ["text"],
     });
   });
 
   it("does not expose a change for an unchanged or non-adjacent revision", () => {
     expect(deriveDraftChange(revision(1, "Same."), revision(2, "Same."))).toBeNull();
     expect(deriveDraftChange(revision(1, "Before."), revision(3, "After."))).toBeNull();
+  });
+
+  it("classifies semantic marks separately from prose", () => {
+    expect(deriveDraftChange(
+      revision(1, "Careful words."),
+      revision(2, "**Careful** words."),
+    )).toMatchObject({ kinds: ["mark"] });
   });
 
   it("falls back to a bounded whole-draft replacement for an oversized range", () => {
@@ -45,9 +55,9 @@ describe("deriveDraftChange", () => {
     expect(change).toMatchObject({
       scope: "whole_draft",
       start: 0,
-      end: 4_500,
+      end: 4_501,
     });
-    expect(change?.removedText).toHaveLength(4_500);
-    expect(change?.addedText).toHaveLength(4_500);
+    expect(change?.removedText).toHaveLength(4_501);
+    expect(change?.addedText).toHaveLength(4_501);
   });
 });

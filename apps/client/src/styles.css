@@ -1,4 +1,25 @@
 @import "tailwindcss";
+
+.semantic-draft-editor {
+  border: 1px solid var(--line);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.semantic-draft-editor__content {
+  min-height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  line-height: 1.75;
+}
+
+.semantic-draft-editor__content > * + * {
+  margin-top: 1rem;
+}
+
+.semantic-draft-editor .semantic-draft-editor__content p + p {
+  margin-top: 1rem;
+}
 @source "../../../packages/products/src/socratic-draft/client";
 
 :root {
