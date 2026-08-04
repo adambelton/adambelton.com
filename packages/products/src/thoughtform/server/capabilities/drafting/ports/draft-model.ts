@@ -11,18 +11,17 @@ export interface DraftCompositionModelInput {
 
 export type DraftCompositionIdeaMaterial = Pick<
   Idea,
-  "id" | "title" | "synthesis" | "substance" | "unresolvedQuestions"
+  "id" | "title" | "synthesis" | "substance"
 >;
 
 export function createDraftCompositionIdeaMaterial(
   ideas: Idea[],
 ): DraftCompositionIdeaMaterial[] {
-  return ideas.map(({ id, title, synthesis, substance, unresolvedQuestions }) => ({
+  return ideas.map(({ id, title, synthesis, substance }) => ({
     id,
     title,
     synthesis,
     substance,
-    unresolvedQuestions,
   }));
 }
 

@@ -35,7 +35,9 @@ describe("draft model adapters", () => {
     expect(requests[0]?.system).toContain("preserve uncertainty, mixed feelings");
     expect(requests[0]?.system).toContain("Never manufacture resolution");
     expect(requests[0]?.system).toContain("Never expose labels or sections");
-    expect(requests[0]?.system).toContain("never reproduce them as a questionnaire");
+    expect(requests[0]?.system).toContain("not as concatenated idea summaries");
+    expect(requests[0]?.system).toContain("Every claim, contrast, and implication must be entailed");
+    expect(requests[0]?.system).toContain("Do not invent, reproduce, or answer idea-map questions");
   });
 
   it("maps proposal requests and rejects malformed provider output", async () => {

@@ -357,13 +357,16 @@ describe("ConversationService", () => {
                   id: null,
                   title: "Leadership without accountability",
                   synthesis: "Infantino's FIFA uses football's authority while resisting scrutiny.",
-                  substance: "I distinguish my condemnation of FIFA's leadership from my commitment to football itself.",
+                  substance: "I condemn Infantino's leadership, not football itself.",
                   unresolvedQuestions: ["How can football withdraw unearned legitimacy?"],
                   disposition: "active",
                   assistantAssessment: {
                     exploration: "developing",
                     importance: "central",
                   },
+                  evidence: [{
+                    quote: "I condemn Infantino's leadership, not football itself.",
+                  }],
                 },
               ],
             }),
@@ -432,6 +435,47 @@ describe("ConversationService", () => {
         },
       ],
     });
+  });
+
+  it("rejects assistant framing that is not present in the user's dog-loss account", async () => {
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse() {
+          return {
+            content: JSON.stringify({
+              response: "Missing her sounds very present tonight. What do you find yourself remembering?",
+              proposedIdeas: [{
+                id: null,
+                title: "Missing my dog",
+                synthesis: "I feel sad because I miss my dog.",
+                substance: "Right now I feel low-energy and flat, but also sad because I miss my dog.",
+                unresolvedQuestions: [],
+                disposition: "active",
+                assistantAssessment: {
+                  exploration: "emerging",
+                  importance: "central",
+                },
+                evidence: [{
+                  quote: "Maybe a bit sad. I miss my dog who passed away a couple weeks ago.",
+                }],
+              }],
+            }),
+          };
+        },
+      },
+    });
+
+    const result = await service.respond({
+      conversationId: "conversation-dog-loss",
+      message: "Maybe a bit sad. I miss my dog who passed away a couple weeks ago.",
+      previousMessages: [{
+        role: "assistant",
+        content: "That sounds like a low-energy, meh feeling—flat and a bit indifferent tonight.",
+      }],
+    });
+
+    expect(result.proposedIdeas).toBeNull();
+    expect(result.message.content).toContain("Missing her");
   });
 
   it("preserves an early composition request without claiming composition activity", async () => {

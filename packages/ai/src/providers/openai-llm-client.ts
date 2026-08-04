@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import type { LlmClient, LlmRequest, LlmResponse } from "packages/ai/src/contracts/types";
 
-export const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
+export const DEFAULT_OPENAI_MODEL = "gpt-5.6-terra";
 
 export type OpenAiLlmClientOptions = {
   apiKey: string;

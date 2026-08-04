@@ -149,9 +149,16 @@ export function createDiscoveryTestModel() {
       if (!scriptedResponse) {
         throw new Error("The discovery scenario received no user message.");
       }
-      return typeof scriptedResponse === "function"
+      const result = typeof scriptedResponse === "function"
         ? scriptedResponse(request)
         : scriptedResponse;
+      const parsed = JSON.parse(result.content) as { proposedIdeas?: Array<Record<string, unknown>> };
+      const message = request.messages.filter((entry) => entry.role === "user").at(-1)?.content ?? "";
+      parsed.proposedIdeas = parsed.proposedIdeas?.map((idea) => ({
+        ...idea,
+        evidence: [{ quote: message }],
+      }));
+      return { content: JSON.stringify(parsed) };
     },
   };
   return model;

@@ -933,3 +933,43 @@ exists for this reset.
 
 This decision supersedes the old product identity wherever it appears in earlier
 decisions without changing their substantive architecture or behaviour.
+
+## 049 — Hosted AI Providers Are Explicitly Selected
+
+`packages/ai` owns provider-specific clients behind its provider-neutral
+`LlmClient` contract. ThoughtForm and its product-owned model ports do not import
+provider SDKs, credentials, configuration, or response types.
+
+The API host selects exactly one provider with `AI_PROVIDER`. Anthropic uses
+`ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL`; OpenAI uses `OPENAI_API_KEY` and
+`OPENAI_MODEL`. Hosted calls fail closed when the kill switch is off, the
+provider is unknown, or the selected provider's credential is absent. The host
+must not silently fall back to another configured provider because that would
+make behaviour and privacy processing harder to diagnose.
+
+Anthropic Sonnet 5 (`claude-sonnet-5`) is the current development and restricted
+demo baseline. This is an intentional working selection, not the result of a
+completed comparative-model evaluation or a permanent production-model choice.
+OpenAI remains supported, and comparative evaluation is deferred.
+
+## 050 — ThoughtForm Supports Explicit AI Profiles
+
+ThoughtForm is not provider-agnostic merely because `packages/ai` exposes a
+provider-neutral transport client. The product explicitly supports Anthropic
+Sonnet 5 and OpenAI GPT-5.6 Terra profiles. Each supported profile owns its product
+compatibility, provider-specific structured-output projection, prompting and
+eventual evaluation baseline. The API host may select one supported profile but
+must fail closed for unknown providers or model slugs.
+
+The semantic product result remains common and is validated after generation.
+Provider transport limitations are projected explicitly by the ThoughtForm
+profile before a request reaches a generic provider client; a generic client
+must not silently rewrite product schemas. Invalid proposed idea material may
+receive one bounded repair attempt. Proposed ideas require exact user-message
+evidence, and assistant wording is not established material without user
+adoption.
+
+Public provider disclosure is runtime-derived from central provider metadata.
+Privacy acknowledgement versions track material policy changes, not model
+switches. The host site's shared content container has a 1440px maximum width;
+ThoughtForm inherits that host decision.

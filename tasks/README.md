@@ -48,6 +48,9 @@ site pages rather than a product publishing capability.
 
 ## Completed
 
+- Adopt GPT-5.6 Terra as the OpenAI comparison baseline (unnumbered)
+- Strengthen ThoughtForm's provider boundary and first-session experience (unnumbered)
+- Add Anthropic provider support and adopt Sonnet 5 (unnumbered)
 - Rename the product to ThoughtForm (unnumbered)
 - ThoughtForm conversational-thinking course correction (unnumbered)
 - Remove ThoughtForm Format (unnumbered)

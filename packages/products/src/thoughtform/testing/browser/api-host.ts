@@ -35,6 +35,28 @@ const conversationService = new ConversationService({
 });
 const app = new Hono();
 
+app.get("/products/thoughtform/ai-disclosure", (context) => context.json({
+  ok: true,
+  data: {
+    activeProvider: {
+      id: "anthropic",
+      name: "Anthropic",
+      service: "Claude API",
+      retentionSummary: "Test retention summary.",
+      trainingSummary: "Test training summary.",
+      policyUrl: "https://example.com/anthropic",
+    },
+    supportedProviders: [{
+      id: "anthropic",
+      name: "Anthropic",
+      service: "Claude API",
+      retentionSummary: "Test retention summary.",
+      trainingSummary: "Test training summary.",
+      policyUrl: "https://example.com/anthropic",
+    }],
+  },
+}));
+
 app.post("/testing/reset", (context) => {
   conversationStore = createTestConversationStore();
   draftStore = createDraftStore(new TestDraftPersistence());
@@ -193,6 +215,7 @@ function createConversationalThinkingResponse(request: ConversationModelRequest)
       unresolvedQuestions: [selected.question],
       disposition: "active",
       assistantAssessment: { exploration: "developing", importance: "central" },
+      evidence: [{ quote: message }],
     }],
     ideaActions: null,
     resolvedPotentialConflictIds: null,

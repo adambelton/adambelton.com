@@ -69,19 +69,31 @@ Keep the real Resend API key in `.env.local` or the host environment only. Do no
 ## Hosted AI
 
 ThoughtForm model-backed actions fail closed unless hosted AI is explicitly
-enabled and OpenAI is configured:
+enabled, a supported provider is selected, and that provider is configured.
+The current development baseline is Anthropic Sonnet 5:
 
 ```txt
 HOSTED_AI_ENABLED="true"
+AI_PROVIDER="anthropic"
+ANTHROPIC_API_KEY="replace-with-anthropic-api-key"
+ANTHROPIC_MODEL="claude-sonnet-5"
+```
+
+OpenAI remains an explicitly selectable alternative:
+
+```txt
+HOSTED_AI_ENABLED="true"
+AI_PROVIDER="openai"
 OPENAI_API_KEY="replace-with-openai-api-key"
-OPENAI_MODEL="gpt-5-mini"
+OPENAI_MODEL="gpt-5.6-terra"
 ```
 
 Only the exact value `true` enables hosted calls. Set `HOSTED_AI_ENABLED=false`
 as the emergency kill switch. A missing flag, any other value, or a missing API
-key leaves ThoughtForm disabled while the rest of the website and API can
-continue running. The application never substitutes fake conversation responses
-for disabled or missing hosted configuration.
+key for the selected provider leaves ThoughtForm disabled while the rest of the
+website and API can continue running. An unknown provider also fails closed. The
+application does not silently fall back between providers and never substitutes
+fake conversation responses for disabled or missing hosted configuration.
 
 Run the normal project checks:
 
@@ -92,8 +104,9 @@ pnpm typecheck
 
 ## Hosted ThoughtForm Evaluation
 
-The opt-in hosted evaluation runs a synthetic multi-turn conversation through
-the real product service and configured OpenAI model. It reports content-free
+The existing opt-in hosted evaluation remains OpenAI-specific pending the
+deferred comparative-model evaluation task. It runs a synthetic multi-turn
+conversation through the real product service and configured OpenAI model and reports content-free
 latency, token usage, output size, idea identity retention, and idea-map growth.
 It is never included in the normal test suite.
 

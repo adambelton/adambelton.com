@@ -2,7 +2,7 @@
 
 ## Status and authority
 
-This is the canonical product-specific architecture for ThoughtForm. It
+This document is the canonical product-specific architecture for ThoughtForm. It
 sits beneath the repository-wide rules in `AGENTS.md`, `docs/architecture.md`,
 and `docs/decisions.md`. If they conflict, the repository-wide rules take
 precedence until an explicit decision changes them.
@@ -674,7 +674,7 @@ provider details, internal budget totals, and other users' state remain private.
 - Model context contains only material relevant to the requested operation.
 - Usage records contain operational metadata, never prompts, messages, drafts,
   generated prose, IP addresses, or user-agent strings.
-- OpenAI provider configuration continues to use `store: false` without
+- OpenAI provider configuration, when explicitly selected, continues to use `store: false` without
   overstating provider retention guarantees.
 - Research remains separate and should not be introduced into ordinary model
   context without an approved product task and privacy review.

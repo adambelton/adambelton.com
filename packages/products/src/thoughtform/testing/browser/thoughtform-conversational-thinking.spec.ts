@@ -45,10 +45,6 @@ test("supports varied conversational thinking without requiring a Draft", async 
 async function send(page: Page, message: string) {
   const composer = page.getByLabel("What are you thinking?");
   await composer.fill(message);
-  const response = page.waitForResponse((candidate) =>
-    candidate.url().endsWith("/conversation/respond") && candidate.request().method() === "POST"
-  );
   await page.getByRole("button", { name: "Send" }).click();
-  await response;
   await expect(composer).toBeEnabled();
 }

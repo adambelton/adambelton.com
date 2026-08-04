@@ -16,7 +16,8 @@ describe("ThoughtForm privacy page", () => {
 
     expect(markup).toContain("How this product handles your thinking");
     expect(markup).toContain("24 hours");
-    expect(markup).toContain("OpenAI Responses API");
+    expect(markup).toContain("currently configured supported AI provider");
+    expect(markup).toContain("Current AI processing information is loading");
     expect(markup).toContain("clear it immediately");
     expect(markup).toContain('href="/privacy"');
   });

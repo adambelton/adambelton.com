@@ -56,6 +56,7 @@ const THOUGHTFORM_SYSTEM_PROMPT = [
   "proposedIdeas must contain only ideas that should be created or updated; use an existing id when enriching an idea and null only for a genuinely distinct new idea.",
   "Return ideaActions for explicit conversational focus, satisfy, park, dismiss, reopen, or correct instructions; each action must reference an existing idea id.",
   "For every proposed idea include id, title, synthesis, substance, unresolvedQuestions, disposition, and assistantAssessment with exploration and importance.",
+  "For every proposed idea also include evidence containing one or more exact excerpts from user messages that establish its material. Evidence is validation metadata and is not persisted or shown as idea substance.",
   "For a genuinely new idea, id must be null; for enrichment, id must exactly match an id in the supplied idea map. Never invent an idea id.",
   "A proposed idea disposition must be active. Disposition changes happen only through ideaActions.",
   "assistantAssessment.exploration must be emerging, developing, or well_explored; importance must be background, supporting, or central.",
@@ -181,6 +182,19 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
                   required: ["exploration", "importance"],
                   additionalProperties: false,
                 },
+                evidence: {
+                  type: "array",
+                  minItems: 1,
+                  items: {
+                    type: "object",
+                    properties: {
+                      quote: { type: "string", minLength: 1 },
+                    },
+                    required: ["quote"],
+                    additionalProperties: false,
+                  },
+                  description: "Exact excerpts from user-authored messages that establish this idea. Never cite assistant text as evidence.",
+                },
               },
               required: [
                 "id",
@@ -190,6 +204,7 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
                 "unresolvedQuestions",
                 "disposition",
                 "assistantAssessment",
+                "evidence",
               ],
               additionalProperties: false,
             },
@@ -284,9 +299,33 @@ export class ConversationService {
       throw new ConversationInputTooLargeError();
     }
 
-    const modelResponse = await this.conversationModel.createResponse(modelRequest);
-
-    const structured = parseStructuredResponse(modelResponse.content);
+    let modelResponse = await this.conversationModel.createResponse(modelRequest);
+    let structured = parseStructuredResponse(
+      modelResponse.content,
+      [
+        ...modelRequest.messages
+          .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
+          .map((message) => message.content),
+        ...(request.ideaMap?.ideas.map((idea) => idea.substance) ?? []),
+      ],
+      request.previousMessages
+        .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
+        .map((message) => message.content),
+    );
+    if (shouldRepairProposedIdeas(modelResponse.content, structured.proposedIdeas)) {
+      modelResponse = await this.conversationModel.createResponse({
+        ...modelRequest,
+        system: `Your preceding output proposed idea material that failed provenance or product validation. Return one corrected complete response. Preserve the conversational response, remove unsupported material, and cite exact user-message evidence for every proposed idea. ${modelRequest.system}`,
+      });
+      structured = parseStructuredResponse(modelResponse.content, [
+        ...modelRequest.messages
+          .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
+          .map((message) => message.content),
+        ...(request.ideaMap?.ideas.map((idea) => idea.substance) ?? []),
+      ], request.previousMessages
+        .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
+        .map((message) => message.content));
+    }
 
     return {
       conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
@@ -302,6 +341,19 @@ export class ConversationService {
       proposedIdeaActions: structured.proposedIdeaActions,
       resolvedPotentialConflictIds: structured.resolvedPotentialConflictIds,
     };
+  }
+}
+
+function shouldRepairProposedIdeas(
+  content: string,
+  proposedIdeas: ProposedIdea[] | null,
+) {
+  if (proposedIdeas !== null) return false;
+  try {
+    const value = JSON.parse(stripJsonFence(content)) as Record<string, unknown>;
+    return Array.isArray(value.proposedIdeas) && value.proposedIdeas.length > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -417,7 +469,11 @@ function boundText(value: string, maximumCharacters: number) {
     : `${value.slice(0, maximumCharacters)}\n[Further canonical substance omitted from this operation's bounded context.]`;
 }
 
-function parseStructuredResponse(content: string): {
+function parseStructuredResponse(
+  content: string,
+  groundingSources: string[],
+  assistantSources: string[],
+): {
   response: string;
   move: AssistantMove;
   assistantReadiness: AssistantReadiness[];
@@ -444,10 +500,9 @@ function parseStructuredResponse(content: string): {
         userIntention: parseUserIntention(
           "userIntention" in parsed ? parsed.userIntention : null,
         ),
-        proposedIdeas:
-          "proposedIdeas" in parsed
-            ? parseProposedIdeas(parsed.proposedIdeas)
-            : null,
+        proposedIdeas: "proposedIdeas" in parsed
+          ? parseGroundedProposedIdeas(parsed.proposedIdeas, groundingSources, assistantSources)
+          : null,
         proposedIdeaActions:
           "ideaActions" in parsed
             ? parseProposedIdeaActions(parsed.ideaActions)
@@ -477,6 +532,57 @@ function parseStructuredResponse(content: string): {
     proposedIdeaActions: null,
     resolvedPotentialConflictIds: null,
   };
+}
+
+function parseGroundedProposedIdeas(
+  value: unknown,
+  groundingSources: string[],
+  assistantSources: string[],
+): ProposedIdea[] | null {
+  if (value === null) return null;
+  if (!Array.isArray(value)) return null;
+  const grounded = value.filter((candidate) =>
+    hasValidUserEvidence(candidate, groundingSources) &&
+    hasNoUnacceptedAssistantLanguage(candidate, groundingSources, assistantSources),
+  );
+  if (grounded.length === 0) return null;
+  return parseProposedIdeas(grounded);
+}
+
+function hasValidUserEvidence(candidate: unknown, groundingSources: string[]) {
+  if (!candidate || typeof candidate !== "object" || !("evidence" in candidate)) {
+    return false;
+  }
+  const evidence = candidate.evidence;
+  return Array.isArray(evidence) && evidence.length > 0 && evidence.every((item) => {
+    if (!item || typeof item !== "object" || !("quote" in item)) return false;
+    if (typeof item.quote !== "string" || !item.quote.trim()) return false;
+    const quote = item.quote.trim();
+    return groundingSources.some((message) => message.includes(quote));
+  });
+}
+
+function hasNoUnacceptedAssistantLanguage(
+  candidate: unknown,
+  groundingSources: string[],
+  assistantSources: string[],
+) {
+  if (!candidate || typeof candidate !== "object" || !("substance" in candidate)) {
+    return false;
+  }
+  if (typeof candidate.substance !== "string") return false;
+  const substance = normalizeGroundingText(candidate.substance);
+  const userLanguage = normalizeGroundingText(groundingSources.join(" "));
+  const assistantOnlyWords = new Set(
+    normalizeGroundingText(assistantSources.join(" "))
+      .split(/[^\p{L}\p{N}-]+/u)
+      .filter((word) => word.includes("-") && !userLanguage.includes(word)),
+  );
+  return [...assistantOnlyWords].every((word) => !substance.includes(word));
+}
+
+function normalizeGroundingText(value: string) {
+  return value.toLocaleLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function parseStringArray(value: unknown): string[] | null {

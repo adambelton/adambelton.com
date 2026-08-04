@@ -2,7 +2,7 @@
 
 ## Current architecture note
 
-This document is an explicitly historical implementation overview and includes
+This is an explicitly historical implementation overview and includes
 superseded scaffold examples. It is retained only to explain early implementation
 history and must not be used to infer current product scope, architecture,
 terminology, task order, or planned behaviour.
@@ -10,9 +10,9 @@ terminology, task order, or planned behaviour.
 Canonical current rules live in `AGENTS.md` and `docs/decisions.md`. In particular:
 
 - The canonical product-specific design lives in
-  `docs/products/thoughtform/the-thoughtform-architecture.md`.
+  `docs/products/thoughtform/thoughtform-architecture.md`.
 - The canonical current product direction lives in
-  `docs/products/thoughtform/the-thoughtform-product-brief.md`. In
+  `docs/products/thoughtform/thoughtform-product-brief.md`. In
   particular, the product is now a conversational thinking workspace; Draft
   Format, preference learning, product export, product publishing, phase models,
   and the publishing examples below are superseded.

@@ -4,7 +4,16 @@
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
-The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, an OpenAI-backed LLM adapter supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. A post-migration codebase audit has been completed and accepted fixes have been applied.
+The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. Anthropic Sonnet 5 is the current development and restricted-demo baseline pending later comparative evaluation. A post-migration codebase audit has been completed and accepted fixes have been applied.
+
+The completed pre-036 corrective task makes Anthropic Sonnet 5 and OpenAI GPT-5
+Mini explicit ThoughtForm-supported profiles rather than arbitrary generic LLM
+implementations. Provider transport schemas are projected by the product
+profile, active privacy disclosure is runtime-derived, proposed idea material
+requires validated user evidence with one bounded repair attempt, composition
+excludes idea-map questions and requests a coherent throughline, pending replies
+show an accessible response-forming indicator, and the shared host width is
+1440px. Automated validation and a real mounted Sonnet verification pass.
 
 ThoughtForm product model has been course-corrected before remaining
 product work. It is now documented as a private conversational thinking workspace
@@ -345,8 +354,8 @@ contract evaluation remains outside CI.
 ## Partially implemented
 
 - Product registry types are platform-wide while the product definitions are owned by `packages/products` and used by the host product catalogue.
-- `packages/ai` has an OpenAI provider and separately located test fake, but no streaming, provider routing, or usage tracking yet.
-- ThoughtForm conversation service is LLM-backed only when the hosted-AI kill switch and OpenAI configuration are present, but its conversation policy is intentionally minimal.
+- `packages/ai` has Anthropic and OpenAI providers and a separately located test fake, but no streaming, automatic routing, or usage tracking yet.
+- ThoughtForm conversation service is LLM-backed only when the hosted-AI kill switch, an explicit provider, and that provider's credential are configured. Sonnet 5 is the current baseline and GPT-5.6 Terra is the supported OpenAI comparison baseline, while comparative evaluation remains deferred.
 - ThoughtForm persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
 
 ## Not implemented
