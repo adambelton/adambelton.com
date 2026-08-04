@@ -87,11 +87,11 @@ meaning or infrastructure. A product never imports its host's database, auth, or
 AI implementation; it describes what it needs and the host supplies a matching
 adapter.
 
-## The Socratic Draft
+## ThoughtForm
 
-The Socratic Draft is a private writing workspace that helps the user discover
-what they think and turn established material into writing. Its self-contained
-[product guide](packages/products/src/socratic-draft/README.md) explains its
+ThoughtForm is a private conversational thinking workspace that helps the
+user explore, organise, and express what they think or feel. Its self-contained
+[product guide](packages/products/src/thoughtform/README.md) explains its
 internal structure, interaction flow, integration points, testing strategy, and
 where to begin investigating product behaviour.
 
@@ -123,11 +123,11 @@ responsibility in the path and filename.
 | Public website page, navigation, or shell | `apps/client/src/website` or `apps/client/src/ui` |
 | Login or browser session experience | `apps/client/src/auth` |
 | API startup or global route mounting | `apps/api/src/bootstrap` |
-| Product access or host dependency assembly | `apps/api/src/products/socratic-draft/mount.ts` |
-| Demo storage behaves incorrectly | API Socratic Draft persistence adapters |
-| Owner data behaves incorrectly | DB Socratic Draft adapters |
+| Product access or host dependency assembly | `apps/api/src/products/thoughtform/mount.ts` |
+| Demo storage behaves incorrectly | API ThoughtForm persistence adapters |
+| Owner data behaves incorrectly | DB ThoughtForm adapters |
 | OpenAI request mechanics are wrong | `packages/ai/src/providers` |
-| Socratic Draft behaviour or interface | Its [product guide](packages/products/src/socratic-draft/README.md) |
+| ThoughtForm behaviour or interface | Its [product guide](packages/products/src/thoughtform/README.md) |
 
 ## Testing locations
 
@@ -153,5 +153,5 @@ pnpm db:validate   # validate the Prisma schema
 ```
 
 Canonical rules live in `AGENTS.md`, `docs/architecture.md`,
-`docs/code-quality.md`, and `docs/testing.md`. Socratic Draft product language
-and boundaries live in `docs/products/socratic-draft/`.
+`docs/code-quality.md`, and `docs/testing.md`. ThoughtForm product language
+and boundaries live in `docs/products/thoughtform/`.

@@ -6,17 +6,17 @@ import {
 
 export const products = [
   {
-    id: PRODUCT_IDS.socraticDraft,
-    name: "The Socratic Draft",
-    slug: "socratic-draft",
+    id: PRODUCT_IDS.thoughtForm,
+    name: "ThoughtForm",
+    slug: "thoughtform",
     summary:
-      "A Socratic writing tool for working out what you think before writing it.",
+      "A conversational thinking workspace for exploring, organising, and expressing what you think or feel.",
     description:
       "Start with a rough thought. The assistant asks questions, challenges assumptions, tracks threads, and helps turn the conversation into a private entry.",
     status: PRODUCT_STATUSES.prototype,
-    publicPath: "/products/socratic-draft",
-    demoPath: "/products/socratic-draft/editor",
-    privacyPath: "/products/socratic-draft/privacy",
+    publicPath: "/products/thoughtform",
+    demoPath: "/products/thoughtform/editor",
+    privacyPath: "/products/thoughtform/privacy",
     requiresAuth: true,
   },
 ] satisfies ProductDefinition[];

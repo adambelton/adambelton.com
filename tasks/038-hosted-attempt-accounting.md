@@ -12,7 +12,7 @@ with the new attempt lifecycle, persistence, and integration of every model-back
 
 ## Depends on
 
-Tasks 035 and 036.
+Task 036.
 
 ## Scope
 
@@ -76,4 +76,4 @@ schema migration. User-facing limit policy and UI are deferred to Task 040.
 
 ## Status
 
-Proposed. Awaiting Tasks 035 and 036 and a fresh approval review.
+Proposed. Awaiting Task 036 and a fresh approval review.

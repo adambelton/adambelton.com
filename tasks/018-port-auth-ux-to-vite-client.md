@@ -28,7 +28,7 @@ The Vite client now has the real public shell. The next missing host capability 
 ## Out Of Scope
 
 - Do not remove `apps/web`.
-- Do not mount Socratic Draft product routes yet.
+- Do not mount ThoughtForm product routes yet.
 - Do not change Better Auth server config unless Vite client compatibility requires a tiny env/origin adjustment.
 - Do not change Prisma schema.
 - Do not add roles/permissions beyond existing `isOwner`.

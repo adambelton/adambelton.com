@@ -1,5 +1,5 @@
 export const PRODUCT_IDS = {
-  socraticDraft: "socratic-draft",
+  thoughtForm: "thoughtform",
 } as const;
 
 export type ProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];

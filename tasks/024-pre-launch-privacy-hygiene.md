@@ -16,9 +16,9 @@ These are pre-launch safeguards. They should be completed before the real-LLM de
 
 - Set `store: false` explicitly on OpenAI Responses API requests to minimise provider-side application-state retention.
 - Add a focused adapter test proving that OpenAI requests disable storage rather than relying on provider defaults.
-- Rename the host-owned `LlmConversationModel` bridge to `LlmConversationModelAdapter` so its role as composition glue between the Socratic Draft `ConversationModel` port and the platform `LlmClient` is explicit.
-- Move that adapter out of the product route module into a generically named host composition file such as `apps/api/src/adapters.ts`; do not introduce Socratic Draft-named files inside the host app.
-- Add a concise, product-owned acknowledgement screen before any Socratic Draft editor controls can submit writing.
+- Rename the host-owned `LlmConversationModel` bridge to `LlmConversationModelAdapter` so its role as composition glue between the ThoughtForm `ConversationModel` port and the platform `LlmClient` is explicit.
+- Move that adapter out of the product route module into a generically named host composition file such as `apps/api/src/adapters.ts`; do not introduce ThoughtForm-named files inside the host app.
+- Add a concise, product-owned acknowledgement screen before any ThoughtForm editor controls can submit writing.
 - Explain that messages are sent through the application server to OpenAI to generate responses.
 - Explain that non-owner conversations are held temporarily in application memory and are not saved durably, while owner conversations may be stored in the site's database.
 - State that the demo is not a confidential professional, medical, legal, or therapeutic service and advise users not to submit unnecessary identifying, confidential, or highly sensitive information about themselves or other people.
@@ -62,15 +62,15 @@ The exact split may change during implementation if a smaller, clearer structure
 - `packages/ai/src/openai-llm-client.test.ts`
 - `apps/api/src/adapters.ts`
 - `apps/api/src/routes/products.ts`
-- `packages/db/src/socratic-draft/in-memory-conversation-store.ts`
-- `packages/db/src/socratic-draft/in-memory-conversation-store.test.ts`
-- `packages/db/src/socratic-draft/conversation-store-resolver.ts` and related tests
-- product-owned temporary-conversation contracts and HTTP routes under `packages/products/src/socratic-draft/server/`
-- product-owned acknowledgement UI and tests under `packages/products/src/socratic-draft/client/`
+- `packages/db/src/thoughtform/in-memory-conversation-store.ts`
+- `packages/db/src/thoughtform/in-memory-conversation-store.test.ts`
+- `packages/db/src/thoughtform/conversation-store-resolver.ts` and related tests
+- product-owned temporary-conversation contracts and HTTP routes under `packages/products/src/thoughtform/server/`
+- product-owned acknowledgement UI and tests under `packages/products/src/thoughtform/client/`
 - the host/product composition boundary needed to provide the current persistence mode
-- `packages/products/src/socratic-draft/client/app/routes.tsx` and route tests
+- `packages/products/src/thoughtform/client/app/routes.tsx` and route tests
 - a public privacy page and route under `apps/client/src/`
-- a public product-owned privacy page under `packages/products/src/socratic-draft/client/`
+- a public product-owned privacy page under `packages/products/src/thoughtform/client/`
 - optional product privacy-path metadata in `packages/shared/src/products/`
 - navigation or footer links needed to make the privacy page discoverable
 - `docs/privacy-and-data-lifecycle.md`
@@ -81,7 +81,7 @@ The exact split may change during implementation if a smaller, clearer structure
 ## Definition of done
 
 - Every OpenAI Responses API request explicitly sets `store: false`, covered by an automated test.
-- The host bridge from the Socratic Draft `ConversationModel` port to `LlmClient` is named as an adapter, lives outside the route module, and does not require a Socratic Draft-named host file.
+- The host bridge from the ThoughtForm `ConversationModel` port to `LlmClient` is named as an adapter, lives outside the route module, and does not require a ThoughtForm-named host file.
 - No user writing is sent to the application API or OpenAI before affirmative acknowledgement.
 - The acknowledgement accurately distinguishes owner database persistence, non-owner temporary application memory, and OpenAI processing.
 - The acknowledgement and privacy page link users to official third-party policies, identify the summaries as dated/current information, and encourage direct verification because provider policies can change.
@@ -94,8 +94,8 @@ The exact split may change during implementation if a smaller, clearer structure
 - Tests prove one authenticated user cannot read or continue another user's temporary conversation.
 - Conversation and generated-writing bodies are not written to application logs by code in scope.
 - The public privacy page explains the relevant lifecycle, retention boundaries, third parties, and privacy contact route in clear language.
-- The host privacy page contains no Socratic Draft lifecycle details and directs users to review available product privacy pages before using a demo.
-- The public Socratic Draft privacy route owns its conversation, OpenAI, retention, restoration, clearing, and sensitivity disclosures.
+- The host privacy page contains no ThoughtForm lifecycle details and directs users to review available product privacy pages before using a demo.
+- The public ThoughtForm privacy route owns its conversation, OpenAI, retention, restoration, clearing, and sensitivity disclosures.
 - A concise repo-owned data-lifecycle and risk note documents the implementation and its known limitations.
 - Relevant tests, typecheck, build, and diff whitespace validation pass.
 

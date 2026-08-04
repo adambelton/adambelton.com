@@ -63,7 +63,7 @@ Approved on 2026-08-03 after revising the earlier intended-form proposal.
   intent, voice preferences, structure instructions, readiness, activity, and
   user intention.
 - Update current architecture, terminology, decisions, progress, roadmap, and
-  the Socratic Draft product README to describe the implemented ownership and
+  the ThoughtForm product README to describe the implemented ownership and
   lifecycle.
 
 ## Settled constraints
@@ -94,17 +94,17 @@ Approved on 2026-08-03 after revising the earlier intended-form proposal.
 
 ## Expected files to create or modify
 
-- `packages/products/src/socratic-draft/shared` drafting contracts
-- `packages/products/src/socratic-draft/server/capabilities/drafting` operations,
+- `packages/products/src/thoughtform/shared` drafting contracts
+- `packages/products/src/thoughtform/server/capabilities/drafting` operations,
   store, and persistence port
-- `packages/products/src/socratic-draft/client/workspace` format control and
+- `packages/products/src/thoughtform/client/workspace` format control and
   client operations
-- `packages/products/src/socratic-draft/server/delivery/http` contracts
-- `apps/api/src/products/socratic-draft/adapters/persistence` temporary adapter
-- `packages/db/src/adapters/socratic-draft` durable adapter
+- `packages/products/src/thoughtform/server/delivery/http` contracts
+- `apps/api/src/products/thoughtform/adapters/persistence` temporary adapter
+- `packages/db/src/adapters/thoughtform` durable adapter
 - Prisma schema, generated migration, and adapter integration tests
 - focused product, HTTP, client, adapter, and browser tests
-- `packages/products/src/socratic-draft/README.md`
+- `packages/products/src/thoughtform/README.md`
 - product brief, architecture, terminology, decisions, progress, and task index
 
 ## Definition of done
@@ -162,8 +162,8 @@ documentation. No model policy or generation behaviour changes are authorised.
 
 Implemented on 2026-08-03.
 
-Real-host verification completed on 2026-08-03 after applying migration
-`20260803120000_add_socratic_draft_format` to Neon `dev`. The authenticated
+Real-host verification completed on 2026-08-03 after applying the then-current
+generated Draft Format migration to Neon `dev`. The authenticated
 owner editor was exercised through the mounted client, API, Prisma adapter, and
 database: format was set before a Draft, survived reload, changed, cleared, and
 remained absent after a final reload without creating draft content. Browser and

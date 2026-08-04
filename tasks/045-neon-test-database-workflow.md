@@ -44,7 +44,7 @@ unverified persistence behaviour make it more urgent.
 - Creating the Neon branch, applying migrations, and configuring external
   secrets are explicit infrastructure changes performed only during approved
   implementation.
-- This task does not change Socratic Draft product behaviour or persistence
+- This task does not change ThoughtForm product behaviour or persistence
   semantics.
 
 ## Out of scope

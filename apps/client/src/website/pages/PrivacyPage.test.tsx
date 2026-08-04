@@ -14,7 +14,7 @@ describe("privacy page", () => {
     expect(markup).toContain("How this site handles your data");
     expect(markup).toContain("Review the applicable product privacy page");
     expect(markup).toContain(
-      'href="/products/socratic-draft/privacy"',
+      'href="/products/thoughtform/privacy"',
     );
     expect(markup).toContain("Resend");
     expect(markup).toContain("Neon");

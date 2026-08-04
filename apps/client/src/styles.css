@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../../../packages/products/src/socratic-draft/client";
+@source "../../../packages/products/src/thoughtform/client";
 
 :root {
   --background: #f7f4ed;

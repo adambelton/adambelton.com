@@ -68,7 +68,7 @@ Keep the real Resend API key in `.env.local` or the host environment only. Do no
 
 ## Hosted AI
 
-Socratic Draft model-backed actions fail closed unless hosted AI is explicitly
+ThoughtForm model-backed actions fail closed unless hosted AI is explicitly
 enabled and OpenAI is configured:
 
 ```txt
@@ -79,7 +79,7 @@ OPENAI_MODEL="gpt-5-mini"
 
 Only the exact value `true` enables hosted calls. Set `HOSTED_AI_ENABLED=false`
 as the emergency kill switch. A missing flag, any other value, or a missing API
-key leaves Socratic Draft disabled while the rest of the website and API can
+key leaves ThoughtForm disabled while the rest of the website and API can
 continue running. The application never substitutes fake conversation responses
 for disabled or missing hosted configuration.
 
@@ -90,7 +90,7 @@ pnpm test
 pnpm typecheck
 ```
 
-## Hosted Socratic Draft Evaluation
+## Hosted ThoughtForm Evaluation
 
 The opt-in hosted evaluation runs a synthetic multi-turn conversation through
 the real product service and configured OpenAI model. It reports content-free
@@ -100,21 +100,21 @@ It is never included in the normal test suite.
 Run it only when paid hosted model usage is intended:
 
 ```txt
-RUN_HOSTED_EVALUATIONS=true pnpm evaluate:socratic-draft
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform
 ```
 
 Prompts, responses, and idea-map content are omitted by default. To include them
 for an explicitly reviewed diagnostic run:
 
 ```txt
-RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true pnpm evaluate:socratic-draft
+RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true pnpm evaluate:thoughtform
 ```
 
 Limit a diagnostic run to a smaller number of turns with
 `EVALUATION_MAX_TURNS`, for example:
 
 ```txt
-RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true EVALUATION_MAX_TURNS=1 pnpm evaluate:socratic-draft
+RUN_HOSTED_EVALUATIONS=true EVALUATION_INCLUDE_CONTENT=true EVALUATION_MAX_TURNS=1 pnpm evaluate:thoughtform
 ```
 
 Run the shorter hosted contract and product-policy check with:
@@ -126,7 +126,7 @@ RUN_HOSTED_EVALUATIONS=true pnpm test:hosted
 This check is deliberately excluded from CI. Run it only when real hosted model
 usage and its cost are intended.
 
-## Socratic Draft Browser Tests
+## ThoughtForm Browser Tests
 
 Install the Chromium browser used by Playwright once:
 
@@ -141,7 +141,7 @@ pnpm test:e2e
 ```
 
 For local debugging, use `pnpm test:e2e:headed` or `pnpm test:e2e:ui`.
-Playwright starts a dedicated Socratic Draft test API on port 8788 and test
+Playwright starts a dedicated ThoughtForm test API on port 8788 and test
 client on port 3000. These test hosts live inside the product package and do not
 start the website/API hosts, authenticate a real user, connect to Postgres, or
 call a hosted model.

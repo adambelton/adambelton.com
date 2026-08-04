@@ -6,7 +6,7 @@ Complete.
 
 ## Goal
 
-Document the decision to migrate the website host from Next.js toward a Vite and React Router client app, with a clear security posture and rationale grounded in current Socratic Draft needs and known future product demos.
+Document the decision to migrate the website host from Next.js toward a Vite and React Router client app, with a clear security posture and rationale grounded in current ThoughtForm needs and known future product demos.
 
 ## Why This Task Is Next
 
@@ -19,8 +19,8 @@ The decision is not that Vite is inherently better than Next.js. The decision is
 - Document the decision to move toward a client-first host architecture.
 - Record that client-side route gates are UX affordances only.
 - Record that API/server authorization remains authoritative for sensitive actions.
-- Document why this supports The Socratic Draft and future product demos.
-- Add a product roadmap/context doc with high-level descriptions of The Socratic Draft and the future Care Calendar product.
+- Document why this supports ThoughtForm and future product demos.
+- Add a product roadmap/context doc with high-level descriptions of ThoughtForm and the future Care Calendar product.
 - Clarify that the roadmap does not approve or start future-product implementation.
 - Define the migration as a staged refactor, not a rewrite.
 - Preserve current product-boundary principles: product packages own product behaviour; host apps mount products and provide services.
@@ -71,7 +71,7 @@ git diff --check
 
 ## Completed Notes
 
-- Added a product roadmap context doc with high-level descriptions of The Socratic Draft and the future Care Calendar health-tech learning product.
+- Added a product roadmap context doc with high-level descriptions of ThoughtForm and the future Care Calendar health-tech learning product.
 - Documented the client-first host architecture decision in the decision log.
 - Updated architecture docs to state the planned Vite and React Router migration direction.
 - Updated progress and task index docs so the client migration sequence is now next.

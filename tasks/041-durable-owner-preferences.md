@@ -1,5 +1,10 @@
 # Task 041 — Add durable confirmed owner preferences
 
+> **Retired on 2026-08-04.** Durable preference learning, inferred profiles, and
+> cross-work style guidance are outside the corrected ThoughtForm roadmap.
+> This proposal remains only as historical context and is not approved for
+> implementation.
+
 ## Goal
 
 Extend the proven workspace preference contract with owner-confirmed durable
@@ -60,4 +65,4 @@ git diff --check
 
 ## Status
 
-Proposed. Awaiting completion of Tasks 034 and 035.
+Retired. Not planned.

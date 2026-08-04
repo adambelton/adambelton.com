@@ -1,5 +1,12 @@
 # Task 035 — Establish temporary explicit preferences and one guidance path
 
+> **Retired on 2026-08-04.** The conversational-thinking course correction
+> removes preference learning and output-format guidance from the active product
+> roadmap. Potentially useful principles are retained only as future design
+> considerations: guidance should be explicit, inspectable, correctable, narrowly
+> scoped, and subordinate to the user's current instruction. This proposal is
+> historical context and is not approved for implementation.
+
 ## Goal
 
 Introduce an inspectable, correctable workspace preference capability and prove
@@ -103,4 +110,4 @@ Durable schema and multi-operation prompt changes are deliberately deferred.
 
 ## Status
 
-Proposed. Awaiting approval.
+Retired. Not planned.

@@ -20,8 +20,8 @@ The public website should feel sparse, editorial, simple, calm, spacious, and cr
 
 ## Out of Scope
 
-- The Socratic Draft editor UI.
-- The Socratic Draft's final design language.
+- ThoughtForm editor UI.
+- ThoughtForm's final design language.
 - Product-specific design systems.
 - Public writing functionality.
 - Product pages.

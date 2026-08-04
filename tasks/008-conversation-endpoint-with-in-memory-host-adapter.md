@@ -6,7 +6,7 @@ Complete.
 
 ## Goal
 
-Add the first Socratic Draft API endpoint, wired through a host-owned in-memory adapter that fulfills the product's required persistence contract.
+Add the first ThoughtForm API endpoint, wired through a host-owned in-memory adapter that fulfills the product's required persistence contract.
 
 ## Why This Task Is Next
 
@@ -36,10 +36,10 @@ We have the product service boundary and the product/host dependency rule. The n
 Likely:
 
 ```txt
-apps/api/src/routes/socratic-draft/...
+apps/api/src/routes/thoughtform/...
 apps/api/src/server.ts
-packages/products/src/socratic-draft/server/conversation/...
-packages/products/src/socratic-draft/shared/...
+packages/products/src/thoughtform/server/conversation/...
+packages/products/src/thoughtform/shared/...
 progress.md
 tasks/README.md
 tasks/008-conversation-endpoint-with-in-memory-host-adapter.md
@@ -47,7 +47,7 @@ tasks/008-conversation-endpoint-with-in-memory-host-adapter.md
 
 ## Definition Of Done
 
-- API exposes a Socratic Draft conversation endpoint.
+- API exposes a ThoughtForm conversation endpoint.
 - Endpoint calls product service through product-owned contracts.
 - In-memory persistence lives in host/API code, not product core.
 - Tests verify request/response behaviour and contract shape.
@@ -64,4 +64,4 @@ pnpm typecheck
 
 - Keep the persistence port minimal and product-language-specific.
 - The in-memory adapter is only a host test/demo adapter, not the future database design.
-- Need to choose the endpoint path, likely `POST /products/socratic-draft/conversation/respond`.
+- Need to choose the endpoint path, likely `POST /products/thoughtform/conversation/respond`.

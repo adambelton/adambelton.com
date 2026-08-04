@@ -13,7 +13,7 @@ describe("Breadcrumbs", () => {
       <MemoryRouter>
         <Breadcrumbs items={[
           { label: "Products", href: "/products" },
-          { label: "Socratic Draft", href: "/products/socratic-draft" },
+          { label: "ThoughtForm", href: "/products/thoughtform" },
           { label: "Editor" },
         ]} />
       </MemoryRouter>,
@@ -23,6 +23,6 @@ describe("Breadcrumbs", () => {
     expect(breadcrumb.querySelectorAll("a")).toHaveLength(2);
     expect(screen.getByRole("link", { name: "Products" }).getAttribute("href")).toBe("/products");
     expect(screen.getByText("Editor").getAttribute("aria-current")).toBe("page");
-    expect(breadcrumb.textContent).toBe("Products*Socratic Draft*Editor");
+    expect(breadcrumb.textContent).toBe("Products*ThoughtForm*Editor");
   });
 });

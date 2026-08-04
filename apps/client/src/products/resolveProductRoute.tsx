@@ -3,8 +3,8 @@ import {
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
 import { getProductBySlug } from "packages/products/src/registry";
-import { renderProductRoute as renderSocraticDraftRoute } from "packages/products/src/socratic-draft/client";
-import type { ProductAppComponents } from "packages/products/src/socratic-draft/client";
+import { renderProductRoute as renderThoughtFormRoute } from "packages/products/src/thoughtform/client";
+import type { ProductAppComponents } from "packages/products/src/thoughtform/client";
 import type { AccessLevel } from "packages/shared/src";
 
 type ResolveProductRouteInput = {
@@ -14,7 +14,7 @@ type ResolveProductRouteInput = {
   productSlug: string;
 };
 
-export type ResolvedProductRoute = ReturnType<typeof renderSocraticDraftRoute>;
+export type ResolvedProductRoute = ReturnType<typeof renderThoughtFormRoute>;
 
 export function resolveProductRoute({
   accessLevel,
@@ -30,8 +30,8 @@ export function resolveProductRoute({
 
   const segments = path.split("/").filter(Boolean);
 
-  if (product.id === PRODUCT_IDS.socraticDraft) {
-    return renderSocraticDraftRoute({ accessLevel, components, segments });
+  if (product.id === PRODUCT_IDS.thoughtForm) {
+    return renderThoughtFormRoute({ accessLevel, components, segments });
   }
 
   return { status: PRODUCT_ROUTE_STATUSES.notFound };

@@ -6,7 +6,7 @@ Complete.
 
 ## Goal
 
-Audit and improve the existing public site shell so the website has a small, concrete accessibility baseline before building the Socratic Draft editor UI.
+Audit and improve the existing public site shell so the website has a small, concrete accessibility baseline before building the ThoughtForm editor UI.
 
 ## Scope
 
@@ -23,7 +23,7 @@ Audit and improve the existing public site shell so the website has a small, con
 
 - React Aria installation.
 - Dialogs, menus, tabs, selects, comboboxes, popovers, or other complex interactive components.
-- Socratic Draft editor UI.
+- ThoughtForm editor UI.
 - Product-specific UI.
 - Visual redesign.
 - Automated accessibility tooling.

@@ -20,7 +20,7 @@ Translate the global code quality pillars into project-owned, tool-agnostic docs
 
 - Product behaviour.
 - Test runner setup.
-- Socratic Draft service code.
+- ThoughtForm service code.
 - Tool-specific adapter files.
 
 ## Definition Of Done

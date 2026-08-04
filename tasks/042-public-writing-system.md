@@ -1,9 +1,16 @@
 # Task 042 — Establish the host public-writing system
 
+> **Superseded on 2026-08-04.** Public writing remains valid host-website work,
+> but this database-backed `WritingPost` proposal no longer represents the
+> intended delivery. After ThoughtForm v1 is ready for release, prepare a new
+> proposal for local Markdown ingestion and static content pages. That work must
+> remain independent of product Drafts. This proposal is historical context and
+> is not approved for implementation.
+
 ## Goal
 
 Give the host a complete `WritingPost` persistence and public rendering boundary
-without coupling it to Socratic Draft publishing yet.
+without coupling it to ThoughtForm publishing yet.
 
 ## Why this task is next
 
@@ -64,4 +71,4 @@ git diff --check
 
 ## Status
 
-Proposed. Requires a fresh review after usage protection is complete.
+Superseded. Replace with a fresh host-website proposal after ThoughtForm v1.

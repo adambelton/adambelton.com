@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     exclude: [
       ...configDefaults.exclude,
-      "packages/products/src/socratic-draft/testing/**/*.spec.ts",
+      "packages/products/src/thoughtform/testing/**/*.spec.ts",
     ],
   },
   resolve: {

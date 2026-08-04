@@ -2,7 +2,7 @@
 
 ## Goal
 
-Give the owner a complete persistent-conversation flow in The Socratic Draft: conversations are saved against the authenticated owner, saved conversations can be listed and opened, and an opened conversation can be continued after a refresh or a later session.
+Give the owner a complete persistent-conversation flow in ThoughtForm: conversations are saved against the authenticated owner, saved conversations can be listed and opened, and an opened conversation can be continued after a refresh or a later session.
 
 ## Why this task is next
 
@@ -10,10 +10,10 @@ Task 022 connected the conversation flow to a real LLM, and the existing databas
 
 ## Scope
 
-- Add owner association and the minimal conversation metadata needed to query persistent Socratic Draft conversations safely.
-- Treat any existing Socratic Draft conversations and conversation messages as disposable development data. Clear those product records before introducing the required owner relationship if they would block the generated migration; preserve users, sessions, accounts, verifications, and all non-Socratic-Draft data.
+- Add owner association and the minimal conversation metadata needed to query persistent ThoughtForm conversations safely.
+- Treat any existing ThoughtForm conversations and conversation messages as disposable development data. Clear those product records before introducing the required owner relationship if they would block the generated migration; preserve users, sessions, accounts, verifications, and all non-ThoughtForm data.
 - Generate and commit a Prisma migration using the repository migration workflow; do not hand-edit generated SQL.
-- Extend the Socratic Draft-owned persistence contract with product-language operations for listing an owner's conversation summaries and loading one conversation with its messages.
+- Extend the ThoughtForm-owned persistence contract with product-language operations for listing an owner's conversation summaries and loading one conversation with its messages.
 - Keep owner scoping in the host-provided database adapter so product code remains independent of Prisma and Better Auth.
 - Ensure owner conversation writes create and continue conversations within the authenticated owner's scope.
 - Add owner-only product API routes to list conversations and load an individual conversation.
@@ -44,15 +44,15 @@ The exact split may change during implementation if a smaller, clearer structure
 
 - `packages/db/prisma/schema.prisma`
 - `packages/db/prisma/migrations/<generated-migration>/migration.sql`
-- `packages/db/src/socratic-draft/conversation-store.ts`
-- `packages/db/src/socratic-draft/conversation-store-resolver.ts`
-- related `packages/db/src/socratic-draft/*.test.ts` files
-- `packages/products/src/socratic-draft/shared/types.ts` and its public exports
-- `packages/products/src/socratic-draft/server/conversation/conversation-store.ts`
-- `packages/products/src/socratic-draft/server/http/` conversation-route modules, exports, and tests
-- `packages/products/src/socratic-draft/client/app/conversations/` list/detail UI, request helpers, and tests
-- `packages/products/src/socratic-draft/client/app/editor/ConversationEditor.tsx` or a focused editor-loading boundary
-- `packages/products/src/socratic-draft/client/app/routes.tsx` and route tests
+- `packages/db/src/thoughtform/conversation-store.ts`
+- `packages/db/src/thoughtform/conversation-store-resolver.ts`
+- related `packages/db/src/thoughtform/*.test.ts` files
+- `packages/products/src/thoughtform/shared/types.ts` and its public exports
+- `packages/products/src/thoughtform/server/conversation/conversation-store.ts`
+- `packages/products/src/thoughtform/server/http/` conversation-route modules, exports, and tests
+- `packages/products/src/thoughtform/client/app/conversations/` list/detail UI, request helpers, and tests
+- `packages/products/src/thoughtform/client/app/editor/ConversationEditor.tsx` or a focused editor-loading boundary
+- `packages/products/src/thoughtform/client/app/routes.tsx` and route tests
 - `apps/api/src/routes/products.ts` and composition tests
 - `apps/client/src/products/resolveProductRoute.test.tsx` if host route coverage changes
 - `tasks/README.md`
@@ -89,11 +89,11 @@ During implementation, generate the migration with the approved Prisma developme
 
 ## Risks / questions
 
-- **Existing rows:** a previous owner conversation may have created a conversation because the API generates a conversation ID when the request contains `conversationId: null`. Adam has approved discarding any existing Socratic Draft conversations and conversation messages as development data. Deletion must be narrowly targeted and must not remove authentication or unrelated data.
+- **Existing rows:** a previous owner conversation may have created a conversation because the API generates a conversation ID when the request contains `conversationId: null`. Adam has approved discarding any existing ThoughtForm conversations and conversation messages as development data. Deletion must be narrowly targeted and must not remove authentication or unrelated data.
 - **Owner identity:** persistence should be scoped by the authenticated user ID, even though the current product has one configured owner, so conversation access cannot rely only on possession of a conversation ID.
 - **Conversation labels:** this task proposes a deterministic fallback label from the first user message plus timestamps. Automatic AI-generated titles and title editing should remain later work unless Adam explicitly expands the scope.
 - **Migration environment:** generating a migration may require the configured development database. Applying it to the shared Neon `dev` branch is an external state change and should be confirmed at implementation time.
-- **Route shape:** the preferred product-owned detail route is `/products/socratic-draft/conversations/:conversationId`; implementation should preserve the existing host/product routing boundary rather than importing React Router into the product package.
+- **Route shape:** the preferred product-owned detail route is `/products/thoughtform/conversations/:conversationId`; implementation should preserve the existing host/product routing boundary rather than importing React Router into the product package.
 
 ## Status
 
@@ -105,5 +105,5 @@ Post-implementation audit remediation:
 - Made saved-conversation route changes remount and reset editor state so messages cannot be continued against a stale conversation ID.
 - Added an owner-scoped atomic message-position sequence to each persisted conversation.
 - Moved deterministic conversation-label behavior into the product-owned conversation domain and reused it across host adapters.
-- Updated current Socratic Draft planning documents to use the Conversation → Draft → Writing model.
+- Updated current ThoughtForm planning documents to use the Conversation → Draft → Writing model.
 - Refactored the new conversation list and detail pages into thin loading orchestrators with focused, behavior-tested state and presentation components.

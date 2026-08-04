@@ -4,31 +4,35 @@ This document records known product directions so architecture decisions can acc
 
 It is context, not approval to build future product behaviour. Each product still needs its own task proposals before implementation.
 
-## The Socratic Draft
+## ThoughtForm
 
-The Socratic Draft is the first product in the repo.
+ThoughtForm is the first product in the repo.
 
-It is a shared discovery and composition workspace that helps a person work out
-what they think and express it in their own voice. Conversation and the idea map
-support discovery, including finding clear language for meaning. A user-owned
-draft contains the current composition of selected ideas. Once a draft exists,
-the user and assistant may move back and forth as composition exposes further
-questions and discovery changes the writing.
+It is a private conversational thinking workspace that helps a person explore,
+organise, and express what they think or feel. Conversation and the idea map
+support Discovery and may remain useful without any Draft. When bringing the
+material together would help, Composition creates an optional user-owned Draft
+containing a first-person articulation of the user's current understanding.
+Reviewing and correcting that whole expression creates the product's
+characteristic recognition value, but there is no completion state or required
+artifact.
 
 Conversation messages preserve the exploration history. The idea map maintains
 ideas, distilled syntheses, richer substance, contextual importance, exploration,
 and potentially differing user and assistant assessments. A draft is separate,
 mutable, and authoritative when directly edited by the user. Assistant changes
 require explicit approval.
-Publishing later creates site-level public writing from the private draft.
 
 The product is divided conceptually into conversation and inquiry, idea mapping,
-drafting and revision, preference learning, and workspace orchestration. These
+drafting and revision, and workspace orchestration. These
 capabilities should have narrow contracts and be developed through working
 end-to-end slices. The product brief and product architecture describe both baseline
 behaviour and longer-term direction for each capability.
 
-The product package should remain the source of truth for Socratic Draft concepts, conversation contracts, client screens, server behaviour, and product-specific persistence ports. The host provides infrastructure such as auth, AI services, database adapters, usage limits, and publishing integration.
+The product package should remain the source of truth for ThoughtForm
+concepts, conversation contracts, client screens, server behaviour, and
+product-specific persistence ports. The host provides infrastructure such as
+auth, AI services, database adapters, and usage limits.
 
 Current implementation status:
 
@@ -37,10 +41,27 @@ Current implementation status:
 - Conversation endpoint exists with real LLM-backed responses and deterministic
   fake-model test/development behaviour.
 - Owner auth and owner-only persistence foundation exist.
-- Conversation policy remains minimal and does not yet drive meaningful moves or
-  composition readiness.
-- Private drafts, revision proposals, preference learning, complete
-  demo export, calibrated usage limits, publishing, and admin are not implemented.
+- Conversation, Idea Map, private Draft, revision history, reviewable proposals,
+  and conservative manual-edit interpretation are implemented.
+- Draft Format has been removed from product, client, temporary persistence,
+  durable persistence, and database state.
+- Complete demo lifecycle hardening, calibrated usage limits, autonomous
+  user-correctable idea merge/split behaviour, release readiness, and admin
+  visibility remain planned.
+- Preference learning, product-owned export, and product publishing are not in
+  the ThoughtForm roadmap.
+
+## Public website writing
+
+Public writing remains a valid host-website direction after ThoughtForm v1 is
+ready for release. The expected owner workflow is deliberately separate from the
+product: copy plain-text material where useful, add structure and formatting in
+local Markdown through Obsidian or another editor, and let a host-owned pipeline
+render static content pages.
+
+The host website may later own Markdown ingestion, public metadata, routing,
+static rendering, and deployment. It must not make ThoughtForm responsible
+for export, publication, CMS behaviour, or public-content lifecycle.
 
 ## Care Calendar
 

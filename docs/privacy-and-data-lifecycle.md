@@ -32,7 +32,7 @@ details.
 
 Current product notes:
 
-- `docs/products/socratic-draft/privacy-and-data-lifecycle.md`
+- `docs/products/thoughtform/privacy-and-data-lifecycle.md`
 
 ## Shared third parties
 

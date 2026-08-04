@@ -15,8 +15,8 @@ These contracts are the types future frontend, API, database, auth, AI, and prod
 - Product definition types
 - Site-level public writing post types
 - Product-aware usage event types
-- The Socratic Draft shared conversation model
-- Initial product registry with The Socratic Draft
+- ThoughtForm shared conversation model
+- Initial product registry with ThoughtForm
 - Shared package barrel exports
 
 ## Out of Scope
@@ -27,7 +27,7 @@ These contracts are the types future frontend, API, database, auth, AI, and prod
 - Auth implementation
 - Database schema or repositories
 - AI provider clients
-- The Socratic Draft conversation service
+- ThoughtForm conversation service
 - Editor UI
 - Demo mode
 - Usage limits
@@ -37,8 +37,8 @@ These contracts are the types future frontend, API, database, auth, AI, and prod
 ## Definition of Done
 
 - Shared types exist in `packages/shared`
-- The Socratic Draft conversation model is defined in `packages/shared`
-- Product registry exists and includes The Socratic Draft
+- ThoughtForm conversation model is defined in `packages/shared`
+- Product registry exists and includes ThoughtForm
 - Shared package exports are clean
 - No duplicate shared types are created in apps
 - No runtime product behaviour is implemented
@@ -49,7 +49,7 @@ These contracts are the types future frontend, API, database, auth, AI, and prod
 
 ## Completed Notes
 
-- Added shared API, user/access, product, writing, usage, and Socratic Draft contract exports.
+- Added shared API, user/access, product, writing, usage, and ThoughtForm contract exports.
 - Added `getProductById` and `getProductBySlug` helpers.
 - Kept the work contract-only: no new runtime product behaviour was added.
 - `pnpm typecheck` passes.

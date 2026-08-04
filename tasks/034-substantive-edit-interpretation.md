@@ -119,17 +119,17 @@ Approved on 2026-08-04.
 
 ## Expected files to create or modify
 
-- `packages/products/src/socratic-draft/server/capabilities/drafting/` for
+- `packages/products/src/thoughtform/server/capabilities/drafting/` for
   conservative saved-change classification and its model port
-- `packages/products/src/socratic-draft/server/capabilities/idea-map/` and product
+- `packages/products/src/thoughtform/server/capabilities/idea-map/` and product
   shared contracts for potential conflicts and reconciliation operations
-- `packages/products/src/socratic-draft/server/application/workspace/` for
+- `packages/products/src/thoughtform/server/application/workspace/` for
   saved-edit response orchestration and recovery ordering
-- `packages/products/src/socratic-draft/server/delivery/http/` for the resulting
+- `packages/products/src/thoughtform/server/delivery/http/` for the resulting
   product HTTP contracts
-- `apps/api/src/products/socratic-draft/adapters/ai/` and product mounting for the
+- `apps/api/src/products/thoughtform/adapters/ai/` and product mounting for the
   concrete interpretation adapter
-- `packages/products/src/socratic-draft/client/workspace/` for automatic response,
+- `packages/products/src/thoughtform/client/workspace/` for automatic response,
   conflict presentation and resolution, removal of the placeholder action, and
   composer recovery
 - product-owned fakes, fixtures, browser scenarios, and hosted evaluations
