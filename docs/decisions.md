@@ -750,3 +750,24 @@ The interface truthfully presents format as saved but not yet used by the
 assistant. Conversation, composition, revision, and publishing inputs remain
 unchanged; defining format semantics or downstream behaviour requires a later
 explicit product decision.
+
+## 043 — The Canonical Draft Remains Normalized Plain Text
+
+The private Draft remains normalized plain text. Socratic Draft helps the user
+discover, organise, test, and develop the substance of their thinking; it does
+not own document headings, emphasis, lists, quotations, links, code, images, or
+publishing presentation.
+
+A constrained semantic Markdown editor was investigated and prototyped. Although
+technically feasible, it duplicated part of the mature document editor or
+publishing tool the writer would still need, while substantially expanding
+selection, proposal, revision comparison, normalization, migration, paste,
+accessibility, and export responsibilities. Plain text remains an honest and
+accessible representation when presented as plain text rather than simulated
+document structure.
+
+Document formatting remains a destination concern. This does not require the
+owner to adopt a CMS and does not prevent a later export adapter, but export must
+not redefine the canonical Draft without a new product decision supported by
+observed need. The investigation is recorded in
+`docs/products/socratic-draft/semantic-editor-investigation.md`.

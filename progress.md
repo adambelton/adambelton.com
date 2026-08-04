@@ -313,3 +313,18 @@ contract evaluation remains outside CI.
 
 Task 034 — Add conservative substantive-edit interpretation, subject to its own
 proposal review and explicit approval.
+
+## Historical semantic-editor investigation
+
+A constrained semantic Markdown editor was investigated and prototyped, then
+rejected as outside the Socratic Draft product boundary. The canonical Draft
+remains normalized plain text; document formatting belongs to the destination
+tool. The reasoning and experimental findings are retained in
+`docs/products/socratic-draft/semantic-editor-investigation.md`.
+
+The prototype was initially reported complete despite failing approved criteria
+and repository rules. Its implementation has been reverted, but the engineering
+failure is retained in
+`docs/products/socratic-draft/semantic-editor-implementation-failure.md`.
+`AGENTS.md` now requires a requirement-by-requirement completion audit before
+any implementation task can be reported complete.
