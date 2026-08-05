@@ -194,6 +194,20 @@ lifetime.
 This check is deliberately excluded from CI. Run it only when real hosted model
 usage and its cost are intended.
 
+Run the opt-in paired structured-output versus unconstrained-text conversation
+evaluation with:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-plain-text
+```
+
+The default completion protocol uses only the synthetic ten-turn FIFA fixture,
+runs three alternating paired repetitions (30 conversation calls per variant),
+waits 310 seconds before the first pair and between pairs, and applies the same
+Braintrust quality judge to both variants. Development-only repetition, turn,
+and wait overrides are available through the `PLAIN_TEXT_*` environment
+variables; they do not satisfy the completion protocol.
+
 ## ThoughtForm Browser Tests
 
 Install the Chromium browser used by Playwright once:
