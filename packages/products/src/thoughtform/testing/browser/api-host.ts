@@ -11,6 +11,10 @@ import {
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
 } from "packages/products/src/thoughtform/shared";
+import {
+  hasAttachedDraftMaterial,
+  readIdeaMapFromWorkspaceContext,
+} from "packages/products/src/thoughtform/testing/browser/workspace-context";
 
 const port = Number(process.env.PORT ?? 8788);
 let conversationStore = createTestConversationStore();
@@ -21,7 +25,7 @@ const conversationService = new ConversationService({
   conversationModel: {
     createResponse: (request) => useConversationalThinkingScenario
       ? Promise.resolve(createConversationalThinkingResponse(request))
-      : request.system.includes("explicitly attached")
+      : hasAttachedDraftMaterial(request.context)
       ? Promise.resolve({ content: JSON.stringify({
           response: "What feels most important to examine in that passage?",
           move: "probe",
@@ -142,10 +146,9 @@ serve({ fetch: app.fetch, port }, (info) => {
 
 function createConversationalThinkingResponse(request: ConversationModelRequest) {
   const message = request.messages.filter((entry) => entry.role === "user").at(-1)?.content ?? "";
-  const mapMarker = "Current idea map: ";
-  const map = JSON.parse(request.system.slice(request.system.lastIndexOf(mapMarker) + mapMarker.length)) as {
+  const map = readIdeaMapFromWorkspaceContext<{
     ideas: Array<{ id: string; title: string }>;
-  };
+  }>(request.context);
   const cases = [
     {
       match: "friendship ended",
