@@ -54,6 +54,7 @@ export class OpenAiLlmClient implements LlmClient {
       inputTokens: response.usage?.input_tokens,
       outputTokens: response.usage?.output_tokens,
       reasoningTokens: response.usage?.output_tokens_details?.reasoning_tokens,
+      cacheReadTokens: response.usage?.input_tokens_details?.cached_tokens ?? 0,
       model: response.model,
     };
   }

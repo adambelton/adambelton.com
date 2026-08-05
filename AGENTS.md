@@ -42,6 +42,9 @@ packages/auth
 packages/ai
   AI provider interfaces, provider implementations, streaming helpers, fake/test clients, and usage metadata helpers.
 
+packages/observability
+  Runtime-neutral browser/server observation contracts and safe no-op defaults. Concrete telemetry SDKs, credentials, access policy, and export adapters remain host-owned.
+
 packages/products
   Product-specific source of truth. Each product owns its domain model, contracts, server logic, reusable client code, prompts, readiness logic, thread/claim handling, and composition logic.
 ```

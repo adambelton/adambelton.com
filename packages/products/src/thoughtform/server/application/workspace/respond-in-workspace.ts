@@ -25,6 +25,11 @@ import {
   removeResolvedPotentialConflicts,
   IDEA_MAP_UPDATE_STATUSES,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map";
+import {
+  noOpObservability,
+  OBSERVATION_ATTRIBUTE_NAMES,
+  type Observability,
+} from "packages/observability/src";
 
 export const WORKSPACE_RESPONSE_STATUSES = {
   responded: "responded",
@@ -53,10 +58,19 @@ export async function respondInWorkspace(input: {
   draftSelection?: DraftSelection;
   draftChange?: DraftChange;
   hasDraft?: boolean;
+  observability?: Observability;
+  observationCorrelationId?: string;
 }): Promise<RespondInWorkspaceResult> {
-  const workspace = input.conversationId
+  const observability = input.observability ?? noOpObservability;
+  return observability.observe("thoughtform.workspace.turn", {
+    [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
+    ...(input.observationCorrelationId
+      ? { [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: input.observationCorrelationId }
+      : {}),
+  }, async () => {
+  const workspace = await observability.observe("thoughtform.workspace.load", {}, async () => input.conversationId
     ? await input.conversations.getConversationWorkspace(input.conversationId)
-    : { messages: [], ideaMap: { revision: 0, ideas: [] } };
+    : { messages: [], ideaMap: { revision: 0, ideas: [] } });
 
   if (workspace === null) {
     return { status: CONVERSATION_ERROR_CODES.notFound };
@@ -90,60 +104,74 @@ export async function respondInWorkspace(input: {
   const operationId = globalThis.crypto.randomUUID();
   const conversationId =
     input.conversationId ?? input.conversations.createConversationId();
-  const proposedMap = applyProposedIdeas({
-    current: workspace.ideaMap,
-    proposedIdeas: input.draftChange ? null : generatedResponse.proposedIdeas,
-  });
-  let ideaMap =
-    proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
-      ? workspace.ideaMap
-      : proposedMap.ideaMap;
-  let invalidIdeaChanges =
-    proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
   const {
     proposedIdeas: _proposedIdeas,
     proposedIdeaActions,
     resolvedPotentialConflictIds,
     ...generatedConversationResponse
   } = generatedResponse;
-  for (const action of input.draftChange ? [] : (proposedIdeaActions ?? [])) {
-    const actionResult = applyIdeaAction({
-      current: ideaMap,
-      ideaId: action.ideaId,
-      request: {
-        action: action.action,
-        expectedRevision: workspace.ideaMap.revision,
-        userInterpretation: action.userInterpretation,
-      },
+  const ideaMap = await observability.observe(
+    "thoughtform.workspace.apply_idea_map",
+    {},
+    async () => {
+      const proposedMap = applyProposedIdeas({
+        current: workspace.ideaMap,
+        proposedIdeas: input.draftChange ? null : generatedResponse.proposedIdeas,
+      });
+      let nextIdeaMap =
+        proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
+          ? workspace.ideaMap
+          : proposedMap.ideaMap;
+      let invalidIdeaChanges =
+        proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
+      for (const action of input.draftChange ? [] : (proposedIdeaActions ?? [])) {
+        const actionResult = applyIdeaAction({
+          current: nextIdeaMap,
+          ideaId: action.ideaId,
+          request: {
+            action: action.action,
+            expectedRevision: workspace.ideaMap.revision,
+            userInterpretation: action.userInterpretation,
+          },
+        });
+        if (actionResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
+          invalidIdeaChanges = true;
+          break;
+        }
+        nextIdeaMap = actionResult.ideaMap;
+      }
+      if (
+        !invalidIdeaChanges &&
+        !input.draftChange &&
+        resolvedPotentialConflictIds?.length
+      ) {
+        const conflictResult = removeResolvedPotentialConflicts({
+          current: nextIdeaMap,
+          conflictIds: resolvedPotentialConflictIds,
+        });
+        if (conflictResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
+          invalidIdeaChanges = true;
+        } else {
+          nextIdeaMap = conflictResult.ideaMap;
+        }
+      }
+      if (invalidIdeaChanges) {
+        return workspace.ideaMap;
+      }
+      if (nextIdeaMap.revision !== workspace.ideaMap.revision) {
+        return {
+          ...nextIdeaMap,
+          revision: workspace.ideaMap.revision + 1,
+        };
+      }
+      return nextIdeaMap;
     });
-    if (actionResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
-      invalidIdeaChanges = true;
-      break;
-    }
-    ideaMap = actionResult.ideaMap;
-  }
-  if (!invalidIdeaChanges && !input.draftChange && resolvedPotentialConflictIds?.length) {
-    const conflictResult = removeResolvedPotentialConflicts({
-      current: ideaMap,
-      conflictIds: resolvedPotentialConflictIds,
-    });
-    if (conflictResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
-      invalidIdeaChanges = true;
-    } else {
-      ideaMap = conflictResult.ideaMap;
-    }
-  }
-  if (invalidIdeaChanges) {
-    ideaMap = workspace.ideaMap;
-  } else if (ideaMap.revision !== workspace.ideaMap.revision) {
-    ideaMap = { ...ideaMap, revision: workspace.ideaMap.revision + 1 };
-  }
   const response: ConversationResponse = {
     ...generatedConversationResponse,
     conversationId,
     ideaMap,
   };
-  const appendResult = await input.conversations.appendConversationTurn({
+  const appendResult = await observability.observe("thoughtform.workspace.retain_turn", {}, async () => input.conversations.appendConversationTurn({
     conversationId,
     operationId,
     userMessage: {
@@ -153,7 +181,7 @@ export async function respondInWorkspace(input: {
     assistantMessage: response.message,
     expectedIdeaMapRevision: workspace.ideaMap.revision,
     ideaMap,
-  });
+  }));
 
   if (appendResult.status === CONVERSATION_TURN_RETENTION_STATUSES.conflict) {
     return { status: CONVERSATION_ERROR_CODES.conflict };
@@ -162,6 +190,11 @@ export async function respondInWorkspace(input: {
     return { status: CONVERSATION_ERROR_CODES.unavailable };
   }
 
+  observability.record({
+    [OBSERVATION_ATTRIBUTE_NAMES.result]: "responded",
+    [OBSERVATION_ATTRIBUTE_NAMES.ideaCount]: ideaMap.ideas.length,
+    [OBSERVATION_ATTRIBUTE_NAMES.ideaMapRevision]: ideaMap.revision,
+  });
   return {
     status: WORKSPACE_RESPONSE_STATUSES.responded,
     response,
@@ -181,4 +214,5 @@ export async function respondInWorkspace(input: {
         : []),
     ],
   };
+  });
 }

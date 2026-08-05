@@ -16,6 +16,7 @@ import { failure, success } from "packages/shared/src";
 import type { DraftStore } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import { validateDraftSelection } from "packages/products/src/thoughtform/server/delivery/http/draft-selection-context";
 import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
+import type { Observability } from "packages/observability/src";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
@@ -23,12 +24,14 @@ export type CreateConversationsRouteDependencies = {
   ) => Promise<PersistentConversationStore | null>;
   conversationService?: ConversationResponder;
   getPersistentDraftStore?: (request: Request) => Promise<DraftStore | null>;
+  observability?: Observability;
 };
 
 export function createConversationsRoute({
   getPersistentConversationStore,
   conversationService = new ConversationService(),
   getPersistentDraftStore,
+  observability,
 }: CreateConversationsRouteDependencies) {
   const route = new Hono();
 
@@ -154,6 +157,10 @@ export function createConversationsRoute({
       draftSelection: request.draftSelection,
       draftChange: request.draftChange,
       hasDraft,
+      observability,
+      observationCorrelationId: parseObservationCorrelationId(
+        context.req.header("x-thoughtform-observation-id"),
+      ),
     });
 
     if (
@@ -223,4 +230,8 @@ export function createConversationsRoute({
   });
 
   return route;
+}
+
+function parseObservationCorrelationId(value: string | undefined) {
+  return value && /^[0-9a-f-]{36}$/i.test(value) ? value : undefined;
 }

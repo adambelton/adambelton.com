@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ConversationRequestError,
   sendConversationMessage,
+  sendPersistentConversationMessage,
 } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 
 describe("sendConversationMessage", () => {
@@ -86,4 +87,50 @@ describe("sendConversationMessage", () => {
     expect(error).toBeInstanceOf(ConversationRequestError);
     expect(error).toMatchObject({ code: "conversation_unavailable" });
   });
+
+  it("does not emit client observations for temporary demo conversations", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(successResponse());
+
+    await sendConversationMessage(
+      { conversationId: null, message: "A temporary thought" },
+      fetcher,
+    );
+
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("emits a best-effort client observation for persistent owner conversations", async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    await sendPersistentConversationMessage(
+      { conversationId: "conversation-1", message: "An owner thought" },
+      fetcher,
+    );
+
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher.mock.calls[1]?.[0]).toBe(
+      "/api/products/thoughtform/owner-observations/client",
+    );
+    expect(fetcher.mock.calls[1]?.[1]).toMatchObject({ keepalive: true });
+  });
 });
+
+function successResponse() {
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      data: {
+        conversationId: "conversation-1",
+        message: { role: "assistant", content: "Keep going." },
+        activity: "discovery",
+        move: "probe",
+        assistantReadiness: [],
+        userIntention: null,
+      },
+    }),
+    { status: 200 },
+  );
+}

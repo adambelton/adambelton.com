@@ -22,8 +22,34 @@ import type {
   ConversationModel,
   ConversationModelRequest,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import type {
+  ObservationContent,
+  Observability,
+} from "packages/observability/src";
 
 describe("ConversationService", () => {
+  it("emits complete evaluation content only through its supplied observation port", async () => {
+    const contents: ObservationContent[] = [];
+    const observability: Observability = {
+      observe: (_name, _attributes, operation) => operation(),
+      record() {},
+      recordContent: (content) => contents.push(content),
+    };
+    const service = new ConversationService({
+      observability,
+      conversationModel: { async createResponse() { return { content: "A useful response" }; } },
+    });
+
+    await service.respond({
+      conversationId: "conversation-1",
+      message: "A private thought",
+      previousMessages: [],
+    });
+
+    expect(contents[0]).toMatchObject({ input: { currentMessage: "A private thought" } });
+    expect(contents[1]).toMatchObject({ output: { message: { content: "A useful response" } } });
+  });
+
   it("derives structured-output enum values from product-owned constants", () => {
     const properties = CONVERSATION_MODEL_OUTPUT_FORMAT.schema.properties;
     const proposedIdea = properties.proposedIdeas.anyOf[0].items.properties;

@@ -74,6 +74,7 @@ adambelton.com/
 │   ├── shared/                                Platform-wide vocabulary only
 │   ├── auth/                                  Authentication and access capability
 │   ├── ai/                                    Provider-neutral AI infrastructure
+│   ├── observability/                         Shared observation contracts
 │   └── db/                                    Database client, schema and adapters
 │
 ├── tests/                                     Repository-wide architecture checks
@@ -127,6 +128,7 @@ responsibility in the path and filename.
 | Demo storage behaves incorrectly | API ThoughtForm persistence adapters |
 | Owner data behaves incorrectly | DB ThoughtForm adapters |
 | Hosted-model provider request mechanics are wrong | `packages/ai/src/providers` |
+| Owner evaluation traces or timing metrics are wrong | `packages/observability` or API observability adapters |
 | ThoughtForm behaviour or interface | Its [product guide](packages/products/src/thoughtform/README.md) |
 
 ## Testing locations

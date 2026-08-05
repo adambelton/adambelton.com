@@ -21,6 +21,8 @@ export type CreateThoughtFormApiRouteDependencies =
       proposalModel: RevisionProposalModel;
       getPersistentDraftStore: CreateDraftRouteDependencies["getDraftStore"];
       getTemporaryDraftStore: CreateDraftRouteDependencies["getDraftStore"];
+      persistentConversationService?: CreateConversationsRouteDependencies["conversationService"];
+      persistentObservability?: CreateConversationsRouteDependencies["observability"];
     };
 
 export function createThoughtFormApiRoute(
@@ -36,7 +38,12 @@ export function createThoughtFormApiRoute(
     "/temporary-conversation",
     createTemporaryConversationRoute(dependencies),
   );
-  route.route("/conversations", createConversationsRoute(dependencies));
+  route.route("/conversations", createConversationsRoute({
+    ...dependencies,
+    conversationService:
+      dependencies.persistentConversationService ?? dependencies.conversationService,
+    observability: dependencies.persistentObservability,
+  }));
   route.route("/drafts", createDraftRoute({
     compositionModel: dependencies.compositionModel,
     interpretationModel: dependencies.interpretationModel,

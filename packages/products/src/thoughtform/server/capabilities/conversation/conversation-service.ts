@@ -28,6 +28,11 @@ import {
   type ProposedIdeaAction,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map";
 import { FallbackConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/fallback-conversation-model";
+import {
+  noOpObservability,
+  OBSERVATION_ATTRIBUTE_NAMES,
+  type Observability,
+} from "packages/observability/src";
 
 const DEFAULT_CONVERSATION_ID = "draft-conversation";
 export const MAX_CONVERSATION_INPUT_BYTES = 32 * 1024;
@@ -272,6 +277,7 @@ export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
 
 export interface ConversationServiceDependencies {
   conversationModel?: ConversationModel;
+  observability?: Observability;
 }
 
 export class ConversationInputTooLargeError extends Error {
@@ -283,16 +289,32 @@ export class ConversationInputTooLargeError extends Error {
 
 export class ConversationService {
   private readonly conversationModel: ConversationModel;
+  private readonly observability: Observability;
 
   constructor({
     conversationModel = new FallbackConversationModel(),
+    observability = noOpObservability,
   }: ConversationServiceDependencies = {}) {
     this.conversationModel = conversationModel;
+    this.observability = observability;
   }
 
   async respond(
     request: ConversationServiceRequest,
   ): Promise<ConversationGeneration> {
+    return this.observability.observe("thoughtform.conversation.respond", {
+      [OBSERVATION_ATTRIBUTE_NAMES.previousMessageCount]: request.previousMessages.length,
+      [OBSERVATION_ATTRIBUTE_NAMES.ideaCount]: request.ideaMap?.ideas.length ?? 0,
+      [OBSERVATION_ATTRIBUTE_NAMES.ideaMapRevision]: request.ideaMap?.revision ?? 0,
+    }, async () => {
+    this.observability.recordContent({ input: {
+      currentMessage: request.message,
+      previousMessages: request.previousMessages,
+      ideaMap: request.ideaMap,
+      draftSelection: request.draftSelection,
+      draftChange: request.draftChange,
+      hasDraft: request.hasDraft ?? false,
+    } });
     const modelRequest = createConversationModelRequest(request);
 
     if (measureConversationInputBytes(modelRequest) > MAX_CONVERSATION_INPUT_BYTES) {
@@ -300,7 +322,10 @@ export class ConversationService {
     }
 
     let modelResponse = await this.conversationModel.createResponse(modelRequest);
-    let structured = parseStructuredResponse(
+    let structured = await this.observability.observe(
+      "thoughtform.conversation.validate_output",
+      {},
+      async () => parseStructuredResponse(
       modelResponse.content,
       [
         ...modelRequest.messages
@@ -311,23 +336,29 @@ export class ConversationService {
       request.previousMessages
         .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
         .map((message) => message.content),
+      ),
     );
     if (shouldRepairProposedIdeas(modelResponse.content, structured.proposedIdeas)) {
+      this.observability.record({ [OBSERVATION_ATTRIBUTE_NAMES.repairAttempted]: true });
       modelResponse = await this.conversationModel.createResponse({
         ...modelRequest,
         system: `Your preceding output proposed idea material that failed provenance or product validation. Return one corrected complete response. Preserve the conversational response, remove unsupported material, and cite exact user-message evidence for every proposed idea. ${modelRequest.system}`,
       });
-      structured = parseStructuredResponse(modelResponse.content, [
+      structured = await this.observability.observe(
+        "thoughtform.conversation.validate_repair",
+        {},
+        async () => parseStructuredResponse(modelResponse.content, [
         ...modelRequest.messages
           .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
           .map((message) => message.content),
         ...(request.ideaMap?.ideas.map((idea) => idea.substance) ?? []),
       ], request.previousMessages
         .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
-        .map((message) => message.content));
+        .map((message) => message.content)),
+      );
     }
 
-    return {
+    const generation = {
       conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
       message: {
         role: CONVERSATION_MESSAGE_ROLES.assistant,
@@ -341,6 +372,9 @@ export class ConversationService {
       proposedIdeaActions: structured.proposedIdeaActions,
       resolvedPotentialConflictIds: structured.resolvedPotentialConflictIds,
     };
+    this.observability.recordContent({ output: generation });
+    return generation;
+    });
   }
 }
 

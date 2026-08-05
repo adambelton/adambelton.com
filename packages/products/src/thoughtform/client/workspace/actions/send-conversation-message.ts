@@ -21,7 +21,7 @@ export async function sendConversationMessage(
   request: ConversationRequest,
   fetcher: typeof fetch = fetch,
 ): Promise<TemporaryConversationResponse> {
-  return sendRequest(conversationEndpoint, request, fetcher);
+  return sendRequest(conversationEndpoint, request, fetcher, false);
 }
 
 export async function sendPersistentConversationMessage(
@@ -32,6 +32,7 @@ export async function sendPersistentConversationMessage(
     `/api/products/thoughtform/conversations/${encodeURIComponent(request.conversationId)}/respond`,
     request,
     fetcher,
+    true,
   );
 }
 
@@ -39,16 +40,40 @@ async function sendRequest<T extends ConversationResponse>(
   endpoint: string,
   request: ConversationRequest,
   fetcher: typeof fetch,
+  observeOwner: boolean,
 ): Promise<T> {
+  const observationId = observeOwner ? globalThis.crypto.randomUUID() : null;
+  const startedAt = globalThis.performance.now();
   const response = await fetcher(endpoint, {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      ...(observationId ? { "x-thoughtform-observation-id": observationId } : {}),
     },
     body: JSON.stringify(request),
   });
 
   const body = (await response.json()) as ApiResponse<T>;
+  if (observationId) {
+    const durationMs = Math.round(globalThis.performance.now() - startedAt);
+    try {
+      void Promise.resolve(
+        fetcher("/api/products/thoughtform/owner-observations/client", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            observationId,
+            operation: "conversation_response",
+            durationMs,
+            succeeded: response.ok && body.ok,
+          }),
+          keepalive: true,
+        }),
+      ).catch(() => undefined);
+    } catch {
+      // Observation delivery is best-effort and must not affect the conversation.
+    }
+  }
 
   if (!response.ok || !body.ok) {
     throw new ConversationRequestError(
