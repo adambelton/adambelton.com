@@ -27,6 +27,11 @@ export type LlmResponse = {
   model: string;
 };
 
+export type LlmStreamEvent =
+  | { type: "text_delta"; text: string }
+  | { type: "completed"; response: LlmResponse };
+
 export interface LlmClient {
   createMessage(request: LlmRequest): Promise<LlmResponse>;
+  streamMessage?(request: LlmRequest): AsyncIterable<LlmStreamEvent>;
 }

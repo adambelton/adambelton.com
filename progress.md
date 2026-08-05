@@ -361,7 +361,7 @@ contract evaluation remains outside CI.
 ## Partially implemented
 
 - Product registry types are platform-wide while the product definitions are owned by `packages/products` and used by the host product catalogue.
-- `packages/ai` has Anthropic and OpenAI providers and a separately located test fake, but no streaming, automatic routing, or usage tracking yet.
+- `packages/ai` has provider-neutral streaming across Anthropic and OpenAI plus a separately located test fake, but no automatic provider routing or usage-limit enforcement yet.
 - ThoughtForm conversation service is LLM-backed only when the hosted-AI kill switch, an explicit provider, and that provider's credential are configured. Sonnet 5 is the current baseline and GPT-5.6 Terra is the supported OpenAI comparison baseline, while comparative evaluation remains deferred.
 - ThoughtForm persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
 
@@ -419,6 +419,28 @@ contract evaluation remains outside CI.
   one-question score was 90% because turn two contained one rhetorical and one
   direct question. The Idea Map remained faithful. Conversation history and
   changing Idea Map state are not cached by this implementation.
+- ThoughtForm conversation turns now start separate conversation and Idea Map
+  model operations concurrently from the same user message and retained
+  workspace. The assistant's structured response streams over a POST-initiated
+  SSE response and is retained before the independently analysed Idea Map. The
+  map update uses revision-checked replacement, does not consume the concurrent
+  assistant response, and can fail without discarding the saved turn. Temporary
+  demo streaming remains unobserved; persistent owner streaming records content,
+  provider usage, server and client first-token timings, response retention, and
+  map retention through the existing Braintrust boundary.
+- The controlled ten-turn FIFA split evaluation
+  (`codex/thoughtform-fifa-split-streaming-20260805-1255`) passed all nine
+  behavioural criteria with 20 model calls and no errors. It used 72,152 prompt
+  tokens, 37,728 cache-read tokens, 4,192 cache-creation tokens, and 13,297
+  completion tokens for 85,449 total tokens and an estimated $0.21. Wall time
+  fell from the cached combined baseline's 161.11 seconds to 111.00 seconds
+  (about 31%), while total tokens rose about 17% and estimated cost rose from
+  $0.18 to $0.21 (about 17%). The split is therefore a perceived-latency
+  optimisation with a measured cost trade-off, not a general efficiency win.
+  The available dashboard session could not inspect protected per-turn rows, so
+  no conclusion is recorded from Braintrust's malformed aggregate first-token
+  display; mounted streaming timing is verified separately through owner
+  observations.
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client remains as a deterministic test adapter but is not used by API composition.
 - ThoughtForm conversation policy is implemented and hosted-evaluated;

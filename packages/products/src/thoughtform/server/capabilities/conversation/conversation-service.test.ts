@@ -11,9 +11,6 @@ import {
   measureConversationRequestInputBytes,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-service";
 import {
-  IDEA_ACTION_TYPES,
-  IDEA_EXPLORATION_ASSESSMENTS,
-  IDEA_IMPORTANCE_ASSESSMENTS,
   READINESS_ACTIONS,
   READINESS_ASSESSMENTS,
   USER_INTENTIONS,
@@ -52,9 +49,6 @@ describe("ConversationService", () => {
 
   it("derives structured-output enum values from product-owned constants", () => {
     const properties = CONVERSATION_MODEL_OUTPUT_FORMAT.schema.properties;
-    const proposedIdea = properties.proposedIdeas.anyOf[0].items.properties;
-    const ideaAction = properties.ideaActions.anyOf[0].items.properties;
-
     expect(properties.move.enum).toBe(DISCOVERY_ASSISTANT_MOVES);
     expect(properties.assistantReadiness.items.properties.action.enum).toEqual(
       Object.values(READINESS_ACTIONS),
@@ -66,13 +60,6 @@ describe("ConversationService", () => {
       ...Object.values(USER_INTENTIONS),
       null,
     ]);
-    expect(proposedIdea.assistantAssessment.properties.exploration.enum).toEqual(
-      Object.values(IDEA_EXPLORATION_ASSESSMENTS),
-    );
-    expect(proposedIdea.assistantAssessment.properties.importance.enum).toEqual(
-      Object.values(IDEA_IMPORTANCE_ASSESSMENTS),
-    );
-    expect(ideaAction.action.enum).toEqual(Object.values(IDEA_ACTION_TYPES));
   });
 
   it("returns a minimal assistant response for a new conversation", async () => {
@@ -157,14 +144,8 @@ describe("ConversationService", () => {
       ],
     });
     expect(modelRequests[0]?.system).toContain("<role>");
-    expect(modelRequests[0]?.system).toContain("<provenance_contract>");
-    expect(modelRequests[0]?.system).toContain("without adding assistant hypotheses");
-    expect(modelRequests[0]?.system).toContain(
-      "Every canonical claim must be traceable",
-    );
-    expect(modelRequests[0]?.system).toContain(
-      "return no more than three unresolved questions",
-    );
+    expect(modelRequests[0]?.system).toContain("<idea_map_context>");
+    expect(modelRequests[0]?.system).toContain("Another concurrent operation analyses");
     expect(modelRequests[0]?.system).toContain(
       "Help the user explore, organise, and express their own thinking or feeling",
     );
@@ -178,12 +159,8 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).toContain(
       "Offer practical advice only when the user explicitly asks for it",
     );
-    expect(modelRequests[0]?.system).toContain("An explicit resolution such as a settled view");
     expect(modelRequests[0]?.system).toContain(
-      "return the matching existing conflict id",
-    );
-    expect(modelRequests[0]?.system).toContain(
-      "richer current user wording always takes precedence",
+      "Richer current user wording replaces",
     );
     expect(
       JSON.stringify(modelRequests[0]?.outputFormat.schema),
@@ -256,9 +233,8 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.context).toContain("<removed_text>quiet</removed_text>");
     expect(modelRequests[0]?.context).toContain("<added_text>deliberate</added_text>");
     expect(modelRequests[0]?.context).toContain("not an interpretation, preference");
-    expect(modelRequests[0]?.system).toContain("return null for proposedIdeas and ideaActions");
-    expect(modelRequests[0]?.system).toContain("first-person material");
-    expect(modelRequests[0]?.system).toContain("Keep draft-edit history");
+    expect(modelRequests[0]?.system).toContain("ask what the change means");
+    expect(modelRequests[0]?.system).toContain("without canonising an interpretation");
   });
 
   it("states the working proposal boundary when a draft exists without attached text", async () => {
@@ -370,10 +346,9 @@ describe("ConversationService", () => {
 
     expect(response.message.content).toBe("What would you like to think through?");
     expect(response.message.content).not.toContain('{"response"');
-    expect(response.proposedIdeas).toBeNull();
   });
 
-  it("returns a response and validated idea enrichment from one model result", async () => {
+  it("ignores Idea Map-shaped fields outside the conversational response contract", async () => {
     const service = new ConversationService({
       conversationModel: {
         async createResponse() {
@@ -412,10 +387,7 @@ describe("ConversationService", () => {
     });
 
     expect(result.message.content).toContain("changes the centre");
-    expect(result.proposedIdeas?.[0]).toMatchObject({
-      title: "Leadership without accountability",
-      assistantAssessment: { exploration: "developing" },
-    });
+    expect(result).not.toHaveProperty("proposedIdeas");
   });
 
   it("returns a grounded move, action-specific readiness, and explicit direction", async () => {
@@ -503,7 +475,7 @@ describe("ConversationService", () => {
       }],
     });
 
-    expect(result.proposedIdeas).toBeNull();
+    expect(result).not.toHaveProperty("proposedIdeas");
     expect(result.message.content).toContain("Missing her");
   });
 
@@ -628,7 +600,7 @@ describe("ConversationService", () => {
     expect(result.move).toBe("probe");
     expect(result.assistantReadiness).toEqual([]);
     expect(result.userIntention).toBeNull();
-    expect(result.proposedIdeas).toBeNull();
+    expect(result).not.toHaveProperty("proposedIdeas");
   });
 
   it("uses the newest retained turns when complete history exceeds the input boundary", async () => {
@@ -665,7 +637,7 @@ describe("ConversationService", () => {
     })).toBeLessThanOrEqual(MAX_CONVERSATION_INPUT_BYTES);
   });
 
-  it("keeps a valid response but rejects an invalid idea assessment", async () => {
+  it("keeps a valid response when extra model fields are present", async () => {
     const service = new ConversationService({
       conversationModel: {
         async createResponse() {
@@ -684,7 +656,7 @@ describe("ConversationService", () => {
       previousMessages: [],
     });
     expect(result.message.content).toBe("We can keep exploring that.");
-    expect(result.proposedIdeas).toBeNull();
+    expect(result).not.toHaveProperty("proposedIdeas");
   });
 
   it("includes substance only for the most relevant active ideas", () => {

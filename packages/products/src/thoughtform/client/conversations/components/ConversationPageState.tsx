@@ -42,11 +42,11 @@ export function ConversationPageState({
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}
       sendIdeaAction={sendPersistentIdeaAction}
-      sendMessage={(request) =>
+      sendMessage={(request, callbacks) =>
         sendPersistentConversationMessage({
           ...request,
           conversationId: conversation.id,
-        })
+        }, callbacks)
       }
     />
   );

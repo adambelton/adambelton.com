@@ -7,7 +7,11 @@ import type {
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import {
   respondInWorkspace,
+  streamResponseInWorkspace,
+  type IdeaMapAnalyser,
   type ConversationResponder,
+  type StreamingConversationResponder,
+  noOpIdeaMapAnalyser,
 } from "packages/products/src/thoughtform/server/application/workspace";
 import { parseConversationRequest } from "packages/products/src/thoughtform/server/delivery/http/conversation-request";
 import { handleIdeaActionRequest } from "packages/products/src/thoughtform/server/delivery/http/idea-action-handler";
@@ -16,13 +20,21 @@ import { failure, success } from "packages/shared/src";
 import type { DraftStore } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import { validateDraftSelection } from "packages/products/src/thoughtform/server/delivery/http/draft-selection-context";
 import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
-import type { Observability } from "packages/observability/src";
+import {
+  noOpObservability,
+  OBSERVATION_ATTRIBUTE_NAMES,
+  observeStream,
+  type Observability,
+} from "packages/observability/src";
+import { conversationStreamResponse } from "packages/products/src/thoughtform/server/delivery/http/conversation-stream-response";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
     request: Request,
   ) => Promise<PersistentConversationStore | null>;
   conversationService?: ConversationResponder;
+  streamingConversationService?: StreamingConversationResponder;
+  ideaMapAnalysis?: IdeaMapAnalyser;
   getPersistentDraftStore?: (request: Request) => Promise<DraftStore | null>;
   observability?: Observability;
 };
@@ -30,6 +42,8 @@ export type CreateConversationsRouteDependencies = {
 export function createConversationsRoute({
   getPersistentConversationStore,
   conversationService = new ConversationService(),
+  streamingConversationService = new ConversationService(),
+  ideaMapAnalysis,
   getPersistentDraftStore,
   observability,
 }: CreateConversationsRouteDependencies) {
@@ -214,6 +228,71 @@ export function createConversationsRoute({
     }
 
     return context.json(success(result.response), 201);
+  });
+
+  route.post("/:conversationId/respond-stream", async (context) => {
+    const conversationStore = await getPersistentConversationStore(context.req.raw);
+    if (!conversationStore) {
+      return context.json(failure("not_found", "The requested resource was not found."), 404);
+    }
+    const request = await parseConversationRequest(context.req.raw);
+    if (!request) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "Conversation requests require a message and conversationId.",
+      ), 400);
+    }
+    const conversationId = context.req.param("conversationId");
+    const draftStore = getPersistentDraftStore
+      ? await getPersistentDraftStore(context.req.raw)
+      : null;
+    const hasDraft = Boolean((await draftStore?.getDraftingState(conversationId))?.draft);
+    if (request.draftSelection && !await validateDraftSelection({
+      conversationId,
+      drafts: draftStore,
+      selection: request.draftSelection,
+    })) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The selected draft passage is stale or invalid.",
+      ), 409);
+    }
+    if (request.draftChange && !await validateDraftChange({
+      conversationId,
+      drafts: draftStore,
+      change: request.draftChange,
+    })) {
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.invalidRequest,
+        "The saved draft change is stale or invalid.",
+      ), 409);
+    }
+    const observationCorrelationId = parseObservationCorrelationId(
+      context.req.header("x-thoughtform-observation-id"),
+    );
+    return conversationStreamResponse(observeStream(
+      observability ?? noOpObservability,
+      "thoughtform.workspace.stream_turn",
+      {
+        [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
+        ...(observationCorrelationId
+          ? {
+              [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: observationCorrelationId,
+            }
+          : {}),
+      },
+      () => streamResponseInWorkspace({
+      conversationId,
+      message: request.message,
+      conversation: streamingConversationService,
+      ideaMapAnalysis: ideaMapAnalysis ?? noOpIdeaMapAnalyser,
+      conversations: conversationStore,
+      draftSelection: request.draftSelection,
+      draftChange: request.draftChange,
+      hasDraft,
+      observability,
+      }),
+    ));
   });
 
   route.post("/:conversationId/ideas/:ideaId", async (context) => {

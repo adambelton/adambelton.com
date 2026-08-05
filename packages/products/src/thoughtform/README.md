@@ -31,7 +31,7 @@ packages/products/src/thoughtform/
 │   ├── capabilities/                          Rules owned by one product capability
 │   │   ├── conversation/                      Guides inquiry and retains its history
 │   │   │   └── ports/                         AI and storage requirements
-│   │   ├── idea-map/                          Maintains established, correctable ideas
+│   │   ├── idea-map/                          Analyses and maintains established ideas
 │   │   └── drafting/                          Composes, versions and revises the draft
 │   │       └── ports/                         AI and storage requirements
 │   ├── application/                           Coordinates complete user operations
@@ -48,7 +48,7 @@ packages/products/src/thoughtform/
 
 Owner-only Braintrust observations use the runtime-neutral contracts in
 `packages/observability`. The API host supplies the Braintrust adapter only to
-the persistent owner composition; the temporary demo receives the no-op
+the persistent owner conversation, Idea Map, and composition operations; the temporary demo receives the no-op
 implementation and emits neither content nor metadata. Synthetic evaluations
 may also record full content so behavioural regressions can be investigated.
 
@@ -57,13 +57,22 @@ may also record full content so behavioural regressions can be investigated.
 ```txt
 User action
   → product interface
-  → HTTP entrance
+  → POST HTTP entrance and SSE event stream
   → workspace application operation
-  → conversation, Idea Map, or drafting capability
+  → concurrent conversation and Idea Map capabilities, or drafting capability
   → product-defined port
   → host-supplied AI or persistence adapter
   → result returned to the interface
 ```
+
+For a conversation turn, the conversation and Idea Map capabilities receive the
+same retained workspace and latest user message. The assistant response streams
+as structured text deltas. Once complete, the user and assistant messages are
+retained exactly once and the client becomes interactive again. Idea Map
+analysis does not use the new assistant response; it finishes independently and
+is retained only when the starting revision is still current. A failed or stale
+Idea Map update is reported as recoverable and never discards the retained
+assistant turn.
 
 A changed draft save is returned immediately with its exact revision-bounded
 `DraftChange`. The client then launches the product's saved-edit interpretation

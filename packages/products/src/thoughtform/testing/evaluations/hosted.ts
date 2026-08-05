@@ -8,8 +8,11 @@ import {
 } from "packages/ai/src";
 import {
   ConversationService,
+  IdeaMapAnalysisService,
   type ConversationModel,
   type ConversationModelRequest,
+  type IdeaMapAnalysisModel,
+  type IdeaMapAnalysisModelRequest,
   getProposedIdeaActionsValidationIssues,
   getProposedIdeasValidationIssues,
 } from "packages/products/src/thoughtform/server";
@@ -47,13 +50,16 @@ const scenario = selectScenario(process.env.EVALUATION_SCENARIO);
 const includeContent =
   process.env.EVALUATION_INCLUDE_CONTENT === HOSTED_EVALUATION_ENABLED_VALUE;
 const maximumTurns = parseMaximumTurns(process.env.EVALUATION_MAX_TURNS);
-const model = createMeasuredConversationModel(
+const models = createMeasuredModels(
   new OpenAiLlmClient({
     apiKey,
     model: process.env.OPENAI_MODEL ?? DEFAULT_OPENAI_MODEL,
   }),
 );
-const conversationService = new ConversationService({ conversationModel: model });
+const conversationService = new ConversationService({
+  conversationModel: models.conversation,
+});
+const ideaMapAnalysis = new IdeaMapAnalysisService(models.ideaMap);
 const conversations = createTestConversationStore();
 const conversationId = (await conversations.createConversation()).id;
 const turnMetrics: HostedConversationTurnMetrics[] = [];
@@ -70,6 +76,7 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
     conversationId,
     message,
     conversation: conversationService,
+    ideaMapAnalysis,
     conversations,
   });
   const totalLatencyMs = Date.now() - startedAt;
@@ -78,9 +85,18 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
     throw new Error(`Turn ${index + 1} failed with status ${result.status}.`);
   }
 
-  const measurement = model.takeMeasurement();
+  const measurements = models.takeMeasurements();
+  const conversationMeasurement = measurements.find(
+    (entry) => entry.operation === "conversation",
+  );
+  const ideaMapMeasurement = measurements.find(
+    (entry) => entry.operation === "idea_map",
+  );
+  if (!conversationMeasurement || !ideaMapMeasurement) {
+    throw new Error(`Turn ${index + 1} did not produce both model measurements.`);
+  }
   const validationIssues = getStructuredOutputValidationIssues(
-    measurement.response.content,
+    ideaMapMeasurement.response.content,
   );
   const ideaMap = result.response.ideaMap ?? previousIdeaMap;
   assertScenarioBehaviour(
@@ -92,14 +108,16 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
   const metrics: HostedConversationTurnMetrics = {
     turn: index + 1,
     totalLatencyMs,
-    providerLatencyMs: measurement.providerLatencyMs,
-    inputTokens: measurement.response.inputTokens ?? null,
-    outputTokens: measurement.response.outputTokens ?? null,
-    reasoningTokens: measurement.response.reasoningTokens ?? null,
-    cacheReadTokens: measurement.response.cacheReadTokens ?? null,
-    cacheWriteTokens: measurement.response.cacheWriteTokens ?? null,
-    outputCharacters: measurement.response.content.length,
-    model: measurement.response.model,
+    providerLatencyMs: sum(measurements, (entry) => entry.providerLatencyMs),
+    conversationLatencyMs: conversationMeasurement.providerLatencyMs,
+    ideaMapLatencyMs: ideaMapMeasurement.providerLatencyMs,
+    inputTokens: sumOptional(measurements, (entry) => entry.response.inputTokens),
+    outputTokens: sumOptional(measurements, (entry) => entry.response.outputTokens),
+    reasoningTokens: sumOptional(measurements, (entry) => entry.response.reasoningTokens),
+    cacheReadTokens: sumOptional(measurements, (entry) => entry.response.cacheReadTokens),
+    cacheWriteTokens: sumOptional(measurements, (entry) => entry.response.cacheWriteTokens),
+    outputCharacters: sum(measurements, (entry) => entry.response.content.length),
+    model: conversationMeasurement.response.model,
     mapRevision: ideaMap.revision,
     ideaCount: ideaMap.ideas.length,
     retainedIdeaCount: ideaMap.ideas.filter((idea) => previousIds.has(idea.id))
@@ -123,7 +141,11 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
   }
   if (includeContent) {
     console.log(`User: ${message}`);
-    console.log(`Raw model output: ${measurement.response.content}`);
+    console.log("Raw model outputs:");
+    console.dir(measurements.map((entry) => ({
+      operation: entry.operation,
+      content: entry.response.content,
+    })), { depth: null });
     console.log(`Assistant: ${result.response.message.content}`);
     console.dir(ideaMap, { depth: null });
   }
@@ -134,43 +156,67 @@ console.log("Summary");
 console.table([summariseHostedConversationEvaluation(turnMetrics)]);
 
 interface ModelMeasurement {
+  operation: "conversation" | "idea_map";
   providerLatencyMs: number;
   response: LlmResponse;
 }
 
-interface MeasuredConversationModel extends ConversationModel {
-  takeMeasurement(): ModelMeasurement;
-}
-
-function createMeasuredConversationModel(
+function createMeasuredModels(
   client: OpenAiLlmClient,
-): MeasuredConversationModel {
-  let measurement: ModelMeasurement | null = null;
-  return {
+){
+  let measurements: ModelMeasurement[] = [];
+  async function measure(
+    operation: ModelMeasurement["operation"],
+    request: ConversationModelRequest | IdeaMapAnalysisModelRequest,
+  ) {
+    const startedAt = Date.now();
+    const response = await client.createMessage({
+      maxTokens: request.maxOutputTokens,
+      messages: request.messages,
+      outputFormat: request.outputFormat,
+      system: request.system,
+      context: request.context,
+    });
+    measurements.push({
+      operation,
+      providerLatencyMs: Date.now() - startedAt,
+      response,
+    });
+    return { content: response.content };
+  }
+  const conversation: ConversationModel = {
     async createResponse(request: ConversationModelRequest) {
-      const startedAt = Date.now();
-      const response = await client.createMessage({
-        maxTokens: request.maxOutputTokens,
-        messages: request.messages,
-        outputFormat: request.outputFormat,
-        system: request.system,
-        context: request.context,
-      });
-      measurement = {
-        providerLatencyMs: Date.now() - startedAt,
-        response,
-      };
-      return { content: response.content };
-    },
-    takeMeasurement() {
-      if (!measurement) {
-        throw new Error("The model call did not produce evaluation metrics.");
-      }
-      const completedMeasurement = measurement;
-      measurement = null;
-      return completedMeasurement;
+      return measure("conversation", request);
     },
   };
+  const ideaMap: IdeaMapAnalysisModel = {
+    async createAnalysis(request) {
+      return measure("idea_map", request);
+    },
+  };
+  return {
+    conversation,
+    ideaMap,
+    takeMeasurements() {
+      const completed = measurements;
+      measurements = [];
+      return completed;
+    },
+  };
+}
+
+function sum<T>(values: T[], select: (value: T) => number) {
+  return values.reduce((total, value) => total + select(value), 0);
+}
+
+function sumOptional<T>(
+  values: T[],
+  select: (value: T) => number | undefined,
+) {
+  const present = values.map(select).filter(
+    (value): value is number => value !== undefined,
+  );
+  return present.length === 0 ? null : sum(present, (value) => value);
 }
 
 function loadLocalEnvironment() {

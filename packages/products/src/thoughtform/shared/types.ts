@@ -253,6 +253,48 @@ export interface ConversationResponse {
   ideaMap: IdeaMap;
 }
 
+export type ConversationCompletion = Omit<ConversationResponse, "ideaMap">;
+
+export const CONVERSATION_STREAM_EVENT_TYPES = {
+  accepted: "accepted",
+  assistantDelta: "assistant_delta",
+  assistantCompleted: "assistant_completed",
+  ideaMapCompleted: "idea_map_completed",
+  ideaMapFailed: "idea_map_failed",
+  failed: "failed",
+  completed: "completed",
+} as const;
+
+export type ConversationStreamEvent =
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.accepted;
+      conversationId: string;
+    }
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.assistantDelta;
+      delta: string;
+    }
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.assistantCompleted;
+      response: ConversationCompletion;
+      expiresAt?: string;
+    }
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.ideaMapCompleted;
+      ideaMap: IdeaMap;
+    }
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.ideaMapFailed;
+      code: "idea_map_unavailable" | "idea_map_conflict";
+      message: string;
+    }
+  | {
+      type: typeof CONVERSATION_STREAM_EVENT_TYPES.failed;
+      code: ConversationErrorCode;
+      message: string;
+    }
+  | { type: typeof CONVERSATION_STREAM_EVENT_TYPES.completed };
+
 export interface TemporaryConversationResponse extends ConversationResponse {
   expiresAt: string;
 }

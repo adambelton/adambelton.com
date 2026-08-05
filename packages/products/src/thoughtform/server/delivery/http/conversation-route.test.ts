@@ -21,6 +21,31 @@ import { createDraftStore } from "packages/products/src/thoughtform/server/capab
 import { TestDraftPersistence } from "packages/products/src/thoughtform/testing/fakes/test-draft-persistence";
 
 describe("ThoughtForm conversation route", () => {
+  it("streams and retains a temporary assistant response before the Idea Map completes", async () => {
+    const conversationStore = createFakeConversationStore();
+    const service = new ConversationService();
+    const route = createConversationRoute({
+      conversationStore,
+      streamingConversationService: service,
+    });
+
+    const response = await route.request("/respond-stream", {
+      method: "POST",
+      body: JSON.stringify({ message: "I am noticing a real tension." }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(body).toContain('"type":"assistant_delta"');
+    expect(body).toContain('"type":"assistant_completed"');
+    expect(body).toContain('"expiresAt":"2026-08-02T12:00:00.000Z"');
+    expect(body.indexOf('"type":"assistant_completed"')).toBeLessThan(
+      body.indexOf('"type":"idea_map_completed"'),
+    );
+  });
+
   it("returns an assistant response and persists the turn through the host store", async () => {
     const conversationStore = createFakeConversationStore();
     const route = createConversationRoute({ conversationStore });

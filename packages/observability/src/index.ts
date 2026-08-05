@@ -21,6 +21,45 @@ export const noOpObservability: Observability = {
   recordContent() {},
 };
 
+export async function* observeStream<T>(
+  observability: Observability,
+  name: string,
+  attributes: ObservationAttributes,
+  operation: () => AsyncIterable<T>,
+): AsyncIterable<T> {
+  const values: T[] = [];
+  let completed = false;
+  let failure: unknown;
+  let notify: (() => void) | null = null;
+  const wake = () => {
+    notify?.();
+    notify = null;
+  };
+  void observability.observe(name, attributes, async () => {
+    try {
+      for await (const value of operation()) {
+        values.push(value);
+        wake();
+      }
+    } catch (error) {
+      failure = error;
+      throw error;
+    } finally {
+      completed = true;
+      wake();
+    }
+  }).catch(() => undefined);
+
+  while (!completed || values.length > 0) {
+    if (values.length === 0) {
+      await new Promise<void>((resolve) => { notify = resolve; });
+      continue;
+    }
+    yield values.shift()!;
+  }
+  if (failure !== undefined) throw failure;
+}
+
 export const OBSERVATION_ATTRIBUTE_NAMES = {
   operation: "operation",
   result: "result",
@@ -38,5 +77,6 @@ export const OBSERVATION_ATTRIBUTE_NAMES = {
   ideaMapRevision: "idea_map_revision",
   repairAttempted: "repair_attempted",
   clientDurationMs: "client_duration_ms",
+  serverTimeToFirstTokenMs: "server_time_to_first_token_ms",
   correlationId: "correlation_id",
 } as const;

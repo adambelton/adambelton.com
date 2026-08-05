@@ -32,6 +32,8 @@ import { IdeaMapTracker } from "packages/products/src/thoughtform/client/workspa
 import {
   ConversationRequestError,
   sendConversationMessage,
+  type ConversationStreamCallbacks,
+  type ConversationStreamResult,
 } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 import { sendTemporaryIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
 import { DraftPanel, type DraftPanelHandle } from "packages/products/src/thoughtform/client/workspace/components/DraftPanel";
@@ -44,11 +46,12 @@ interface ConversationEditorProps {
   initialMessages?: ConversationMessage[];
   initialIdeaMap?: IdeaMap;
   onClear?: () => Promise<void>;
-  onResponse?: (response: ConversationResponse & { expiresAt?: string }) => void;
+  onResponse?: (response: ConversationStreamResult) => void;
   onUnavailable?: () => void;
   sendMessage?: (
     request: ConversationRequest,
-  ) => Promise<ConversationResponse & { expiresAt?: string }>;
+    callbacks?: ConversationStreamCallbacks,
+  ) => Promise<ConversationStreamResult>;
   sendIdeaAction?: (
     conversationId: string,
     ideaId: string,
@@ -81,6 +84,8 @@ export function ConversationEditor({
   const [message, setMessage] = useState("");
   const [messages, setMessages] =
     useState<ConversationMessage[]>(initialMessages);
+  const [partialAssistantMessage, setPartialAssistantMessage] =
+    useState<ConversationMessage | null>(null);
   const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
   const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
   const [draftSelection, setDraftSelection] = useState<DraftSelection | null>(null);
@@ -154,19 +159,38 @@ export function ConversationEditor({
 
     setStatus(CONVERSATION_STATUSES.sending);
     setError(null);
+    setIdeaStatus("Updating the Idea Map.");
     setMessage("");
     setMessages((currentMessages) => [...currentMessages, userMessage]);
     let disableAfterRequest = false;
 
     try {
-      const response = await sendMessage({
-        conversationId,
-        message: trimmedMessage,
-        ...(draftSelection ? { draftSelection } : {}),
-        ...(draftChange ? { draftChange } : {}),
-      });
+      const response = await sendMessage(
+        {
+          conversationId,
+          message: trimmedMessage,
+          ...(draftSelection ? { draftSelection } : {}),
+          ...(draftChange ? { draftChange } : {}),
+        },
+        {
+          onAssistantDelta(delta) {
+            setPartialAssistantMessage((current) => ({
+              role: CONVERSATION_MESSAGE_ROLES.assistant,
+              content: `${current?.content ?? ""}${delta}`,
+            }));
+          },
+          onIdeaMap(nextIdeaMap) {
+            setIdeaMap(nextIdeaMap);
+            setIdeaStatus("Idea Map updated.");
+          },
+          onIdeaMapFailed(message) {
+            setIdeaStatus(message);
+          },
+        },
+      );
 
       setConversationId(response.conversationId);
+      setPartialAssistantMessage(null);
       setMessages((currentMessages) => [...currentMessages, response.message]);
       if (response.ideaMap) {
         setIdeaMap(response.ideaMap);
@@ -194,6 +218,7 @@ export function ConversationEditor({
       }
 
       setMessage(trimmedMessage);
+      setPartialAssistantMessage(null);
       setMessages((currentMessages) => currentMessages.slice(0, -1));
       if (
         sendError instanceof ConversationRequestError &&
@@ -266,8 +291,10 @@ export function ConversationEditor({
       </nav>
       {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
       <div className="mt-8 grid h-[var(--workspace-height)] min-h-0 gap-8 lg:grid-cols-2" data-testid="workspace" ref={workspaceRef}>
-        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
-          <ConversationMessageList messages={messages} />
+        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
+          <ConversationMessageList messages={partialAssistantMessage
+            ? [...messages, partialAssistantMessage]
+            : messages} />
           <div className="grid gap-4">
           {hasDraftOffer ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Draft offer">
@@ -305,7 +332,7 @@ export function ConversationEditor({
           />
           </div>
         </div>
-        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6`} data-testid="workspace-column">
+        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6`} data-testid="workspace-column">
           <div className="mb-6 hidden gap-3 lg:flex" role="group" aria-label="Workspace">
             <button aria-pressed={workspaceView === "idea-map"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("idea-map")} type="button">Idea map</button>
             <button aria-pressed={workspaceView === "draft"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("draft")} type="button">Draft</button>

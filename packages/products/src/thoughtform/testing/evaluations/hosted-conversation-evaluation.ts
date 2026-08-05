@@ -2,6 +2,8 @@ export interface HostedConversationTurnMetrics {
   turn: number;
   totalLatencyMs: number;
   providerLatencyMs: number;
+  conversationLatencyMs?: number;
+  ideaMapLatencyMs?: number;
   inputTokens: number | null;
   outputTokens: number | null;
   reasoningTokens: number | null;

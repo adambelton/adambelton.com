@@ -48,10 +48,7 @@ describe("DemoEditorPage", () => {
   it("shows expiry immediately after the first retained turn", async () => {
     stubFetch(
       success(null),
-      success({
-        ...conversationResponse("conversation-1"),
-        expiresAt: "2026-08-02T12:00:00.000Z",
-      }, 201),
+      conversationStreamResponse(),
     );
 
     render(<DemoEditorPage components={components} />);
@@ -204,4 +201,24 @@ function conversationResponse(conversationId: string) {
     assistantReadiness: [],
     userIntention: null,
   };
+}
+
+function conversationStreamResponse() {
+  const response = conversationResponse("conversation-1");
+  const events = [
+    { type: "accepted", conversationId: "conversation-1" },
+    { type: "assistant_delta", delta: "A response" },
+    {
+      type: "assistant_completed",
+      response,
+      expiresAt: "2026-08-02T12:00:00.000Z",
+    },
+    { type: "idea_map_completed", ideaMap: { revision: 0, ideas: [] } },
+    { type: "completed" },
+  ];
+  return new Response(events.map((event) =>
+    `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`
+  ).join(""), {
+    headers: { "content-type": "text/event-stream" },
+  });
 }

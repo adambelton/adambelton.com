@@ -17,10 +17,17 @@ export type ConversationModelResponse = {
   content: string;
 };
 
+export type ConversationModelStreamEvent =
+  | { type: "text_delta"; text: string }
+  | { type: "completed"; content: string };
+
 export interface ConversationModel {
   createResponse(
     request: ConversationModelRequest,
   ): Promise<ConversationModelResponse>;
+  streamResponse?(
+    request: ConversationModelRequest,
+  ): AsyncIterable<ConversationModelStreamEvent>;
 }
 
 export class HostedAiDisabledError extends Error {
