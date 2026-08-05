@@ -175,6 +175,22 @@ Run the shorter hosted contract and product-policy check with:
 RUN_HOSTED_EVALUATIONS=true pnpm test:hosted
 ```
 
+Run the opt-in Sonnet 5 medium-effort cold/warm diagnostic with:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-cold-warm
+```
+
+The diagnostic uses only the synthetic FIFA fixture. By default it first waits
+310 seconds so earlier activity cannot make its first sequence warm, runs three
+sequences of three turns, waits another 310 seconds after the last cache access
+between sequences, and includes a fresh-client request inside a known warm-cache window.
+It records provider-stream first-token time, completion time, client reuse,
+provider-reported cache state, usage, and cost inputs. The initial and
+between-sequence waits can be overridden for runner development, but a
+completion run must retain values greater than Anthropic's five-minute cache
+lifetime.
+
 This check is deliberately excluded from CI. Run it only when real hosted model
 usage and its cost are intended.
 

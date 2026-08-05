@@ -124,8 +124,7 @@ git diff --check
 
 ## Status
 
-Approved; implementation pending a clean branch after the completed
-medium-effort baseline is published.
+Complete on the implementation branch; not yet committed or published.
 
 ## Approval record
 
@@ -143,3 +142,122 @@ medium-effort baseline is published.
 - **Do not reopen without new evidence:** prompt caching is not presumed to
   explain or solve the outliers, because the second observed 33-second call was
   already a cache read; only the repository-owned FIFA fixture may be used.
+
+## Results
+
+### Controlled provider diagnostic
+
+Three provider-confirmed sequences used Sonnet 5, medium effort, the unchanged
+conversation and Idea Map prompts and schemas, and the first three FIFA fixture
+turns. Each first turn wrote both stable prefixes; each later turn read both.
+An earlier nominal sequence inherited a prior cache entry and is deliberately
+excluded. The runner now fails when provider counters contradict its labels.
+
+| Sequence | Turn | Client | Cache | Conversation TTFT / complete | Idea Map TTFT / complete |
+| --- | ---: | --- | --- | ---: | ---: |
+| 1 | 1 | fresh | write | 5,517 / 9,599 ms | 2,779 / 6,162 ms |
+| 1 | 2 | reused | read | 3,409 / 7,634 ms | 2,699 / 7,926 ms |
+| 1 | 3 | reused | read | 2,870 / 7,560 ms | 2,080 / 8,448 ms |
+| 2 | 1 | fresh | write | 3,592 / 7,988 ms | 3,824 / 7,180 ms |
+| 2 | 2 | reused | read | 4,469 / 9,124 ms | 3,741 / 8,703 ms |
+| 2 | 3 | reused | read | 5,422 / 10,605 ms | 1,798 / 8,404 ms |
+| 3 | 1 | fresh | write | 4,681 / 8,220 ms | 4,376 / 7,590 ms |
+| 3 | 2 | reused | read | 3,213 / 7,272 ms | 3,010 / 7,027 ms |
+| 3 | 3 | reused | read | 11,402 / 15,602 ms | 2,084 / 8,903 ms |
+
+Conversation TTFT ranged from 2,870 to 11,402 ms with a 4,469 ms median;
+completion ranged from 7,272 to 15,602 ms with an 8,220 ms median. Cold-write
+TTFT had a 4,681 ms median; warm reused-cache TTFT had a 3,939 ms median but a
+wider 2,870–11,402 ms range. The largest outlier was therefore a warm cache read
+on a reused client. Idea Map TTFT ranged from 1,798 to 4,376 ms with a 2,779 ms
+median; completion ranged from 6,162 to 8,903 ms with a 7,926 ms median.
+
+The nine turns made 18 calls using 47,033 input tokens, 9,033 output tokens,
+25,152 cache-read tokens, 12,576 cache-write tokens, and no reported reasoning
+tokens. Estimated cost was approximately $0.15, or about $0.05 per three-turn
+sequence. Direct evaluation has no HTTP client or persistence boundary, so
+client timing and assistant-retention timing are not applicable to these rows.
+All calls parsed against their unchanged structured-output schemas without an
+error. Inspection found coherent, relevant FIFA responses and Idea Map state;
+this diagnostic did not introduce a separate subjective quality score.
+
+Two exact fresh-client warm-cache comparisons also contradicted connection
+reuse as a material latency explanation: 4,911 ms cold-write versus 5,214 ms
+fresh/read, and 4,681 ms cold-write versus 5,215 ms fresh/read.
+
+### Mounted owner confirmation
+
+Conversation `40b9c3d9-d8e6-4350-b29a-8b5856383399` ran the same first three
+FIFA turns through Vite, Hono, Prisma, Anthropic, Braintrust, and the owner UI.
+
+| Turn | Cache | Server / client TTFT | Provider / client complete | Retention | Idea Map complete | Usage (input / output / reasoning) | Cost |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | write | 12,559 / 13,250 ms | 16,222 / 17,353 ms | 443 ms | 8,050 ms | 4,428 / 1,594 / 269 | $0.027 |
+| 2 | read | 8,998 / 9,703 ms | 12,983 / 14,203 ms | 515 ms | 8,183 ms | 5,343 / 1,451 / 98 | $0.018 |
+| 3 | read | 7,871 / 8,637 ms | 12,011 / 13,322 ms | 544 ms | 10,742 ms | 5,961 / 1,624 / 155 | $0.021 |
+
+The mounted sample showed a cold-to-warm improvement but no sub-five-second
+client first token. Its conversation output remained nuanced and responsive to
+the user's distinctions; the Idea Map advanced after every turn. There were no
+provider, persistence, stream, or client errors. Total estimated cost was
+approximately $0.065.
+
+### Findings and recommendation
+
+- **Prompt-cache state:** contradicted as a sufficient explanation or latency
+  cure. Warm reads were sometimes faster, but the largest controlled outlier
+  was also a warm read.
+- **Connection/client reuse:** contradicted as a material explanation in the two
+  exact fresh-client warm-cache comparisons.
+- **Structured-output first use:** unresolved and not reproducible without
+  changing the fixed schema. Anthropic documents a 24-hour compiled-grammar
+  cache, so all repeated samples may use an existing grammar artifact.
+- **Host overhead:** not the dominant delay. Mounted client first token followed
+  provider first token by 691–766 ms, and retention took 443–544 ms.
+- **Provider variance:** supported as the best current inference, not established
+  provider causation. Standard-tier Sonnet 5 calls varied substantially under
+  equivalent warm conditions.
+
+Anthropic's current documentation says the default prompt-cache TTL is five
+minutes, cache entries become available once the first response begins, and
+cache usage must be verified from response counters. It also says structured
+outputs add first-use grammar-compilation latency and cache the compiled grammar
+for 24 hours. Standard tier is best-effort; Priority Tier is no longer available
+for new commitments and does not support Sonnet 5. Anthropic publishes no
+Messages API guidance that would make SDK client reuse a guaranteed TTFT
+optimisation. See [prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching),
+[structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs),
+and [service tiers](https://platform.claude.com/docs/en/api/service-tiers).
+
+Do not implement pre-warming, a longer cache TTL, or client reuse as a latency
+mitigation from this evidence. Keep caching for its clear input-cost benefit.
+The next optimisation should instead be a separately approved, larger
+evaluation of the conversation call's stable input and output contract: hold
+Sonnet 5 medium and response quality constant while measuring whether reducing
+uncached per-turn context and constrained-output work improves TTFT and tail
+latency. A larger sample is necessary before choosing a production change.
+
+## Completion audit
+
+- Explicit fresh/reused client and provider-confirmed write/read states are
+  represented in the diagnostic contract and enforced by focused tests.
+- Nine valid cold-to-warm FIFA turns across three sequences, plus two
+  fresh-client warm-cache comparisons, are reported above. Conversation and
+  Idea Map calls remain separate and every call recorded Sonnet 5, Anthropic,
+  and medium effort.
+- The mounted owner sequence exercised the real client, API, Prisma development
+  database, Anthropic adapter, and Braintrust composition. Exact server/client
+  TTFT, provider/client completion, retention, Idea Map completion, usage,
+  reasoning, cache state, errors, quality observations, and estimated cost are
+  recorded above.
+- Findings classify every approved hypothesis without reporting correlation as
+  provider causation. No production mitigation was implemented.
+- Focused tests, 249 full tests, three Playwright tests, typecheck, build, frozen
+  offline lockfile validation, mounted verification, and `git diff --check`
+  passed.
+- The complete branch diff keeps diagnostic behavior and verification in the
+  product-owned evaluation boundary. Package scripts only expose that runner;
+  no host behavior, persistence contract, schema, migration, prompt, output
+  schema, model, effort, or production dependency boundary changed. The
+  unrelated existing edits in `tasks/036-complete-demo-session.md` remain
+  user-owned and outside this task.
