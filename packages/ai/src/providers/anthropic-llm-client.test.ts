@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const anthropicMocks = vi.hoisted(() => ({
   createMessage: vi.fn(),
+  streamMessage: vi.fn(),
 }));
 
 vi.mock("@anthropic-ai/sdk", () => ({
   default: class Anthropic {
     messages = {
       create: anthropicMocks.createMessage,
+      stream: anthropicMocks.streamMessage,
     };
   },
 }));
@@ -32,6 +34,7 @@ function completedResponse() {
 describe("Anthropic LLM client", () => {
   beforeEach(() => {
     anthropicMocks.createMessage.mockReset();
+    anthropicMocks.streamMessage.mockReset();
     anthropicMocks.createMessage.mockResolvedValue(completedResponse());
   });
 
@@ -146,6 +149,63 @@ describe("Anthropic LLM client", () => {
         },
       ],
     });
+  });
+
+  it("streams text deltas and a normalized completed response", async () => {
+    const response = completedResponse();
+    anthropicMocks.streamMessage.mockReturnValue({
+      async *[Symbol.asyncIterator]() {
+        yield {
+          type: "content_block_delta",
+          delta: { type: "text_delta", text: '{"response":"A ' },
+        };
+        yield {
+          type: "content_block_delta",
+          delta: { type: "text_delta", text: 'response"}' },
+        };
+      },
+      finalMessage: vi.fn().mockResolvedValue(response),
+    });
+    const client = new AnthropicLlmClient({ apiKey: "test-key" });
+
+    const events = [];
+    for await (const event of client.streamMessage({
+      maxTokens: 1_024,
+      system: "Stable instructions.",
+      context: "Changing workspace context.",
+      messages: [{ role: "user", content: "A thought" }],
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([
+      { type: "text_delta", text: '{"response":"A ' },
+      { type: "text_delta", text: 'response"}' },
+      {
+        type: "completed",
+        response: {
+          content: '{"response":"A response"}',
+          inputTokens: 28,
+          outputTokens: 12,
+          reasoningTokens: 4,
+          cacheReadTokens: 5,
+          cacheWriteTokens: 3,
+          model: "claude-test-model",
+        },
+      },
+    ]);
+    expect(anthropicMocks.streamMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        system: [
+          {
+            type: "text",
+            text: "Stable instructions.",
+            cache_control: { type: "ephemeral" },
+          },
+          { type: "text", text: "Changing workspace context." },
+        ],
+      }),
+    );
   });
 
   it("allows an explicitly supplied client decorator", async () => {

@@ -12,22 +12,14 @@ import {
   ACTIVITIES,
   ASSISTANT_MOVES,
   CONVERSATION_MESSAGE_ROLES,
-  IDEA_ACTION_TYPES,
   IDEA_DISPOSITIONS,
-  IDEA_EXPLORATION_ASSESSMENTS,
-  IDEA_IMPORTANCE_ASSESSMENTS,
   READINESS_ACTIONS,
   READINESS_ASSESSMENTS,
   USER_INTENTIONS,
 } from "packages/products/src/thoughtform/shared";
 import type { ConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
-import {
-  parseProposedIdeas,
-  parseProposedIdeaActions,
-  type ProposedIdea,
-  type ProposedIdeaAction,
-} from "packages/products/src/thoughtform/server/capabilities/idea-map";
 import { FallbackConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/fallback-conversation-model";
+import { createJsonStringFieldDeltaDecoder } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-response-stream";
 import {
   noOpObservability,
   OBSERVATION_ATTRIBUTE_NAMES,
@@ -73,28 +65,12 @@ Assess reflect and compose readiness separately as advisory judgements. Readines
 Reflection is ready only when the current shape can be stated accurately without flattening it. Composition may be ready when the user has established enough material for even one coherent first-person sentence. When readiness is ready_with_uncertainty, explain the important unresolved uncertainty concisely and concretely.
 </readiness_contract>
 
-<idea_map_contract>
-Use the supplied Idea Map to preserve stable idea identity, avoid repeating resolved questions, and respect user dispositions. Preserve established substance and incorporate new discoveries coherently. Keep facets of one idea together rather than splitting them into shallow separate ideas.
-
-proposedIdeas contains only genuinely new ideas or existing ideas that the current turn should enrich. Use null as the id only for a genuinely distinct new idea. When enriching an idea, copy its existing id exactly; never invent an id. Proposed ideas remain active. Express disposition changes only through ideaActions.
-
-For each proposed idea, return no more than three unresolved questions. Each must arise directly from a tension or uncertainty the user has already expressed and remain appropriate to Discovery. Before a Draft exists, exclude questions about audience, tone, form, evidence, or writing structure.
-
-Return ideaActions only when the user explicitly requests focus, satisfaction, parking, dismissal, reopening, or correction. Reference an existing idea id, never a newly proposed idea. Include userInterpretation only for correction.
-</idea_map_contract>
-
-<provenance_contract>
-The Idea Map records material expressed by the user and assistant language the user has explicitly adopted, confirmed, corrected, or meaningfully developed. Every canonical claim must be traceable to that material.
-
-Write titles, syntheses, substance, and unresolved questions as the user's own first-person material. Preserve useful user language naturally. Keep attribution phrases, evidence-tracking commentary, transcripts, and assistant reports outside canonical material.
-
-Organise and clarify established material without adding assistant hypotheses, inferred causes, possible themes, genre or audience suggestions, structural advice, practical strategies, or unconfirmed interpretations. Keep draft-edit history, saved-change mechanics, spelling or voice preferences, editing requests, proposal choices, assistant actions, and workspace instructions outside canonical material.
-
-For each proposed idea, evidence contains exact excerpts from user-authored messages establishing its material. Evidence is validation metadata rather than persisted idea substance; assistant text is never evidence.
-</provenance_contract>
+<idea_map_context>
+Use the supplied Idea Map as established context for the conversation. Respect its distinctions, corrections, dispositions, and unresolved questions. Another concurrent operation analyses the user's message for Idea Map changes; do not report or encode those changes in this output.
+</idea_map_context>
 
 <saved_change_contract>
-When an exact saved Draft change is attached, return null for proposedIdeas and ideaActions. Ask what the change means without canonising an interpretation. A later user response may establish its meaning in an ordinary turn.
+When an exact saved Draft change is attached, ask what the change means without canonising an interpretation. A later user response may establish its meaning in an ordinary turn.
 
 When the preceding assistant message provisionally interprets a saved edit, treat the user's response as authoritative. Dismissal changes no idea substance. Confirmation or clarification may update established substance. Richer current user wording replaces rather than gets flattened into an earlier assistant paraphrase.
 </saved_change_contract>
@@ -102,12 +78,6 @@ When the preceding assistant message provisionally interprets a saved edit, trea
 <draft_contract>
 When a canonical Draft exists and the user requests an edit or revision, describe this operation accurately: conversation cannot change the Draft directly. Ask one necessary clarification if the request is ambiguous, then direct the user toward a reviewable revision proposal alongside the Draft. Keep the editing request out of the Idea Map.
 </draft_contract>
-
-<conflict_contract>
-Potential conflicts are known tensions in established material, distinct from unresolved questions. Ask toward resolution when relevant. Return a conflict id in resolvedPotentialConflictIds only when the user resolves it through refinement, contextual distinction, choosing a position, separating ideas, integrating an intentional and explained tension, or dismissing a mistaken conflict.
-
-For a resolved rather than dismissed conflict, retain the user's resolution in ordinary proposed idea substance using their latest language. An explicit resolution such as a settled view, replacement of an earlier claim, contextual distinction, intentionally preserved tension, or dismissal of a mistaken conflict is authoritative: return the matching existing conflict id in the same response without asking for confirmation again. A bare confirmation may adopt the preceding assistant wording, but richer current user wording always takes precedence. Never infer resolution independently.
-</conflict_contract>
 
 <output_contract>
 Return exactly the supplied structured output. response is the concise message shown to the user. The schema is authoritative for required fields, allowed values, nullability, and collection limits. Apply every semantic contract above when producing those fields.
@@ -131,14 +101,6 @@ export const DISCOVERY_ASSISTANT_MOVES = [
 const READINESS_ACTION_VALUES = Object.values(READINESS_ACTIONS);
 const READINESS_ASSESSMENT_VALUES = Object.values(READINESS_ASSESSMENTS);
 const USER_INTENTION_VALUES = Object.values(USER_INTENTIONS);
-const ACTIVE_IDEA_DISPOSITION_VALUES = [IDEA_DISPOSITIONS.active] as const;
-const IDEA_EXPLORATION_ASSESSMENT_VALUES = Object.values(
-  IDEA_EXPLORATION_ASSESSMENTS,
-);
-const IDEA_IMPORTANCE_ASSESSMENT_VALUES = Object.values(
-  IDEA_IMPORTANCE_ASSESSMENTS,
-);
-const IDEA_ACTION_TYPE_VALUES = Object.values(IDEA_ACTION_TYPES);
 
 export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
   name: "thoughtform_conversation",
@@ -172,117 +134,12 @@ export const CONVERSATION_MODEL_OUTPUT_FORMAT = {
         type: ["string", "null"],
         enum: [...USER_INTENTION_VALUES, null],
       },
-      proposedIdeas: {
-        anyOf: [
-          {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                id: { type: ["string", "null"] },
-                title: { type: "string", minLength: 1 },
-                synthesis: {
-                  type: "string",
-                  minLength: 1,
-                  description: "A concise first-person articulation in the user's own perspective, with no attribution or assistant-facing provenance language.",
-                },
-                substance: {
-                  type: "string",
-                  minLength: 1,
-                  description: "Rich first-person user-established material, never a transcript, report about the user, preference record, or editing workflow.",
-                },
-                unresolvedQuestions: {
-                  type: "array",
-                  maxItems: 3,
-                  items: { type: "string", minLength: 1 },
-                  description: "First-person questions grounded in unresolved user-established meaning, excluding editing, preference, format, and workflow questions.",
-                },
-                disposition: {
-                  type: "string",
-                  enum: ACTIVE_IDEA_DISPOSITION_VALUES,
-                },
-                assistantAssessment: {
-                  type: "object",
-                  properties: {
-                    exploration: {
-                      type: "string",
-                      enum: IDEA_EXPLORATION_ASSESSMENT_VALUES,
-                    },
-                    importance: {
-                      type: "string",
-                      enum: IDEA_IMPORTANCE_ASSESSMENT_VALUES,
-                    },
-                  },
-                  required: ["exploration", "importance"],
-                  additionalProperties: false,
-                },
-                evidence: {
-                  type: "array",
-                  minItems: 1,
-                  items: {
-                    type: "object",
-                    properties: {
-                      quote: { type: "string", minLength: 1 },
-                    },
-                    required: ["quote"],
-                    additionalProperties: false,
-                  },
-                  description: "Exact excerpts from user-authored messages that establish this idea. Never cite assistant text as evidence.",
-                },
-              },
-              required: [
-                "id",
-                "title",
-                "synthesis",
-                "substance",
-                "unresolvedQuestions",
-                "disposition",
-                "assistantAssessment",
-                "evidence",
-              ],
-              additionalProperties: false,
-            },
-          },
-          { type: "null" },
-        ],
-      },
-      ideaActions: {
-        anyOf: [
-          {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                ideaId: { type: "string" },
-                action: {
-                  type: "string",
-                  enum: IDEA_ACTION_TYPE_VALUES,
-                },
-                userInterpretation: { type: ["string", "null"] },
-              },
-              required: ["ideaId", "action", "userInterpretation"],
-              additionalProperties: false,
-            },
-          },
-          { type: "null" },
-        ],
-      },
-      resolvedPotentialConflictIds: {
-        description: "Existing potential-conflict ids explicitly resolved or dismissed by the user's current message; never ids inferred resolved by the assistant alone.",
-        anyOf: [
-          { type: "array", items: { type: "string" } },
-          { type: "null" },
-        ],
-      },
     },
     required: [
       "response",
       "move",
       "assistantReadiness",
       "userIntention",
-      "proposedIdeas",
-      "ideaActions",
-      "resolvedPotentialConflictIds",
     ],
     additionalProperties: false,
   },
@@ -298,11 +155,10 @@ export interface ConversationServiceRequest {
   hasDraft?: boolean;
 }
 
-export type ConversationGeneration = Omit<ConversationResponse, "ideaMap"> & {
-  proposedIdeas: ProposedIdea[] | null;
-  proposedIdeaActions: ProposedIdeaAction[] | null;
-  resolvedPotentialConflictIds?: string[] | null;
-};
+export type ConversationGeneration = Omit<ConversationResponse, "ideaMap">;
+export type ConversationGenerationStreamEvent =
+  | { type: "text_delta"; text: string }
+  | { type: "completed"; generation: ConversationGeneration };
 
 export interface ConversationServiceDependencies {
   conversationModel?: ConversationModel;
@@ -350,46 +206,12 @@ export class ConversationService {
       throw new ConversationInputTooLargeError();
     }
 
-    let modelResponse = await this.conversationModel.createResponse(modelRequest);
-    let structured = await this.observability.observe(
+    const modelResponse = await this.conversationModel.createResponse(modelRequest);
+    const structured = await this.observability.observe(
       "thoughtform.conversation.validate_output",
       {},
-      async () => parseStructuredResponse(
-      modelResponse.content,
-      [
-        ...modelRequest.messages
-          .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
-          .map((message) => message.content),
-        ...(request.ideaMap?.ideas.map((idea) => idea.substance) ?? []),
-      ],
-      request.previousMessages
-        .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
-        .map((message) => message.content),
-      ),
+      async () => parseConversationModelResponse(modelResponse.content),
     );
-    if (shouldRepairProposedIdeas(modelResponse.content, structured.proposedIdeas)) {
-      this.observability.record({ [OBSERVATION_ATTRIBUTE_NAMES.repairAttempted]: true });
-      modelResponse = await this.conversationModel.createResponse({
-        ...modelRequest,
-        context: `<repair_instruction>
-The preceding output failed Idea Map provenance or product validation. Return one corrected complete response. Preserve the user-facing conversational response, remove unsupported canonical material, and cite exact user-message evidence for every proposed idea.
-</repair_instruction>
-
-${modelRequest.context}`,
-      });
-      structured = await this.observability.observe(
-        "thoughtform.conversation.validate_repair",
-        {},
-        async () => parseStructuredResponse(modelResponse.content, [
-        ...modelRequest.messages
-          .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
-          .map((message) => message.content),
-        ...(request.ideaMap?.ideas.map((idea) => idea.substance) ?? []),
-      ], request.previousMessages
-        .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.assistant)
-        .map((message) => message.content)),
-      );
-    }
 
     const generation = {
       conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
@@ -401,26 +223,56 @@ ${modelRequest.context}`,
       move: structured.move,
       assistantReadiness: structured.assistantReadiness,
       userIntention: structured.userIntention,
-      proposedIdeas: structured.proposedIdeas,
-      proposedIdeaActions: structured.proposedIdeaActions,
-      resolvedPotentialConflictIds: structured.resolvedPotentialConflictIds,
     };
     this.observability.recordContent({ output: generation });
     return generation;
     });
   }
-}
 
-function shouldRepairProposedIdeas(
-  content: string,
-  proposedIdeas: ProposedIdea[] | null,
-) {
-  if (proposedIdeas !== null) return false;
-  try {
-    const value = JSON.parse(stripJsonFence(content)) as Record<string, unknown>;
-    return Array.isArray(value.proposedIdeas) && value.proposedIdeas.length > 0;
-  } catch {
-    return false;
+  async *respondStream(
+    request: ConversationServiceRequest,
+  ): AsyncIterable<ConversationGenerationStreamEvent> {
+    const modelRequest = createConversationModelRequest(request);
+    if (measureConversationInputBytes(modelRequest) > MAX_CONVERSATION_INPUT_BYTES) {
+      throw new ConversationInputTooLargeError();
+    }
+    if (!this.conversationModel.streamResponse) {
+      const generation = await this.respond(request);
+      yield { type: "text_delta", text: generation.message.content };
+      yield { type: "completed", generation };
+      return;
+    }
+
+    const decoder = createJsonStringFieldDeltaDecoder("response");
+    let emittedText = "";
+    for await (const event of this.conversationModel.streamResponse(modelRequest)) {
+      if (event.type === "text_delta") {
+        const text = decoder.push(event.text);
+        if (text) {
+          emittedText += text;
+          yield { type: "text_delta", text };
+        }
+        continue;
+      }
+      const structured = parseConversationModelResponse(event.content);
+      if (!emittedText) {
+        emittedText = structured.response;
+        yield { type: "text_delta", text: emittedText };
+      }
+      const generation: ConversationGeneration = {
+        conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
+        message: {
+          role: CONVERSATION_MESSAGE_ROLES.assistant,
+          content: structured.response,
+        },
+        activity: ACTIVITIES.discovery,
+        move: structured.move,
+        assistantReadiness: structured.assistantReadiness,
+        userIntention: structured.userIntention,
+      };
+      this.observability.recordContent({ output: generation });
+      yield { type: "completed", generation };
+    }
   }
 }
 
@@ -586,18 +438,11 @@ function boundText(value: string, maximumCharacters: number) {
     : `${value.slice(0, maximumCharacters)}\n[Further canonical substance omitted from this operation's bounded context.]`;
 }
 
-function parseStructuredResponse(
-  content: string,
-  groundingSources: string[],
-  assistantSources: string[],
-): {
+export function parseConversationModelResponse(content: string): {
   response: string;
   move: AssistantMove;
   assistantReadiness: AssistantReadiness[];
   userIntention: UserIntention | null;
-  proposedIdeas: ProposedIdea[] | null;
-  proposedIdeaActions: ProposedIdeaAction[] | null;
-  resolvedPotentialConflictIds: string[] | null;
 } {
   const trimmed = content.trim();
   try {
@@ -617,17 +462,6 @@ function parseStructuredResponse(
         userIntention: parseUserIntention(
           "userIntention" in parsed ? parsed.userIntention : null,
         ),
-        proposedIdeas: "proposedIdeas" in parsed
-          ? parseGroundedProposedIdeas(parsed.proposedIdeas, groundingSources, assistantSources)
-          : null,
-        proposedIdeaActions:
-          "ideaActions" in parsed
-            ? parseProposedIdeaActions(parsed.ideaActions)
-            : null,
-        resolvedPotentialConflictIds:
-          "resolvedPotentialConflictIds" in parsed
-            ? parseStringArray(parsed.resolvedPotentialConflictIds)
-            : null,
       };
     }
   } catch {
@@ -635,9 +469,6 @@ function parseStructuredResponse(
       return {
         response: DEFAULT_ASSISTANT_MESSAGE,
         ...createDefaultDiscoveryMetadata(),
-        proposedIdeas: null,
-        proposedIdeaActions: null,
-        resolvedPotentialConflictIds: null,
       };
     }
   }
@@ -645,67 +476,7 @@ function parseStructuredResponse(
   return {
     response: trimmed || DEFAULT_ASSISTANT_MESSAGE,
     ...createDefaultDiscoveryMetadata(),
-    proposedIdeas: null,
-    proposedIdeaActions: null,
-    resolvedPotentialConflictIds: null,
   };
-}
-
-function parseGroundedProposedIdeas(
-  value: unknown,
-  groundingSources: string[],
-  assistantSources: string[],
-): ProposedIdea[] | null {
-  if (value === null) return null;
-  if (!Array.isArray(value)) return null;
-  const grounded = value.filter((candidate) =>
-    hasValidUserEvidence(candidate, groundingSources) &&
-    hasNoUnacceptedAssistantLanguage(candidate, groundingSources, assistantSources),
-  );
-  if (grounded.length === 0) return null;
-  return parseProposedIdeas(grounded);
-}
-
-function hasValidUserEvidence(candidate: unknown, groundingSources: string[]) {
-  if (!candidate || typeof candidate !== "object" || !("evidence" in candidate)) {
-    return false;
-  }
-  const evidence = candidate.evidence;
-  return Array.isArray(evidence) && evidence.length > 0 && evidence.every((item) => {
-    if (!item || typeof item !== "object" || !("quote" in item)) return false;
-    if (typeof item.quote !== "string" || !item.quote.trim()) return false;
-    const quote = item.quote.trim();
-    return groundingSources.some((message) => message.includes(quote));
-  });
-}
-
-function hasNoUnacceptedAssistantLanguage(
-  candidate: unknown,
-  groundingSources: string[],
-  assistantSources: string[],
-) {
-  if (!candidate || typeof candidate !== "object" || !("substance" in candidate)) {
-    return false;
-  }
-  if (typeof candidate.substance !== "string") return false;
-  const substance = normalizeGroundingText(candidate.substance);
-  const userLanguage = normalizeGroundingText(groundingSources.join(" "));
-  const assistantOnlyWords = new Set(
-    normalizeGroundingText(assistantSources.join(" "))
-      .split(/[^\p{L}\p{N}-]+/u)
-      .filter((word) => word.includes("-") && !userLanguage.includes(word)),
-  );
-  return [...assistantOnlyWords].every((word) => !substance.includes(word));
-}
-
-function normalizeGroundingText(value: string) {
-  return value.toLocaleLowerCase().replace(/\s+/g, " ").trim();
-}
-
-function parseStringArray(value: unknown): string[] | null {
-  return Array.isArray(value) && value.every((candidate) => typeof candidate === "string" && candidate.trim())
-    ? value.map((candidate) => candidate.trim())
-    : null;
 }
 
 const DISCOVERY_MOVES = new Set<AssistantMove>(DISCOVERY_ASSISTANT_MOVES);

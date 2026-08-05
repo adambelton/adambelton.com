@@ -9,12 +9,15 @@ import {
 } from "packages/ai/src";
 import {
   ConversationService,
+  IdeaMapAnalysisService,
   getProposedIdeaActionsValidationIssues,
   getProposedIdeasValidationIssues,
   projectThoughtFormOutputSchema,
   THOUGHTFORM_AI_PROFILES,
   type ConversationModel,
   type ConversationModelRequest,
+  type IdeaMapAnalysisModel,
+  type IdeaMapAnalysisModelRequest,
 } from "packages/products/src/thoughtform/server";
 import { respondInWorkspace } from "packages/products/src/thoughtform/server/application/workspace";
 import {
@@ -143,8 +146,11 @@ async function runFifaConversation(
   userMessages: readonly string[],
   llmClient: AnthropicLlmClient,
 ) {
-  const model = createMeasuredConversationModel(llmClient);
-  const conversationService = new ConversationService({ conversationModel: model });
+  const models = createMeasuredModels(llmClient);
+  const conversationService = new ConversationService({
+    conversationModel: models.conversation,
+  });
+  const ideaMapAnalysis = new IdeaMapAnalysisService(models.ideaMap);
   const conversations = createTestConversationStore();
   const conversationId = (await conversations.createConversation()).id;
   const turns: EvaluatedFifaTurn[] = [];
@@ -156,6 +162,7 @@ async function runFifaConversation(
       conversationId,
       message: userMessage,
       conversation: conversationService,
+      ideaMapAnalysis,
       conversations,
     });
     const totalLatencyMs = Date.now() - startedAt;
@@ -164,10 +171,15 @@ async function runFifaConversation(
       throw new Error(`FIFA turn ${index + 1} failed with ${result.status}.`);
     }
 
-    const measurements = model.takeMeasurements();
-    const finalMeasurement = measurements.at(-1);
-    if (!finalMeasurement) {
-      throw new Error(`FIFA turn ${index + 1} produced no model measurement.`);
+    const measurements = models.takeMeasurements();
+    const conversationMeasurement = measurements.find(
+      (entry) => entry.operation === "conversation",
+    );
+    const ideaMapMeasurement = measurements.find(
+      (entry) => entry.operation === "idea_map",
+    );
+    if (!conversationMeasurement || !ideaMapMeasurement) {
+      throw new Error(`FIFA turn ${index + 1} did not produce both model measurements.`);
     }
     const ideaMap = result.response.ideaMap ?? previousIdeaMap;
     const previousIds = new Set(previousIdeaMap.ideas.map((idea) => idea.id));
@@ -189,8 +201,13 @@ async function runFifaConversation(
         measurements,
         (entry) => entry.response.cacheWriteTokens,
       ),
-      outputCharacters: finalMeasurement.response.content.length,
-      model: finalMeasurement.response.model,
+      outputCharacters: sum(
+        measurements,
+        (entry) => entry.response.content.length,
+      ),
+      model: conversationMeasurement.response.model,
+      conversationLatencyMs: conversationMeasurement.providerLatencyMs,
+      ideaMapLatencyMs: ideaMapMeasurement.providerLatencyMs,
       mapRevision: ideaMap.revision,
       ideaCount: ideaMap.ideas.length,
       retainedIdeaCount: ideaMap.ideas.filter((idea) => previousIds.has(idea.id))
@@ -210,9 +227,9 @@ async function runFifaConversation(
       userMessage,
       response: result.response,
       rawModelOutputs: measurements.map((entry) => entry.response.content),
-      repairCalls: Math.max(0, measurements.length - 1),
+      repairCalls: 0,
       validationIssues: getStructuredOutputValidationIssues(
-        finalMeasurement.response.content,
+        ideaMapMeasurement.response.content,
       ),
       ideaMap,
       metrics,
@@ -228,47 +245,60 @@ async function runFifaConversation(
       turns.map((turn) => turn.metrics),
     ),
     totalModelCalls: turns.reduce(
-      (total, turn) => total + 1 + turn.repairCalls,
+      (total, turn) => total + turn.rawModelOutputs.length,
       0,
     ),
   } satisfies FifaConversationEvaluation;
 }
 
 type ModelMeasurement = {
+  operation: "conversation" | "idea_map";
   providerLatencyMs: number;
   response: LlmResponse;
 };
 
-type MeasuredConversationModel = ConversationModel & {
-  takeMeasurements(): ModelMeasurement[];
-};
-
-function createMeasuredConversationModel(
+function createMeasuredModels(
   llmClient: AnthropicLlmClient,
-): MeasuredConversationModel {
+) {
   let measurements: ModelMeasurement[] = [];
-  return {
+  async function measure(
+    operation: ModelMeasurement["operation"],
+    request: ConversationModelRequest | IdeaMapAnalysisModelRequest,
+  ) {
+    const startedAt = Date.now();
+    const response = await llmClient.createMessage({
+      maxTokens: request.maxOutputTokens,
+      messages: request.messages,
+      outputFormat: {
+        ...request.outputFormat,
+        schema: projectThoughtFormOutputSchema(
+          THOUGHTFORM_AI_PROFILES.anthropic,
+          request.outputFormat.schema,
+        ),
+      },
+      system: request.system,
+      context: request.context,
+    });
+    measurements.push({
+      operation,
+      providerLatencyMs: Date.now() - startedAt,
+      response,
+    });
+    return { content: response.content };
+  }
+  const conversation: ConversationModel = {
     async createResponse(request: ConversationModelRequest) {
-      const startedAt = Date.now();
-      const response = await llmClient.createMessage({
-        maxTokens: request.maxOutputTokens,
-        messages: request.messages,
-        outputFormat: {
-          ...request.outputFormat,
-          schema: projectThoughtFormOutputSchema(
-            THOUGHTFORM_AI_PROFILES.anthropic,
-            request.outputFormat.schema,
-          ),
-        },
-        system: request.system,
-        context: request.context,
-      });
-      measurements.push({
-        providerLatencyMs: Date.now() - startedAt,
-        response,
-      });
-      return { content: response.content };
+      return measure("conversation", request);
     },
+  };
+  const ideaMap: IdeaMapAnalysisModel = {
+    async createAnalysis(request) {
+      return measure("idea_map", request);
+    },
+  };
+  return {
+    conversation,
+    ideaMap,
     takeMeasurements() {
       const completed = measurements;
       measurements = [];

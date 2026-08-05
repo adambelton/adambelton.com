@@ -11,7 +11,22 @@ export class ThoughtFormLlmClientAdapter implements LlmClient {
   ) {}
 
   createMessage(request: LlmRequest) {
-    return this.client.createMessage({
+    return this.client.createMessage(this.projectRequest(request));
+  }
+
+  async *streamMessage(request: LlmRequest) {
+    const projectedRequest = this.projectRequest(request);
+    if (this.client.streamMessage) {
+      yield* this.client.streamMessage(projectedRequest);
+      return;
+    }
+    const response = await this.client.createMessage(projectedRequest);
+    yield { type: "text_delta" as const, text: response.content };
+    yield { type: "completed" as const, response };
+  }
+
+  private projectRequest(request: LlmRequest): LlmRequest {
+    return {
       ...request,
       ...(request.outputFormat ? {
         outputFormat: {
@@ -22,6 +37,6 @@ export class ThoughtFormLlmClientAdapter implements LlmClient {
           ),
         },
       } : {}),
-    });
+    };
   }
 }

@@ -15,6 +15,10 @@ import {
   hasAttachedDraftMaterial,
   readIdeaMapFromWorkspaceContext,
 } from "packages/products/src/thoughtform/testing/browser/workspace-context";
+import {
+  IdeaMapAnalysisService,
+  type IdeaMapAnalysisModelRequest,
+} from "packages/products/src/thoughtform/server/capabilities/idea-map";
 
 const port = Number(process.env.PORT ?? 8788);
 let conversationStore = createTestConversationStore();
@@ -35,6 +39,20 @@ const conversationService = new ConversationService({
           ideaActions: null,
         }) })
       : discoveryModel.createResponse(request),
+  },
+});
+const ideaMapAnalysis = new IdeaMapAnalysisService({
+  async createAnalysis(request) {
+    const combined = useConversationalThinkingScenario
+      ? await createConversationalThinkingResponse(request as ConversationModelRequest)
+      : hasAttachedDraftMaterial(request.context)
+        ? { content: JSON.stringify({
+            proposedIdeas: null,
+            ideaActions: null,
+            resolvedPotentialConflictIds: null,
+          }) }
+        : await discoveryModel.createResponse(request as ConversationModelRequest);
+    return mapAnalysisOnly(combined.content, request);
   },
 });
 const app = new Hono();
@@ -112,6 +130,8 @@ app.route(
   "/products/thoughtform",
   createThoughtFormApiRoute({
     conversationService,
+    streamingConversationService: conversationService,
+    ideaMapAnalysis,
     getConversationStore: async () => conversationStore,
     getTemporaryConversationStore: async () => conversationStore,
     getPersistentConversationStore: async () => null,
@@ -222,5 +242,17 @@ function createConversationalThinkingResponse(request: ConversationModelRequest)
     }],
     ideaActions: null,
     resolvedPotentialConflictIds: null,
+  }) };
+}
+
+function mapAnalysisOnly(
+  content: string,
+  _request: IdeaMapAnalysisModelRequest,
+) {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  return { content: JSON.stringify({
+    proposedIdeas: parsed.proposedIdeas ?? null,
+    ideaActions: parsed.ideaActions ?? null,
+    resolvedPotentialConflictIds: parsed.resolvedPotentialConflictIds ?? null,
   }) };
 }

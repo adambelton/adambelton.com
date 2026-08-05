@@ -22,6 +22,8 @@ export type CreateThoughtFormApiRouteDependencies =
       getPersistentDraftStore: CreateDraftRouteDependencies["getDraftStore"];
       getTemporaryDraftStore: CreateDraftRouteDependencies["getDraftStore"];
       persistentConversationService?: CreateConversationsRouteDependencies["conversationService"];
+      persistentStreamingConversationService?: CreateConversationsRouteDependencies["streamingConversationService"];
+      persistentIdeaMapAnalysis?: CreateConversationsRouteDependencies["ideaMapAnalysis"];
       persistentObservability?: CreateConversationsRouteDependencies["observability"];
     };
 
@@ -42,6 +44,11 @@ export function createThoughtFormApiRoute(
     ...dependencies,
     conversationService:
       dependencies.persistentConversationService ?? dependencies.conversationService,
+    streamingConversationService:
+      dependencies.persistentStreamingConversationService ??
+      dependencies.streamingConversationService,
+    ideaMapAnalysis:
+      dependencies.persistentIdeaMapAnalysis ?? dependencies.ideaMapAnalysis,
     observability: dependencies.persistentObservability,
   }));
   route.route("/drafts", createDraftRoute({

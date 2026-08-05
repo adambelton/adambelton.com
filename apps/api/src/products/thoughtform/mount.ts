@@ -29,6 +29,11 @@ import {
 } from "apps/api/src/products/thoughtform/adapters/ai/draft-model-adapter";
 import { createDraftStoreResolver } from "apps/api/src/products/thoughtform/adapters/persistence/draft-store-resolver";
 import { ConversationService } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import { IdeaMapAnalysisService } from "packages/products/src/thoughtform/server/capabilities/idea-map";
+import {
+  DisabledIdeaMapAnalysisModelAdapter,
+  LlmIdeaMapAnalysisModelAdapter,
+} from "apps/api/src/products/thoughtform/adapters/ai/idea-map-analysis-model-adapter";
 import { createThoughtFormApiRoute } from "packages/products/src/thoughtform/server/delivery/http";
 import { noOpObservability } from "packages/observability/src";
 import type { Observability } from "packages/observability/src";
@@ -166,12 +171,20 @@ export function createConversationServices(
   const ownerModel = client
     ? new LlmConversationModelAdapter(client, observability, provider)
     : new DisabledConversationModelAdapter();
+  const temporaryIdeaMapModel = client
+    ? new LlmIdeaMapAnalysisModelAdapter(client)
+    : new DisabledIdeaMapAnalysisModelAdapter();
+  const ownerIdeaMapModel = client
+    ? new LlmIdeaMapAnalysisModelAdapter(client, observability, provider)
+    : new DisabledIdeaMapAnalysisModelAdapter();
   return {
     temporary: new ConversationService({ conversationModel: temporaryModel }),
     persistent: new ConversationService({
       conversationModel: ownerModel,
       observability,
     }),
+    temporaryIdeaMapAnalysis: new IdeaMapAnalysisService(temporaryIdeaMapModel),
+    ownerIdeaMapAnalysis: new IdeaMapAnalysisService(ownerIdeaMapModel),
   };
 }
 const conversationServices = createConversationServices(
@@ -243,7 +256,8 @@ export function parseOwnerClientObservation(value: unknown) {
   if (
     typeof candidate.observationId !== "string" ||
     !/^[0-9a-f-]{36}$/i.test(candidate.observationId) ||
-    candidate.operation !== "conversation_response" ||
+    (candidate.operation !== "conversation_response" &&
+      candidate.operation !== "conversation_first_token") ||
     typeof candidate.durationMs !== "number" ||
     !Number.isInteger(candidate.durationMs) ||
     candidate.durationMs < 0 ||
@@ -264,7 +278,11 @@ thoughtFormRoute.route(
   "/",
   createThoughtFormApiRoute({
     conversationService: conversationServices.temporary,
+    streamingConversationService: conversationServices.temporary,
     persistentConversationService: conversationServices.persistent,
+    persistentStreamingConversationService: conversationServices.persistent,
+    ideaMapAnalysis: conversationServices.temporaryIdeaMapAnalysis,
+    persistentIdeaMapAnalysis: conversationServices.ownerIdeaMapAnalysis,
     persistentObservability: ownerObservability,
     compositionModel: draftModel,
     interpretationModel: draftChangeInterpretationModel,

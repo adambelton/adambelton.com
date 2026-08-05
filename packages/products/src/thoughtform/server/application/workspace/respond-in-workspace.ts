@@ -16,12 +16,15 @@ import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_MESSAGE_ROLES,
   type ConversationResponse,
+  type IdeaMap,
   type DraftSelection,
   type DraftChange,
 } from "packages/products/src/thoughtform/shared";
 import {
   applyIdeaAction,
   applyProposedIdeas,
+  type IdeaMapAnalysisService,
+  type IdeaMapAnalysis,
   removeResolvedPotentialConflicts,
   IDEA_MAP_UPDATE_STATUSES,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map";
@@ -36,6 +39,17 @@ export const WORKSPACE_RESPONSE_STATUSES = {
 } as const;
 
 export type ConversationResponder = Pick<ConversationService, "respond">;
+export type IdeaMapAnalyser = Pick<IdeaMapAnalysisService, "analyse">;
+
+export const noOpIdeaMapAnalyser: IdeaMapAnalyser = {
+  async analyse() {
+    return {
+      proposedIdeas: null,
+      proposedIdeaActions: null,
+      resolvedPotentialConflictIds: null,
+    };
+  },
+};
 
 export type RespondInWorkspaceResult =
   | {
@@ -54,6 +68,7 @@ export async function respondInWorkspace(input: {
   conversationId: string | null;
   message: string;
   conversation: ConversationResponder;
+  ideaMapAnalysis?: IdeaMapAnalyser;
   conversations: ConversationStore;
   draftSelection?: DraftSelection;
   draftChange?: DraftChange;
@@ -75,6 +90,23 @@ export async function respondInWorkspace(input: {
   if (workspace === null) {
     return { status: CONVERSATION_ERROR_CODES.notFound };
   }
+
+  const ideaMapAnalysisPromise = input.ideaMapAnalysis
+    ?.analyse({
+      message: input.message,
+      previousMessages: workspace.messages,
+      ideaMap: workspace.ideaMap,
+      draftChange: input.draftChange,
+    })
+    .catch(() => ({
+      proposedIdeas: null,
+      proposedIdeaActions: null,
+      resolvedPotentialConflictIds: null,
+    })) ?? Promise.resolve({
+      proposedIdeas: null,
+      proposedIdeaActions: null,
+      resolvedPotentialConflictIds: null,
+    });
 
   let generatedResponse: Awaited<ReturnType<ConversationResponder["respond"]>>;
 
@@ -104,70 +136,17 @@ export async function respondInWorkspace(input: {
   const operationId = globalThis.crypto.randomUUID();
   const conversationId =
     input.conversationId ?? input.conversations.createConversationId();
-  const {
-    proposedIdeas: _proposedIdeas,
-    proposedIdeaActions,
-    resolvedPotentialConflictIds,
-    ...generatedConversationResponse
-  } = generatedResponse;
+  const ideaMapAnalysis = await ideaMapAnalysisPromise;
   const ideaMap = await observability.observe(
     "thoughtform.workspace.apply_idea_map",
     {},
-    async () => {
-      const proposedMap = applyProposedIdeas({
-        current: workspace.ideaMap,
-        proposedIdeas: input.draftChange ? null : generatedResponse.proposedIdeas,
-      });
-      let nextIdeaMap =
-        proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
-          ? workspace.ideaMap
-          : proposedMap.ideaMap;
-      let invalidIdeaChanges =
-        proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
-      for (const action of input.draftChange ? [] : (proposedIdeaActions ?? [])) {
-        const actionResult = applyIdeaAction({
-          current: nextIdeaMap,
-          ideaId: action.ideaId,
-          request: {
-            action: action.action,
-            expectedRevision: workspace.ideaMap.revision,
-            userInterpretation: action.userInterpretation,
-          },
-        });
-        if (actionResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
-          invalidIdeaChanges = true;
-          break;
-        }
-        nextIdeaMap = actionResult.ideaMap;
-      }
-      if (
-        !invalidIdeaChanges &&
-        !input.draftChange &&
-        resolvedPotentialConflictIds?.length
-      ) {
-        const conflictResult = removeResolvedPotentialConflicts({
-          current: nextIdeaMap,
-          conflictIds: resolvedPotentialConflictIds,
-        });
-        if (conflictResult.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
-          invalidIdeaChanges = true;
-        } else {
-          nextIdeaMap = conflictResult.ideaMap;
-        }
-      }
-      if (invalidIdeaChanges) {
-        return workspace.ideaMap;
-      }
-      if (nextIdeaMap.revision !== workspace.ideaMap.revision) {
-        return {
-          ...nextIdeaMap,
-          revision: workspace.ideaMap.revision + 1,
-        };
-      }
-      return nextIdeaMap;
-    });
+    async () => applyIdeaMapAnalysis({
+      current: workspace.ideaMap,
+      analysis: ideaMapAnalysis,
+      ignoreChanges: Boolean(input.draftChange),
+    }));
   const response: ConversationResponse = {
-    ...generatedConversationResponse,
+    ...generatedResponse,
     conversationId,
     ideaMap,
   };
@@ -215,4 +194,53 @@ export async function respondInWorkspace(input: {
     ],
   };
   });
+}
+
+export function applyIdeaMapAnalysis(input: {
+  current: IdeaMap;
+  analysis: IdeaMapAnalysis;
+  ignoreChanges: boolean;
+}) {
+  const proposedMap = applyProposedIdeas({
+    current: input.current,
+    proposedIdeas: input.ignoreChanges ? null : input.analysis.proposedIdeas,
+  });
+  let nextIdeaMap = proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
+    ? input.current
+    : proposedMap.ideaMap;
+  let invalid = proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
+  for (const action of input.ignoreChanges
+    ? []
+    : (input.analysis.proposedIdeaActions ?? [])) {
+    const result = applyIdeaAction({
+      current: nextIdeaMap,
+      ideaId: action.ideaId,
+      request: {
+        action: action.action,
+        expectedRevision: input.current.revision,
+        userInterpretation: action.userInterpretation,
+      },
+    });
+    if (result.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
+      invalid = true;
+      break;
+    }
+    nextIdeaMap = result.ideaMap;
+  }
+  if (
+    !invalid &&
+    !input.ignoreChanges &&
+    input.analysis.resolvedPotentialConflictIds?.length
+  ) {
+    const result = removeResolvedPotentialConflicts({
+      current: nextIdeaMap,
+      conflictIds: input.analysis.resolvedPotentialConflictIds,
+    });
+    if (result.status === IDEA_MAP_UPDATE_STATUSES.invalid) invalid = true;
+    else nextIdeaMap = result.ideaMap;
+  }
+  if (invalid) return input.current;
+  return nextIdeaMap.revision === input.current.revision
+    ? nextIdeaMap
+    : { ...nextIdeaMap, revision: input.current.revision + 1 };
 }

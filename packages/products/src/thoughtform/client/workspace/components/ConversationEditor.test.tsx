@@ -34,6 +34,35 @@ describe("ConversationEditor", () => {
     vi.unstubAllGlobals();
   });
 
+  it("keeps the retained assistant response and reports a later Idea Map failure", async () => {
+    render(<ConversationEditor
+      sendMessage={async (_request, callbacks) => {
+        callbacks?.onAssistantDelta?.("A partial response.");
+        callbacks?.onIdeaMapFailed?.(
+          "The response was saved, but the Idea Map could not be updated.",
+        );
+        return {
+          conversationId: "conversation-1",
+          message: { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "A retained response." },
+          activity: ACTIVITIES.discovery,
+          move: ASSISTANT_MOVES.probe,
+          assistantReadiness: [],
+          userIntention: null,
+        };
+      }}
+    />);
+
+    fireEvent.change(screen.getByLabelText("What are you thinking?"), {
+      target: { value: "Keep this response." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByText("A retained response.")).toBeTruthy();
+    expect(await screen.findByText(
+      "The response was saved, but the Idea Map could not be updated.",
+    )).toBeTruthy();
+  });
+
   it("uses acceptance of an assistant offer as the composition action", async () => {
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(success(null))
@@ -209,11 +238,14 @@ describe("ConversationEditor", () => {
     await screen.findByLabelText("Attached draft change");
     fireEvent.change(screen.getByLabelText("What are you thinking?"), { target: { value: "Help me understand this." } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith({
-      conversationId: "conversation-1",
-      message: "Help me understand this.",
-      draftChange: changed,
-    }));
+    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith(
+      {
+        conversationId: "conversation-1",
+        message: "Help me understand this.",
+        draftChange: changed,
+      },
+      expect.any(Object),
+    ));
   });
 });
 

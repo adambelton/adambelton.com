@@ -135,8 +135,15 @@ describe("respondInWorkspace", () => {
             move: "clarify",
             assistantReadiness: [],
             userIntention: null,
+          };
+        },
+      },
+      ideaMapAnalysis: {
+        async analyse() {
+          return {
             proposedIdeas: null,
             proposedIdeaActions: [{ ideaId: "idea-1", action: "dismiss" }],
+            resolvedPotentialConflictIds: null,
           };
         },
       },
@@ -204,6 +211,12 @@ describe("respondInWorkspace", () => {
             move: "full_reflection",
             assistantReadiness: [],
             userIntention: null,
+          };
+        },
+      },
+      ideaMapAnalysis: {
+        async analyse() {
+          return {
             proposedIdeas: [
               {
                 id: "idea-1",

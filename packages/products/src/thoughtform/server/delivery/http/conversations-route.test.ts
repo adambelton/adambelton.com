@@ -9,6 +9,27 @@ import {
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 
 describe("ThoughtForm conversations route", () => {
+  it("streams a persistent response as server-sent events", async () => {
+    const service = new ConversationService();
+    const route = createConversationsRoute({
+      getPersistentConversationStore: async () => createPersistentConversationStore(),
+      streamingConversationService: service,
+    });
+
+    const response = await route.request("/conversation-1/respond-stream", {
+      method: "POST",
+      body: JSON.stringify({ message: "Continue this thought" }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(body).toContain('"type":"accepted"');
+    expect(body).toContain('"type":"assistant_completed"');
+    expect(body).toContain('"type":"completed"');
+  });
+
   it("creates an empty persistent conversation before editing", async () => {
     const route = createConversationsRoute({
       getPersistentConversationStore: async () =>

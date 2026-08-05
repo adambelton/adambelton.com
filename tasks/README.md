@@ -49,6 +49,7 @@ site pages rather than a product publishing capability.
 
 ## Completed
 
+- Stream ThoughtForm responses and update the Idea Map asynchronously (unnumbered)
 - Cache Claude's stable ThoughtForm prompt (unnumbered)
 - Restructure the ThoughtForm prompt for Claude (unnumbered)
 - Evaluate Sonnet 5 medium effort (unnumbered)

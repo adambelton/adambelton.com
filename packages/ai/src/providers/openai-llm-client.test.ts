@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const openAiMocks = vi.hoisted(() => ({
   createResponse: vi.fn(),
+  streamResponse: vi.fn(),
 }));
 
 vi.mock("openai", () => ({
   default: class OpenAI {
     responses = {
       create: openAiMocks.createResponse,
+      stream: openAiMocks.streamResponse,
     };
   },
 }));
@@ -17,6 +19,7 @@ import { OpenAiLlmClient } from "packages/ai/src/providers/openai-llm-client";
 describe("OpenAI LLM client", () => {
   beforeEach(() => {
     openAiMocks.createResponse.mockReset();
+    openAiMocks.streamResponse.mockReset();
     openAiMocks.createResponse.mockResolvedValue({
       model: "test-model",
       output_text: "A response",
@@ -80,6 +83,59 @@ describe("OpenAI LLM client", () => {
     expect(openAiMocks.createResponse).toHaveBeenCalledWith(
       expect.objectContaining({
         instructions: "Stable instructions.\n\nChanging workspace context.",
+      }),
+    );
+  });
+
+  it("streams text deltas and a normalized completed response", async () => {
+    openAiMocks.streamResponse.mockReturnValue({
+      async *[Symbol.asyncIterator]() {
+        yield { type: "response.output_text.delta", delta: "A " };
+        yield { type: "response.output_text.delta", delta: "response" };
+      },
+      finalResponse: vi.fn().mockResolvedValue({
+        model: "test-model",
+        output_text: "A response",
+        status: "completed",
+        usage: {
+          input_tokens: 20,
+          output_tokens: 4,
+          input_tokens_details: { cached_tokens: 5 },
+          output_tokens_details: { reasoning_tokens: 2 },
+        },
+      }),
+    });
+    const client = new OpenAiLlmClient({ apiKey: "test-key", model: "test-model" });
+
+    const events = [];
+    for await (const event of client.streamMessage({
+      maxTokens: 1_024,
+      system: "Stable instructions.",
+      context: "Changing workspace context.",
+      messages: [{ role: "user", content: "A thought" }],
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([
+      { type: "text_delta", text: "A " },
+      { type: "text_delta", text: "response" },
+      {
+        type: "completed",
+        response: {
+          content: "A response",
+          inputTokens: 20,
+          outputTokens: 4,
+          reasoningTokens: 2,
+          cacheReadTokens: 5,
+          model: "test-model",
+        },
+      },
+    ]);
+    expect(openAiMocks.streamResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instructions: "Stable instructions.\n\nChanging workspace context.",
+        store: false,
       }),
     );
   });
