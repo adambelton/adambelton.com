@@ -55,7 +55,10 @@ The organisation is governed by these principles:
   mounts individual products and supplies their adapters.
 - `packages` are reusable ownership boundaries. `shared` contains only
   platform-wide contracts; `products` owns product definitions and behaviour;
-  `auth`, `ai`, and `db` own their named platform or infrastructure concerns.
+  `auth`, `ai`, `observability`, and `db` own their named platform or
+  infrastructure concerns. `observability` contains runtime-neutral contracts
+  shared by browser and server; deployable hosts own concrete telemetry SDKs,
+  credentials, export policy, and access-aware adapter selection.
 - A product's server separates `capabilities`, cross-capability `application`
   operations, and inbound `delivery`. Required external operations are explicit
   product-owned `ports` inside the capability that needs them.

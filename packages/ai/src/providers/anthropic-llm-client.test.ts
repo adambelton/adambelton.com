@@ -93,6 +93,8 @@ describe("Anthropic LLM client", () => {
       inputTokens: 28,
       outputTokens: 12,
       reasoningTokens: 4,
+      cacheReadTokens: 5,
+      cacheWriteTokens: 3,
       model: "claude-test-model",
     });
   });

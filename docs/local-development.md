@@ -95,6 +95,22 @@ website and API can continue running. An unknown provider also fails closed. The
 application does not silently fall back between providers and never substitutes
 fake conversation responses for disabled or missing hosted configuration.
 
+## Owner Evaluation Tracing
+
+Braintrust tracing is optional and applies only to owner persistent-conversation
+operations and explicitly run synthetic evaluations. Temporary demo operations
+emit no Braintrust traces. Configure both required values to enable owner traces:
+
+```txt
+BRAINTRUST_API_KEY="replace-with-braintrust-api-key"
+BRAINTRUST_PROJECT="thoughtform-development"
+BRAINTRUST_ENVIRONMENT="development"
+```
+
+Owner traces contain evaluation-relevant conversation and generated workspace
+content. They use Braintrust's retention independently of Neon; deleting a local
+conversation does not currently delete its evaluation trace.
+
 Run the normal project checks:
 
 ```txt
@@ -115,6 +131,17 @@ Run it only when paid hosted model usage is intended:
 ```txt
 RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform
 ```
+
+The Braintrust-hosted contract evaluation records complete synthetic inputs and
+outputs with intention, readiness-contract, and structured-output scores:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-braintrust
+```
+
+It additionally requires `BRAINTRUST_API_KEY`; `BRAINTRUST_PROJECT` selects the
+project and otherwise defaults to `thoughtform-development`. Both evaluation
+commands incur hosted model usage and must be run only with explicit approval.
 
 Prompts, responses, and idea-map content are omitted by default. To include them
 for an explicitly reviewed diagnostic run:

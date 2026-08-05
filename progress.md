@@ -267,9 +267,14 @@ contract evaluation remains outside CI.
 - The product model port supplies a provider-neutral strict output schema, which
   the OpenAI Responses adapter enforces through Structured Outputs before the
   product applies its separate semantic validation.
-- An opt-in, cost-gated hosted evaluation command exercises sustained synthetic
-  idea exploration and reports content-free latency, token usage, output size,
-  identity retention, and idea-map growth outside the deterministic test suite.
+- Opt-in, cost-gated hosted evaluation commands exercise sustained synthetic
+  idea exploration. The Braintrust evaluation records complete synthetic
+  inputs and outputs with latency and behavioural scores; paid runs remain
+  outside the deterministic test suite.
+- Runtime-neutral observability contracts and direct Braintrust host assembly
+  trace persistent owner conversation phases, provider usage, cache metadata,
+  validation/repair, persistence, and correlated client-perceived duration.
+  Temporary demo composition uses a no-op adapter and emits no Braintrust event.
 - Meaningful idea-map changes create whole-map revision snapshots. Optimistic
   revision checks reject stale conversational or direct UI mutations, while the
   editor pauses same-tab mutating controls during an in-flight operation. Stale
@@ -371,6 +376,15 @@ contract evaluation remains outside CI.
 
 ## Known gaps / risks
 
+- The first configured Braintrust synthetic baseline exported successfully with
+  three perfect behavioural contract scores and no errors, but was sent to an
+  accidentally created lowercase project that was subsequently deleted.
+  Configuration now resolves to the intended `ThoughtForm` project; a retained
+  baseline rerun remains pending. The deleted run exposed a gap:
+  Braintrust reports zero LLM calls and tokens because the evaluation's OpenAI
+  call is not yet wrapped for evaluation-only model accounting. Provider
+  time-to-first-token also remains unavailable while the mounted provider
+  contract is non-streaming.
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client remains as a deterministic test adapter but is not used by API composition.
 - ThoughtForm conversation policy is implemented and hosted-evaluated;
@@ -387,8 +401,9 @@ contract evaluation remains outside CI.
 - Autonomous, user-correctable idea merging and splitting remains required before
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after
-  sustained complete-product and browser use; any future analytics must remain
-  content-free and privacy-reviewed.
+  sustained complete-product and browser use; future public-user analytics need
+  a distinct privacy policy. Current Braintrust content capture is restricted to
+  owner and synthetic-evaluation flows.
 
 ## Next recommended task
 

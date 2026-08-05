@@ -30,6 +30,9 @@ import {
 import { createDraftStoreResolver } from "apps/api/src/products/thoughtform/adapters/persistence/draft-store-resolver";
 import { ConversationService } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import { createThoughtFormApiRoute } from "packages/products/src/thoughtform/server/delivery/http";
+import { noOpObservability } from "packages/observability/src";
+import type { Observability } from "packages/observability/src";
+import { createBraintrustObservability } from "apps/api/src/platform/observability/braintrust-observability";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -147,18 +150,41 @@ const hostedAiConfiguration = {
   openAiModel: process.env.OPENAI_MODEL,
 } satisfies HostedAiConfiguration;
 const hostedLlmClient = createLlmClient(hostedAiConfiguration);
-const conversationModel = hostedLlmClient
-  ? new LlmConversationModelAdapter(hostedLlmClient)
-  : new DisabledConversationModelAdapter();
+const ownerObservability = createBraintrustObservability({
+  apiKey: process.env.BRAINTRUST_API_KEY,
+  projectName: process.env.BRAINTRUST_PROJECT,
+  environment: process.env.BRAINTRUST_ENVIRONMENT,
+}) ?? noOpObservability;
+export function createConversationServices(
+  client: LlmClient | null,
+  observability: Observability,
+  provider?: string,
+) {
+  const temporaryModel = client
+    ? new LlmConversationModelAdapter(client)
+    : new DisabledConversationModelAdapter();
+  const ownerModel = client
+    ? new LlmConversationModelAdapter(client, observability, provider)
+    : new DisabledConversationModelAdapter();
+  return {
+    temporary: new ConversationService({ conversationModel: temporaryModel }),
+    persistent: new ConversationService({
+      conversationModel: ownerModel,
+      observability,
+    }),
+  };
+}
+const conversationServices = createConversationServices(
+  hostedLlmClient,
+  ownerObservability,
+  hostedAiConfiguration.provider,
+);
 const draftModel = hostedLlmClient
   ? new LlmDraftModelAdapter(hostedLlmClient)
   : new DisabledDraftModelAdapter();
 const draftChangeInterpretationModel = hostedLlmClient
   ? new LlmDraftChangeInterpretationModelAdapter(hostedLlmClient)
   : new DisabledDraftChangeInterpretationModelAdapter();
-const thoughtFormConversationService = new ConversationService({
-  conversationModel,
-});
 
 export const thoughtFormRoute = new Hono();
 
@@ -175,10 +201,71 @@ thoughtFormRoute.get("/ai-disclosure", (context) =>
   }),
 );
 
+thoughtFormRoute.post("/owner-observations/client", async (context) => {
+  const session = await getCurrentAuthSession(context.req.raw.headers);
+  if (!session?.user.isOwner) {
+    return context.json(
+      {
+        ok: false as const,
+        error: { code: "not_found", message: "Not found." },
+      },
+      404,
+    );
+  }
+  const observation = parseOwnerClientObservation(
+    await context.req.json().catch(() => null),
+  );
+  if (!observation) {
+    return context.json(
+      {
+        ok: false as const,
+        error: { code: "invalid_request", message: "Invalid observation." },
+      },
+      400,
+    );
+  }
+  await ownerObservability.observe(
+    "thoughtform.client.conversation_response",
+    {
+      correlation_id: observation.observationId,
+      operation: observation.operation,
+      client_duration_ms: observation.durationMs,
+      result: observation.succeeded ? "success" : "failure",
+    },
+    async () => undefined,
+  );
+  return context.body(null, 204);
+});
+
+export function parseOwnerClientObservation(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Record<string, unknown>;
+  if (
+    typeof candidate.observationId !== "string" ||
+    !/^[0-9a-f-]{36}$/i.test(candidate.observationId) ||
+    candidate.operation !== "conversation_response" ||
+    typeof candidate.durationMs !== "number" ||
+    !Number.isInteger(candidate.durationMs) ||
+    candidate.durationMs < 0 ||
+    candidate.durationMs > 300_000 ||
+    typeof candidate.succeeded !== "boolean"
+  ) {
+    return null;
+  }
+  return {
+    observationId: candidate.observationId,
+    operation: candidate.operation,
+    durationMs: candidate.durationMs,
+    succeeded: candidate.succeeded,
+  };
+}
+
 thoughtFormRoute.route(
   "/",
   createThoughtFormApiRoute({
-    conversationService: thoughtFormConversationService,
+    conversationService: conversationServices.temporary,
+    persistentConversationService: conversationServices.persistent,
+    persistentObservability: ownerObservability,
     compositionModel: draftModel,
     interpretationModel: draftChangeInterpretationModel,
     proposalModel: draftModel,

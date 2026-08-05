@@ -46,6 +46,12 @@ packages/products/src/thoughtform/
     └── evaluations/                            Real-model behavioural checks
 ```
 
+Owner-only Braintrust observations use the runtime-neutral contracts in
+`packages/observability`. The API host supplies the Braintrust adapter only to
+the persistent owner composition; the temporary demo receives the no-op
+implementation and emits neither content nor metadata. Synthetic evaluations
+may also record full content so behavioural regressions can be investigated.
+
 ## How the pieces interact
 
 ```txt

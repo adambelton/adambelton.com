@@ -12,12 +12,14 @@ const ALLOWED_DEPENDENCIES = {
     "packages/auth",
     "packages/db",
     "packages/products",
+    "packages/observability",
     "packages/shared",
   ]),
   "apps/client": new Set([
     "apps/client",
     "packages/auth",
     "packages/products",
+    "packages/observability",
     "packages/shared",
   ]),
   "packages/ai": new Set(["packages/ai"]),
@@ -27,7 +29,12 @@ const ALLOWED_DEPENDENCIES = {
     "packages/shared",
   ]),
   "packages/db": new Set(["packages/db", "packages/products"]),
-  "packages/products": new Set(["packages/products", "packages/shared"]),
+  "packages/products": new Set([
+    "packages/products",
+    "packages/observability",
+    "packages/shared",
+  ]),
+  "packages/observability": new Set(["packages/observability"]),
   "packages/shared": new Set(["packages/shared"]),
 } as const;
 

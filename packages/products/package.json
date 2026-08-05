@@ -10,11 +10,13 @@
     "e2e:api": "tsx src/thoughtform/testing/browser/api-host.ts",
     "e2e:client": "vite --host 127.0.0.1 --config src/thoughtform/testing/browser/client/vite.config.ts",
     "evaluate:thoughtform": "tsx src/thoughtform/testing/evaluations/hosted.ts",
+    "evaluate:thoughtform-braintrust": "tsx src/thoughtform/testing/evaluations/braintrust-hosted-contract.ts",
     "test:hosted": "tsx src/thoughtform/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@adambelton/observability": "workspace:*",
     "@adambelton/shared": "workspace:*",
     "hono": "^4.8.4",
     "react": "^19.1.0",
@@ -29,6 +31,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^5.0.0",
+    "braintrust": "^3.27.0",
     "happy-dom": "^20.11.1",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.3.2",

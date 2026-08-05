@@ -21,6 +21,8 @@ export type LlmResponse = {
   inputTokens?: number;
   outputTokens?: number;
   reasoningTokens?: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
   model: string;
 };
 

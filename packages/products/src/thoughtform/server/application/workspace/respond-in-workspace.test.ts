@@ -10,6 +10,7 @@ import {
   IDEA_IMPORTANCE_ASSESSMENTS,
   type Idea,
 } from "packages/products/src/thoughtform/shared";
+import type { Observability } from "packages/observability/src";
 
 const idea: Idea = {
   id: "idea-1",
@@ -27,6 +28,15 @@ const idea: Idea = {
 
 describe("respondInWorkspace", () => {
   it("retains discussion of an attached saved change without canonising model interpretation", async () => {
+    const observedOperations: string[] = [];
+    const observability: Observability = {
+      observe: async (name, _attributes, operation) => {
+        observedOperations.push(name);
+        return operation();
+      },
+      record() {},
+      recordContent() {},
+    };
     const conversations = createConversationStore(
       new TestConversationPersistence(),
       { initializeOnAppend: true },
@@ -45,6 +55,7 @@ describe("respondInWorkspace", () => {
       conversationId,
       message: "I deleted that paragraph because I did not like it.",
       conversations,
+      observability,
       draftChange: {
         fromRevision: 1,
         toRevision: 2,
@@ -83,5 +94,11 @@ describe("respondInWorkspace", () => {
     }]);
     expect((await conversations.getConversationWorkspace(conversationId))?.ideaMap)
       .toEqual({ revision: 1, ideas: [idea] });
+    expect(observedOperations).toEqual([
+      "thoughtform.workspace.turn",
+      "thoughtform.workspace.load",
+      "thoughtform.workspace.apply_idea_map",
+      "thoughtform.workspace.retain_turn",
+    ]);
   });
 });

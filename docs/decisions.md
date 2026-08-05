@@ -973,3 +973,32 @@ Public provider disclosure is runtime-derived from central provider metadata.
 Privacy acknowledgement versions track material policy changes, not model
 switches. The host site's shared content container has a 1440px maximum width;
 ThoughtForm inherits that host decision.
+
+## 051 — Braintrust Observes Owner And Synthetic Evaluation Flows Only
+
+ThoughtForm uses the Braintrust SDK as its initial evaluation-observability
+backend. Runtime-neutral client/server observation contracts live in
+`packages/observability`; Braintrust credentials, SDK integration, export
+policy, and access-aware adapter selection remain owned by the API host.
+
+Complete evaluation-relevant content may be captured for owner persistent
+conversation turns and explicitly executed synthetic evaluation scenarios. This
+may include user messages, assistant responses, model output needed to assess
+Idea Map behaviour, prompt/profile context, and content-free latency, token,
+cache, validation, and persistence measurements. Repository-owned prompts,
+fixtures, scenarios, and evaluation criteria remain canonical.
+
+Temporary demo operations use the no-op observability adapter and send neither
+content nor content-free request metadata to Braintrust. Automatic provider
+instrumentation is prohibited because the owner and demo currently share hosted
+AI infrastructure and automatic capture cannot safely enforce the route-level
+privacy boundary. A future permanent non-owner workspace requires a separately
+approved consent, retention, access, and deletion policy before evaluation
+content tracing is enabled.
+
+Braintrust export is disabled unless its credential and project configuration
+are both explicit. Its failure must not change a user operation's result.
+Braintrust retention is independent of Neon persistence; deleting an owner
+conversation does not currently delete an evaluation trace. This decision
+creates a deliberate owner-evaluation exception to Decision 028's content-free
+product-analytics rule without weakening that rule for demo or future users.

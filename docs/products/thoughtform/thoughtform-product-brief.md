@@ -313,7 +313,10 @@ into a clinical product programme or claim mental-health efficacy.
 - The owner may retain private work durably.
 - Demo work remains temporary, isolated, clearable, and subject to its documented
   lifecycle.
-- Private content must not appear in operational analytics or admin views.
+- Temporary demo content must not appear in telemetry, operational analytics,
+  or admin views. The owner may explicitly configure private evaluation tracing
+  for their own durable workspace and synthetic evaluation scenarios; this is a
+  development/evaluation boundary, not a policy for future users.
 - Relevant content may be sent to the configured model provider under the
   documented provider boundary.
 - Publication and public website content are separate host concerns.

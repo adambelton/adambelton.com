@@ -22,6 +22,8 @@ Shared authentication, contact, and platform-provider processing is documented i
   expiry remove all of this private writing state from application memory.
 - Reload and navigation recovery are best effort. A process restart, deployment,
   or request to another application instance can remove the conversation sooner.
+- Temporary demo operations emit no Braintrust traces. Neither their content nor
+  content-free request metadata is sent to the evaluation service.
 
 ## Owner workspace
 
@@ -38,6 +40,12 @@ Shared authentication, contact, and platform-provider processing is documented i
 - They are private thinking and articulation material. The product has no
   publishing lifecycle. Later public website content is prepared and delivered
   separately by the host after product v1.
+- When the owner explicitly configures Braintrust, owner conversation turns may
+  send evaluation-relevant user messages, assistant responses, model output,
+  Idea Map context, prompt/profile context, and latency/token metadata to the
+  owner's private Braintrust project. Braintrust retention is separate from
+  Neon persistence, and deleting a ThoughtForm conversation does not currently
+  delete its evaluation traces.
 
 ## Model processing
 
@@ -56,9 +64,10 @@ Shared authentication, contact, and platform-provider processing is documented i
   continues to set `store: false`, which disables optional application-state
   storage but does not establish Zero Data Retention.
 
-Application code does not intentionally log conversation message bodies or
-generated writing. Deployment-level access and request logging must be checked
-separately before public launch.
+Application code does not intentionally log temporary demo conversation message
+bodies or generated writing. Explicitly configured owner evaluation tracing is
+the sole current exception. Deployment-level access and request logging must be
+checked separately before public launch.
 
 ## Primary risks and mitigations
 
@@ -107,3 +116,7 @@ Review this note before public launch and whenever ThoughtForm changes its
 AI provider, prompts and submitted data, persistence, retention, restoration,
 clearing, drafts, usage tracking, sensitive-use boundaries, or categories of
 requested reflection.
+
+Any future permanent non-owner workspace must define and approve its own
+evaluation consent, retention, access, and deletion policy before content
+tracing is enabled.

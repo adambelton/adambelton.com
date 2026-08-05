@@ -43,6 +43,7 @@ site pages rather than a product publishing capability.
 
 ## In progress
 
+- Instrument ThoughtForm latency (unnumbered)
 - 044 — Admin visibility
 - 045 — Dedicated Neon test-database workflow
 

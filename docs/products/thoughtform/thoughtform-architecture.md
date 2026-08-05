@@ -756,8 +756,9 @@ Each task remains independently proposed and requires approval.
 These questions remain open intentionally:
 
 - **Idea-map evidence:** reassess provisional idea-count limits after sustained
-  complete-product use and consider privacy-reviewed, content-free product
-  analytics before changing them.
+  complete-product use. Owner and synthetic evaluation content may inform this;
+  any demo or future public-user product analytics still require separate
+  privacy review and must not inherit owner tracing automatically.
 - **Idea evolution:** implement autonomous, user-correctable merge and split
   behaviour after stronger conversational interpretation exists and before the
   editor is considered fully functional.

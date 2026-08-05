@@ -3,9 +3,11 @@ import { app } from "apps/api/src/bootstrap/create-api";
 import {
   AI_PROVIDERS,
   createConversationModel,
+  createConversationServices,
   createDraftModel,
   getPersistentConversationAccess,
   getTemporaryConversationAccess,
+  parseOwnerClientObservation,
 } from "apps/api/src/products/thoughtform/mount";
 import {
   DisabledConversationModelAdapter,
@@ -16,8 +18,55 @@ import {
   LlmDraftModelAdapter,
 } from "apps/api/src/products/thoughtform/adapters/ai/draft-model-adapter";
 import type { ApiResponse } from "packages/shared/src";
+import type {
+  ObservationContent,
+  Observability,
+} from "packages/observability/src";
 
 describe("products API route mount", () => {
+  it("accepts only bounded owner client timing observations", () => {
+    expect(parseOwnerClientObservation({
+      observationId: "123e4567-e89b-12d3-a456-426614174000",
+      operation: "conversation_response",
+      durationMs: 4321,
+      succeeded: true,
+    })).toEqual({
+      observationId: "123e4567-e89b-12d3-a456-426614174000",
+      operation: "conversation_response",
+      durationMs: 4321,
+      succeeded: true,
+    });
+    expect(parseOwnerClientObservation({ operation: "conversation_response", durationMs: -1 })).toBeNull();
+  });
+
+  it("traces complete owner evaluations while leaving the demo entirely unobserved", async () => {
+    const observedContent: ObservationContent[] = [];
+    const observability: Observability = {
+      observe: (_name, _attributes, operation) => operation(),
+      record() {},
+      recordContent: (content) => observedContent.push(content),
+    };
+    const services = createConversationServices({
+      async createMessage() {
+        return { content: "A response", model: "model", inputTokens: 10, outputTokens: 2 };
+      },
+    }, observability, "anthropic");
+    const request = {
+      conversationId: "conversation-1",
+      message: "A private thought",
+      previousMessages: [],
+    };
+
+    await services.temporary.respond(request);
+    expect(observedContent).toEqual([]);
+
+    await services.persistent.respond(request);
+    expect(observedContent).toEqual(expect.arrayContaining([
+      expect.objectContaining({ input: expect.objectContaining({ currentMessage: "A private thought" }) }),
+      expect.objectContaining({ output: expect.objectContaining({ message: expect.any(Object) }) }),
+    ]));
+  });
+
   it("selects Anthropic only with the exact kill-switch value and its own key", () => {
     expect(
       createConversationModel({
@@ -150,5 +199,23 @@ describe("products API route mount", () => {
         message: "The requested resource was not found.",
       },
     });
+  });
+
+  it("does not accept client observations without owner access", async () => {
+    const response = await app.request(
+      "/products/thoughtform/owner-observations/client",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          observationId: "123e4567-e89b-12d3-a456-426614174000",
+          operation: "conversation_response",
+          durationMs: 100,
+          succeeded: true,
+        }),
+      },
+    );
+
+    expect(response.status).toBe(404);
   });
 });
