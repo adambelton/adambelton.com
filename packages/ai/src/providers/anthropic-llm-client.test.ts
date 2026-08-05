@@ -99,6 +99,66 @@ describe("Anthropic LLM client", () => {
     });
   });
 
+  it("applies explicitly configured adaptive-thinking effort", async () => {
+    const client = new AnthropicLlmClient({
+      apiKey: "test-key",
+      effort: "medium",
+    });
+
+    await client.createMessage({
+      maxTokens: 1_024,
+      system: "Respond.",
+      messages: [{ role: "user", content: "A thought" }],
+    });
+
+    expect(anthropicMocks.createMessage).toHaveBeenCalledWith({
+      max_tokens: 1_024,
+      messages: [{ role: "user", content: "A thought" }],
+      model: "claude-sonnet-5",
+      output_config: { effort: "medium" },
+      system: "Respond.",
+    });
+  });
+
+  it("caches stable system instructions separately from dynamic context", async () => {
+    const client = new AnthropicLlmClient({ apiKey: "test-key" });
+
+    await client.createMessage({
+      maxTokens: 1_024,
+      system: "Stable instructions.",
+      context: "Changing workspace context.",
+      messages: [{ role: "user", content: "A thought" }],
+    });
+
+    expect(anthropicMocks.createMessage).toHaveBeenCalledWith({
+      max_tokens: 1_024,
+      messages: [{ role: "user", content: "A thought" }],
+      model: "claude-sonnet-5",
+      system: [
+        {
+          type: "text",
+          text: "Stable instructions.",
+          cache_control: { type: "ephemeral" },
+        },
+        {
+          type: "text",
+          text: "Changing workspace context.",
+        },
+      ],
+    });
+  });
+
+  it("allows an explicitly supplied client decorator", async () => {
+    const decorateClient = vi.fn((client) => client);
+
+    new AnthropicLlmClient({
+      apiKey: "test-key",
+      decorateClient,
+    });
+
+    expect(decorateClient).toHaveBeenCalledOnce();
+  });
+
   it.each(["max_tokens", "refusal", "model_context_window_exceeded"])(
     "rejects a response stopped by %s",
     async (stopReason) => {

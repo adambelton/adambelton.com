@@ -268,9 +268,11 @@ contract evaluation remains outside CI.
   the OpenAI Responses adapter enforces through Structured Outputs before the
   product applies its separate semantic validation.
 - Opt-in, cost-gated hosted evaluation commands exercise sustained synthetic
-  idea exploration. The Braintrust evaluation records complete synthetic
-  inputs and outputs with latency and behavioural scores; paid runs remain
-  outside the deterministic test suite.
+  idea exploration. The Braintrust evaluation runs the complete ten-turn FIFA
+  accountability scenario through Claude Sonnet and records native LLM spans,
+  complete synthetic inputs and outputs, per-turn Idea Maps, latency, provider
+  usage, and nine deterministic behavioural scores. Paid runs remain outside
+  the deterministic test suite.
 - Runtime-neutral observability contracts and direct Braintrust host assembly
   trace persistent owner conversation phases, provider usage, cache metadata,
   validation/repair, persistence, and correlated client-perceived duration.
@@ -376,15 +378,47 @@ contract evaluation remains outside CI.
 
 ## Known gaps / risks
 
-- The first configured Braintrust synthetic baseline exported successfully with
-  three perfect behavioural contract scores and no errors, but was sent to an
-  accidentally created lowercase project that was subsequently deleted.
-  Configuration now resolves to the intended `ThoughtForm` project; a retained
-  baseline rerun remains pending. The deleted run exposed a gap:
-  Braintrust reports zero LLM calls and tokens because the evaluation's OpenAI
-  call is not yet wrapped for evaluation-only model accounting. Provider
-  time-to-first-token also remains unavailable while the mounted provider
-  contract is non-streaming.
+- The retained Claude Sonnet Braintrust baseline completed all ten synthetic
+  FIFA turns with no errors or repairs. Eight behavioural scores were 100%; the
+  one-question score was 90% because the opening response asked two questions.
+  Median turn latency was 28.0 seconds, maximum latency was 202.754 seconds,
+  total usage was 79,676 tokens, no prompt-cache tokens were reported, and
+  estimated cost was $0.31. Braintrust's non-streaming Anthropic wrapper reports
+  `time_to_first_token` at full-response completion, so that field is not a true
+  streaming first-token measurement. Mounted runtime time-to-first-token remains
+  unavailable until the provider contract streams.
+- A controlled Sonnet 5 medium-effort run kept the same FIFA scenario, prompt,
+  output schema, and deterministic scorers. All nine behavioural criteria
+  passed, including an improvement from 90% to 100% on one-question discipline.
+  Compared with the default-high run, median latency fell from 28.0 to 15.463
+  seconds, maximum latency from 202.754 to 19.252 seconds, and end-to-end runtime
+  from 513.85 to 148.52 seconds. Reasoning tokens fell from 8,087 to 1,311,
+  output tokens from 18,816 to 12,973, and estimated cost from $0.31 to $0.25.
+  Complete-output inspection found no evident loss of empathy, conceptual
+  continuity, or Idea Map quality in this synthetic conversation. Medium is the
+  leading production candidate, but production remains unchanged until a
+  separately approved adoption task.
+- The ThoughtForm conversation prompt now follows a Claude-specific XML
+  hierarchy with separately labelled role, interaction, style, safety,
+  Discovery, readiness, Idea Map, provenance, saved-change, Draft, conflict,
+  output, and dynamic workspace context. The clean medium-effort FIFA run kept
+  all nine behavioural scores at 100%, used ten calls with no repairs, and
+  produced a faithful, richer final Idea Map. Token use and cost remained close
+  to the unstructured medium baseline, while median latency rose from 15.463 to
+  17.300 seconds and two provider outliers raised the complete run from 148.52
+  to 244.84 seconds. This single run does not establish whether that latency
+  difference is prompt-driven; the structured prompt remains the Claude
+  quality baseline for the next controlled optimisation.
+- Anthropic now caches the stable ThoughtForm conversation instructions through
+  one explicit five-minute ephemeral system block while receiving the changing
+  workspace context in a separate uncached block. The retained FIFA run wrote a
+  4,363-token prefix once and read the same prefix on each of the next nine
+  turns, totalling 39,267 cache-read tokens. Estimated cost fell from $0.25 to
+  $0.18, median latency from 17.300 to 15.669 seconds, and complete-run duration
+  from 244.84 to 161.11 seconds. Eight behavioural scores remained 100%; the
+  one-question score was 90% because turn two contained one rhetorical and one
+  direct question. The Idea Map remained faithful. Conversation history and
+  changing Idea Map state are not cached by this implementation.
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client remains as a deterministic test adapter but is not used by API composition.
 - ThoughtForm conversation policy is implemented and hosted-evaluated;

@@ -5,6 +5,8 @@ export interface HostedConversationTurnMetrics {
   inputTokens: number | null;
   outputTokens: number | null;
   reasoningTokens: number | null;
+  cacheReadTokens: number | null;
+  cacheWriteTokens: number | null;
   outputCharacters: number;
   model: string;
   mapRevision: number;
@@ -21,6 +23,8 @@ export interface HostedConversationEvaluationSummary {
   totalInputTokens: number;
   totalOutputTokens: number;
   totalReasoningTokens: number;
+  totalCacheReadTokens: number;
+  totalCacheWriteTokens: number;
   finalMapRevision: number;
   finalIdeaCount: number;
   finalSubstanceCharacters: number;
@@ -50,6 +54,8 @@ export function summariseHostedConversationEvaluation(
     totalInputTokens: sumMetric(turns, "inputTokens"),
     totalOutputTokens: sumMetric(turns, "outputTokens"),
     totalReasoningTokens: sumMetric(turns, "reasoningTokens"),
+    totalCacheReadTokens: sumMetric(turns, "cacheReadTokens"),
+    totalCacheWriteTokens: sumMetric(turns, "cacheWriteTokens"),
     finalMapRevision: finalTurn?.mapRevision ?? 0,
     finalIdeaCount: finalTurn?.ideaCount ?? 0,
     finalSubstanceCharacters: finalTurn?.totalSubstanceCharacters ?? 0,
@@ -58,7 +64,12 @@ export function summariseHostedConversationEvaluation(
 
 function sumMetric(
   turns: HostedConversationTurnMetrics[],
-  metric: "inputTokens" | "outputTokens" | "reasoningTokens",
+  metric:
+    | "inputTokens"
+    | "outputTokens"
+    | "reasoningTokens"
+    | "cacheReadTokens"
+    | "cacheWriteTokens",
 ) {
   return turns.reduce((total, turn) => total + (turn[metric] ?? 0), 0);
 }

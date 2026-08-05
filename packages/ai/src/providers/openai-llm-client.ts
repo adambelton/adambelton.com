@@ -22,7 +22,9 @@ export class OpenAiLlmClient implements LlmClient {
 
   async createMessage(request: LlmRequest): Promise<LlmResponse> {
     const response = await this.client.responses.create({
-      instructions: request.system,
+      instructions: request.context
+        ? `${request.system}\n\n${request.context}`
+        : request.system,
       input: request.messages.map((message) => ({
         role: message.role,
         content: message.content,

@@ -78,6 +78,7 @@ for (const scenario of scenarios) {
         messages: request.messages,
         outputFormat: request.outputFormat,
         system: request.system,
+        context: request.context,
       });
       rawContent = response.content;
       return { content: response.content };

@@ -5,6 +5,7 @@ export type ConversationModelRequest = {
   messages: ConversationMessage[];
   outputFormat: ConversationModelOutputFormat;
   system: string;
+  context?: string;
 };
 
 export interface ConversationModelOutputFormat {

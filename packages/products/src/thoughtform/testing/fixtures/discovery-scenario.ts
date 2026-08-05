@@ -10,6 +10,7 @@ import {
   type Idea,
   type IdeaMap,
 } from "packages/products/src/thoughtform/shared";
+import { readIdeaMapFromWorkspaceContext } from "packages/products/src/thoughtform/testing/browser/workspace-context";
 
 export function createDiscoveryTestModel() {
   const responses = [
@@ -219,8 +220,5 @@ function response(input: {
 }
 
 function ideaMap(request: ConversationModelRequest): IdeaMap {
-  const marker = "Current idea map: ";
-  const markerIndex = request.system.lastIndexOf(marker);
-  if (markerIndex === -1) throw new Error("The test model request did not include an idea map.");
-  return JSON.parse(request.system.slice(markerIndex + marker.length)) as IdeaMap;
+  return readIdeaMapFromWorkspaceContext<IdeaMap>(request.context);
 }

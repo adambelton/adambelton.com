@@ -67,6 +67,23 @@ describe("OpenAI LLM client", () => {
     );
   });
 
+  it("preserves the combined instruction and context text", async () => {
+    const client = new OpenAiLlmClient({ apiKey: "test-key", model: "test-model" });
+
+    await client.createMessage({
+      maxTokens: 1_024,
+      system: "Stable instructions.",
+      context: "Changing workspace context.",
+      messages: [{ role: "user", content: "A thought" }],
+    });
+
+    expect(openAiMocks.createResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instructions: "Stable instructions.\n\nChanging workspace context.",
+      }),
+    );
+  });
+
   it("rejects incomplete model responses", async () => {
     openAiMocks.createResponse.mockResolvedValue({
       model: "test-model",

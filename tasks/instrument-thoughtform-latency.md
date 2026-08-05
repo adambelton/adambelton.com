@@ -138,9 +138,10 @@ inspection, and any human verification must be recorded separately.
 
 ## Status
 
-Implementation and local validation complete. The first configured synthetic
-Braintrust export succeeded, but exposed missing LLM-call and token accounting;
-the task is therefore not complete against its approved definition of done.
+Implementation and local validation are complete and merged. The follow-up FIFA
+baseline established Braintrust-native Claude accounting; a mounted owner trace
+has not yet been manually inspected, so this task remains incomplete against
+that explicit validation criterion.
 
 ## First configured baseline
 
@@ -158,3 +159,20 @@ the task is therefore not complete against its approved definition of done.
   tokens because the synthetic evaluator invokes the repository OpenAI client
   without Braintrust's evaluation-only OpenAI wrapper. The model calls did run;
   these zero values are missing instrumentation, not zero usage.
+
+## Retained Claude baseline
+
+- **Run:** 5 August 2026
+- **Experiment:** `codex/thoughtform-fifa-braintrust-baseline-1785922258`
+- **Project:** `ThoughtForm` (`9c56aca1-7e54-4e73-ace3-914d7d82fdc3`)
+- **Scenario:** complete ten-turn synthetic FIFA accountability conversation
+- **Native accounting:** 10 Claude LLM calls, 60,860 input tokens, 18,816 output
+  tokens, 79,676 total tokens, 8,087 provider-reported reasoning tokens, zero
+  cache reads/writes, $0.31 estimated cost, and no errors or repair calls
+- **Latency:** 28.0-second median turn, 202.754-second maximum turn, and
+  513.85-second complete experiment duration
+- **Behaviour:** eight scores at 100%; one-question discipline at 90% because
+  the first assistant response asked two questions
+- **Limitation:** Braintrust's wrapper records `time_to_first_token` only when the
+  non-streaming response completes, so its 51.38-second summary is response
+  latency rather than a genuine first-token measurement.

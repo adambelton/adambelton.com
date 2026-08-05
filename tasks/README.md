@@ -49,6 +49,10 @@ site pages rather than a product publishing capability.
 
 ## Completed
 
+- Cache Claude's stable ThoughtForm prompt (unnumbered)
+- Restructure the ThoughtForm prompt for Claude (unnumbered)
+- Evaluate Sonnet 5 medium effort (unnumbered)
+- Complete the Braintrust FIFA baseline (unnumbered)
 - Adopt GPT-5.6 Terra as the OpenAI comparison baseline (unnumbered)
 - Strengthen ThoughtForm's provider boundary and first-session experience (unnumbered)
 - Add Anthropic provider support and adopt Sonnet 5 (unnumbered)

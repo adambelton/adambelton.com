@@ -5,6 +5,7 @@ export type LlmMessage = {
 
 export type LlmRequest = {
   system: string;
+  context?: string;
   messages: LlmMessage[];
   maxTokens: number;
   outputFormat?: LlmOutputFormat;
