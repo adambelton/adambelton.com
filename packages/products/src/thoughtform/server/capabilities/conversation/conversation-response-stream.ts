@@ -37,9 +37,22 @@ export function createJsonStringFieldDeltaDecoder(field: string) {
         if (escape === "u") {
           const code = source.slice(cursor + 2, cursor + 6);
           if (code.length < 4) break;
+          if (!/^[0-9a-f]{4}$/i.test(code)) {
+            cursor += 2;
+            continue;
+          }
           delta += String.fromCharCode(Number.parseInt(code, 16));
           cursor += 6;
           continue;
+        }
+        if (escape === "\\" && source[cursor + 2] === "u") {
+          const code = source.slice(cursor + 3, cursor + 7);
+          if (code.length < 4) break;
+          if (/^[0-9a-f]{4}$/i.test(code)) {
+            delta += String.fromCharCode(Number.parseInt(code, 16));
+            cursor += 7;
+            continue;
+          }
         }
         const escapedCharacters: Record<string, string> = {
           '"': '"',

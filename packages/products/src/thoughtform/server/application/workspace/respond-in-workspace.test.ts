@@ -47,6 +47,7 @@ describe("respondInWorkspace", () => {
       operationId: "seed-turn",
       userMessage: { role: "user", content: "My dog is barking." },
       assistantMessage: { role: "assistant", content: "How does that feel?" },
+      expectedMessageCount: 0,
       expectedIdeaMapRevision: 0,
       ideaMap: { revision: 1, ideas: [idea] },
     });

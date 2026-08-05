@@ -120,7 +120,7 @@ describe("persistent conversation pages", () => {
 
     stream.send({ type: "accepted", conversationId: "conversation-1" });
     stream.send({ type: "assistant_delta", delta: "Football belongs" });
-    expect(await screen.findByText("Football belongs")).toBeTruthy();
+    expect(await screen.findByLabelText("Football belongs")).toBeTruthy();
 
     stream.send({
       type: "assistant_completed",
@@ -132,7 +132,7 @@ describe("persistent conversation pages", () => {
         userIntention: null,
       },
     });
-    expect(await screen.findByText("Football belongs to everyone.")).toBeTruthy();
+    expect(await screen.findByLabelText("Football belongs to everyone.")).toBeTruthy();
     expect(screen.queryByText("Football is larger than FIFA", { exact: true })).toBeNull();
 
     stream.send({

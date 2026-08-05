@@ -167,7 +167,249 @@ describe("streamResponseInWorkspace", () => {
     expect((await backingStore.getConversationWorkspace("conversation-1"))?.ideaMap.revision)
       .toBe(0);
   });
+
+  it("retains the generated turn when only the Idea Map advanced during generation", async () => {
+    const backingStore = createConversationStore(
+      new TestConversationPersistence(),
+      { createId: () => "conversation-1" },
+    );
+    await backingStore.createConversation();
+    let appendCount = 0;
+    const conversations = {
+      ...backingStore,
+      async appendConversationTurn(input: Parameters<typeof backingStore.appendConversationTurn>[0]) {
+        appendCount += 1;
+        if (appendCount === 1) {
+          await backingStore.replaceIdeaMap({
+            conversationId: "conversation-1",
+            operationId: "preceding-map",
+            expectedRevision: 0,
+            ideaMap: { revision: 1, ideas: [existingIdea()] },
+          });
+        }
+        return backingStore.appendConversationTurn(input);
+      },
+    };
+
+    const events = [];
+    for await (const event of streamResponseInWorkspace({
+      conversationId: "conversation-1",
+      message: "A following thought.",
+      conversations,
+      conversation: {
+        async *respondStream() {
+          yield { type: "completed", generation: generation("It follows safely.") } as const;
+        },
+      },
+      ideaMapAnalysis: { async analyse() { return emptyAnalysis(); } },
+    })) events.push(event);
+
+    expect(events.map((event) => event.type)).toContain("assistant_completed");
+    expect(appendCount).toBe(2);
+    expect((await backingStore.getConversationWorkspace("conversation-1")))
+      .toMatchObject({
+        messages: [
+          { role: "user", content: "A following thought." },
+          { role: "assistant", content: "It follows safely." },
+        ],
+        ideaMap: { revision: 1, ideas: [{ id: "existing-idea" }] },
+      });
+  });
+
+  it("does not retry over a genuine concurrent conversation change", async () => {
+    const backingStore = createConversationStore(
+      new TestConversationPersistence(),
+      { createId: () => "conversation-1" },
+    );
+    await backingStore.createConversation();
+    let appendCount = 0;
+    const conversations = {
+      ...backingStore,
+      async appendConversationTurn(input: Parameters<typeof backingStore.appendConversationTurn>[0]) {
+        appendCount += 1;
+        if (appendCount === 1) {
+          await backingStore.appendConversationTurn({
+            ...input,
+            operationId: "concurrent-turn",
+            userMessage: { role: "user", content: "Another request." },
+            assistantMessage: { role: "assistant", content: "Another response." },
+          });
+        }
+        return backingStore.appendConversationTurn(input);
+      },
+    };
+
+    const events = [];
+    for await (const event of streamResponseInWorkspace({
+      conversationId: "conversation-1",
+      message: "Original request.",
+      conversations,
+      conversation: {
+        async *respondStream() {
+          yield { type: "completed", generation: generation("Original response.") } as const;
+        },
+      },
+      ideaMapAnalysis: { async analyse() { return emptyAnalysis(); } },
+    })) events.push(event);
+
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "failed",
+      code: "conversation_conflict",
+    }));
+    expect(appendCount).toBe(1);
+    expect((await backingStore.getConversationWorkspace("conversation-1"))?.messages)
+      .toHaveLength(2);
+  });
+
+  it("rebases completed analysis onto a map that advances during retention", async () => {
+    const backingStore = createConversationStore(
+      new TestConversationPersistence(),
+      { createId: () => "conversation-1" },
+    );
+    await backingStore.createConversation();
+    let replaceCount = 0;
+    const conversations = {
+      ...backingStore,
+      async replaceIdeaMap(input: Parameters<typeof backingStore.replaceIdeaMap>[0]) {
+        replaceCount += 1;
+        if (replaceCount === 1) {
+          await backingStore.replaceIdeaMap({
+            conversationId: "conversation-1",
+            operationId: "preceding-analysis",
+            expectedRevision: 0,
+            ideaMap: { revision: 1, ideas: [existingIdea()] },
+          });
+          return { status: "conflict" as const };
+        }
+        return backingStore.replaceIdeaMap(input);
+      },
+    };
+
+    const events = [];
+    for await (const event of streamResponseInWorkspace({
+      conversationId: "conversation-1",
+      message: "A distinct new idea.",
+      conversations,
+      conversation: {
+        async *respondStream() {
+          yield { type: "completed", generation: generation("Let us explore it.") } as const;
+        },
+      },
+      ideaMapAnalysis: {
+        async analyse() {
+          return {
+            ...emptyAnalysis(),
+            proposedIdeas: [{
+              ...existingIdea(),
+              id: null,
+              title: "New idea",
+              substance: "A distinct new idea.",
+            }],
+          };
+        },
+      },
+    })) events.push(event);
+
+    expect(events.map((event) => event.type)).toContain("idea_map_completed");
+    expect(replaceCount).toBe(2);
+    expect((await backingStore.getConversationWorkspace("conversation-1"))?.ideaMap)
+      .toMatchObject({
+        revision: 2,
+        ideas: [
+          { id: "existing-idea", title: "Existing idea" },
+          { title: "New idea" },
+        ],
+      });
+  });
+
+  it("does not let stale analysis overwrite an idea changed by a newer map", async () => {
+    const backingStore = createConversationStore(
+      new TestConversationPersistence(),
+      { createId: () => "conversation-1" },
+    );
+    await backingStore.createConversation();
+    await backingStore.replaceIdeaMap({
+      conversationId: "conversation-1",
+      operationId: "seed-map",
+      expectedRevision: 0,
+      ideaMap: { revision: 1, ideas: [existingIdea()] },
+    });
+    let replaceCount = 0;
+    const conversations = {
+      ...backingStore,
+      async replaceIdeaMap(input: Parameters<typeof backingStore.replaceIdeaMap>[0]) {
+        replaceCount += 1;
+        if (replaceCount === 1) {
+          await backingStore.replaceIdeaMap({
+            conversationId: "conversation-1",
+            operationId: "newer-map",
+            expectedRevision: 1,
+            ideaMap: {
+              revision: 2,
+              ideas: [{ ...existingIdea(), title: "Newer established wording" }],
+            },
+          });
+          return { status: "conflict" as const };
+        }
+        return backingStore.replaceIdeaMap(input);
+      },
+    };
+
+    const events = [];
+    for await (const event of streamResponseInWorkspace({
+      conversationId: "conversation-1",
+      message: "Develop the existing idea.",
+      conversations,
+      conversation: {
+        async *respondStream() {
+          yield { type: "completed", generation: generation("Let us sharpen it.") } as const;
+        },
+      },
+      ideaMapAnalysis: {
+        async analyse() {
+          return {
+            ...emptyAnalysis(),
+            proposedIdeas: [{
+              ...existingIdea(),
+              title: "Stale proposed wording",
+            }],
+          };
+        },
+      },
+    })) events.push(event);
+
+    expect(events.map((event) => event.type)).toContain("idea_map_completed");
+    expect((await backingStore.getConversationWorkspace("conversation-1"))?.ideaMap)
+      .toMatchObject({
+        revision: 2,
+        ideas: [{ id: "existing-idea", title: "Newer established wording" }],
+      });
+  });
 });
+
+function emptyAnalysis() {
+  return {
+    proposedIdeas: null,
+    proposedIdeaActions: null,
+    resolvedPotentialConflictIds: null,
+  };
+}
+
+function existingIdea() {
+  return {
+    id: "existing-idea",
+    title: "Existing idea",
+    synthesis: "An Idea Map update already settled.",
+    substance: "The earlier turn produced this idea.",
+    unresolvedQuestions: [],
+    disposition: IDEA_DISPOSITIONS.active,
+    assistantAssessment: {
+      exploration: IDEA_EXPLORATION_ASSESSMENTS.emerging,
+      importance: IDEA_IMPORTANCE_ASSESSMENTS.supporting,
+    },
+    userInterpretation: null,
+  };
+}
 
 function generation(content = "That makes the centre clear.") {
   return {

@@ -659,6 +659,38 @@ describe("ConversationService", () => {
     expect(result).not.toHaveProperty("proposedIdeas");
   });
 
+  it("makes streamed and completed text converge after escaped Unicode decoding", async () => {
+    const response = "Concrete material \\u2014 what recently changed?";
+    const source = JSON.stringify({ response });
+    const service = new ConversationService({
+      conversationModel: {
+        async createResponse() {
+          return { content: source };
+        },
+        async *streamResponse() {
+          yield { type: "text_delta", text: source.slice(0, 24) } as const;
+          yield { type: "text_delta", text: source.slice(24) } as const;
+          yield { type: "completed", content: source } as const;
+        },
+      },
+    });
+    const events = [];
+    for await (const event of service.respondStream({
+      conversationId: "conversation-1",
+      message: "Use concrete material.",
+      previousMessages: [],
+    })) events.push(event);
+
+    const streamed = events
+      .filter((event) => event.type === "text_delta")
+      .map((event) => event.text)
+      .join("");
+    const completed = events.find((event) => event.type === "completed");
+    expect(streamed).toBe("Concrete material — what recently changed?");
+    expect(completed?.type === "completed" && completed.generation.message.content)
+      .toBe(streamed);
+  });
+
   it("includes substance only for the most relevant active ideas", () => {
     const context = createBoundedIdeaContext({
       revision: 4,

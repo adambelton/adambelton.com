@@ -70,12 +70,19 @@ User action
 
 For a conversation turn, the conversation and Idea Map capabilities receive the
 same retained workspace and latest user message. The assistant response streams
-as structured text deltas. Once complete, the user and assistant messages are
-retained exactly once and the client becomes interactive again. Idea Map
-analysis does not use the new assistant response; it finishes independently and
-is retained only when the starting revision is still current. A failed or stale
-Idea Map update is reported as recoverable and never discards the retained
-assistant turn.
+as structured text deltas. The interface buffers those canonical deltas into a
+roughly 36-character-per-second, reduced-motion-aware visual reveal, with
+bounded catch-up only for unusually large backlogs. It follows rendered-height
+growth only while the reader remains near the bottom. Escaped Unicode artifacts
+in structured assistant text are decoded consistently for new and previously
+retained responses. Once complete, the user and assistant
+messages are retained exactly once and the client becomes interactive again.
+Idea Map analysis does not use the new assistant response; it finishes
+independently. A map-only revision advance is reconciled without blocking a
+following message, while a changed message history remains a genuine conflict.
+Completed analysis is optimistically rebased onto the latest map with bounded
+revision protection. A failed or persistently stale Idea Map update is reported
+as recoverable and never discards the retained assistant turn.
 
 A changed draft save is returned immediately with its exact revision-bounded
 `DraftChange`. The client then launches the product's saved-edit interpretation

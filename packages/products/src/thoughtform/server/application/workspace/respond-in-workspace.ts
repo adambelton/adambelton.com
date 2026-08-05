@@ -158,6 +158,7 @@ export async function respondInWorkspace(input: {
       content: input.message,
     },
     assistantMessage: response.message,
+    expectedMessageCount: workspace.messages.length,
     expectedIdeaMapRevision: workspace.ideaMap.revision,
     ideaMap,
   }));

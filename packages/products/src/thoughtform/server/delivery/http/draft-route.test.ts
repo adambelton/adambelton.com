@@ -35,6 +35,7 @@ describe("draft HTTP route", () => {
       operationId: "turn-1",
       userMessage: { role: "user", content: "I want to preserve authorship." },
       assistantMessage: { role: "assistant", content: "What would that require?" },
+      expectedMessageCount: 0,
       expectedIdeaMapRevision: 0,
       ideaMap: { revision: 1, ideas: [idea] },
     });

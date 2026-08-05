@@ -57,7 +57,7 @@ describe("ConversationEditor", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
-    expect(await screen.findByText("A retained response.")).toBeTruthy();
+    expect(await screen.findByLabelText("A retained response.")).toBeTruthy();
     expect(await screen.findByText(
       "The response was saved, but the Idea Map could not be updated.",
     )).toBeTruthy();
@@ -198,7 +198,7 @@ describe("ConversationEditor", () => {
       target: { value: "Personal body." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
-    await screen.findByText("It sounds as though personal responsibility matters more here. Is that right?");
+    await screen.findByLabelText("It sounds as though personal responsibility matters more here. Is that right?");
     expect(screen.queryByRole("button", { name: "Discuss this edit" })).toBeNull();
     expect(screen.queryByLabelText("Attached draft change")).toBeNull();
     expect(sendMessage).not.toHaveBeenCalled();

@@ -60,7 +60,7 @@ describe("DemoEditorPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
     expect(await screen.findByText("A first thought")).toBeTruthy();
-    expect(await screen.findByText("A response")).toBeTruthy();
+    expect(await screen.findByLabelText("A response")).toBeTruthy();
     expect(screen.getByText(/scheduled to expire/i)).toBeTruthy();
   });
 
