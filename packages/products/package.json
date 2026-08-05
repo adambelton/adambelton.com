@@ -11,6 +11,7 @@
     "e2e:client": "vite --host 127.0.0.1 --config src/thoughtform/testing/browser/client/vite.config.ts",
     "evaluate:thoughtform": "tsx src/thoughtform/testing/evaluations/hosted.ts",
     "evaluate:thoughtform-braintrust": "tsx src/thoughtform/testing/evaluations/braintrust-hosted-contract.ts",
+    "evaluate:thoughtform-cold-warm": "tsx src/thoughtform/testing/evaluations/braintrust-cold-warm-latency.ts",
     "test:hosted": "tsx src/thoughtform/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"

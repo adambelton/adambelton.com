@@ -2,6 +2,19 @@
 
 ## Current status
 
+The approved ThoughtForm cold-start latency diagnostic is complete on its
+implementation branch. Three provider-confirmed FIFA cold-to-warm sequences and
+one mounted owner sequence found no evidence that prompt-cache or Anthropic
+client reuse alone explains the long first-token tail. Controlled conversation
+TTFT ranged from 2.870 to 11.402 seconds (4.469-second median), with the largest
+outlier on a warm cache read and reused client. Mounted server/client TTFT fell
+from 12.559/13.250 seconds on a cache write to 7.871/8.637 seconds on the third
+cache read; persistence and client overhead stayed below one second each. The
+diagnostic runner now rejects cache labels not confirmed by provider counters.
+No production mitigation was made; the next recommendation is a larger,
+quality-scored input/output-contract experiment rather than pre-warming or a
+longer cache lifetime.
+
 The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. Anthropic Sonnet 5 is the current development and restricted-demo baseline pending later comparative evaluation. A post-migration codebase audit has been completed and accepted fixes have been applied.
