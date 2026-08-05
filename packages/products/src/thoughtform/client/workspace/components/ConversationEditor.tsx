@@ -291,7 +291,7 @@ export function ConversationEditor({
       </nav>
       {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
       <div className="mt-8 grid h-[var(--workspace-height)] min-h-0 gap-8 lg:grid-cols-2" data-testid="workspace" ref={workspaceRef}>
-        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
+        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
           <ConversationMessageList messages={partialAssistantMessage
             ? [...messages, partialAssistantMessage]
             : messages} />
@@ -332,7 +332,7 @@ export function ConversationEditor({
           />
           </div>
         </div>
-        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6`} data-testid="workspace-column">
+        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6`} data-testid="workspace-column">
           <div className="mb-6 hidden gap-3 lg:flex" role="group" aria-label="Workspace">
             <button aria-pressed={workspaceView === "idea-map"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("idea-map")} type="button">Idea map</button>
             <button aria-pressed={workspaceView === "draft"} className="border border-[var(--line)] px-3 py-2" onClick={() => setWorkspaceView("draft")} type="button">Draft</button>

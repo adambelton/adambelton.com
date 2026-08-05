@@ -121,7 +121,7 @@ app.post("/testing/draft-workspace", async (context) => {
   return context.json({ ok: true, conversationId });
 });
 
-app.use("/products/thoughtform/conversation/respond", async (_context, next) => {
+app.use("/products/thoughtform/conversation/respond-stream", async (_context, next) => {
   await new Promise((resolve) => setTimeout(resolve, 100));
   await next();
 });
