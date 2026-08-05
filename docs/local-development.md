@@ -208,6 +208,22 @@ Braintrust quality judge to both variants. Development-only repetition, turn,
 and wait overrides are available through the `PLAIN_TEXT_*` environment
 variables; they do not satisfy the completion protocol.
 
+Run the opt-in conversation-context size evaluation with:
+
+```txt
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-context-size
+```
+
+The default completion protocol compares the current complete bounded history
+with the four and two most recent completed turns. It uses only the synthetic
+ten-turn FIFA fixture, supplies an identical deterministic progressive Idea Map
+to every variant at each turn, rotates all three variants through each order
+position across three repetitions, and waits 310 seconds before the first
+repetition and between repetitions. It records exact payload bytes by segment,
+provider usage and cache state, latency, contract validity, and transcript
+quality. Development overrides use the `CONTEXT_SIZE_*` environment variables
+and do not satisfy the completion protocol.
+
 ## ThoughtForm Browser Tests
 
 Install the Chromium browser used by Playwright once:

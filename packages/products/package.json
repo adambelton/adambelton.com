@@ -13,6 +13,7 @@
     "evaluate:thoughtform-braintrust": "tsx src/thoughtform/testing/evaluations/braintrust-hosted-contract.ts",
     "evaluate:thoughtform-cold-warm": "tsx src/thoughtform/testing/evaluations/braintrust-cold-warm-latency.ts",
     "evaluate:thoughtform-plain-text": "tsx src/thoughtform/testing/evaluations/braintrust-plain-text-conversation-output.ts",
+    "evaluate:thoughtform-context-size": "tsx src/thoughtform/testing/evaluations/braintrust-conversation-context-size.ts",
     "test:hosted": "tsx src/thoughtform/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
