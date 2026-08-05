@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import {
   AnthropicLlmClient,
+  type AnthropicEffort,
+  type AnthropicLlmClientOptions,
   DEFAULT_ANTHROPIC_MODEL,
   DEFAULT_OPENAI_MODEL,
   type LlmClient,
@@ -60,9 +62,39 @@ type HostedAiConfiguration = {
   provider?: string;
   anthropicApiKey?: string;
   anthropicModel?: string;
+  anthropicEffort?: string;
   openAiApiKey?: string;
   openAiModel?: string;
 };
+
+const ANTHROPIC_EFFORTS: readonly AnthropicEffort[] = [
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+];
+
+export function createAnthropicLlmClientOptions(
+  configuration: HostedAiConfiguration,
+): AnthropicLlmClientOptions | null {
+  if (!configuration.anthropicApiKey?.trim()) return null;
+  const model = configuration.anthropicModel ?? DEFAULT_ANTHROPIC_MODEL;
+  if (!isSupportedThoughtFormAiProfile(AI_PROVIDERS.anthropic, model)) return null;
+  if (
+    configuration.anthropicEffort !== undefined &&
+    !ANTHROPIC_EFFORTS.includes(configuration.anthropicEffort as AnthropicEffort)
+  ) {
+    return null;
+  }
+  return {
+    apiKey: configuration.anthropicApiKey,
+    model,
+    ...(configuration.anthropicEffort
+      ? { effort: configuration.anthropicEffort as AnthropicEffort }
+      : {}),
+  };
+}
 
 type ProductConversationSession = {
   user: { id: string; isOwner: boolean };
@@ -98,13 +130,12 @@ export function createLlmClient(
   if (configuration.hostedAiEnabled !== HOSTED_AI_ENABLED_VALUE) return null;
 
   if (configuration.provider === AI_PROVIDERS.anthropic) {
-    if (!configuration.anthropicApiKey?.trim()) return null;
-    const model = configuration.anthropicModel ?? DEFAULT_ANTHROPIC_MODEL;
-    if (!isSupportedThoughtFormAiProfile(configuration.provider, model)) return null;
-    return new ThoughtFormLlmClientAdapter(configuration.provider, new AnthropicLlmClient({
-      apiKey: configuration.anthropicApiKey,
-      model,
-    }));
+    const options = createAnthropicLlmClientOptions(configuration);
+    if (!options) return null;
+    return new ThoughtFormLlmClientAdapter(
+      configuration.provider,
+      new AnthropicLlmClient(options),
+    );
   }
 
   if (configuration.provider === AI_PROVIDERS.openAi) {
@@ -151,6 +182,7 @@ const hostedAiConfiguration = {
   provider: process.env.AI_PROVIDER,
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   anthropicModel: process.env.ANTHROPIC_MODEL,
+  anthropicEffort: process.env.ANTHROPIC_EFFORT,
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL,
 } satisfies HostedAiConfiguration;
@@ -164,18 +196,19 @@ export function createConversationServices(
   client: LlmClient | null,
   observability: Observability,
   provider?: string,
+  effort?: string,
 ) {
   const temporaryModel = client
     ? new LlmConversationModelAdapter(client)
     : new DisabledConversationModelAdapter();
   const ownerModel = client
-    ? new LlmConversationModelAdapter(client, observability, provider)
+    ? new LlmConversationModelAdapter(client, observability, provider, effort)
     : new DisabledConversationModelAdapter();
   const temporaryIdeaMapModel = client
     ? new LlmIdeaMapAnalysisModelAdapter(client)
     : new DisabledIdeaMapAnalysisModelAdapter();
   const ownerIdeaMapModel = client
-    ? new LlmIdeaMapAnalysisModelAdapter(client, observability, provider)
+    ? new LlmIdeaMapAnalysisModelAdapter(client, observability, provider, effort)
     : new DisabledIdeaMapAnalysisModelAdapter();
   return {
     temporary: new ConversationService({ conversationModel: temporaryModel }),
@@ -191,6 +224,7 @@ const conversationServices = createConversationServices(
   hostedLlmClient,
   ownerObservability,
   hostedAiConfiguration.provider,
+  hostedAiConfiguration.anthropicEffort,
 );
 const draftModel = hostedLlmClient
   ? new LlmDraftModelAdapter(hostedLlmClient)

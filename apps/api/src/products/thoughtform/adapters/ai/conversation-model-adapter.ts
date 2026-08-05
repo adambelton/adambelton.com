@@ -19,12 +19,14 @@ export class LlmConversationModelAdapter implements ConversationModel {
     private readonly llmClient: LlmClient,
     private readonly observability: Observability = noOpObservability,
     private readonly provider?: string,
+    private readonly effort?: string,
   ) {}
 
   async createResponse(request: ConversationModelRequest) {
     try {
       return await this.observability.observe("thoughtform.provider.generate_conversation", {
         ...(this.provider ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider } : {}),
+        ...(this.effort ? { [OBSERVATION_ATTRIBUTE_NAMES.effort]: this.effort } : {}),
         [OBSERVATION_ATTRIBUTE_NAMES.inputBytes]: new TextEncoder().encode(
           JSON.stringify({
             system: request.system,
@@ -69,6 +71,9 @@ export class LlmConversationModelAdapter implements ConversationModel {
         {
           ...(this.provider
             ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider }
+            : {}),
+          ...(this.effort
+            ? { [OBSERVATION_ATTRIBUTE_NAMES.effort]: this.effort }
             : {}),
           [OBSERVATION_ATTRIBUTE_NAMES.inputBytes]: new TextEncoder().encode(
             JSON.stringify(request),
@@ -132,6 +137,9 @@ export class LlmConversationModelAdapter implements ConversationModel {
     this.observability.record({
       ...(this.provider
         ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider }
+        : {}),
+      ...(this.effort
+        ? { [OBSERVATION_ATTRIBUTE_NAMES.effort]: this.effort }
         : {}),
       [OBSERVATION_ATTRIBUTE_NAMES.model]: response.model,
       [OBSERVATION_ATTRIBUTE_NAMES.inputTokens]: response.inputTokens ?? 0,

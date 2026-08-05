@@ -77,7 +77,13 @@ HOSTED_AI_ENABLED="true"
 AI_PROVIDER="anthropic"
 ANTHROPIC_API_KEY="replace-with-anthropic-api-key"
 ANTHROPIC_MODEL="claude-sonnet-5"
+ANTHROPIC_EFFORT="medium"
 ```
+
+`ANTHROPIC_EFFORT` must be one of `low`, `medium`, `high`, `xhigh`, or `max`.
+The development and retained evaluation baseline is `medium`; the mounted host
+passes the value explicitly rather than relying on Claude Sonnet 5's `high`
+default. An unsupported value fails closed.
 
 OpenAI remains an explicitly selectable alternative:
 

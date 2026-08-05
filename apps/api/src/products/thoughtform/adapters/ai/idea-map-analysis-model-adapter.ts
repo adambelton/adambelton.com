@@ -18,6 +18,7 @@ export class LlmIdeaMapAnalysisModelAdapter implements IdeaMapAnalysisModel {
     private readonly llmClient: LlmClient,
     private readonly observability: Observability = noOpObservability,
     private readonly provider?: string,
+    private readonly effort?: string,
   ) {}
 
   async createAnalysis(request: IdeaMapAnalysisModelRequest) {
@@ -27,6 +28,9 @@ export class LlmIdeaMapAnalysisModelAdapter implements IdeaMapAnalysisModel {
         {
           ...(this.provider
             ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider }
+            : {}),
+          ...(this.effort
+            ? { [OBSERVATION_ATTRIBUTE_NAMES.effort]: this.effort }
             : {}),
           [OBSERVATION_ATTRIBUTE_NAMES.inputBytes]: new TextEncoder().encode(
             JSON.stringify(request),

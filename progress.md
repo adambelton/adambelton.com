@@ -441,6 +441,23 @@ contract evaluation remains outside CI.
   no conclusion is recorded from Braintrust's malformed aggregate first-token
   display; mounted streaming timing is verified separately through owner
   observations.
+- The mounted owner runtime now passes Sonnet 5 `medium` effort explicitly and
+  records it on both conversation and Idea Map provider spans. Six synthetic
+  FIFA turns confirmed a 2.481–33.107 second server first-token range with a
+  6.241 second median; client first-token time ranged from 3.448–34.265 seconds
+  with a 7.056 second median. The two cold calls were approximately 33 seconds,
+  while the final warm call reached a 2.481 second provider and 3.448 second
+  client first token. Median assistant retention was 11.489 seconds and median
+  complete Idea Map phase time was 13.499 seconds. The six turns used 36,785
+  input tokens, including 20,960 cache reads and 4,192 cache writes, plus 6,220
+  output tokens and 971 reported reasoning tokens; estimated Sonnet-class cost
+  was about $0.15 at standard published token and five-minute cache rates.
+- Mounted verification also exposed that `EditorPage` discarded the stream
+  callback argument. Provider deltas and Idea Map completion events therefore
+  crossed HTTP correctly but were not applied by the persistent React editor.
+  The wrapper now forwards those callbacks. A controlled component regression,
+  the browser suite, and a post-fix owner turn confirm incremental response
+  rendering followed by an independently applied Idea Map event.
 - The current homepage is an empty writing collection and should not be treated as the finished public writing system.
 - The fake LLM client remains as a deterministic test adapter but is not used by API composition.
 - ThoughtForm conversation policy is implemented and hosted-evaluated;
