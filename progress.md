@@ -2,6 +2,23 @@
 
 ## Current status
 
+The approved resilient-streaming implementation is complete. Conversation
+retention now distinguishes map-only revision
+advances from genuine message-history changes: the former receives one cheap
+persistence reconciliation without another model call, while the latter still
+conflicts. Completed Idea Map analyses are rebased against the latest map with a
+bounded optimistic retry. Provider deltas remain canonical but are revealed on
+an independent animation-frame cadence targeting 36 characters per second,
+reduced-motion support, and rendered-height bottom-follow scrolling that
+respects deliberate scroll-up. Structured response decoding now handles
+chunk-split and doubly escaped Unicode sequences, including previously retained
+assistant text. The full 271-test unit suite, repository typecheck, build,
+frozen lockfile check, and all three deterministic Playwright journeys pass.
+Mounted owner inspection confirmed zero bottom gap through completion, no
+literal escape in new output, and corrected display of twelve previously
+retained em dashes. Adam confirmed the revised reveal was much better and chose
+a final small reduction from 42 to 36 characters per second.
+
 The approved plain-text conversation-output experiment is complete on its
 implementation branch. Three alternating cache-expired FIFA repetitions
 compared 30 structured and 30 unconstrained conversation calls at Sonnet 5

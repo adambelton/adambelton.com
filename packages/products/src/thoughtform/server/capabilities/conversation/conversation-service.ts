@@ -12,6 +12,7 @@ import {
   ACTIVITIES,
   ASSISTANT_MOVES,
   CONVERSATION_MESSAGE_ROLES,
+  decodeConversationText,
   IDEA_DISPOSITIONS,
   READINESS_ACTIONS,
   READINESS_ASSESSMENTS,
@@ -19,7 +20,9 @@ import {
 } from "packages/products/src/thoughtform/shared";
 import type { ConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
 import { FallbackConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/fallback-conversation-model";
-import { createJsonStringFieldDeltaDecoder } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-response-stream";
+import {
+  createJsonStringFieldDeltaDecoder,
+} from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-response-stream";
 import {
   noOpObservability,
   OBSERVATION_ATTRIBUTE_NAMES,
@@ -255,15 +258,16 @@ export class ConversationService {
         continue;
       }
       const structured = parseConversationModelResponse(event.content);
+      const responseText = decodeConversationText(structured.response);
       if (!emittedText) {
-        emittedText = structured.response;
+        emittedText = responseText;
         yield { type: "text_delta", text: emittedText };
       }
       const generation: ConversationGeneration = {
         conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
         message: {
           role: CONVERSATION_MESSAGE_ROLES.assistant,
-          content: structured.response,
+          content: responseText,
         },
         activity: ACTIVITIES.discovery,
         move: structured.move,

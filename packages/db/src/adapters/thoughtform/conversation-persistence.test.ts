@@ -52,6 +52,7 @@ describe("Prisma ThoughtForm conversation persistence", () => {
     }));
     await ownerStore.appendConversationTurn(createTurn({
       conversationId: ownerConversation.id,
+      expectedMessageCount: 2,
       userMessage: {
         role: "user",
         content: "The conclusion is too calm.",
@@ -174,11 +175,12 @@ function createTurn(
   input: Pick<
     AppendConversationTurnInput,
     "conversationId" | "userMessage" | "assistantMessage"
-  >,
+  > & { expectedMessageCount?: number },
 ): AppendConversationTurnInput {
   return {
     ...input,
     operationId: globalThis.crypto.randomUUID(),
+    expectedMessageCount: input.expectedMessageCount ?? 0,
     expectedIdeaMapRevision: 0,
     ideaMap: { revision: 0, ideas: [] },
   };

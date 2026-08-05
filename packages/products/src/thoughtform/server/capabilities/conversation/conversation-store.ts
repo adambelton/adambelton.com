@@ -19,6 +19,7 @@ export interface AppendConversationTurnInput {
   operationId: string;
   userMessage: ConversationMessage;
   assistantMessage: ConversationMessage;
+  expectedMessageCount: number;
   expectedIdeaMapRevision: number;
   ideaMap: IdeaMap;
 }
@@ -34,6 +35,7 @@ export interface AppendAssistantMessageInput {
   conversationId: string;
   operationId: string;
   assistantMessage: ConversationMessage;
+  expectedMessageCount: number;
   expectedIdeaMapRevision: number;
   ideaMap: IdeaMap;
 }
@@ -129,6 +131,9 @@ export function createConversationStore(
       if (current.ideaMap.revision !== input.expectedIdeaMapRevision) {
         return { status: CONVERSATION_TURN_RETENTION_STATUSES.conflict };
       }
+      if (current.messages.length !== input.expectedMessageCount) {
+        return { status: CONVERSATION_TURN_RETENTION_STATUSES.conflict };
+      }
       return commitResult(await persistence.commit({
         conversationId: input.conversationId,
         operationId: input.operationId,
@@ -153,6 +158,9 @@ export function createConversationStore(
         return { status: CONVERSATION_TURN_RETENTION_STATUSES.unavailable };
       }
       if (current.ideaMap.revision !== input.expectedIdeaMapRevision) {
+        return { status: CONVERSATION_TURN_RETENTION_STATUSES.conflict };
+      }
+      if (current.messages.length !== input.expectedMessageCount) {
         return { status: CONVERSATION_TURN_RETENTION_STATUSES.conflict };
       }
       return commitResult(await persistence.commit({

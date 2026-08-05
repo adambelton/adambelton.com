@@ -24,6 +24,7 @@ async function store() {
     operationId: "turn-1",
     userMessage: { role: "user", content: "Power should answer to people." },
     assistantMessage: { role: "assistant", content: "What makes that important?" },
+    expectedMessageCount: 0,
     expectedIdeaMapRevision: 0,
     ideaMap: {
       revision: 1,

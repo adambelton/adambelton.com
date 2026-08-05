@@ -69,6 +69,7 @@ export async function interpretSavedDraftChange(input: {
       conversationId: input.conversationId,
       operationId: `saved-edit-${input.change.toRevision}`,
       assistantMessage,
+      expectedMessageCount: workspace.messages.length,
       expectedIdeaMapRevision: workspace.ideaMap.revision,
       ideaMap,
     });

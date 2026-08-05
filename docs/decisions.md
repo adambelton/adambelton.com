@@ -1002,3 +1002,25 @@ Braintrust retention is independent of Neon persistence; deleting an owner
 conversation does not currently delete an evaluation trace. This decision
 creates a deliberate owner-evaluation exception to Decision 028's content-free
 product-analytics rule without weakening that rule for demo or future users.
+
+## 052 — Conversation And Idea Map Writes Reconcile Independently
+
+The streamed assistant turn and its asynchronously generated Idea Map analysis
+remain independent results. The client becomes interactive when the assistant
+turn is retained and must not wait for the map operation to settle.
+
+Conversation-turn retention therefore checks both the expected Idea Map
+revision and expected message count. When retention loses only to a newer map
+revision and the loaded message history is unchanged, the application may reuse
+the already generated response and retry that persistence operation once
+against the newer map. A changed message history is a genuine conversation
+conflict; it must not be overwritten, reordered, or trigger another paid model
+generation.
+
+A completed Idea Map analysis is applied to the latest loadable map rather than
+the request's stale starting map. Revision-checked retention may retry once
+after a map conflict, reapplying the same analysis to the newly loaded map. A
+persistent conflict is exposed as a recoverable map failure and never removes
+the retained assistant turn. This is bounded optimistic persistence
+reconciliation, not model retry, request serialization, or a durable background
+job.

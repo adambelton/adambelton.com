@@ -104,6 +104,7 @@ describe("ThoughtForm conversation route", () => {
         role: "assistant",
         content: "Earlier response.",
       },
+      expectedMessageCount: 0,
       expectedIdeaMapRevision: 0,
       ideaMap: { revision: 0, ideas: [] },
     });
@@ -173,6 +174,7 @@ describe("ThoughtForm conversation route", () => {
       operationId: "operation-1",
       userMessage: { role: "user", content: "Earlier thought." },
       assistantMessage: { role: "assistant", content: "Earlier response." },
+      expectedMessageCount: 0,
       expectedIdeaMapRevision: 0,
       ideaMap: { revision: 0, ideas: [] },
     });

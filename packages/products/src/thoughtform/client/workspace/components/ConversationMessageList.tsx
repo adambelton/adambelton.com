@@ -1,18 +1,25 @@
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 import {
   CONVERSATION_MESSAGE_ROLES,
+  decodeConversationText,
   type ConversationMessage,
 } from "packages/products/src/thoughtform/shared";
 
 type ConversationMessageListProps = {
   messages: ConversationMessage[];
+  animateLatestAssistant?: boolean;
+  followLatestRequest?: number;
 };
 
 export function ConversationMessageList({
   messages,
+  animateLatestAssistant = false,
+  followLatestRequest = 0,
 }: ConversationMessageListProps) {
   const historyRef = useRef<HTMLDivElement>(null);
   const followsLatestRef = useRef(true);
@@ -22,7 +29,25 @@ export function ConversationMessageList({
     if (history && followsLatestRef.current) {
       history.scrollTop = history.scrollHeight;
     }
-  }, [messages.length]);
+  }, [messages.length, messages.at(-1)?.content]);
+
+  useLayoutEffect(() => {
+    const history = historyRef.current;
+    if (!history) return;
+    followsLatestRef.current = true;
+    history.scrollTop = history.scrollHeight;
+  }, [followLatestRequest]);
+
+  useEffect(() => {
+    const history = historyRef.current;
+    const content = history?.querySelector("ol");
+    if (!history || !content || !globalThis.ResizeObserver) return;
+    const observer = new ResizeObserver(() => {
+      if (followsLatestRef.current) history.scrollTop = history.scrollHeight;
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
@@ -43,6 +68,11 @@ export function ConversationMessageList({
       ) : (
         messages.map((message, index) => (
           <ConversationMessageItem
+            animate={
+              message.role === CONVERSATION_MESSAGE_ROLES.assistant &&
+              index === messages.length - 1 &&
+              animateLatestAssistant
+            }
             key={`${message.role}-${index}`}
             message={message}
           />
@@ -54,16 +84,89 @@ export function ConversationMessageList({
 }
 
 type ConversationMessageItemProps = {
+  animate: boolean;
   message: ConversationMessage;
 };
 
-function ConversationMessageItem({ message }: ConversationMessageItemProps) {
+function ConversationMessageItem({ animate, message }: ConversationMessageItemProps) {
+  const displayContent = message.role === CONVERSATION_MESSAGE_ROLES.assistant
+    ? decodeConversationText(message.content)
+    : message.content;
+  const { reduceMotion, visibleContent } = useBufferedText(displayContent, animate);
+  const isRevealing = animate && Array.from(visibleContent).length <
+    Array.from(displayContent).length;
+  const latestCharacter = visibleContent.at(-1) ?? "";
+  const settledContent = latestCharacter
+    ? visibleContent.slice(0, -latestCharacter.length)
+    : visibleContent;
+
   return (
     <li className="border-t border-[var(--line)] pt-5">
       <p className="m-0 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
         {message.role === CONVERSATION_MESSAGE_ROLES.user ? "You" : "Assistant"}
       </p>
-      <p className="mt-3 max-w-3xl text-base leading-7">{message.content}</p>
+      <p className="mt-3 max-w-3xl text-base leading-7">
+        {message.role === CONVERSATION_MESSAGE_ROLES.assistant ? (
+          <span aria-label={displayContent}>
+            <span aria-hidden="true">
+              {settledContent}
+              <span
+                key={visibleContent.length}
+                style={{ opacity: 0.72, transition: "opacity 90ms ease-out" }}
+              >
+                {latestCharacter}
+              </span>
+              {isRevealing && !reduceMotion
+                ? <span className="ml-0.5 animate-pulse">▍</span>
+                : null}
+            </span>
+          </span>
+        ) : message.content}
+      </p>
     </li>
   );
+}
+
+function useBufferedText(content: string, animate: boolean) {
+  const reduceMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ?? false;
+  const [visibleLength, setVisibleLength] = useState(() =>
+    animate && !reduceMotion ? 0 : Array.from(content).length);
+  const characters = Array.from(content);
+  const lastFrameRef = useRef<number | null>(null);
+  const characterBudgetRef = useRef(0);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setVisibleLength(characters.length);
+      return;
+    }
+    if (visibleLength >= characters.length) return;
+    let frame = 0;
+    const reveal = (timestamp: number) => {
+      const previous = lastFrameRef.current ?? timestamp;
+      lastFrameRef.current = timestamp;
+      const elapsed = Math.min(100, Math.max(0, timestamp - previous));
+      const backlog = characters.length - visibleLength;
+      const charactersPerSecond = Math.min(
+        70,
+        36 + Math.max(0, backlog - 300) * 0.15,
+      );
+      characterBudgetRef.current += elapsed * charactersPerSecond / 1_000;
+      const revealCount = Math.floor(characterBudgetRef.current);
+      if (revealCount > 0) {
+        characterBudgetRef.current -= revealCount;
+        setVisibleLength((current) => Math.min(characters.length, current + revealCount));
+        return;
+      }
+      frame = globalThis.requestAnimationFrame(reveal);
+    };
+    frame = globalThis.requestAnimationFrame(reveal);
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [characters.length, reduceMotion, visibleLength]);
+
+  return {
+    reduceMotion,
+    visibleContent: characters.slice(0, visibleLength).join(""),
+  };
 }

@@ -65,6 +65,7 @@ function createTurn(conversationId: string): AppendConversationTurnInput {
   return {
     conversationId,
     operationId: globalThis.crypto.randomUUID(),
+    expectedMessageCount: 0,
     expectedIdeaMapRevision: 0,
     ideaMap: { revision: 0, ideas: [] },
     userMessage: { role: "user", content: "A thought" },

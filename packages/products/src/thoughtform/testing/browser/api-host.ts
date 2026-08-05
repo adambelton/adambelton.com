@@ -98,6 +98,7 @@ app.post("/testing/draft-workspace", async (context) => {
   await conversationStore.appendConversationTurn({
     conversationId,
     operationId: "seed-draft-browser-workspace",
+    expectedMessageCount: 0,
     expectedIdeaMapRevision: 0,
     userMessage: { role: "user", content: "Accountability is the central argument." },
     assistantMessage: { role: "assistant", content: "That gives the writing a clear centre." },

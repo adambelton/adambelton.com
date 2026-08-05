@@ -86,6 +86,8 @@ export function ConversationEditor({
     useState<ConversationMessage[]>(initialMessages);
   const [partialAssistantMessage, setPartialAssistantMessage] =
     useState<ConversationMessage | null>(null);
+  const [animateLatestAssistant, setAnimateLatestAssistant] = useState(false);
+  const [followLatestRequest, setFollowLatestRequest] = useState(0);
   const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
   const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
   const [draftSelection, setDraftSelection] = useState<DraftSelection | null>(null);
@@ -161,6 +163,8 @@ export function ConversationEditor({
     setError(null);
     setIdeaStatus("Updating the Idea Map.");
     setMessage("");
+    setAnimateLatestAssistant(true);
+    setFollowLatestRequest((current) => current + 1);
     setMessages((currentMessages) => [...currentMessages, userMessage]);
     let disableAfterRequest = false;
 
@@ -218,6 +222,7 @@ export function ConversationEditor({
       }
 
       setMessage(trimmedMessage);
+      setAnimateLatestAssistant(false);
       setPartialAssistantMessage(null);
       setMessages((currentMessages) => currentMessages.slice(0, -1));
       if (
@@ -257,6 +262,7 @@ export function ConversationEditor({
       await onClear();
       setConversationId(null);
       setMessages([]);
+      setAnimateLatestAssistant(false);
       setIdeaMap(EMPTY_IDEA_MAP);
       setMessage("");
       setDraftSelection(null);
@@ -292,9 +298,13 @@ export function ConversationEditor({
       {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
       <div className="mt-8 grid h-[var(--workspace-height)] min-h-0 gap-8 lg:grid-cols-2" data-testid="workspace" ref={workspaceRef}>
         <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
-          <ConversationMessageList messages={partialAssistantMessage
-            ? [...messages, partialAssistantMessage]
-            : messages} />
+          <ConversationMessageList
+            followLatestRequest={followLatestRequest}
+            animateLatestAssistant={animateLatestAssistant}
+            messages={partialAssistantMessage
+              ? [...messages, partialAssistantMessage]
+              : messages}
+          />
           <div className="grid gap-4">
           {hasDraftOffer ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Draft offer">
