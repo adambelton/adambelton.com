@@ -522,3 +522,14 @@ failure is retained in
 `docs/products/thoughtform/semantic-editor-implementation-failure.md`.
 `AGENTS.md` now requires a requirement-by-requirement completion audit before
 any implementation task can be reported complete.
+## 2026-08-05 — ThoughtForm conversation-context size evaluation
+
+- Added an evaluation-only comparison of full bounded history, four recent
+  completed turns, and two recent completed turns using the synthetic FIFA
+  conversation and identical progressive Idea Map snapshots.
+- The 90-call Braintrust run found median useful TTFT of 4,847 ms, 4,491 ms, and
+  3,987 ms respectively. Four turns also reduced median completion by 633 ms and
+  input tokens by 7.5% without an observed quality or contract regression.
+- Two turns had the best median but a 40.7-second worst case and is not
+  recommended. Four turns warrants a separate mounted owner verification before
+  any production adoption; production behavior remains unchanged.
