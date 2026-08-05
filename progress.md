@@ -533,3 +533,15 @@ any implementation task can be reported complete.
 - Two turns had the best median but a 40.7-second worst case and is not
   recommended. Four turns warrants a separate mounted owner verification before
   any production adoption; production behavior remains unchanged.
+
+## 2026-08-05 — Mounted four-turn history verification
+
+- Compared full bounded history with four recent turns across two fresh mounted
+  owner FIFA conversations using the real client, API, database, Anthropic,
+  Braintrust, SSE, and asynchronous Idea Map flow.
+- Four turns reduced final-turn input by 14.7% but was slower at median server
+  TTFT (9,938 vs 8,380 ms) and provider completion (15,374 vs 14,096 ms). Both
+  variants preserved the complete argument and unresolved practical tension.
+- Kept full bounded history and removed the development experiment seam. Rapid
+  automated submission also exposed a separate workspace-retention race after
+  the conversation re-enabled but before Idea Map persistence settled.
