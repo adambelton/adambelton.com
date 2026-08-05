@@ -103,7 +103,7 @@ emit no Braintrust traces. Configure both required values to enable owner traces
 
 ```txt
 BRAINTRUST_API_KEY="replace-with-braintrust-api-key"
-BRAINTRUST_PROJECT="thoughtform-development"
+BRAINTRUST_PROJECT="ThoughtForm"
 BRAINTRUST_ENVIRONMENT="development"
 ```
 
@@ -132,16 +132,22 @@ Run it only when paid hosted model usage is intended:
 RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform
 ```
 
-The Braintrust-hosted contract evaluation records complete synthetic inputs and
-outputs with intention, readiness-contract, and structured-output scores:
+The Braintrust-hosted evaluation runs the complete ten-turn synthetic FIFA
+accountability conversation through Claude Sonnet. It records complete inputs,
+outputs, per-turn Idea Maps, latency and usage metrics, and deterministic scores
+for structured output, readiness, final reflection intention, first-person
+canonical material, idea identity, conceptual coverage, unresolved practical
+tension, and one-question discipline:
 
 ```txt
 RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-braintrust
 ```
 
-It additionally requires `BRAINTRUST_API_KEY`; `BRAINTRUST_PROJECT` selects the
-project and otherwise defaults to `thoughtform-development`. Both evaluation
-commands incur hosted model usage and must be run only with explicit approval.
+It additionally requires `ANTHROPIC_API_KEY`, `BRAINTRUST_API_KEY`, and the exact
+case-sensitive `BRAINTRUST_PROJECT` name. Both evaluation commands incur hosted
+model usage and must be run only with explicit approval. The Braintrust command
+uses only the repository-owned synthetic FIFA fixture; do not add personal
+conversation material to broaden the evaluation dataset.
 
 Prompts, responses, and idea-map content are omitted by default. To include them
 for an explicitly reviewed diagnostic run:

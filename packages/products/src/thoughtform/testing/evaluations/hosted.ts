@@ -96,6 +96,8 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
     inputTokens: measurement.response.inputTokens ?? null,
     outputTokens: measurement.response.outputTokens ?? null,
     reasoningTokens: measurement.response.reasoningTokens ?? null,
+    cacheReadTokens: measurement.response.cacheReadTokens ?? null,
+    cacheWriteTokens: measurement.response.cacheWriteTokens ?? null,
     outputCharacters: measurement.response.content.length,
     model: measurement.response.model,
     mapRevision: ideaMap.revision,
@@ -152,6 +154,7 @@ function createMeasuredConversationModel(
         messages: request.messages,
         outputFormat: request.outputFormat,
         system: request.system,
+        context: request.context,
       });
       measurement = {
         providerLatencyMs: Date.now() - startedAt,

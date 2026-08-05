@@ -25,7 +25,11 @@ export class LlmConversationModelAdapter implements ConversationModel {
       return await this.observability.observe("thoughtform.provider.generate_conversation", {
         ...(this.provider ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider } : {}),
         [OBSERVATION_ATTRIBUTE_NAMES.inputBytes]: new TextEncoder().encode(
-          JSON.stringify({ system: request.system, messages: request.messages }),
+          JSON.stringify({
+            system: request.system,
+            context: request.context,
+            messages: request.messages,
+          }),
         ).byteLength,
       }, async () => {
       this.observability.recordContent({ input: request });
@@ -33,6 +37,7 @@ export class LlmConversationModelAdapter implements ConversationModel {
         maxTokens: request.maxOutputTokens,
         outputFormat: request.outputFormat,
         system: request.system,
+        context: request.context,
         messages: request.messages,
       });
 

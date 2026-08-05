@@ -7,21 +7,29 @@ import type {
 
 export const DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5";
 
+export type AnthropicEffort = "low" | "medium" | "high" | "xhigh" | "max";
+
 export type AnthropicLlmClientOptions = {
   apiKey: string;
   model?: string;
+  effort?: AnthropicEffort;
+  decorateClient?: (client: Anthropic) => Anthropic;
 };
 
 export class AnthropicLlmClient implements LlmClient {
   private readonly client: Anthropic;
   private readonly model: string;
+  private readonly effort: AnthropicEffort | undefined;
 
   constructor({
     apiKey,
     model = DEFAULT_ANTHROPIC_MODEL,
+    effort,
+    decorateClient = (client) => client,
   }: AnthropicLlmClientOptions) {
-    this.client = new Anthropic({ apiKey });
+    this.client = decorateClient(new Anthropic({ apiKey }));
     this.model = model;
+    this.effort = effort;
   }
 
   async createMessage(request: LlmRequest): Promise<LlmResponse> {
@@ -29,14 +37,31 @@ export class AnthropicLlmClient implements LlmClient {
       max_tokens: request.maxTokens,
       messages: request.messages,
       model: this.model,
-      system: request.system,
-      ...(request.outputFormat
+      system: request.context
+        ? [
+            {
+              type: "text" as const,
+              text: request.system,
+              cache_control: { type: "ephemeral" as const },
+            },
+            {
+              type: "text" as const,
+              text: request.context,
+            },
+          ]
+        : request.system,
+      ...(request.outputFormat || this.effort
         ? {
             output_config: {
-              format: {
-                type: "json_schema" as const,
-                schema: request.outputFormat.schema,
-              },
+              ...(this.effort ? { effort: this.effort } : {}),
+              ...(request.outputFormat
+                ? {
+                    format: {
+                      type: "json_schema" as const,
+                      schema: request.outputFormat.schema,
+                    },
+                  }
+                : {}),
             },
           }
         : {}),

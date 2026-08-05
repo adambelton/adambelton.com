@@ -156,21 +156,20 @@ describe("ConversationService", () => {
         },
       ],
     });
-    expect(modelRequests[0]?.system).toContain("ThoughtForm");
+    expect(modelRequests[0]?.system).toContain("<role>");
+    expect(modelRequests[0]?.system).toContain("<provenance_contract>");
+    expect(modelRequests[0]?.system).toContain("without adding assistant hypotheses");
     expect(modelRequests[0]?.system).toContain(
-      "Never put your own hypotheses",
+      "Every canonical claim must be traceable",
     );
     expect(modelRequests[0]?.system).toContain(
-      "every claim in it must be traceable to the conversation",
-    );
-    expect(modelRequests[0]?.system).toContain(
-      "Return at most three unresolved questions",
+      "return no more than three unresolved questions",
     );
     expect(modelRequests[0]?.system).toContain(
       "Help the user explore, organise, and express their own thinking or feeling",
     );
     expect(modelRequests[0]?.system).toContain(
-      "one concise grounded reflection, distinction, or observation followed by one useful question",
+      "brief, grounded, humane reflection, distinction, or observation",
     );
     expect(modelRequests[0]?.system).toContain(
       "uncertainty, mixed feelings, contradictions, provisional conclusions",
@@ -179,12 +178,12 @@ describe("ConversationService", () => {
     expect(modelRequests[0]?.system).toContain(
       "Offer practical advice only when the user explicitly asks for it",
     );
-    expect(modelRequests[0]?.system).toContain("my settled view is");
+    expect(modelRequests[0]?.system).toContain("An explicit resolution such as a settled view");
     expect(modelRequests[0]?.system).toContain(
-      "must return the matching existing conflict id",
+      "return the matching existing conflict id",
     );
     expect(modelRequests[0]?.system).toContain(
-      "use the richer current user wording",
+      "richer current user wording always takes precedence",
     );
     expect(
       JSON.stringify(modelRequests[0]?.outputFormat.schema),
@@ -213,15 +212,17 @@ describe("ConversationService", () => {
         baseDraftRevision: 3,
         start: 4,
         end: 16,
-        selectedText: "exact phrase",
+        selectedText: "exact <phrase> & meaning",
       },
     });
 
-    expect(modelRequests[0]?.system).toContain("revision 3");
-    expect(modelRequests[0]?.system).toContain("exact phrase");
-    expect(modelRequests[0]?.system).toContain("does not authorize a draft change");
-    expect(modelRequests[0]?.system).toContain("A canonical draft exists");
-    expect(modelRequests[0]?.system).not.toContain("no draft exists");
+    expect(modelRequests[0]?.context).toContain("<base_revision>3</base_revision>");
+    expect(modelRequests[0]?.context).toContain(
+      "<selected_text>exact &lt;phrase&gt; &amp; meaning</selected_text>",
+    );
+    expect(modelRequests[0]?.context).toContain("does not authorise a Draft change");
+    expect(modelRequests[0]?.context).toContain("<status>exists</status>");
+    expect(modelRequests[0]?.context).not.toContain("<status>absent</status>");
   });
 
   it("supplies an exact saved change without canonising its meaning", async () => {
@@ -250,13 +251,14 @@ describe("ConversationService", () => {
       },
     });
 
-    expect(modelRequests[0]?.system).toContain("revision 2 to revision 3");
-    expect(modelRequests[0]?.system).toContain('Removed text: "quiet"');
-    expect(modelRequests[0]?.system).toContain('Added text: "deliberate"');
-    expect(modelRequests[0]?.system).toContain("Do not treat it as an interpretation");
-    expect(modelRequests[0]?.system).toContain("proposedIdeas and ideaActions must be null");
+    expect(modelRequests[0]?.context).toContain("<from_revision>2</from_revision>");
+    expect(modelRequests[0]?.context).toContain("<to_revision>3</to_revision>");
+    expect(modelRequests[0]?.context).toContain("<removed_text>quiet</removed_text>");
+    expect(modelRequests[0]?.context).toContain("<added_text>deliberate</added_text>");
+    expect(modelRequests[0]?.context).toContain("not an interpretation, preference");
+    expect(modelRequests[0]?.system).toContain("return null for proposedIdeas and ideaActions");
     expect(modelRequests[0]?.system).toContain("first-person material");
-    expect(modelRequests[0]?.system).toContain("Never put draft-edit history");
+    expect(modelRequests[0]?.system).toContain("Keep draft-edit history");
   });
 
   it("states the working proposal boundary when a draft exists without attached text", async () => {
@@ -277,9 +279,10 @@ describe("ConversationService", () => {
       hasDraft: true,
     });
 
-    expect(modelRequests[0]?.system).toContain("A canonical draft exists");
-    expect(modelRequests[0]?.system).toContain("revision requests must lead to a reviewable proposal");
-    expect(modelRequests[0]?.system).toContain("do not claim that this conversation operation changed");
+    expect(modelRequests[0]?.context).toContain("<status>exists</status>");
+    expect(modelRequests[0]?.context).toContain("<attached_material>none</attached_material>");
+    expect(modelRequests[0]?.context).toContain("a revision request leads to a reviewable proposal");
+    expect(modelRequests[0]?.system).toContain("conversation cannot change the Draft directly");
   });
 
   it("accepts complete input at the byte boundary and rejects one byte over", async () => {

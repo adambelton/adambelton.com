@@ -14,6 +14,7 @@ const modelRequest = {
   messages: [{ role: "user" as const, content: "A bounded thought" }],
   outputFormat: { name: "test", schema: { type: "object" } },
   system: "System instructions",
+  context: "Workspace context",
 };
 
 describe("conversation model adapters", () => {
@@ -34,6 +35,7 @@ describe("conversation model adapters", () => {
         messages: modelRequest.messages,
         outputFormat: modelRequest.outputFormat,
         system: modelRequest.system,
+        context: modelRequest.context,
       },
     ]);
   });
