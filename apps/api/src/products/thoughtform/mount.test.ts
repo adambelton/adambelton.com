@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { app } from "apps/api/src/bootstrap/create-api";
 import {
   AI_PROVIDERS,
+  createAnthropicLlmClientOptions,
   createConversationModel,
   createConversationServices,
   createDraftModel,
@@ -99,6 +100,22 @@ describe("products API route mount", () => {
         anthropicApiKey: "   ",
       }),
     ).toBeInstanceOf(DisabledConversationModelAdapter);
+  });
+
+  it("maps an explicit supported Anthropic effort into the mounted client", () => {
+    expect(createAnthropicLlmClientOptions({
+      anthropicApiKey: "test-key",
+      anthropicModel: "claude-sonnet-5",
+      anthropicEffort: "medium",
+    })).toEqual({
+      apiKey: "test-key",
+      model: "claude-sonnet-5",
+      effort: "medium",
+    });
+    expect(createAnthropicLlmClientOptions({
+      anthropicApiKey: "test-key",
+      anthropicEffort: "unsupported",
+    })).toBeNull();
   });
 
   it("retains explicitly selected OpenAI without falling back between providers", () => {

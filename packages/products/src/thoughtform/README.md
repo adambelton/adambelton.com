@@ -51,6 +51,9 @@ Owner-only Braintrust observations use the runtime-neutral contracts in
 the persistent owner conversation, Idea Map, and composition operations; the temporary demo receives the no-op
 implementation and emits neither content nor metadata. Synthetic evaluations
 may also record full content so behavioural regressions can be investigated.
+Anthropic owner-provider spans also record the explicitly selected effort. The
+local development baseline is Sonnet 5 at medium effort; temporary demo traffic
+remains entirely outside this observation boundary.
 
 ## How the pieces interact
 

@@ -65,6 +65,7 @@ export const OBSERVATION_ATTRIBUTE_NAMES = {
   result: "result",
   provider: "provider",
   model: "model",
+  effort: "effort",
   inputTokens: "input_tokens",
   outputTokens: "output_tokens",
   reasoningTokens: "reasoning_tokens",

@@ -64,11 +64,11 @@ export function EditorPage({
       initialIdeaMap={conversation.ideaMap}
       initialDraftingState={draftingState}
       sendIdeaAction={sendPersistentIdeaAction}
-      sendMessage={(request) =>
+      sendMessage={(request, callbacks) =>
         sendPersistentConversationMessage({
           ...request,
           conversationId: conversation.id,
-        })
+        }, callbacks)
       }
     />
   );

@@ -18,6 +18,7 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
+- Characterise ThoughtForm cold-start latency (unnumbered)
 - 036 — Complete temporary workspace lifecycle and recovery
 - 038 — Content-free hosted-attempt lifecycle and accounting
 - 039 — Representative hosted-usage measurement
@@ -49,6 +50,7 @@ site pages rather than a product publishing capability.
 
 ## Completed
 
+- Verify mounted ThoughtForm at medium effort (unnumbered)
 - Stream ThoughtForm responses and update the Idea Map asynchronously (unnumbered)
 - Cache Claude's stable ThoughtForm prompt (unnumbered)
 - Restructure the ThoughtForm prompt for Claude (unnumbered)
