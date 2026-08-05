@@ -9,6 +9,7 @@
     "evaluate:thoughtform": "pnpm --filter @adambelton/products evaluate:thoughtform",
     "evaluate:thoughtform-braintrust": "pnpm --filter @adambelton/products evaluate:thoughtform-braintrust",
     "evaluate:thoughtform-cold-warm": "pnpm --filter @adambelton/products evaluate:thoughtform-cold-warm",
+    "evaluate:thoughtform-plain-text": "pnpm --filter @adambelton/products evaluate:thoughtform-plain-text",
     "evaluate:thoughtform-composition": "pnpm --filter @adambelton/api evaluate:thoughtform-composition",
     "test:hosted": "pnpm --filter @adambelton/products test:hosted",
     "db:generate": "pnpm --filter @adambelton/db prisma:generate",

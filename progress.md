@@ -2,6 +2,18 @@
 
 ## Current status
 
+The approved plain-text conversation-output experiment is complete on its
+implementation branch. Three alternating cache-expired FIFA repetitions
+compared 30 structured and 30 unconstrained conversation calls at Sonnet 5
+medium effort. Plain text changed median useful-text TTFT by only -83 ms
+(5.969 versus 6.052 seconds), had a slower 14.743-second worst case, and cost
+essentially the same. Quality judgments were tied, while plain text omitted its
+metadata envelope on 4/30 calls, including the same sixth turn in every
+repetition; structured output had one stricter readiness-contract issue. The
+production structured-output default remains unchanged. Because plain text did
+not win offline, the conditional mounted variant was correctly skipped. Context
+size is the next recommended controlled variable.
+
 The approved ThoughtForm cold-start latency diagnostic is complete on its
 implementation branch. Three provider-confirmed FIFA cold-to-warm sequences and
 one mounted owner sequence found no evidence that prompt-cache or Anthropic
