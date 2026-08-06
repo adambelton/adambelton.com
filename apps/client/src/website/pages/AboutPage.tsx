@@ -5,6 +5,8 @@ import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdo
 export function AboutPage() {
   return (
     <>
+      <title>About — Adam Belton</title>
+      <meta content={aboutPageContent.description} name="description" />
       <section aria-labelledby="about-title">
         <Breadcrumbs items={[{ label: "About" }]} />
         <h1
@@ -21,16 +23,26 @@ export function AboutPage() {
         </div>
       </section>
 
-      <section aria-labelledby="contact-title">
+      <section aria-labelledby="contact-title" id="contact">
         <h2
           className="mb-5 text-sm font-semibold uppercase tracking-normal"
           id="contact-title"
         >
           Contact
         </h2>
-        <p className="m-0 max-w-2xl border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
-          <TextLink href="mailto:hello@adambelton.com">Email Adam</TextLink>
-        </p>
+        <ul className="m-0 flex max-w-2xl list-none flex-wrap gap-x-5 gap-y-3 border-t border-[var(--line)] p-0 pt-5 text-base leading-7 text-[var(--muted)]">
+          <li>
+            <TextLink href="mailto:hello@adambelton.com">Email</TextLink>
+          </li>
+          <li>
+            <TextLink href="https://www.linkedin.com/in/adam-b-7505693ab">
+              LinkedIn
+            </TextLink>
+          </li>
+          <li>
+            <TextLink href="https://github.com/adambelton">GitHub</TextLink>
+          </li>
+        </ul>
       </section>
     </>
   );

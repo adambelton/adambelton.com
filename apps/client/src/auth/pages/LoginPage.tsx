@@ -59,15 +59,21 @@ export function LoginPage() {
 
   return (
     <section aria-labelledby="login-title">
+      <title>Owner sign in — Adam Belton</title>
+      <meta
+        content="Sign in to Adam Belton's private product workspace."
+        name="description"
+      />
+      <meta content="noindex" name="robots" />
       <Breadcrumbs items={[{ label: "Log in" }]} />
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
         id="login-title"
       >
-        Check your email.
+        Owner sign in.
       </h1>
       <Prose className="mt-8">
-        Enter your email and I will send you a magic link for the product demos.
+        Enter your email to receive a magic link for private product access.
       </Prose>
       {loginErrorMessage ? (
         <p className="mt-6 max-w-2xl text-sm font-semibold text-[var(--accent)]">

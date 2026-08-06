@@ -2,6 +2,42 @@
 
 ## Current status
 
+DM Sans is now retained as the site font after Adam's mounted review. The About
+Contact section exposes accessible text links for Email, LinkedIn, and GitHub
+without forced new tabs, while the global footer now contains only Privacy.
+Mounted desktop and 390px inspection confirmed exact destinations, keyboard
+focusability, same-tab behaviour, clean wrapping, and no horizontal overflow.
+
+The approved DM Sans typography experiment established the retained baseline.
+The client self-hosts the optical-size/weight variable font, applies it
+site-wide, and uses antialiased rendering without runtime Google requests. The
+browser observed the 62.72KB Latin font resource and computed DM Sans across the
+homepage, post, About, catalogue, ThoughtForm overview, and login; 390px checks
+found no overflow. The build also emits a 31.29KB extended-Latin subset that the
+current English pages did not request. CSS increased by 0.73KB raw / 0.32KB
+gzip, with no material JavaScript change. Adam subsequently retained DM Sans.
+
+The public writing hierarchy and reading treatment were refined before the font
+experiment. The homepage now uses a restrained `Writing` heading and brings the
+complete first-post listing above the fold at desktop and mobile widths. Compiled prose
+uses foreground contrast and a 672px desktop measure, while descriptions, dates,
+and navigation remain muted. Mounted inspection confirmed responsive homepage,
+post, and About layouts without horizontal overflow.
+
+The public About page now contains Adam's finished four-paragraph biography and
+the approved concise introduction instead of placeholder copy. Focused content
+and page tests plus the client production build pass. Mounted desktop and 390px
+inspection confirmed four rendered paragraphs, the intact Contact link, and no
+horizontal overflow. The later typography refinement narrowed its prose measure
+from 768px to 672px.
+
+The first real public writing post now replaces the placeholder and has been
+verified through the mounted client. Long post breadcrumbs and the article grid
+item shrink without horizontal overflow at 390px, Markdown lists retain visible
+markers and indentation, and each post supplies its browser title and
+description from validated metadata. Focused tests and the client production
+build pass; desktop and mobile browser inspection confirm the corrected layout.
+
 Task 048 is complete. Repository Markdown and YAML now compile during Vite
 development and production builds into sanitized HTML and validated metadata.
 The browser no longer contains the Markdown/YAML syntax-tree toolchain. The
@@ -594,3 +630,18 @@ any implementation task can be reported complete.
 - Kept full bounded history and removed the development experiment seam. Rapid
   automated submission also exposed a separate workspace-retention race after
   the conversation re-enabled but before Idea Map persistence settled.
+
+## 2026-08-06 — Public launch-surface polish
+
+- Added specific client-rendered titles and descriptions across public routes,
+  with private authentication/workspace and not-found routes excluded from
+  indexing. Canonical origins, social prerendering, sitemaps, and hosting remain
+  intentionally deferred until deployment is selected.
+- Removed anonymous login from public navigation while retaining the direct
+  owner sign-in route, and changed its copy to describe private product access.
+- Added human-readable published dates, routed site-privacy contact requests to
+  the About contact section, replaced provisional Products-page copy, and added
+  a teal asterisk favicon.
+- Full tests, typecheck, build, diff checks, and mounted desktop/mobile route
+  inspection passed. Public routes showed no horizontal overflow or browser
+  warnings; the independently edited ThoughtForm registry summary was preserved.

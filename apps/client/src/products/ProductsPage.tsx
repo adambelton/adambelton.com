@@ -3,17 +3,22 @@ import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
 
 export function ProductsPage() {
   return (
-    <>
+    <div className="grid gap-10 sm:gap-12">
+      <title>Products — Adam Belton</title>
+      <meta
+        content="Products and experiments built around difficult, human problems."
+        name="description"
+      />
       <section aria-labelledby="products-title">
         <Breadcrumbs items={[{ label: "Products" }]} />
         <h1
-          className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
+          className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
           id="products-title"
         >
-          Things being built.
+          Products
         </h1>
-        <Prose className="mt-8">
-          Product notes will live here as the work becomes real enough to show.
+        <Prose className="mt-6">
+          Products and experiments built around difficult, human problems.
         </Prose>
       </section>
 
@@ -37,6 +42,6 @@ export function ProductsPage() {
           ))}
         </ul>
       </section>
-    </>
+    </div>
   );
 }

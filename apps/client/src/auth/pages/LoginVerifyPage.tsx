@@ -12,6 +12,8 @@ export function LoginVerifyPage() {
 
   return (
     <section aria-labelledby="verify-sign-in-title">
+      <title>Verify sign in — Adam Belton</title>
+      <meta content="noindex" name="robots" />
       <Breadcrumbs items={[
         { label: "Log in", href: "/login" },
         { label: "Verify" },

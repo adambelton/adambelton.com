@@ -8,6 +8,11 @@ const productsWithPrivacyInformation = products.filter(
 export function PrivacyPage() {
   return (
     <article aria-labelledby="privacy-title">
+      <title>Privacy — Adam Belton</title>
+      <meta
+        content="How AdamBelton.com handles sign-in, product, and service-provider data."
+        name="description"
+      />
       <Breadcrumbs items={[{ label: "Privacy" }]} />
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
@@ -80,12 +85,10 @@ export function PrivacyPage() {
         <p>
           You can choose not to sign in or use a product demo. Product pages
           describe any additional controls available within that product. For
-          questions or a request to access or delete data held by this site,
-          email{" "}
-          <TextLink href="mailto:hello@adambelton.com">
-            hello@adambelton.com
-          </TextLink>
-          . A request may require identity verification.
+          questions or a request to access or delete data held by this site, use
+          the contact details on the{" "}
+          <TextLink href="/about#contact">About page</TextLink>. A request may
+          require identity verification.
         </p>
       </Prose>
     </article>

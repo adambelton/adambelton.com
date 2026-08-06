@@ -9,6 +9,7 @@ import { NavigationLink } from "apps/client/src/ui/components/NavigationLink";
 import { NotFoundPage } from "apps/client/src/website/pages/NotFoundPage";
 import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
+import { getProductBySlug } from "packages/products/src/registry";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
@@ -30,8 +31,16 @@ export function ProductRoutePage() {
     return <NotFoundPage />;
   }
 
+  const metadata = getProductRouteMetadata(productSlug, productPath);
+
   if (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.public) {
-    return <><Breadcrumbs items={route.breadcrumbs} />{route.element}</>;
+    return (
+      <>
+        {metadata}
+        <Breadcrumbs items={route.breadcrumbs} />
+        {route.element}
+      </>
+    );
   }
 
   return (
@@ -40,8 +49,48 @@ export function ProductRoutePage() {
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
-        <><Breadcrumbs items={route.breadcrumbs} />{route.element}</>
+        <>
+          {metadata}
+          <Breadcrumbs items={route.breadcrumbs} />
+          {route.element}
+        </>
       )}
     </ProtectedRoute>
+  );
+}
+
+function getProductRouteMetadata(productSlug: string, productPath: string) {
+  const product = getProductBySlug(productSlug);
+
+  if (!product) {
+    return null;
+  }
+
+  if (productPath === "") {
+    return (
+      <>
+        <title>{`${product.name} — Adam Belton`}</title>
+        <meta content={product.description} name="description" />
+      </>
+    );
+  }
+
+  if (productPath === "privacy") {
+    return (
+      <>
+        <title>{`${product.name} privacy — Adam Belton`}</title>
+        <meta
+          content={`How ${product.name} processes product information and the choices available to you.`}
+          name="description"
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <title>{`${product.name} workspace — Adam Belton`}</title>
+      <meta content="noindex" name="robots" />
+    </>
   );
 }

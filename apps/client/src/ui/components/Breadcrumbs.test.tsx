@@ -22,7 +22,10 @@ describe("Breadcrumbs", () => {
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(breadcrumb.querySelectorAll("a")).toHaveLength(2);
     expect(screen.getByRole("link", { name: "Products" }).getAttribute("href")).toBe("/products");
-    expect(screen.getByText("Editor").getAttribute("aria-current")).toBe("page");
+    const currentPage = screen.getByText("Editor");
+    expect(currentPage.getAttribute("aria-current")).toBe("page");
+    expect(currentPage.className).toContain("break-words");
+    expect(currentPage.closest("li")?.className).toContain("min-w-0");
     expect(breadcrumb.textContent).toBe("Products*ThoughtForm*Editor");
   });
 });
