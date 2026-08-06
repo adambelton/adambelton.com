@@ -43,6 +43,11 @@ Current implementation status:
 - Owner auth and owner-only persistence foundation exist.
 - Conversation, Idea Map, private Draft, revision history, reviewable proposals,
   and conservative manual-edit interpretation are implemented.
+- Sonnet 5 medium effort, Claude-structured prompts, stable-prefix caching,
+  bounded full history, concurrent conversation and Idea Map calls, POST SSE,
+  resilient asynchronous retention, and paced response presentation are the
+  settled baseline. The planned latency experiments are complete; further
+  latency work requires new evidence.
 - Draft Format has been removed from product, client, temporary persistence,
   durable persistence, and database state.
 - Complete demo lifecycle hardening, calibrated usage limits, autonomous
@@ -50,18 +55,19 @@ Current implementation status:
   visibility remain planned.
 - Preference learning, product-owned export, and product publishing are not in
   the ThoughtForm roadmap.
+- Autonomous, user-correctable Idea Map merge/split behaviour remains required
+  before the editor is fully functional but still needs a bounded proposal.
 
 ## Public website writing
 
-Public writing remains a valid host-website direction after ThoughtForm v1 is
-ready for release. The expected owner workflow is deliberately separate from the
-product: copy plain-text material where useful, add structure and formatting in
-local Markdown through Obsidian or another editor, and let a host-owned pipeline
-render static content pages.
+Public writing is a host-website capability deliberately separate from the
+product. The owner workflow uses repository-backed Markdown authored through
+Obsidian. The host owns page/post ingestion, metadata validation, creation-date
+ordering, routing, and static client rendering. Initial placeholder documents
+establish the pipeline before final content and production deployment.
 
-The host website may later own Markdown ingestion, public metadata, routing,
-static rendering, and deployment. It must not make ThoughtForm responsible
-for export, publication, CMS behaviour, or public-content lifecycle.
+ThoughtForm is not responsible for export, publication, CMS behaviour, or the
+public-content lifecycle.
 
 ## Care Calendar
 

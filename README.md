@@ -59,6 +59,7 @@ adambelton.com/
 │   ├── client/                                Browser application
 │   │   └── src/
 │   │       ├── bootstrap/                     Starts and assembles the app
+│   │       ├── content/                       Repository-backed pages and posts
 │   │       ├── website/                       Public website experience
 │   │       ├── auth/                          Browser authentication experience
 │   │       ├── products/                      Mounts product applications

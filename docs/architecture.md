@@ -8,9 +8,17 @@ The host website uses a client-first architecture with Vite and React Router. Ro
 
 The public website should remain minimal, editorial, image-led where appropriate, and typography-focused. Use semantic HTML first for accessibility. For complex interactive UI, prefer React Aria Components over hand-rolled focus management, keyboard behaviour, ARIA attributes, or screen reader behaviour. Do not use React Aria for ordinary static content or install it speculatively.
 
+Public pages and writing posts are host-owned Markdown committed beneath
+`apps/client/src/content`. A narrowly scoped host Vite plugin parses, validates,
+sanitizes, orders, and compiles the complete collection into a browser-safe
+generated module during development and production builds. Files are authored
+through Obsidian-compatible standard Markdown and YAML properties; authoring
+parsers remain build-only, and this content pipeline remains independent of
+ThoughtForm. The authoring contract lives in `docs/content-authoring.md`.
+
 The API owns authentication, owner/demo access decisions, product access, usage limits, persistence, AI provider calls, and response streaming.
 
-Client-side route gates are UX affordances only. API/server authorization is the authoritative security boundary for sensitive operations.
+Client-side route gates are UX affordances only. API/server authorization is the authoritative security boundary for sensitive operations. Product catalogue and overview information may be public while an incomplete product workspace and every operation behind it remain owner-only.
 
 Shared package boundaries are created early to keep later implementation small and deliberate.
 

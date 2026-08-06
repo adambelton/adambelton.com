@@ -37,23 +37,22 @@ export function OverviewPage({
         <p className="m-0 border-t border-[var(--line)] pt-5 text-2xl font-semibold tracking-normal">
           In Development
         </p>
-        <p className="mt-5 text-base leading-7 text-[var(--muted)]">
-          <TextLink
-            Link={components.Link}
-            href="/products/thoughtform/editor"
-          >
-            Open the editor demo
-          </TextLink>
-        </p>
         {accessLevel === ACCESS_LEVELS.owner ? (
-          <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-            <TextLink
-              Link={components.Link}
-              href="/products/thoughtform/conversations"
-            >
-              Saved conversations
-            </TextLink>
-          </p>
+          <>
+            <p className="mt-5 text-base leading-7 text-[var(--muted)]">
+              <TextLink Link={components.Link} href="/products/thoughtform/editor">
+                Open the workspace
+              </TextLink>
+            </p>
+            <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+              <TextLink
+                Link={components.Link}
+                href="/products/thoughtform/conversations"
+              >
+                Saved conversations
+              </TextLink>
+            </p>
+          </>
         ) : null}
         <p className="mt-3 text-base leading-7 text-[var(--muted)]">
           <TextLink

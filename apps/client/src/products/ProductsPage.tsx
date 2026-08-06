@@ -13,8 +13,7 @@ export function ProductsPage() {
           Things being built.
         </h1>
         <Prose className="mt-8">
-          Product notes and demos will live here as they become real enough to
-          show.
+          Product notes will live here as the work becomes real enough to show.
         </Prose>
       </section>
 

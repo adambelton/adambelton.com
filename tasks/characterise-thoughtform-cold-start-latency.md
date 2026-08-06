@@ -124,7 +124,7 @@ git diff --check
 
 ## Status
 
-Complete on the implementation branch; not yet committed or published.
+Complete and merged through PR #15.
 
 ## Approval record
 

@@ -61,3 +61,46 @@ svg {
   display: block;
   max-width: 100%;
 }
+
+.markdown-content > :first-child {
+  margin-top: 0;
+}
+
+.markdown-content > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: var(--foreground);
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  margin-top: 2rem;
+}
+
+.markdown-content p,
+.markdown-content ul,
+.markdown-content ol,
+.markdown-content blockquote,
+.markdown-content pre {
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--line);
+  margin-left: 0;
+  padding-left: 1.25rem;
+}
+
+.markdown-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1rem;
+}

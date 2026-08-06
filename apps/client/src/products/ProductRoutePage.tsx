@@ -5,10 +5,10 @@ import {
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
 import { ProtectedRoute, useAuthSession } from "apps/client/src/auth";
-import { NavigationLink } from "apps/client/src/ui/components";
+import { NavigationLink } from "apps/client/src/ui/components/NavigationLink";
 import { NotFoundPage } from "apps/client/src/website/pages/NotFoundPage";
-import { Breadcrumbs } from "apps/client/src/ui/components";
-import { resolveProductRoute } from "apps/client/src/products";
+import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
+import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 
 export function ProductRoutePage() {
   const session = useAuthSession();

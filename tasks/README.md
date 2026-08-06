@@ -18,16 +18,21 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- Characterise ThoughtForm cold-start latency (unnumbered)
-- 036 — Complete temporary workspace lifecycle and recovery
-- 038 — Content-free hosted-attempt lifecycle and accounting
-- 039 — Representative hosted-usage measurement
-- 040 — Calibrated atomic usage enforcement
+- 036 — Complete temporary workspace lifecycle and recovery; reviewed and
+  awaiting approval
+- 038 — Content-free hosted-attempt lifecycle and accounting; requires Task 036
+  and a fresh approval review
+- 039 — Representative hosted-usage measurement; depends on Tasks 036 and 038
+- 040 — Calibrated atomic usage enforcement; blocked on Tasks 038 and 039
+- Autonomous, user-correctable Idea Map merge/split behaviour; required before
+  the editor is fully functional, but still needs its own proposal
+- 044 — Admin visibility; requires the accounting and enforcement contracts from
+  Tasks 038–040 and a fresh review
+- 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-The unnumbered correction tasks must be completed before the remaining planned
-product work is reviewed or resumed. Task 036 will require a fresh dependency
-and language review after the corrections; preference learning must no longer be
-a prerequisite.
+The unnumbered correction tasks are complete. Task 036 has received its fresh
+dependency and language review and now awaits approval; Tasks 038–040 remain
+downstream of that work. Preference learning is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
 from them—explicit current guidance, user correction, inspectability, narrow
@@ -37,19 +42,21 @@ inferred profiles, and cross-work preference learning are not planned product
 capabilities.
 
 Task 037 is retired because export is outside the ThoughtForm product
-boundary. Tasks 042 and 043 are removed from the active product sequence. Public
-writing remains valid later host-website delivery work after ThoughtForm v1
-is ready for release, expected to begin with local Markdown content and static
-site pages rather than a product publishing capability.
-
-## In progress
-
-- Instrument ThoughtForm latency (unnumbered)
-- 044 — Admin visibility
-- 045 — Dedicated Neon test-database workflow
+boundary. Tasks 042 and 043 are removed from the active product sequence. Task
+046 supersedes their database-backed and product-publishing directions with
+host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 048 — Build-time repository Markdown compilation
+- 047 — Lazy-loaded ThoughtForm product client
+- 046 — Repository-backed public Markdown content and owner-only ThoughtForm
+- Polish ThoughtForm conversation streaming (unnumbered)
+- Verify ThoughtForm four-turn history in the mounted owner flow (unnumbered)
+- Compare ThoughtForm conversation context size (unnumbered)
+- Compare ThoughtForm plain-text conversation output (unnumbered)
+- Characterise ThoughtForm cold-start latency (unnumbered)
+- Instrument ThoughtForm latency (unnumbered)
 - Verify mounted ThoughtForm at medium effort (unnumbered)
 - Stream ThoughtForm responses and update the Idea Map asynchronously (unnumbered)
 - Cache Claude's stable ThoughtForm prompt (unnumbered)

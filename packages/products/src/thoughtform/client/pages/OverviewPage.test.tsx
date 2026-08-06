@@ -42,6 +42,9 @@ describe("ThoughtForm overview page", () => {
     );
 
     expect(ownerMarkup).toContain('href="/products/thoughtform/conversations"');
+    expect(ownerMarkup).toContain('href="/products/thoughtform/editor"');
     expect(demoMarkup).not.toContain('href="/products/thoughtform/conversations"');
+    expect(demoMarkup).not.toContain('href="/products/thoughtform/editor"');
+    expect(demoMarkup).not.toContain("editor demo");
   });
 });

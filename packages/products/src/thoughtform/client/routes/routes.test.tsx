@@ -16,7 +16,7 @@ const testProductAppComponents: ProductAppComponents = {
 };
 
 describe("renderProductRoute", () => {
-  it("marks the product root as requiring an authenticated user", () => {
+  it("marks the product root as public", () => {
     expect(
       renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
@@ -25,11 +25,11 @@ describe("renderProductRoute", () => {
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
     });
   });
 
-  it("allows authenticated ephemeral users into the editor", () => {
+  it("requires owner access for the editor", () => {
     expect(
       renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
@@ -38,7 +38,7 @@ describe("renderProductRoute", () => {
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
       breadcrumbs: [
         { label: "Products", href: "/products" },
         { label: "ThoughtForm", href: "/products/thoughtform" },
@@ -47,7 +47,7 @@ describe("renderProductRoute", () => {
     });
   });
 
-  it("renders the owner at the editor route through demo mode", () => {
+  it("renders the owner workspace at the editor route", () => {
     const route = renderProductRoute({
       accessLevel: ACCESS_LEVELS.owner,
       components: testProductAppComponents,
@@ -56,7 +56,7 @@ describe("renderProductRoute", () => {
 
     expect(route).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
       element: { type: DemoEditorPage },
     });
   });

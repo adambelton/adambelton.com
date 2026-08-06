@@ -12,5 +12,6 @@ describe("product registry", () => {
 
     expect(thoughtForm).toBe(products[0]);
     expect(getProductBySlug("thoughtform")).toBe(thoughtForm);
+    expect(thoughtForm?.requiresAuth).toBe(false);
   });
 });

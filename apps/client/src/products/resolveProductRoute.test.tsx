@@ -25,7 +25,7 @@ describe("resolveProductRoute", () => {
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
     });
   });
 
@@ -39,7 +39,7 @@ describe("resolveProductRoute", () => {
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
     });
   });
 
