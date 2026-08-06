@@ -1,0 +1,22 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter } from "react-router";
+import { describe, expect, it } from "vitest";
+import { ProductsPage } from "apps/client/src/products/ProductsPage";
+
+describe("ProductsPage", () => {
+  it("presents the current products without provisional copy", () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter>
+        <ProductsPage />
+      </MemoryRouter>,
+    );
+
+    expect(markup).toContain("<title>Products — Adam Belton</title>");
+    expect(markup).toContain(">Products</h1>");
+    expect(markup).toContain(
+      "Products and experiments built around difficult, human problems.",
+    );
+    expect(markup).not.toContain("Things being built");
+    expect(markup).not.toContain("will live here");
+  });
+});

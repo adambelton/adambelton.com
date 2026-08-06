@@ -11,6 +11,10 @@ describe("privacy page", () => {
       </MemoryRouter>,
     );
 
+    expect(markup).toContain("<title>Privacy — Adam Belton</title>");
+    expect(markup).toContain('href="/about#contact"');
+    expect(markup).not.toContain("mailto:");
+
     expect(markup).toContain("How this site handles your data");
     expect(markup).toContain("Review the applicable product privacy page");
     expect(markup).toContain(
@@ -18,6 +22,6 @@ describe("privacy page", () => {
     );
     expect(markup).toContain("Resend");
     expect(markup).toContain("Neon");
-    expect(markup).toContain("hello@adambelton.com");
+    expect(markup).toContain("About page");
   });
 });

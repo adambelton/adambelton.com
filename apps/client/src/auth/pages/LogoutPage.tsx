@@ -32,6 +32,8 @@ export function LogoutPage() {
 
   return (
     <section aria-labelledby="logout-title">
+      <title>Signing out — Adam Belton</title>
+      <meta content="noindex" name="robots" />
       <Breadcrumbs items={[{ label: "Log out" }]} />
       <h1
         className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"

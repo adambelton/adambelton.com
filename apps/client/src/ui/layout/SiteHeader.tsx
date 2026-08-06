@@ -13,9 +13,7 @@ export function SiteHeader() {
         <TextLink href="/">Home</TextLink>
         <TextLink href="/products">Products</TextLink>
         <TextLink href="/about">About</TextLink>
-        <TextLink href={session.data ? "/logout" : "/login"}>
-          {session.data ? "Log out" : "Log in"}
-        </TextLink>
+        {session.data ? <TextLink href="/logout">Log out</TextLink> : null}
       </nav>
     </header>
   );
