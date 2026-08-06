@@ -7,8 +7,6 @@ import {
   DEFAULT_OPENAI_MODEL,
   type LlmClient,
   OpenAiLlmClient,
-  getAiProviderDisclosure,
-  listAiProviderDisclosures,
 } from "packages/ai/src";
 import {
   isSupportedThoughtFormAiProfile,
@@ -40,6 +38,10 @@ import { createThoughtFormApiRoute } from "packages/products/src/thoughtform/ser
 import { noOpObservability } from "packages/observability/src";
 import type { Observability } from "packages/observability/src";
 import { createBraintrustObservability } from "apps/api/src/platform/observability/braintrust-observability";
+import { createThoughtFormAiDisclosureRoute } from "apps/api/src/products/thoughtform/delivery/ai-disclosure-route";
+import {
+  createThoughtFormOwnerObservationRoute,
+} from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -47,8 +49,10 @@ const getThoughtFormDraftStore = createDraftStoreResolver({
 const getThoughtFormConversationStore =
   createConversationStoreResolver({
     databaseUrl: process.env.DATABASE_URL,
-    onTemporaryClear: (userId, conversationId) =>
-      getThoughtFormDraftStore.clearTemporary(userId, conversationId),
+    temporaryWorkspaceContent: (userId) => ({
+      clearDraftingState: (conversationId) =>
+        getThoughtFormDraftStore.clearTemporary(userId, conversationId),
+    }),
   });
 
 export const HOSTED_AI_ENABLED_VALUE = "true";
@@ -235,78 +239,19 @@ const draftChangeInterpretationModel = hostedLlmClient
 
 export const thoughtFormRoute = new Hono();
 
-thoughtFormRoute.get("/ai-disclosure", (context) =>
-  context.json({
-    ok: true as const,
-    data: {
-      activeProvider:
-        hostedAiConfiguration.hostedAiEnabled === HOSTED_AI_ENABLED_VALUE
-          ? getAiProviderDisclosure(hostedAiConfiguration.provider ?? "")
-          : null,
-      supportedProviders: listAiProviderDisclosures(),
-    },
+thoughtFormRoute.route("/ai-disclosure", createThoughtFormAiDisclosureRoute({
+  activeProvider:
+    hostedAiConfiguration.hostedAiEnabled === HOSTED_AI_ENABLED_VALUE
+      ? hostedAiConfiguration.provider ?? null
+      : null,
+}));
+thoughtFormRoute.route(
+  "/owner-observations",
+  createThoughtFormOwnerObservationRoute({
+    getSession: getCurrentAuthSession,
+    observability: ownerObservability,
   }),
 );
-
-thoughtFormRoute.post("/owner-observations/client", async (context) => {
-  const session = await getCurrentAuthSession(context.req.raw.headers);
-  if (!session?.user.isOwner) {
-    return context.json(
-      {
-        ok: false as const,
-        error: { code: "not_found", message: "Not found." },
-      },
-      404,
-    );
-  }
-  const observation = parseOwnerClientObservation(
-    await context.req.json().catch(() => null),
-  );
-  if (!observation) {
-    return context.json(
-      {
-        ok: false as const,
-        error: { code: "invalid_request", message: "Invalid observation." },
-      },
-      400,
-    );
-  }
-  await ownerObservability.observe(
-    "thoughtform.client.conversation_response",
-    {
-      correlation_id: observation.observationId,
-      operation: observation.operation,
-      client_duration_ms: observation.durationMs,
-      result: observation.succeeded ? "success" : "failure",
-    },
-    async () => undefined,
-  );
-  return context.body(null, 204);
-});
-
-export function parseOwnerClientObservation(value: unknown) {
-  if (!value || typeof value !== "object") return null;
-  const candidate = value as Record<string, unknown>;
-  if (
-    typeof candidate.observationId !== "string" ||
-    !/^[0-9a-f-]{36}$/i.test(candidate.observationId) ||
-    (candidate.operation !== "conversation_response" &&
-      candidate.operation !== "conversation_first_token") ||
-    typeof candidate.durationMs !== "number" ||
-    !Number.isInteger(candidate.durationMs) ||
-    candidate.durationMs < 0 ||
-    candidate.durationMs > 300_000 ||
-    typeof candidate.succeeded !== "boolean"
-  ) {
-    return null;
-  }
-  return {
-    observationId: candidate.observationId,
-    operation: candidate.operation,
-    durationMs: candidate.durationMs,
-    succeeded: candidate.succeeded,
-  };
-}
 
 thoughtFormRoute.route(
   "/",

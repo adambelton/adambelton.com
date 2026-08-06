@@ -17,6 +17,7 @@ import {
 import { ComposeDraft } from "packages/products/src/thoughtform/client/workspace/components/ComposeDraft";
 import { DraftHistory } from "packages/products/src/thoughtform/client/workspace/components/DraftHistory";
 import { ProposalReview } from "packages/products/src/thoughtform/client/workspace/components/ProposalReview";
+import { RecoveredDraftText } from "packages/products/src/thoughtform/client/workspace/components/RecoveredDraftText";
 import {
   amendDraftProposal,
   composeDraft,
@@ -30,6 +31,8 @@ import {
 } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 
 export interface DraftPanelHandle {
+  clearLocalState(): void;
+  detachLocalEdits(): void;
   save(): Promise<boolean>;
 }
 
@@ -70,6 +73,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [detachedBody, setDetachedBody] = useState<string | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
@@ -137,8 +141,11 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setStatus(error instanceof Error ? error.message : "The draft could not be updated.");
       if (conversationId) {
         const current = await loadDraft(kind, conversationId).catch(() => null);
+        if (!current && workspace?.draft && body !== workspace.draft.body) {
+          setDetachedBody(body);
+          setBody("");
+        }
         setWorkspace(current);
-        setBody(current?.draft?.body ?? body);
       }
       return false;
     } finally {
@@ -159,15 +166,52 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     );
   }
 
-  useImperativeHandle(ref, () => ({ save }), [conversationId, workspace, body]);
+  useImperativeHandle(ref, () => ({
+    clearLocalState() {
+      setDetachedBody(null);
+      setWorkspace(null);
+      setBody("");
+      setSelection(null);
+      setProposalInstruction("");
+      setHistoryOpen(false);
+      setStatus(null);
+      interpretationRevisionRef.current = null;
+    },
+    detachLocalEdits() {
+      if (workspace?.draft && body !== workspace.draft.body) {
+        setDetachedBody(body);
+      }
+      setWorkspace(null);
+      setBody("");
+      setSelection(null);
+      setProposalInstruction("");
+      setHistoryOpen(false);
+      interpretationRevisionRef.current = null;
+    },
+    save,
+  }), [conversationId, workspace, body]);
+
+  const detachedDraftRecovery = detachedBody ? (
+    <RecoveredDraftText
+      body={detachedBody}
+      onChange={setDetachedBody}
+      onClear={() => setDetachedBody(null)}
+    />
+  ) : null;
 
   if (!conversationId) {
-    return <p className="text-sm text-[var(--muted)]">Begin a conversation when you have something to think through. A Draft is optional.</p>;
+    return (
+      <div className="grid gap-5">
+        {detachedDraftRecovery}
+        <p className="text-sm text-[var(--muted)]">Begin a conversation when you have something to think through. A Draft is optional.</p>
+      </div>
+    );
   }
 
   if (!workspace?.draft) {
     return (
       <div className="grid gap-5">
+        {detachedDraftRecovery}
         <ComposeDraft
           ideas={ideas}
           isBusy={busy}
@@ -206,11 +250,17 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     onAttachSelection(attached);
   }
   return (
-    <section aria-labelledby="draft-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto_auto] gap-5">
+    <section
+      aria-labelledby="draft-title"
+      className={detachedBody
+        ? "grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-5"
+        : "grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto_auto] gap-5"}
+    >
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
         <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
       </header>
+      {detachedDraftRecovery}
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
       <textarea
         className="h-full min-h-0 w-full resize-none overflow-y-auto border border-[var(--line)] bg-transparent p-4 leading-7"

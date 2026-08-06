@@ -5,11 +5,11 @@ import {
   createBoundedIdeaContext,
   CONVERSATION_MODEL_OUTPUT_FORMAT,
   ConversationInputTooLargeError,
-  DISCOVERY_ASSISTANT_MOVES,
   MAX_CONVERSATION_INPUT_BYTES,
   MAX_CONVERSATION_OUTPUT_TOKENS,
   measureConversationRequestInputBytes,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-service";
+import { DISCOVERY_ASSISTANT_MOVES } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-model-response";
 import {
   READINESS_ACTIONS,
   READINESS_ASSESSMENTS,

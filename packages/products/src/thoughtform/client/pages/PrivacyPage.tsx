@@ -36,22 +36,22 @@ export function PrivacyPage({
         </p>
         <AiProcessingDisclosureLoader Link={Link} />
 
-        <h2>Temporary demo conversations</h2>
+        <h2>Temporary owner workspace</h2>
         <p>
-          A signed-in non-owner has at most one temporary conversation. It is held
-          in application memory, is not written to the site&apos;s database, and
-          expires 24 hours after creation. Continuing the conversation does not
-          extend that deadline.
+          The site owner can use one current temporary workspace. Its
+          conversation, Idea Map, and Draft state are held in application memory,
+          are not written to the site&apos;s database, and expire 24 hours after
+          creation. Continuing the work does not extend that deadline.
         </p>
         <p>
-          The conversation can be restored after a reload or navigation while
+          The workspace can be restored after a reload or navigation while
           that application memory remains available. A restart, deployment, or
           request to another application instance may remove it sooner. You can
           clear it immediately in the editor to delete it from application memory
           and start over.
         </p>
 
-        <h2>Owner conversations</h2>
+        <h2>Saved owner conversations</h2>
         <p>
           The site owner&apos;s conversations may be stored in the Neon-hosted
           database so they can be reopened and continued. They do not currently
@@ -75,8 +75,8 @@ export function PrivacyPage({
 
         <h2>Your choices</h2>
         <p>
-          You can leave without opening the editor, clear a temporary conversation
-          from inside it, or stop using the demo. Privacy and deletion requests
+          You can leave without opening the editor, clear the temporary workspace
+          from inside it, or stop using ThoughtForm. Privacy and deletion requests
           are handled through the contact route on the site-wide{" "}
           <TextLink href="/privacy" Link={Link}>
             privacy page

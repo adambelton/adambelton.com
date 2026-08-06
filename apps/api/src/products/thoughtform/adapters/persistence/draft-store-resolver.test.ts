@@ -18,7 +18,7 @@ describe("ThoughtForm draft store resolver", () => {
     expect(first).not.toBe(other);
   });
 
-  it("keeps owner persistence separate from temporary preview state", () => {
+  it("keeps saved owner persistence separate from temporary workspace state", () => {
     const resolve = createDraftStoreResolver({ databaseUrl: undefined });
     const persistent = resolve({ isSignedIn: true, isOwner: true, userId: "owner-1" });
     const temporary = resolve({ isSignedIn: true, isOwner: false, userId: "owner-1" });

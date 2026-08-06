@@ -1,4 +1,4 @@
-import { Breadcrumbs, TextLink } from "apps/client/src/ui/components";
+import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
 import { aboutPageContent } from "apps/client/src/website/content/content";
 import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdown";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
@@ -14,14 +14,14 @@ export function AboutPage() {
       <section aria-labelledby="about-title">
         <Breadcrumbs items={[{ label: "About" }]} />
         <h1
-          className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
+          className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
           id="about-title"
         >
           {aboutPageContent.title}
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--muted)]">
+        <Prose className="mt-6">
           {aboutPageContent.description}
-        </p>
+        </Prose>
         <div className="mt-8">
           <RenderedMarkdown html={aboutPageContent.bodyHtml} />
         </div>

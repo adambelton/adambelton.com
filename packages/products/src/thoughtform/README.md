@@ -30,8 +30,12 @@ packages/products/src/thoughtform/
 ├── server/                                    What the product does
 │   ├── capabilities/                          Rules owned by one product capability
 │   │   ├── conversation/                      Guides inquiry and retains its history
+│   │   │   ├── conversation-model-contract.ts Owns the prompt and output schema
+│   │   │   ├── conversation-model-request.ts  Builds bounded model context
+│   │   │   ├── conversation-model-response.ts Validates model output
 │   │   │   └── ports/                         AI and storage requirements
 │   │   ├── idea-map/                          Analyses and maintains established ideas
+│   │   │   └── idea-map-model-output.ts        Validates proposed model changes
 │   │   └── drafting/                          Composes, versions and revises the draft
 │   │       └── ports/                         AI and storage requirements
 │   ├── application/                           Coordinates complete user operations
@@ -48,11 +52,11 @@ packages/products/src/thoughtform/
 
 Owner-only Braintrust observations use the runtime-neutral contracts in
 `packages/observability`. The API host supplies the Braintrust adapter only to
-the persistent owner conversation, Idea Map, and composition operations; the temporary demo receives the no-op
+the persistent owner conversation, Idea Map, and composition operations; the temporary owner workspace receives the no-op
 implementation and emits neither content nor metadata. Synthetic evaluations
 may also record full content so behavioural regressions can be investigated.
 Anthropic owner-provider spans also record the explicitly selected effort. The
-local development baseline is Sonnet 5 at medium effort; temporary demo traffic
+local development baseline is Sonnet 5 at medium effort; temporary workspace traffic
 remains entirely outside this observation boundary.
 
 ## How the pieces interact
@@ -104,6 +108,7 @@ The current website supplies these implementations outside the product:
 ```txt
 apps/api/src/products/thoughtform/
 ├── mount.ts                                   Assembles the hosted product
+├── delivery/                                  Host-owned disclosure and observations
 ├── adapters/ai/                               Connects product requests to packages/ai
 ├── adapters/persistence/                      Selects temporary or durable storage
 └── testing/                                   Host-specific model evaluation
@@ -135,6 +140,8 @@ Within a capability, the filename identifies the next decision:
 | Question | Conversation capability | Drafting capability |
 |---|---|---|
 | What behaviour should occur? | `conversation-service.ts` | `draft-service.ts` |
+| Is model output valid? | `conversation-model-response.ts` | `draft-model-response.ts` |
+| Is model context bounded correctly? | `conversation-model-request.ts` | `draft-model-request.ts` |
 | What does the product require from AI? | `ports/conversation-model.ts` | `ports/draft-model.ts` |
 | What product-language storage operations exist? | `conversation-store.ts` | `draft-store.ts` |
 | What storage contract must an adapter fulfil? | `ports/conversation-persistence.ts` | `ports/draft-persistence.ts` |
@@ -152,7 +159,7 @@ audience, publishing, or document-type state.
 
 - Colocated `*.test.ts` and `*.test.tsx` files protect neighbouring behaviour.
 - `testing/fakes` provides deterministic external substitutes.
-- `testing/fixtures` provides reusable product states.
+- `testing/fixtures` provides reusable product states and deterministic scenario model behaviour.
 - `testing/browser` exercises complete product journeys.
 - `testing/browser` includes personal reflection, unresolved feelings, a
   practical decision, an argument, early articulation, correction, and valid

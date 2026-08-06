@@ -86,7 +86,7 @@ The frontend owns:
 - rendering the editor/demo experience
 - capturing user input
 - displaying streamed responses
-- holding temporary demo state
+- holding temporary owner-workspace state
 - rendering owner/admin screens
 
 ## Core architectural principle
@@ -1282,7 +1282,7 @@ POST /products/thoughtform/conversation/respond
 
 Backend:
 
-1. Authenticates demo user.
+1. Authenticates the owner for the temporary workspace.
 2. Checks usage limits.
 3. Does not create server-side entry.
 4. Does not save conversation turns.

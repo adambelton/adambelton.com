@@ -652,7 +652,7 @@ The product-owned conversation and draft stores are each implemented once over
 injected persistence ports. Conversation retention and idea-map replacement,
 proposal application, staleness, restoration, revision construction, and
 lifecycle transitions therefore remain identical for durable owner work,
-temporary demo work, and deterministic tests. Concrete adapters provide only
+temporary owner work, and deterministic tests. Concrete adapters provide only
 storage mechanics such as scoping, serialization, conditional writes,
 transactions, idempotency, expiration, and deletion.
 
@@ -1069,3 +1069,32 @@ reachable or the deployment provider changes.
 Deployments are verified first on a temporary Railway domain. Production DNS,
 canonical metadata, final origins, and custom-domain activation require a
 separate approved task.
+
+## 055 — ThoughtForm Has An Owner-Only Temporary Workspace
+
+Decision 053 supersedes Decision 023's earlier generally authenticated demo
+boundary. `/products/thoughtform/editor` is now the owner's temporary workspace:
+it retains one application-memory workspace for the owner and remains distinct
+from ID-addressed saved owner conversations. Non-owner sessions cannot access
+either workspace shape or any ThoughtForm operation.
+
+The platform-wide `demo` access level remains available for future products and
+test-host composition, but it does not describe the current ThoughtForm access
+boundary. Current product code and documentation therefore use *temporary
+workspace* for lifecycle semantics and reserve *demo* for historical records or
+genuinely non-owner platform access.
+
+## 056 — Temporary Lifecycle Meaning And Shared HTTP Policy Stay Product-Owned
+
+Clearing or expiring a temporary conversation is one awaited product lifecycle
+operation: the product coordinates clearing associated workspace content, while
+the API host supplies in-memory stores, timers, and concrete cleanup adapters.
+Recreated workspaces receive fresh identities, so a stale client cannot address
+replacement state.
+
+Temporary and saved conversation routes share product-owned request validation,
+application invocation, response mapping, and streaming observation policy.
+Their access, persistence, identity, and expiry differences remain explicit at
+the route boundary. Host-owned disclosure and observation endpoints live in a
+focused `delivery` role beside the host mount, leaving `mount.ts` responsible
+for dependency assembly.

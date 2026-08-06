@@ -6,7 +6,7 @@ import {
   type ProductRouteResult,
 } from "packages/shared/src";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
-import { DemoEditorPage } from "packages/products/src/thoughtform/client/pages/DemoEditorPage";
+import { TemporaryWorkspacePage } from "packages/products/src/thoughtform/client/pages/TemporaryWorkspacePage";
 import { ConversationsPage } from "packages/products/src/thoughtform/client/pages/ConversationsPage";
 import { ConversationPage } from "packages/products/src/thoughtform/client/pages/ConversationPage";
 import { EditorPage } from "packages/products/src/thoughtform/client/pages/EditorPage";
@@ -45,7 +45,7 @@ export function renderProductRoute({
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
       element: (
-        <DemoEditorPage
+        <TemporaryWorkspacePage
           components={components}
         />
       ),

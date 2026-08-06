@@ -124,7 +124,7 @@ context-size experiments did not justify changing the retained production
 baseline, so pre-warming and a longer cache lifetime remain rejected without new
 evidence.
 
-The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
+The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, temporary owner-workspace lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
 The repo currently has a Vite and React Router client host with the shared public website shell, repository-backed Markdown pages and posts, auth UX, public product information, owner-only product workspaces, and a public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, and a pre-editor privacy acknowledgement. Anthropic Sonnet 5 is the current owner-development baseline. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
@@ -323,9 +323,10 @@ contract evaluation remains outside CI.
 - Product-owned client request helper for the conversation endpoint.
 - Host-owned React Router products route at `/products/:productSlug/*` that dispatches into product-owned route handling.
 - ThoughtForm-owned client app surface under `packages/products/src/thoughtform/client`.
-- ThoughtForm client files organised by responsibility under `pages`,
-  `components`, and `modules`, with demo and persistent editor pages named
-  explicitly as `DemoEditorPage` and `EditorPage`.
+- ThoughtForm client files organised by responsibility under product pages,
+  conversation capabilities, and workspace capabilities, with temporary and
+  saved editor pages named explicitly as `TemporaryWorkspacePage` and
+  `EditorPage`.
 - ThoughtForm-owned API delivery surface under `packages/products/src/thoughtform/server/delivery/http`.
 - API host mount for product API routes under `/products`.
 - Product route access requirements for authenticated and owner-only ThoughtForm routes.
@@ -400,7 +401,7 @@ contract evaluation remains outside CI.
 - Runtime-neutral observability contracts and direct Braintrust host assembly
   trace persistent owner conversation phases, provider usage, cache metadata,
   validation/repair, persistence, and correlated client-perceived duration.
-  Temporary demo composition uses a no-op adapter and emits no Braintrust event.
+  Temporary owner-workspace composition uses a no-op adapter and emits no Braintrust event.
 - Meaningful idea-map changes create whole-map revision snapshots. Optimistic
   revision checks reject stale conversational or direct UI mutations, while the
   editor pauses same-tab mutating controls during an in-flight operation. Stale
@@ -438,7 +439,7 @@ contract evaluation remains outside CI.
   conversation state, expiry metadata, and rejected editor text for recovery.
 - Host-owned `LlmConversationModelAdapter` composition bridge in a generic API adapter module.
 - Product-owned affirmative privacy acknowledgement before ThoughtForm editor controls become available in the current browser session.
-- One temporary in-memory conversation per authenticated user using the demo editor, with a fixed visible 24-hour deadline, authenticated restoration, immediate clearing, and safe unavailable-conversation recovery.
+- One temporary in-memory conversation for the owner using the temporary workspace, with a fixed visible 24-hour deadline, authenticated restoration, immediate clearing, and safe unavailable-conversation recovery.
 - Temporary conversation responses expose their fixed deadline without extending it, and atomic turn retention prevents an expired conversation from reporting an unretained model response as successful.
 - Structured conversation client failures distinguish unavailable temporary conversations from unrelated request failures.
 - Public host `/privacy` page for shared platform processing, with registry-driven links to public product-owned privacy pages.
@@ -487,15 +488,17 @@ contract evaluation remains outside CI.
 - Product registry types are platform-wide while the product definitions are owned by `packages/products` and used by the host product catalogue.
 - `packages/ai` has provider-neutral streaming across Anthropic and OpenAI plus a separately located test fake, but no automatic provider routing or usage-limit enforcement yet.
 - ThoughtForm conversation service is LLM-backed only when the hosted-AI kill switch, an explicit provider, and that provider's credential are configured. Sonnet 5 is the current baseline and GPT-5.6 Terra is the supported OpenAI comparison baseline, while comparative evaluation remains deferred.
-- ThoughtForm persistence is selected by operation semantics: the shared demo editor uses ephemeral application memory, while owner-only ID-addressed conversation operations use Prisma when `DATABASE_URL` is configured.
+- ThoughtForm persistence is selected by operation semantics: the owner-only
+  temporary workspace uses ephemeral application memory, while owner-only
+  ID-addressed conversation operations use Prisma when `DATABASE_URL` is
+  configured.
 
 ## Not implemented
 
-- Public writing system.
-- Individual writing pages.
-- Browser-held demo writing mode; the current non-owner flow is ephemeral in API-process memory with best-effort restoration.
+- Browser-held temporary-workspace persistence; current temporary owner work is
+  ephemeral in API-process memory with best-effort restoration.
 - Usage limits and cost protection.
-- Complete corrected temporary demo lifecycle and recovery.
+- Remaining temporary workspace lifecycle and recovery hardening.
 - Product v1 release readiness and later host-owned local-Markdown/static-content
   delivery.
 - Admin UI.
@@ -549,7 +552,7 @@ contract evaluation remains outside CI.
   SSE response and is retained before the independently analysed Idea Map. The
   map update uses revision-checked replacement, does not consume the concurrent
   assistant response, and can fail without discarding the saved turn. Temporary
-  demo streaming remains unobserved; persistent owner streaming records content,
+  temporary-workspace streaming remains unobserved; persistent owner streaming records content,
   provider usage, server and client first-token timings, response retention, and
   map retention through the existing Braintrust boundary.
 - The controlled ten-turn FIFA split evaluation
@@ -590,7 +593,8 @@ contract evaluation remains outside CI.
 - The Neon dev database is configured locally through `.env.local`, but those secrets are intentionally not committed.
 - The in-memory conversation adapter remains the no-DB local fallback and holds temporary user-isolated state for the life of the API process.
 - The current ThoughtForm editor UI is product-owned and can restore owner conversations, but remains a minimal interface rather than the final ThoughtForm product experience.
-- Demo writing persistence and temporary lifecycle rules are enforced across the client and API boundaries, but broader usage limits still need a later task.
+- Temporary owner-workspace writing and lifecycle rules are enforced across the
+  client and API boundaries, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
 - Daily usage limits are not implemented yet; the kill switch and per-request
@@ -605,7 +609,8 @@ contract evaluation remains outside CI.
 ## Next recommended task
 
 Review Task 036, complete temporary workspace lifecycle and recovery, against
-the corrected product language and dependency boundaries before approval.
+the now-corrected architecture, lifecycle, recovery, terminology, and testing
+baseline before approval.
 
 ## Historical semantic-editor investigation
 

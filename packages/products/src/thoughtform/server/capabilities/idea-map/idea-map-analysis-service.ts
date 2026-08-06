@@ -16,7 +16,7 @@ import {
   parseProposedIdeas,
   type ProposedIdea,
   type ProposedIdeaAction,
-} from "packages/products/src/thoughtform/server/capabilities/idea-map/idea-map";
+} from "packages/products/src/thoughtform/server/capabilities/idea-map/idea-map-model-output";
 import {
   ConversationInputTooLargeError,
   MAX_CONVERSATION_INPUT_BYTES,

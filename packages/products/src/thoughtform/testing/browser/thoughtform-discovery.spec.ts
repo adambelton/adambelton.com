@@ -6,12 +6,12 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     const reset = await page.request.post("/api/testing/reset");
     expect(reset.ok()).toBe(true);
     await page.goto("/products/thoughtform/editor");
-    await expect(page.getByRole("heading", { name: "Your thinking and this demo" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your thinking and ThoughtForm" })).toBeVisible();
     await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
     const restored = page.waitForResponse((response) => response.url().includes("/temporary-conversation/current"));
     await page.getByRole("button", { name: "Open the editor" }).click();
     await restored;
-    await expect(page.getByText("This demo conversation is temporary.", { exact: false })).toBeVisible();
+    await expect(page.getByText("This workspace is temporary.", { exact: false })).toBeVisible();
     await expect(page.getByRole("list", { name: "Conversation" })).toContainText("No messages yet.");
     await expect(page.getByRole("heading", { name: "Idea map" })).not.toBeVisible();
     const emptyLayout = await page.getByTestId("workspace").evaluate(

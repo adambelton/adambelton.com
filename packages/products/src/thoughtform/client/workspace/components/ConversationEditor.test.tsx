@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
+import { ConversationRequestError } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 import {
   ACTIVITIES,
   ASSISTANT_MOVES,
@@ -142,6 +143,75 @@ describe("ConversationEditor", () => {
     await screen.findByText("Save the draft before sending this message.");
     expect(sendMessage).not.toHaveBeenCalled();
     expect(screen.getByDisplayValue("Do not send this yet.")).toBeTruthy();
+    expect(screen.getByDisplayValue("Unsaved canonical work.")).toBeTruthy();
+  });
+
+  it("detaches unsaved Draft text when the workspace becomes unavailable", async () => {
+    let rejectResponse!: (error: Error) => void;
+    const response = new Promise<never>((_resolve, reject) => {
+      rejectResponse = reject;
+    });
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialDraftingState={draftingState("Canonical body.")}
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      initialMessages={[
+        { role: CONVERSATION_MESSAGE_ROLES.user, content: "Existing thought" },
+        { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "Existing response" },
+      ]}
+      onUnavailable={() => undefined}
+      sendMessage={() => response}
+    />);
+    fireEvent.change(screen.getByLabelText("What are you thinking?"), {
+      target: { value: "Keep this submitted thought too." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.change(screen.getByLabelText("Canonical draft"), {
+      target: { value: "Unsaved text worth copying." },
+    });
+    rejectResponse(new ConversationRequestError(
+      "conversation_unavailable",
+      "This temporary workspace is no longer available.",
+    ));
+
+    expect(await screen.findByDisplayValue("Keep this submitted thought too.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    expect(
+      (screen.getByLabelText("Recovered Draft text") as HTMLTextAreaElement).value,
+    ).toBe("Unsaved text worth copying.");
+    expect(screen.queryByText("Existing thought")).toBeNull();
+    expect(screen.queryByText("Accountability")).toBeNull();
+    expect(screen.queryByText("Updating the Idea Map.")).toBeNull();
+  });
+
+  it("shows unsaved Draft text when a failed save cannot restore canonical state", async () => {
+    const workspace = draftingState("Canonical body.");
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(success(workspace))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        ok: false,
+        error: { code: "draft_not_found", message: "The requested drafting state was not found." },
+      }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        ok: false,
+        error: { code: "draft_not_found", message: "The requested drafting state was not found." },
+      }), { status: 404 })));
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+    />);
+    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.change(await screen.findByLabelText("Canonical draft"), {
+      target: { value: "Unsaved mounted Draft text." },
+    });
+    fireEvent.change(screen.getByLabelText("What are you thinking?"), {
+      target: { value: "Trigger the save." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByDisplayValue("Unsaved mounted Draft text.")).toBeTruthy();
+    expect(screen.getByText("Unsaved Draft text recovered")).toBeTruthy();
   });
 
   it("shows an automatic saved-edit response without fabricating a user message", async () => {

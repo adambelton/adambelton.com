@@ -2,7 +2,7 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DemoEditorPage } from "packages/products/src/thoughtform/client/pages/DemoEditorPage";
+import { TemporaryWorkspacePage } from "packages/products/src/thoughtform/client/pages/TemporaryWorkspacePage";
 import { PRIVACY_ACKNOWLEDGEMENT_KEY } from "packages/products/src/thoughtform/client/workspace/actions/privacy-acknowledgement";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 
@@ -11,7 +11,7 @@ const components: ProductAppComponents = {
   navigate: () => undefined,
 };
 
-describe("DemoEditorPage", () => {
+describe("TemporaryWorkspacePage", () => {
   beforeEach(() => {
     sessionStorage.clear();
     sessionStorage.setItem(PRIVACY_ACKNOWLEDGEMENT_KEY, "true");
@@ -26,7 +26,7 @@ describe("DemoEditorPage", () => {
   it("presents the empty temporary lifecycle without treating absence as an error", async () => {
     stubFetch(success(null));
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
 
     expect(
       await screen.findByText(/24-hour lifetime begins with your first submission/i),
@@ -38,7 +38,7 @@ describe("DemoEditorPage", () => {
   it("shows a restored conversation and its fixed expiry", async () => {
     stubFetch(success(temporaryConversation()));
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
 
     expect(await screen.findByText("Restored thought")).toBeTruthy();
     expect(screen.getByText(/scheduled to expire/i)).toBeTruthy();
@@ -51,7 +51,7 @@ describe("DemoEditorPage", () => {
       conversationStreamResponse(),
     );
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText(/24-hour lifetime begins/i);
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -74,7 +74,7 @@ describe("DemoEditorPage", () => {
       ),
     );
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -86,7 +86,7 @@ describe("DemoEditorPage", () => {
       await screen.findByText(/temporary conversation is no longer available/i),
     ).toBeTruthy();
     expect(screen.queryByText("Restored thought")).toBeNull();
-    expect(screen.queryByText("An expiring thought")).toBeNull();
+    expect(screen.getByDisplayValue("An expiring thought")).toBeTruthy();
     expect(screen.getByText("No messages yet.")).toBeTruthy();
     expect(screen.getByText(/24-hour lifetime begins/i)).toBeTruthy();
   });
@@ -97,7 +97,7 @@ describe("DemoEditorPage", () => {
       failure("model_failed", "The model could not respond.", 502),
     );
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -121,7 +121,7 @@ describe("DemoEditorPage", () => {
       ),
     );
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -145,7 +145,7 @@ describe("DemoEditorPage", () => {
     stubFetch(success(temporaryConversation()), success(null));
     vi.stubGlobal("confirm", () => true);
 
-    render(<DemoEditorPage components={components} />);
+    render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
     fireEvent.click(screen.getByRole("button", { name: "Clear this conversation" }));

@@ -6,7 +6,7 @@ import {
 } from "packages/shared/src";
 import { renderProductRoute } from "packages/products/src/thoughtform/client/routes/routes";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
-import { DemoEditorPage } from "packages/products/src/thoughtform/client/pages/DemoEditorPage";
+import { TemporaryWorkspacePage } from "packages/products/src/thoughtform/client/pages/TemporaryWorkspacePage";
 
 const testProductAppComponents: ProductAppComponents = {
   navigate: () => undefined,
@@ -57,7 +57,7 @@ describe("renderProductRoute", () => {
     expect(route).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
-      element: { type: DemoEditorPage },
+      element: { type: TemporaryWorkspacePage },
     });
   });
 

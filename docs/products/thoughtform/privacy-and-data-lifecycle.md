@@ -22,7 +22,7 @@ Shared authentication, contact, and platform-provider processing is documented i
   expiry remove all of this private writing state from application memory.
 - Reload and navigation recovery are best effort. A process restart, deployment,
   or request to another application instance can remove the conversation sooner.
-- Temporary demo operations emit no Braintrust traces. Neither their content nor
+- Temporary owner-workspace operations emit no Braintrust traces. Neither their content nor
   content-free request metadata is sent to the evaluation service.
 
 ## Owner workspace
@@ -64,7 +64,7 @@ Shared authentication, contact, and platform-provider processing is documented i
   continues to set `store: false`, which disables optional application-state
   storage but does not establish Zero Data Retention.
 
-Application code does not intentionally log temporary demo conversation message
+Application code does not intentionally log temporary workspace conversation message
 bodies or generated writing. Explicitly configured owner evaluation tracing is
 the sole current exception. Deployment-level access and request logging must be
 checked separately before public launch.

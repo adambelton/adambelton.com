@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   hasAttachedDraftMaterial,
   readIdeaMapFromWorkspaceContext,
-} from "packages/products/src/thoughtform/testing/browser/workspace-context";
+} from "packages/products/src/thoughtform/testing/fixtures/workspace-context";
 
 describe("browser workspace context", () => {
   it("recognises exact attached draft material", () => {
