@@ -66,8 +66,7 @@ git diff --check
 
 ## Status
 
-Complete on `codex/thoughtform-four-turn-mounted-verification`; not yet
-committed or published.
+Complete and merged through PR #18.
 
 ## Approval record
 

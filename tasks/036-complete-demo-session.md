@@ -1,10 +1,11 @@
-# Task 036 — Harden the complete temporary workspace lifecycle
+# Task 036 — Harden the complete temporary workspace lifecycle and recovery
 
 ## Goal
 
-Let a demo user experience the defining ThoughtForm journey from a rough
-thought through exploration and an inspectable Idea Map, with optional
-composition, an editable Draft, and revision when expression is useful.
+Harden ThoughtForm's complete temporary workspace so conversation, Idea Map,
+Draft, revision history, and proposals behave as one coherent, private,
+expiring unit across restoration, clearing, process loss, and hosted-AI
+failure.
 
 ## Why this task is next
 
@@ -13,19 +14,27 @@ private, temporary experience before final usage limits are calibrated.
 
 ## Depends on
 
-The three approved unnumbered conversational-thinking correction tasks.
+The four completed unnumbered correction tasks: conversational-thinking course
+correction, Draft Format removal, conversational-thinking experience alignment,
+and the product rename to ThoughtForm.
 
 ## Scope
 
-Composes the baseline capabilities under **Client and API responsibilities** and
+Hardens the baseline capabilities under **Client and API responsibilities** and
 the demo portion of **Persistence architecture** from the product architecture.
 
-- Integrate conversation, idea map, optional draft, retained revision history,
-  and proposals.
+- Harden the already integrated conversation, Idea Map, optional Draft, retained
+  revision history, and proposal capabilities under one temporary-workspace
+  lifecycle.
 - Preserve temporary lifecycle and privacy behaviour.
-- Keep clear-session controls coherent across the complete workspace.
+- Make expiry, early process loss, and clear-session behaviour coherent across
+  conversation, Idea Map, Draft state, revision history, proposals, and
+  completed-operation records.
 - Exercise guided and user-led paths.
 - Improve empty, loading, recovery, and unavailable states across the workspace.
+- Preserve locally typed composer text and unsaved Draft edits through ordinary
+  request, model, and concurrency failures where the current page remains
+  mounted.
 
 ## Settled constraints
 
@@ -47,6 +56,14 @@ the demo portion of **Persistence architecture** from the product architecture.
   readable, directly editable, and clearable.
 - Rejected editor text and unsaved local edits remain recoverable where possible;
   a failed model action must not discard them.
+- Ordinary request, hosted-AI, and concurrency failures retain locally typed
+  composer text or unsaved Draft edits in the mounted client so the user can
+  correct, retry, or copy them.
+- If the server workspace expires or disappears early, locally typed text remains
+  visible and copyable while canonical server state and stale workspace identity
+  are cleared. It must not be silently submitted into a newly created workspace.
+- Explicit clearing is intentionally destructive and may discard unsaved local
+  edits only after clear confirmation.
 - Operational usage metadata may persist under the documented privacy boundary,
   but it must not contain prompts, messages, idea content, draft/proposal content,
   generated prose, IP addresses, or user-agent strings.
@@ -68,7 +85,9 @@ the demo portion of **Persistence architecture** from the product architecture.
 ## Expected files to create or modify
 
 - ThoughtForm client workspace and integration modules
-- temporary workspace server/store contracts and adapters
+- temporary workspace server/store contracts and HTTP delivery
+- host in-memory conversation and Draft persistence adapters and their product
+  mounts
 - end-to-end behavioural tests, privacy docs, progress, and task index
 
 ## Definition of done
@@ -78,6 +97,19 @@ the demo portion of **Persistence architecture** from the product architecture.
 - Both guided discovery and explicit user-led composition work end to end.
 - Clearing, fixed expiry, early process loss, and hosted-AI failure remain
   coherent across the complete workspace rather than conversation alone.
+- Conversation, Idea Map, Draft state, revision history, proposals, and completed
+  operations share one expiry and clearing boundary.
+- Every temporary operation returns a stable unavailable-workspace outcome after
+  expiry or early loss; the client clears stale canonical identity without
+  discarding locally recoverable text or silently applying it to a new workspace.
+- Ordinary request, hosted-AI, and concurrency failures preserve recoverable
+  composer text and unsaved Draft edits while retained canonical work remains
+  readable, editable, copyable, and clearable.
+- Explicit clearing confirms the destructive action and removes the complete
+  temporary workspace, including local unsaved edits.
+- The complete temporary flow is verified through the real local client and API
+  host composition using configured development adapters in addition to
+  product-owned deterministic browser hosts.
 - Tests, typecheck, build, and diff checks pass.
 
 ## Validation commands
@@ -90,6 +122,11 @@ pnpm build
 git diff --check
 ```
 
+Mounted verification must also exercise the temporary editor through the real
+local client and API composition, covering restoration, one failure-recovery
+path, and complete clearing. Automated checks and browser inspection must be
+recorded separately.
+
 ## Risks / questions
 
 - The combined UI must remain calm despite exposing a rich workspace.
@@ -99,8 +136,12 @@ git diff --check
 - Any integrated focus and recovery refinements required beyond Task 031's
   approved workspace layout, without turning activity into a mandatory mode
   selector or treating current host styling as final product design.
-- The recovery policy for unsaved local edits when the temporary server workspace
-  expires or disappears early.
+- The exact client presentation and focus transition used when an unavailable
+  server workspace leaves locally recoverable text visible but detached from
+  canonical workspace state.
+- The product failure-code and HTTP mapping used to make unavailable-workspace
+  outcomes stable across every temporary operation.
+
 ## Blast radius
 
 Medium: existing temporary orchestration and client recovery states. Usage
@@ -108,4 +149,4 @@ measurement remains deliberately separate in Task 039; product export is retired
 
 ## Status
 
-Proposed. Requires a fresh review after the three unnumbered corrections.
+Reviewed after all four unnumbered corrections. Awaiting approval.

@@ -1,4 +1,5 @@
-import { Breadcrumbs, Prose } from "apps/client/src/ui/components";
+import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
+import { writingPosts } from "apps/client/src/website/content/content";
 
 export function HomePage() {
   return (
@@ -12,8 +13,8 @@ export function HomePage() {
           Notes, essays, and work in progress.
         </h1>
         <Prose className="mt-8">
-          This will become the main collection for published writing. For now,
-          the site structure is in place and the writing itself is still to come.
+          Writing about products, technology, and the slow work of making ideas
+          clearer.
         </Prose>
       </section>
 
@@ -24,11 +25,21 @@ export function HomePage() {
         >
           Collection
         </h2>
-        <div className="border-t border-[var(--line)] pt-5">
-          <p className="m-0 max-w-2xl text-base leading-7 text-[var(--muted)]">
-            No published pieces yet.
-          </p>
-        </div>
+        <ol className="m-0 grid list-none gap-5 p-0">
+          {writingPosts.map((post) => (
+            <li className="border-t border-[var(--line)] pt-5" key={post.slug}>
+              <p className="m-0 text-sm text-[var(--muted)]">
+                <time dateTime={post.createdAt}>{post.createdAt}</time>
+              </p>
+              <h3 className="mb-0 mt-2 text-2xl font-semibold tracking-normal">
+                <TextLink href={`/writing/${post.slug}`}>{post.title}</TextLink>
+              </h3>
+              <p className="mb-0 mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">
+                {post.description}
+              </p>
+            </li>
+          ))}
+        </ol>
       </section>
     </>
   );

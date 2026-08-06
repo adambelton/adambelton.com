@@ -146,7 +146,7 @@ describe("products API route mount", () => {
     })).toBeInstanceOf(DisabledConversationModelAdapter);
   });
 
-  it("selects temporary operations for the owner without granting persistence to demo users", () => {
+  it("selects temporary and persistent operations only for the owner", () => {
     const ownerSession = { user: { id: "owner-1", isOwner: true } };
     const demoSession = { user: { id: "demo-1", isOwner: false } };
 
@@ -160,11 +160,7 @@ describe("products API route mount", () => {
       isOwner: true,
       userId: "owner-1",
     });
-    expect(getTemporaryConversationAccess(demoSession)).toEqual({
-      isSignedIn: true,
-      isOwner: false,
-      userId: "demo-1",
-    });
+    expect(getTemporaryConversationAccess(demoSession)).toBeNull();
     expect(getPersistentConversationAccess(demoSession)).toBeNull();
   });
 

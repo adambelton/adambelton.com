@@ -1,4 +1,6 @@
-import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
+import { Breadcrumbs, TextLink } from "apps/client/src/ui/components";
+import { aboutPageContent } from "apps/client/src/website/content/content";
+import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdown";
 
 export function AboutPage() {
   return (
@@ -9,12 +11,14 @@ export function AboutPage() {
           className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
           id="about-title"
         >
-          Adam Belton
+          {aboutPageContent.title}
         </h1>
-        <Prose className="mt-8">
-          A personal site for writing, product experiments, and the slow work of
-          making ideas clearer.
-        </Prose>
+        <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--muted)]">
+          {aboutPageContent.description}
+        </p>
+        <div className="mt-8">
+          <RenderedMarkdown html={aboutPageContent.bodyHtml} />
+        </div>
       </section>
 
       <section aria-labelledby="contact-title">

@@ -1,5 +1,5 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router";
-import { ProtectedRoute } from "apps/client/src/auth";
 import {
   Container,
   SiteFooter,
@@ -11,17 +11,22 @@ import {
   HomePage,
   NotFoundPage,
   PrivacyPage,
+  WritingPostPage,
 } from "apps/client/src/website/pages";
 import {
   LoginPage,
   LoginVerifyPage,
   LogoutPage,
 } from "apps/client/src/auth/pages";
-import {
-  ProductRoutePage,
-  ProductsPage,
-  productRoutePath,
-} from "apps/client/src/products";
+import { ProductsPage } from "apps/client/src/products/ProductsPage";
+import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
+import { productRoutePath } from "apps/client/src/products/productRoutePath";
+
+const ProductRoutePage = lazy(() =>
+  import("apps/client/src/products/ProductRoutePage").then((module) => ({
+    default: module.ProductRoutePage,
+  })),
+);
 
 export function App() {
   return (
@@ -36,17 +41,15 @@ export function App() {
           <Routes>
             <Route element={<HomePage />} path="/" />
             <Route element={<AboutPage />} path="/about" />
+            <Route element={<WritingPostPage />} path="/writing/:slug" />
             <Route element={<PrivacyPage />} path="/privacy" />
+            <Route element={<ProductsPage />} path="/products" />
             <Route
               element={
-                <ProtectedRoute>
-                  <ProductsPage />
-                </ProtectedRoute>
+                <Suspense fallback={<ProductRouteLoading />}>
+                  <ProductRoutePage />
+                </Suspense>
               }
-              path="/products"
-            />
-            <Route
-              element={<ProductRoutePage />}
               path={productRoutePath}
             />
             <Route element={<LoginPage />} path="/login" />

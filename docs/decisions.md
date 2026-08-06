@@ -1024,3 +1024,23 @@ persistent conflict is exposed as a recoverable map failure and never removes
 the retained assistant turn. This is bounded optimistic persistence
 reconciliation, not model retry, request serialization, or a durable background
 job.
+
+## 053 — Public Content Is Repository-Backed And Product Information Is Public
+
+Website pages and writing posts are host-owned Markdown committed beneath the
+client's `content/pages` and `content/posts` folders. The host validates YAML
+properties, orders posts newest-first by explicit `createdAt` metadata, renders
+the homepage collection, and exposes complete posts at `/writing/:slug`.
+Filesystem timestamps are not content metadata. Obsidian is the authoring tool,
+but unsupported Obsidian-only syntax must fail clearly rather than silently
+produce different public output.
+
+This supersedes the database-backed writing and post-ThoughtForm sequencing in
+Decisions 014, 015, and 045. Public content remains independent of private
+ThoughtForm Drafts, and no publishing bridge or product export is introduced.
+
+The product catalogue, ThoughtForm overview, and product privacy information are
+public website content. Every ThoughtForm workspace route and operation remains
+owner-only until a later approved release task explicitly changes that boundary.
+The API host is authoritative; client route gates only present the same access
+decision in the browser.

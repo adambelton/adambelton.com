@@ -33,7 +33,7 @@ export function renderProductRoute({
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
       element: <OverviewPage accessLevel={accessLevel} components={components} />,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
       breadcrumbs: [
         { label: "Products", href: "/products" },
         { label: "ThoughtForm" },
@@ -49,7 +49,7 @@ export function renderProductRoute({
           components={components}
         />
       ),
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
       breadcrumbs: [
         { label: "Products", href: "/products" },
         { label: "ThoughtForm", href: "/products/thoughtform" },

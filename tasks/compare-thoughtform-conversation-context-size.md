@@ -88,8 +88,7 @@ git diff --check
 
 ## Status
 
-Complete on `codex/thoughtform-context-size-evaluation`; not yet committed or
-published.
+Complete and merged through PR #17.
 
 ## Approval record
 

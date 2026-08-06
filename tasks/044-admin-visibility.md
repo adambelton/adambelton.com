@@ -7,8 +7,13 @@ exposing private writing or creating invasive analytics.
 
 ## Why this task is next
 
-Usage events and product access now have stable semantics suitable for an admin
-surface.
+After Tasks 038–040, usage attempts, allowance windows, and product access will
+have stable semantics suitable for an admin surface. Those contracts do not
+exist yet, so this proposal is downstream rather than next.
+
+## Depends on
+
+Tasks 038, 039, and 040.
 
 ## Scope
 
@@ -96,4 +101,4 @@ review the migration, and never hand-edit generated migration SQL.
 
 ## Status
 
-Proposed. Awaiting approval.
+Proposed. Blocked on Tasks 038–040 and requires a fresh review afterward.

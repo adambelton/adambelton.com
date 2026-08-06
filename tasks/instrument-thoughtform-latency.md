@@ -138,10 +138,11 @@ inspection, and any human verification must be recorded separately.
 
 ## Status
 
-Implementation and local validation are complete and merged. The follow-up FIFA
-baseline established Braintrust-native Claude accounting; a mounted owner trace
-has not yet been manually inspected, so this task remains incomplete against
-that explicit validation criterion.
+Complete and merged through PR #11. The follow-up FIFA baseline established
+Braintrust-native Claude accounting, and the later mounted medium-effort
+verification inspected correlated owner provider, server, client, persistence,
+usage, cache, and reasoning observations for six FIFA-only turns. That mounted
+evidence satisfies the final outstanding validation criterion.
 
 ## First configured baseline
 

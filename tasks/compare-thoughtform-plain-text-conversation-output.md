@@ -100,8 +100,7 @@ git diff --check
 
 ## Status
 
-Complete on `codex/thoughtform-plain-text-evaluation`; not yet committed or
-published.
+Complete and merged through PR #16.
 
 ## Approval record
 

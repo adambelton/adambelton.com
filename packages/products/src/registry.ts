@@ -17,7 +17,7 @@ export const products = [
     publicPath: "/products/thoughtform",
     demoPath: "/products/thoughtform/editor",
     privacyPath: "/products/thoughtform/privacy",
-    requiresAuth: true,
+    requiresAuth: false,
   },
 ] satisfies ProductDefinition[];
 

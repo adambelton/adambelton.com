@@ -103,7 +103,7 @@ type ProductConversationSession = {
 export function getTemporaryConversationAccess(
   session: ProductConversationSession | null,
 ) {
-  return session
+  return session?.user.isOwner
     ? {
         isSignedIn: true as const,
         isOwner: false as const,

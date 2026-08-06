@@ -2,6 +2,28 @@
 
 ## Current status
 
+Task 048 is complete. Repository Markdown and YAML now compile during Vite
+development and production builds into sanitized HTML and validated metadata.
+The browser no longer contains the Markdown/YAML syntax-tree toolchain. The
+initial JavaScript fell from Task 047's 532.74 KB / 167.80 KB gzip to 275.31 KB
+/ 88.67 KB gzip, while the lazy ThoughtForm chunk remains 103.32 KB / 32.67 KB
+gzip. Mounted verification confirmed compiled rendering and Markdown hot reload.
+
+Task 047 is complete. The host now lazy-loads the complete ThoughtForm client
+behind its product-route mount. The initial client JavaScript fell from 634.42
+KB / 199.36 KB gzip to 532.74 KB / 167.80 KB gzip; ThoughtForm now occupies a
+separate 103.32 KB / 32.67 KB gzip request. Generated-module inspection confirms
+that the editor, Draft panel, and React Aria are absent from the initial chunk.
+Mounted internal navigation and owner workspace entry remain functional.
+
+Task 046 is complete. The host client now owns repository-backed Markdown pages
+and writing posts intended for Obsidian authoring. Placeholder About and first
+post documents render through validated YAML properties and safe Markdown; the
+homepage orders posts by explicit creation date and complete posts resolve at
+`/writing/:slug`. The product catalogue, ThoughtForm overview, and privacy page
+are public, while all workspace routes and API store-backed operations are
+owner-only. Final copy and production deployment remain deliberately deferred.
+
 The approved resilient-streaming implementation is complete. Conversation
 retention now distinguishes map-only revision
 advances from genuine message-history changes: the former receives one cheap
@@ -19,8 +41,14 @@ literal escape in new output, and corrected display of twelve previously
 retained em dashes. Adam confirmed the revised reveal was much better and chose
 a final small reduction from 42 to 36 characters per second.
 
-The approved plain-text conversation-output experiment is complete on its
-implementation branch. Three alternating cache-expired FIFA repetitions
+The planned latency experimentation programme is now concluded. The retained
+baseline is Sonnet 5 at medium effort with Claude-structured prompts, explicit
+stable-prefix caching, bounded full conversation history plus the Idea Map,
+concurrent conversation and map calls, SSE delivery, and paced client reveal.
+Further latency work should begin only from new production or product evidence.
+
+The approved plain-text conversation-output experiment is complete and merged.
+Three alternating cache-expired FIFA repetitions
 compared 30 structured and 30 unconstrained conversation calls at Sonnet 5
 medium effort. Plain text changed median useful-text TTFT by only -83 ms
 (5.969 versus 6.052 seconds), had a slower 14.743-second worst case, and cost
@@ -28,11 +56,12 @@ essentially the same. Quality judgments were tied, while plain text omitted its
 metadata envelope on 4/30 calls, including the same sixth turn in every
 repetition; structured output had one stricter readiness-contract issue. The
 production structured-output default remains unchanged. Because plain text did
-not win offline, the conditional mounted variant was correctly skipped. Context
-size is the next recommended controlled variable.
+not win offline, the conditional mounted variant was correctly skipped. The
+subsequent context-size experiment is also complete and retained bounded full
+history.
 
-The approved ThoughtForm cold-start latency diagnostic is complete on its
-implementation branch. Three provider-confirmed FIFA cold-to-warm sequences and
+The approved ThoughtForm cold-start latency diagnostic is complete and merged.
+Three provider-confirmed FIFA cold-to-warm sequences and
 one mounted owner sequence found no evidence that prompt-cache or Anthropic
 client reuse alone explains the long first-token tail. Controlled conversation
 TTFT ranged from 2.870 to 11.402 seconds (4.469-second median), with the largest
@@ -40,13 +69,14 @@ outlier on a warm cache read and reused client. Mounted server/client TTFT fell
 from 12.559/13.250 seconds on a cache write to 7.871/8.637 seconds on the third
 cache read; persistence and client overhead stayed below one second each. The
 diagnostic runner now rejects cache labels not confirmed by provider counters.
-No production mitigation was made; the next recommendation is a larger,
-quality-scored input/output-contract experiment rather than pre-warming or a
-longer cache lifetime.
+No production mitigation was made. The later quality-scored output-contract and
+context-size experiments did not justify changing the retained production
+baseline, so pre-warming and a longer cache lifetime remain rejected without new
+evidence.
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, complete temporary demo lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, owner auth foundation, and LLM-backed product flow exist.
 
-The repo currently has a Vite and React Router client host with the shared public website shell, auth UX, product mounting, and public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, a pre-editor privacy acknowledgement, and a fixed temporary-conversation lifecycle for non-owner users. Anthropic Sonnet 5 is the current development and restricted-demo baseline pending later comparative evaluation. A post-migration codebase audit has been completed and accepted fixes have been applied.
+The repo currently has a Vite and React Router client host with the shared public website shell, repository-backed Markdown pages and posts, auth UX, public product information, owner-only product workspaces, and a public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, and a pre-editor privacy acknowledgement. Anthropic Sonnet 5 is the current owner-development baseline. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
 The completed pre-036 corrective task makes Anthropic Sonnet 5 and OpenAI GPT-5
 Mini explicit ThoughtForm-supported profiles rather than arbitrary generic LLM
@@ -236,8 +266,10 @@ contract evaluation remains outside CI.
 - Minimal `apps/client` Tailwind styling foundation and small owned site components.
 - Accessibility-first UI guidance: semantic HTML first, React Aria Components for future complex interactive UI when genuinely needed.
 - Public site accessibility baseline with skip link, semantic landmarks, visible focus states, and documented alt text policy.
-- Static public routes for `/` and `/about`; authenticated product routes under `/products`.
-- ThoughtForm temporary demo editor at `/products/thoughtform/editor` for every authenticated user, including the owner.
+- Repository-backed public routes for `/`, `/about`, and `/writing/:slug`, plus
+  public product catalogue, overview, and privacy routes.
+- Owner-only ThoughtForm workspace routes, including the temporary editor at
+  `/products/thoughtform/editor` and saved conversations.
 - Product-owned client request helper for the conversation endpoint.
 - Host-owned React Router products route at `/products/:productSlug/*` that dispatches into product-owned route handling.
 - ThoughtForm-owned client app surface under `packages/products/src/thoughtform/client`.
@@ -252,7 +284,7 @@ contract evaluation remains outside CI.
 - Client-first host architecture decision: move toward Vite and React Router in staged tasks.
 - Initial `apps/client` Vite and React Router scaffold with placeholder routes and dev proxy config.
 - Shared public website shell ported into `apps/client`, including skip link, header/nav, footer, prose/layout primitives, and current public route content.
-- Better Auth magic-link login, login verification, logout, session-aware header state, and client-side `/products` gating ported into `apps/client`.
+- Better Auth magic-link login, login verification, logout, session-aware header state, and client-side workspace gating ported into `apps/client`.
 - Product mounting ported into the Vite client through React Router, with ThoughtForm overview, editor, and conversations routes dispatched from the host into the product-owned route renderer.
 - Host-owned functional navigation adapter for product apps, with product-owned link styling preserved inside the product package.
 - Security posture for the future client host: client route gates are UX only; API/server authorization is authoritative.
