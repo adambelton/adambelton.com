@@ -12,6 +12,9 @@ describe("ProductsPage", () => {
     );
 
     expect(markup).toContain("<title>Products — Adam Belton</title>");
+    expect(markup).toContain(
+      '<link href="https://adambelton.com/products" rel="canonical"/>',
+    );
     expect(markup).toContain(">Products</h1>");
     expect(markup).toContain(
       "Products and experiments built around difficult, human problems.",

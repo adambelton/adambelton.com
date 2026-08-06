@@ -25,6 +25,9 @@ describe("public writing pages", () => {
     expect(markup).toContain(
       "<title>Adam Belton — Software engineer and product builder</title>",
     );
+    expect(markup).toContain(
+      '<link href="https://adambelton.com/" rel="canonical"/>',
+    );
   });
 
   it("renders a complete post at its dedicated route", () => {
@@ -52,6 +55,9 @@ describe("public writing pages", () => {
     );
     expect(markup).toContain(
       '<meta content="The shopping-centre mental model that lets me see my website&#x27;s architecture with my eyes closed." name="description"/>',
+    );
+    expect(markup).toContain(
+      '<link href="https://adambelton.com/writing/portfolio-website-architecture-for-dummies" rel="canonical"/>',
     );
     expect(markup).toContain("6 August 2026");
   });

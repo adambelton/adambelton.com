@@ -1,12 +1,16 @@
 import { Breadcrumbs, TextLink } from "apps/client/src/ui/components";
 import { aboutPageContent } from "apps/client/src/website/content/content";
 import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdown";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
 
 export function AboutPage() {
   return (
     <>
-      <title>About — Adam Belton</title>
-      <meta content={aboutPageContent.description} name="description" />
+      <PublicPageMetadata
+        description={aboutPageContent.description}
+        path="/about"
+        title="About — Adam Belton"
+      />
       <section aria-labelledby="about-title">
         <Breadcrumbs items={[{ label: "About" }]} />
         <h1

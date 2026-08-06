@@ -1,5 +1,6 @@
 import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
 import { products } from "packages/products/src/registry";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
 
 const productsWithPrivacyInformation = products.filter(
   (product) => product.privacyPath,
@@ -8,10 +9,10 @@ const productsWithPrivacyInformation = products.filter(
 export function PrivacyPage() {
   return (
     <article aria-labelledby="privacy-title">
-      <title>Privacy — Adam Belton</title>
-      <meta
-        content="How AdamBelton.com handles sign-in, product, and service-provider data."
-        name="description"
+      <PublicPageMetadata
+        description="How AdamBelton.com handles sign-in, product, and service-provider data."
+        path="/privacy"
+        title="Privacy — Adam Belton"
       />
       <Breadcrumbs items={[{ label: "Privacy" }]} />
       <h1

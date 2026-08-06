@@ -1,13 +1,17 @@
 import { products } from "packages/products/src/registry";
 import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
+
+const description =
+  "Products and experiments built around difficult, human problems.";
 
 export function ProductsPage() {
   return (
     <div className="grid gap-10 sm:gap-12">
-      <title>Products — Adam Belton</title>
-      <meta
-        content="Products and experiments built around difficult, human problems."
-        name="description"
+      <PublicPageMetadata
+        description={description}
+        path="/products"
+        title="Products — Adam Belton"
       />
       <section aria-labelledby="products-title">
         <Breadcrumbs items={[{ label: "Products" }]} />

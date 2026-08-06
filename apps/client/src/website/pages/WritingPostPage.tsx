@@ -4,6 +4,7 @@ import { getWritingPost } from "apps/client/src/website/content/content";
 import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdown";
 import { NotFoundPage } from "apps/client/src/website/pages/NotFoundPage";
 import { formatPublicDate } from "apps/client/src/website/content/formatPublicDate";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
 
 export function WritingPostPage() {
   const { slug = "" } = useParams();
@@ -12,8 +13,11 @@ export function WritingPostPage() {
 
   return (
     <>
-      <title>{`${post.title} — Adam Belton`}</title>
-      <meta content={post.description} name="description" />
+      <PublicPageMetadata
+        description={post.description}
+        path={`/writing/${post.slug}`}
+        title={`${post.title} — Adam Belton`}
+      />
       <article aria-labelledby="post-title" className="min-w-0">
         <Breadcrumbs
           items={[
