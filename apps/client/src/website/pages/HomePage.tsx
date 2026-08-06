@@ -1,14 +1,18 @@
 import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
 import { writingPosts } from "apps/client/src/website/content/content";
 import { formatPublicDate } from "apps/client/src/website/content/formatPublicDate";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
+
+const description =
+  "Senior software engineer building complex products around the way people actually work.";
 
 export function HomePage() {
   return (
     <div className="grid gap-10 sm:gap-12">
-      <title>Adam Belton — Software engineer and product builder</title>
-      <meta
-        content="Senior software engineer building complex products around the way people actually work."
-        name="description"
+      <PublicPageMetadata
+        description={description}
+        path="/"
+        title="Adam Belton — Software engineer and product builder"
       />
       <section aria-labelledby="home-title">
         <Breadcrumbs items={[{ label: "Writing" }]} />

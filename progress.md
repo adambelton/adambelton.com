@@ -2,17 +2,19 @@
 
 ## Current status
 
-The Railway deployment foundation is complete in the repository. One persistent
-Node process now serves the built Vite site, same-origin `/api` and `/auth`
-traffic, deployment health, static assets, and SPA deep links. Repository-owned
-Railway configuration defines the build, pre-deploy Prisma migration, start,
-health-check, and restart lifecycle; Serverless/App Sleeping is deliberately a
-documented disabled dashboard setting. Railway's `X-Real-IP` is configured for
-Better Auth rate-limit identity. The production command, direct HTTP smoke
-checks, mounted built-client routes, 297-test suite, typecheck, build, frozen
-install, and all three deterministic Playwright journeys pass. No Railway
-resource, secret, production migration, or DNS record has been created or
-changed; temporary-domain deployment remains the next external step.
+The public website is live at `https://adambelton.com` on one persistent Railway
+service in Europe West. Railway serves the Vite site and same-origin API/auth
+boundaries, reports a healthy deployment, and has applied the committed initial
+migration to the production Neon branch. Cloudflare proxies the apex with Full
+SSL/TLS and permanently redirects `www` to the apex while preserving paths and
+query strings. Better Auth now generates callbacks on the canonical apex. The
+temporary Railway domain remains attached for diagnosis.
+
+Canonical page metadata, `robots.txt`, and `sitemap.xml` are implemented and
+locally validated on the current activation branch but are not yet committed or
+deployed. The private ThoughtForm conversation, asynchronous Idea Map, and
+Braintrust production checks remain an explicitly deferred non-blocking
+follow-up.
 
 DM Sans is now retained as the site font after Adam's mounted review. The About
 Contact section exposes accessible text links for Email, LinkedIn, and GitHub

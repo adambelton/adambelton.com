@@ -30,9 +30,9 @@ Required platform variables:
 ```txt
 NODE_ENV=production
 DATABASE_URL=<Neon production pooled connection URL>
-BETTER_AUTH_URL=https://<temporary-domain>.up.railway.app
+BETTER_AUTH_URL=https://adambelton.com
 BETTER_AUTH_SECRET=<long random production secret>
-BETTER_AUTH_TRUSTED_ORIGINS=https://<temporary-domain>.up.railway.app
+BETTER_AUTH_TRUSTED_ORIGINS=https://adambelton.com,https://<temporary-domain>.up.railway.app
 OWNER_EMAIL=<owner email>
 RESEND_API_KEY=<production Resend key>
 AUTH_EMAIL_FROM=Adam Belton <verified-sender@example.com>
@@ -80,6 +80,23 @@ reach the origin directly or does not replace the incoming header.
 Do not attach `adambelton.com` during this verification. Custom-domain DNS,
 canonical metadata, origin changes, and final production checks belong to the
 separate activation task.
+
+## Production domain
+
+`https://adambelton.com` is the canonical production origin. Cloudflare hosts
+its DNS and proxies the apex CNAME to Railway. Railway's ownership TXT record
+must remain present while the domain is attached to the service. Cloudflare
+SSL/TLS mode is `Full`, with Universal SSL enabled.
+
+The Railway plan permits one custom domain on the service. The apex domain uses
+that allocation; Cloudflare therefore owns the permanent `www` redirect. Its
+proxied `www` CNAME points to the apex, and a Cloudflare redirect rule preserves
+the request path and query string while returning HTTP 301 to the equivalent
+`https://adambelton.com` URL.
+
+The Railway temporary domain remains attached for diagnosis and remains a
+trusted Better Auth origin during initial operation. Magic links use the
+canonical apex origin because `BETTER_AUTH_URL` is `https://adambelton.com`.
 
 ## Local production smoke test
 

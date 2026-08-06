@@ -10,6 +10,7 @@ import { NotFoundPage } from "apps/client/src/website/pages/NotFoundPage";
 import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
+import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
@@ -68,22 +69,21 @@ function getProductRouteMetadata(productSlug: string, productPath: string) {
 
   if (productPath === "") {
     return (
-      <>
-        <title>{`${product.name} — Adam Belton`}</title>
-        <meta content={product.description} name="description" />
-      </>
+      <PublicPageMetadata
+        description={product.description}
+        path={`/products/${product.slug}`}
+        title={`${product.name} — Adam Belton`}
+      />
     );
   }
 
   if (productPath === "privacy") {
     return (
-      <>
-        <title>{`${product.name} privacy — Adam Belton`}</title>
-        <meta
-          content={`How ${product.name} processes product information and the choices available to you.`}
-          name="description"
-        />
-      </>
+      <PublicPageMetadata
+        description={`How ${product.name} processes product information and the choices available to you.`}
+        path={`/products/${product.slug}/privacy`}
+        title={`${product.name} privacy — Adam Belton`}
+      />
     );
   }
 
