@@ -2,10 +2,14 @@
   "name": "adambelton.com",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev:client": "pnpm --filter @adambelton/client dev",
     "dev:api": "pnpm db:generate && pnpm --filter @adambelton/api dev",
+    "start": "pnpm --filter @adambelton/api start",
     "evaluate:thoughtform": "pnpm --filter @adambelton/products evaluate:thoughtform",
     "evaluate:thoughtform-braintrust": "pnpm --filter @adambelton/products evaluate:thoughtform-braintrust",
     "evaluate:thoughtform-cold-warm": "pnpm --filter @adambelton/products evaluate:thoughtform-cold-warm",

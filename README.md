@@ -148,6 +148,7 @@ responsibility in the path and filename.
 pnpm install       # install dependencies
 pnpm dev:client    # run the website
 pnpm dev:api       # run the API
+pnpm start         # run the built client and API as one production service
 pnpm test          # deterministic behaviour and architecture tests
 pnpm test:e2e      # complete browser journeys
 pnpm typecheck     # typecheck every workspace package
@@ -158,3 +159,6 @@ pnpm db:validate   # validate the Prisma schema
 Canonical rules live in `AGENTS.md`, `docs/architecture.md`,
 `docs/code-quality.md`, and `docs/testing.md`. ThoughtForm product language
 and boundaries live in `docs/products/thoughtform/`.
+
+Railway deployment configuration, variables, and verification are documented
+in `docs/deployment.md`.

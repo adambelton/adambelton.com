@@ -1044,3 +1044,28 @@ public website content. Every ThoughtForm workspace route and operation remains
 owner-only until a later approved release task explicitly changes that boundary.
 The API host is authoritative; client route gates only present the same access
 decision in the browser.
+
+## 054 — Production Uses One Persistent Same-Origin Railway Service
+
+The production website is deployed as one persistent Railway service. The Hono
+process serves the built Vite client and mounts product API routes beneath
+`/api`, authentication beneath `/auth`, and deployment health at `/health`.
+Client-side routes receive the SPA document only after those server boundaries
+and file requests have been resolved. Missing file requests return 404.
+
+This same-origin shape is intentional. It keeps Better Auth cookies and
+ThoughtForm SSE responses direct and avoids a second frontend proxy or a
+provider-specific function runtime. The production artifact remains ordinary
+Node and can move to another container host without changing product packages.
+
+Railway uses repository-owned build, pre-deploy migration, start, health-check,
+and restart configuration. Neon remains the durable database provider.
+Railway Serverless/App Sleeping stays disabled because idle cold boots conflict
+with the product's response-latency objective. The Railway edge's documented
+`X-Real-IP` header is explicitly configured for Better Auth client rate-limit
+identity; that trust must be reconsidered if the origin becomes directly
+reachable or the deployment provider changes.
+
+Deployments are verified first on a temporary Railway domain. Production DNS,
+canonical metadata, final origins, and custom-domain activation require a
+separate approved task.
