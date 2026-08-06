@@ -44,8 +44,8 @@ describe("repository architecture", () => {
       const owner = sourceOwner(file);
       const allowed = ALLOWED_DEPENDENCIES[owner];
       const source = readFileSync(file, "utf8");
-      return [...source.matchAll(/from\s+["']((?:apps|packages)\/[^"']+)["']/g)]
-        .map((match) => match[1]!)
+      return repositoryImportPaths(source)
+        .filter((importPath) => /^(apps|packages)\//.test(importPath))
         .filter((importPath) => !allowed.has(importOwner(importPath)))
         .map(
           (importPath) =>
@@ -59,8 +59,7 @@ describe("repository architecture", () => {
   it("keeps production code independent from test support", () => {
     const violations = productionSourceFiles().flatMap((file) => {
       const source = readFileSync(file, "utf8");
-      return [...source.matchAll(/from\s+["']([^"']+)["']/g)]
-        .map((match) => match[1]!)
+      return repositoryImportPaths(source)
         .filter((importPath) => importPath.includes("/testing/"))
         .map(
           (importPath) =>
@@ -70,7 +69,31 @@ describe("repository architecture", () => {
 
     expect(violations).toEqual([]);
   });
+
+  it("recognises every supported import and re-export form", () => {
+    expect(repositoryImportPaths(`
+      import { value } from "packages/shared/src";
+      export { value } from "packages/shared/src/products";
+      import "apps/client/src/styles.css";
+      const module = import("apps/client/src/products/ProductRoutePage");
+      type Contract = import("packages/products/src/thoughtform/shared").Conversation;
+    `)).toEqual([
+      "packages/shared/src",
+      "packages/shared/src/products",
+      "apps/client/src/products/ProductRoutePage",
+      "packages/products/src/thoughtform/shared",
+      "apps/client/src/styles.css",
+    ]);
+  });
 });
+
+function repositoryImportPaths(source: string) {
+  return [
+    /\bfrom\s+["']([^"']+)["']/g,
+    /\bimport\s*\(\s*["']([^"']+)["']\s*\)/g,
+    /\bimport\s+["']([^"']+)["']/g,
+  ].flatMap((pattern) => [...source.matchAll(pattern)].map((match) => match[1]!));
+}
 
 function productionSourceFiles() {
   return Object.keys(ALLOWED_DEPENDENCIES).flatMap((owner) =>

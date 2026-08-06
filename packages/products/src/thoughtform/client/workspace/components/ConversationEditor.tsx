@@ -212,8 +212,14 @@ export function ConversationEditor({
         (sendError.code === CONVERSATION_ERROR_CODES.notFound ||
           sendError.code === CONVERSATION_ERROR_CODES.unavailable)
       ) {
+        draftRef.current?.detachLocalEdits();
         setConversationId(null);
         setMessages([]);
+        setIdeaMap(EMPTY_IDEA_MAP);
+        setIdeaStatus(null);
+        setMessage(trimmedMessage);
+        setAnimateLatestAssistant(false);
+        setPartialAssistantMessage(null);
         onUnavailable();
         setError(
           "This temporary conversation is no longer available. You can start a new conversation.",
@@ -260,6 +266,7 @@ export function ConversationEditor({
 
     try {
       await onClear();
+      draftRef.current?.clearLocalState();
       setConversationId(null);
       setMessages([]);
       setAnimateLatestAssistant(false);

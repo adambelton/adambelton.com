@@ -1,32 +1,22 @@
 import { Hono } from "hono";
 import {
   ConversationService,
+  type PersistentConversationStore,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
-import type {
-  PersistentConversationStore,
-} from "packages/products/src/thoughtform/server/capabilities/conversation";
-import {
-  respondInWorkspace,
-  streamResponseInWorkspace,
-  type IdeaMapAnalyser,
-  type ConversationResponder,
-  type StreamingConversationResponder,
-  noOpIdeaMapAnalyser,
-} from "packages/products/src/thoughtform/server/application/workspace";
-import { parseConversationRequest } from "packages/products/src/thoughtform/server/delivery/http/conversation-request";
-import { handleIdeaActionRequest } from "packages/products/src/thoughtform/server/delivery/http/idea-action-handler";
-import { CONVERSATION_ERROR_CODES } from "packages/products/src/thoughtform/shared";
-import { failure, success } from "packages/shared/src";
 import type { DraftStore } from "packages/products/src/thoughtform/server/capabilities/drafting";
-import { validateDraftSelection } from "packages/products/src/thoughtform/server/delivery/http/draft-selection-context";
-import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
 import {
-  noOpObservability,
-  OBSERVATION_ATTRIBUTE_NAMES,
-  observeStream,
-  type Observability,
-} from "packages/observability/src";
-import { conversationStreamResponse } from "packages/products/src/thoughtform/server/delivery/http/conversation-stream-response";
+  type ConversationResponder,
+  type IdeaMapAnalyser,
+  type StreamingConversationResponder,
+} from "packages/products/src/thoughtform/server/application/workspace";
+import { handleIdeaActionRequest } from "packages/products/src/thoughtform/server/delivery/http/idea-action-handler";
+import {
+  handleConversationResponse,
+  handleConversationStream,
+} from "packages/products/src/thoughtform/server/delivery/http/conversation-response-handler";
+import { CONVERSATION_ERROR_CODES } from "packages/products/src/thoughtform/shared";
+import type { Observability } from "packages/observability/src";
+import { failure, success } from "packages/shared/src";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
@@ -50,256 +40,64 @@ export function createConversationsRoute({
   const route = new Hono();
 
   route.post("/", async (context) => {
-    const conversationStore = await getPersistentConversationStore(
-      context.req.raw,
-    );
-
-    if (!conversationStore) {
-      return context.json(
-        failure("not_found", "The requested resource was not found."),
-        404,
-      );
-    }
-
-    return context.json(
-      success(await conversationStore.createConversation()),
-      201,
-    );
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    return context.json(success(await store.createConversation()), 201);
   });
 
   route.get("/", async (context) => {
-    const conversationStore = await getPersistentConversationStore(
-      context.req.raw,
-    );
-
-    if (!conversationStore) {
-      return context.json(
-        failure("not_found", "The requested resource was not found."),
-        404,
-      );
-    }
-
-    return context.json(success(await conversationStore.listConversations()));
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    return context.json(success(await store.listConversations()));
   });
 
   route.get("/:conversationId", async (context) => {
-    const conversationStore = await getPersistentConversationStore(
-      context.req.raw,
-    );
-
-    if (!conversationStore) {
-      return context.json(
-        failure("not_found", "The requested resource was not found."),
-        404,
-      );
-    }
-
-    const conversation = await conversationStore.getConversation(
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    const conversation = await store.getConversation(
       context.req.param("conversationId"),
     );
-
     if (!conversation) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.notFound,
-          "The requested conversation was not found.",
-        ),
-        404,
-      );
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.notFound,
+        "The requested conversation was not found.",
+      ), 404);
     }
-
     return context.json(success(conversation));
   });
 
   route.post("/:conversationId/respond", async (context) => {
-    const conversationStore = await getPersistentConversationStore(
-      context.req.raw,
-    );
-
-    if (!conversationStore) {
-      return context.json(
-        failure("not_found", "The requested resource was not found."),
-        404,
-      );
-    }
-
-    const conversationId = context.req.param("conversationId");
-    const request = await parseConversationRequest(context.req.raw);
-
-    if (!request) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.invalidRequest,
-          "Conversation requests require a message.",
-        ),
-        400,
-      );
-    }
-
-    const draftStore = getPersistentDraftStore
-      ? await getPersistentDraftStore(context.req.raw)
-      : null;
-    const hasDraft = Boolean(
-      (await draftStore?.getDraftingState(conversationId))?.draft,
-    );
-    if (request.draftSelection && !await validateDraftSelection({
-      conversationId,
-      drafts: draftStore,
-      selection: request.draftSelection,
-    })) {
-      return context.json(failure(
-        CONVERSATION_ERROR_CODES.invalidRequest,
-        "The selected draft passage is stale or invalid.",
-      ), 409);
-    }
-    if (request.draftChange && !await validateDraftChange({
-      conversationId,
-      drafts: draftStore,
-      change: request.draftChange,
-    })) {
-      return context.json(failure(
-        CONVERSATION_ERROR_CODES.invalidRequest,
-        "The saved draft change is stale or invalid.",
-      ), 409);
-    }
-
-    const result = await respondInWorkspace({
-      conversationId,
-      message: request.message,
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    return handleConversationResponse({
+      context,
+      conversationId: context.req.param("conversationId"),
       conversation: conversationService,
-      conversations: conversationStore,
-      draftSelection: request.draftSelection,
-      draftChange: request.draftChange,
-      hasDraft,
+      conversations: store,
+      draftStore: await resolveDraftStore(context.req.raw),
+      kind: "persistent",
       observability,
-      observationCorrelationId: parseObservationCorrelationId(
-        context.req.header("x-thoughtform-observation-id"),
-      ),
     });
-
-    if (
-      result.status === CONVERSATION_ERROR_CODES.notFound ||
-      result.status === CONVERSATION_ERROR_CODES.unavailable
-    ) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.notFound,
-          "The requested conversation was not found.",
-        ),
-        404,
-      );
-    }
-
-    if (result.status === CONVERSATION_ERROR_CODES.inputTooLarge) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.inputTooLarge,
-          "This conversation is too large to continue. Shorten it and try again.",
-        ),
-        413,
-      );
-    }
-
-    if (result.status === CONVERSATION_ERROR_CODES.conflict) {
-      return context.json(
-        failure(result.status, "The idea map changed while the response was being prepared. Try again."),
-        409,
-      );
-    }
-
-    if (result.status === CONVERSATION_ERROR_CODES.hostedAiDisabled) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.hostedAiDisabled,
-          "ThoughtForm is currently disabled.",
-        ),
-        503,
-      );
-    }
-
-    if (result.status === CONVERSATION_ERROR_CODES.hostedAiUnavailable) {
-      return context.json(
-        failure(
-          CONVERSATION_ERROR_CODES.hostedAiUnavailable,
-          "ThoughtForm could not respond. Try again shortly.",
-        ),
-        503,
-      );
-    }
-
-    return context.json(success(result.response), 201);
   });
 
   route.post("/:conversationId/respond-stream", async (context) => {
-    const conversationStore = await getPersistentConversationStore(context.req.raw);
-    if (!conversationStore) {
-      return context.json(failure("not_found", "The requested resource was not found."), 404);
-    }
-    const request = await parseConversationRequest(context.req.raw);
-    if (!request) {
-      return context.json(failure(
-        CONVERSATION_ERROR_CODES.invalidRequest,
-        "Conversation requests require a message and conversationId.",
-      ), 400);
-    }
-    const conversationId = context.req.param("conversationId");
-    const draftStore = getPersistentDraftStore
-      ? await getPersistentDraftStore(context.req.raw)
-      : null;
-    const hasDraft = Boolean((await draftStore?.getDraftingState(conversationId))?.draft);
-    if (request.draftSelection && !await validateDraftSelection({
-      conversationId,
-      drafts: draftStore,
-      selection: request.draftSelection,
-    })) {
-      return context.json(failure(
-        CONVERSATION_ERROR_CODES.invalidRequest,
-        "The selected draft passage is stale or invalid.",
-      ), 409);
-    }
-    if (request.draftChange && !await validateDraftChange({
-      conversationId,
-      drafts: draftStore,
-      change: request.draftChange,
-    })) {
-      return context.json(failure(
-        CONVERSATION_ERROR_CODES.invalidRequest,
-        "The saved draft change is stale or invalid.",
-      ), 409);
-    }
-    const observationCorrelationId = parseObservationCorrelationId(
-      context.req.header("x-thoughtform-observation-id"),
-    );
-    return conversationStreamResponse(observeStream(
-      observability ?? noOpObservability,
-      "thoughtform.workspace.stream_turn",
-      {
-        [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
-        ...(observationCorrelationId
-          ? {
-              [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: observationCorrelationId,
-            }
-          : {}),
-      },
-      () => streamResponseInWorkspace({
-      conversationId,
-      message: request.message,
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    return handleConversationStream({
+      context,
+      conversationId: context.req.param("conversationId"),
       conversation: streamingConversationService,
-      ideaMapAnalysis: ideaMapAnalysis ?? noOpIdeaMapAnalyser,
-      conversations: conversationStore,
-      draftSelection: request.draftSelection,
-      draftChange: request.draftChange,
-      hasDraft,
+      conversations: store,
+      draftStore: await resolveDraftStore(context.req.raw),
+      ideaMapAnalysis,
+      kind: "persistent",
       observability,
-      }),
-    ));
+    });
   });
 
   route.post("/:conversationId/ideas/:ideaId", async (context) => {
     const store = await getPersistentConversationStore(context.req.raw);
-    if (!store) {
-      return context.json(failure("not_found", "The requested resource was not found."), 404);
-    }
+    if (!store) return notFound(context);
     return handleIdeaActionRequest({
       request: context.req.raw,
       conversationId: context.req.param("conversationId"),
@@ -309,8 +107,14 @@ export function createConversationsRoute({
   });
 
   return route;
+
+  function resolveDraftStore(request: Request) {
+    return getPersistentDraftStore
+      ? getPersistentDraftStore(request)
+      : Promise.resolve(null);
+  }
 }
 
-function parseObservationCorrelationId(value: string | undefined) {
-  return value && /^[0-9a-f-]{36}$/i.test(value) ? value : undefined;
+function notFound(context: import("hono").Context) {
+  return context.json(failure("not_found", "The requested resource was not found."), 404);
 }

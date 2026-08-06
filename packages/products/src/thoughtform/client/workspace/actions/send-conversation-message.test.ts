@@ -76,7 +76,7 @@ describe("sendConversationMessage", () => {
     ]);
   });
 
-  it("does not emit client observations for temporary demo conversations", async () => {
+  it("does not emit client observations for the temporary workspace", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(successResponse());
 
     await sendConversationMessage(

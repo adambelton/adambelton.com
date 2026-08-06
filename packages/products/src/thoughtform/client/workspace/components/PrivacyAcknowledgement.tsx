@@ -1,18 +1,15 @@
 import { useId, useState } from "react";
 import type { FormEvent } from "react";
-import { ACCESS_LEVELS, type AccessLevel } from "packages/shared/src";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 import { TextLink } from "packages/products/src/thoughtform/client/ui/TextLink";
 import { AiProcessingDisclosureLoader } from "packages/products/src/thoughtform/client/workspace/components/AiProcessingDisclosureLoader";
 
 type PrivacyAcknowledgementProps = {
-  accessLevel: AccessLevel;
   components: ProductAppComponents;
   onAcknowledge: () => void;
 };
 
 export function PrivacyAcknowledgement({
-  accessLevel,
   components: { Link },
   onAcknowledge,
 }: PrivacyAcknowledgementProps) {
@@ -33,14 +30,15 @@ export function PrivacyAcknowledgement({
         className="m-0 max-w-4xl text-5xl font-semibold leading-none tracking-normal sm:text-7xl"
         id="privacy-acknowledgement-title"
       >
-        Your thinking and this demo
+        Your thinking and ThoughtForm
       </h1>
       <div className="mt-8 grid max-w-2xl gap-5 text-base leading-7 text-[var(--muted)]">
         <AiProcessingDisclosureLoader Link={Link} />
         <p className="m-0">
-          {accessLevel === ACCESS_LEVELS.owner
-            ? "As the site owner, your conversations may be saved in the site's database."
-            : "Your current conversation is held temporarily in application memory for no more than 24 hours. It may disappear sooner after a restart or deployment, and you can clear it at any time."}
+          This workspace is held temporarily in application memory for no more
+          than 24 hours. It may disappear sooner after a restart or deployment,
+          and you can clear it at any time. Saved owner conversations use a
+          separate workspace route.
         </p>
         <p className="m-0">
           This is a portfolio demo, not a confidential professional, medical,

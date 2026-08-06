@@ -8,8 +8,8 @@ import {
   createDraftModel,
   getPersistentConversationAccess,
   getTemporaryConversationAccess,
-  parseOwnerClientObservation,
 } from "apps/api/src/products/thoughtform/mount";
+import { parseOwnerClientObservation } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
 import {
   DisabledConversationModelAdapter,
   LlmConversationModelAdapter,
@@ -40,7 +40,7 @@ describe("products API route mount", () => {
     expect(parseOwnerClientObservation({ operation: "conversation_response", durationMs: -1 })).toBeNull();
   });
 
-  it("traces complete owner evaluations while leaving the demo entirely unobserved", async () => {
+  it("traces saved owner work while leaving the temporary workspace unobserved", async () => {
     const observedContent: ObservationContent[] = [];
     const observability: Observability = {
       observe: (_name, _attributes, operation) => operation(),

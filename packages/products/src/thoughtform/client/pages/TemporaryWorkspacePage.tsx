@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ACCESS_LEVELS } from "packages/shared/src";
 import type { TemporaryConversation } from "packages/products/src/thoughtform/shared";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
@@ -13,13 +12,13 @@ import {
   loadTemporaryConversation,
 } from "packages/products/src/thoughtform/client/workspace/actions/temporary-conversation";
 
-type DemoEditorPageProps = {
+type TemporaryWorkspacePageProps = {
   components: ProductAppComponents;
 };
 
-export function DemoEditorPage({
+export function TemporaryWorkspacePage({
   components,
-}: DemoEditorPageProps) {
+}: TemporaryWorkspacePageProps) {
   const [hasAcknowledged, setHasAcknowledged] = useState(() =>
     hasAcknowledgedPrivacy(getSessionStorage()),
   );
@@ -68,7 +67,6 @@ export function DemoEditorPage({
   if (!hasAcknowledged) {
     return (
       <PrivacyAcknowledgement
-        accessLevel={ACCESS_LEVELS.demo}
         components={components}
         onAcknowledge={() => {
           acknowledgePrivacy(getSessionStorage());
@@ -88,7 +86,7 @@ export function DemoEditorPage({
       <p className="mb-8 text-sm leading-6 text-[var(--muted)]" role="status">
         {expiresAt
           ? `This temporary conversation is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
-          : "This demo conversation is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}
+          : "This workspace is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}
       </p>
       {loadError ? <p role="status">{loadError}</p> : null}
       <ConversationEditor

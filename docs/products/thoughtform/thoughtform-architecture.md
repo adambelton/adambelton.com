@@ -32,7 +32,7 @@ the intended product difficult to develop later.
 - Keep conversation history, the idea map, and the draft distinct.
 - Allow conversation, idea mapping, and drafting to develop independently behind
   product-owned contracts.
-- Preserve ephemeral demo writing and durable owner writing without giving them
+- Preserve ephemeral temporary-workspace writing and durable owner writing without giving them
   different product semantics.
 - Keep provider, auth, database, usage, and public-website infrastructure outside
   the product package.
@@ -704,7 +704,7 @@ Representative scenario tests should cover:
 - an assistant proposal becoming stale after a user edit;
 - a useful conversation and idea map without any Draft;
 - a first-person articulation corrected until the user recognises it as faithful;
-- demo expiry or hosted limits preserving recoverable local work.
+- temporary-workspace expiry or hosted limits preserving recoverable local work.
 
 Model-dependent judgment needs curated evaluation examples in addition to unit
 tests. Live-provider calls should not be required by the normal test suite.
@@ -741,7 +741,7 @@ The completed and proposed product sequence is:
 7. Conversational-thinking course correction.
 8. Draft Format removal.
 9. Conversational-thinking experience alignment.
-10. Complete temporary demo session.
+10. Complete temporary owner-workspace session.
 11. Calibrated usage limits and cost protection.
 12. Admin visibility and release readiness.
 

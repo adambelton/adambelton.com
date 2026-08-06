@@ -10,7 +10,7 @@ import {
   type Idea,
   type IdeaMap,
 } from "packages/products/src/thoughtform/shared";
-import { readIdeaMapFromWorkspaceContext } from "packages/products/src/thoughtform/testing/browser/workspace-context";
+import { readIdeaMapFromWorkspaceContext } from "packages/products/src/thoughtform/testing/fixtures/workspace-context";
 
 export function createDiscoveryTestModel() {
   const responses = [

@@ -30,19 +30,24 @@ export function createInMemoryConversationPersistence({
   let currentId: string | null = null;
   let expirationHandle: unknown = null;
 
-  function clearExpired() {
+  async function clearExpired() {
     if (!currentId) return;
     const current = snapshots.get(currentId);
-    if (current?.expiresAt && now() >= Date.parse(current.expiresAt)) clear();
+    if (current?.expiresAt && now() >= Date.parse(current.expiresAt)) {
+      await clear();
+    }
   }
 
-  function clear() {
+  async function clear() {
     if (expirationHandle !== null) cancelExpiration(expirationHandle);
     if (currentId) {
       const clearedId = currentId;
       snapshots.delete(currentId);
       operations.delete(currentId);
-      void onClear(clearedId);
+      currentId = null;
+      expirationHandle = null;
+      await onClear(clearedId);
+      return;
     }
     currentId = null;
     expirationHandle = null;
@@ -50,7 +55,7 @@ export function createInMemoryConversationPersistence({
 
   return {
     async initialize(input) {
-      clearExpired();
+      await clearExpired();
       if (temporary && currentId) {
         const current = snapshots.get(currentId);
         return current ? structuredClone(current) : null;
@@ -66,30 +71,33 @@ export function createInMemoryConversationPersistence({
       snapshots.set(input.conversationId, snapshot);
       if (temporary) {
         currentId = input.conversationId;
-        expirationHandle = scheduleExpiration(clear, TEMPORARY_CONVERSATION_LIFETIME_MS);
+        expirationHandle = scheduleExpiration(
+          () => void clear(),
+          TEMPORARY_CONVERSATION_LIFETIME_MS,
+        );
       }
       return structuredClone(snapshot);
     },
 
     async load(conversationId) {
-      clearExpired();
+      await clearExpired();
       const snapshot = snapshots.get(conversationId);
       return snapshot ? structuredClone(snapshot) : null;
     },
 
     async list() {
-      clearExpired();
+      await clearExpired();
       return [...snapshots.values()].map((snapshot) => structuredClone(snapshot));
     },
 
     async getCurrent() {
-      clearExpired();
+      await clearExpired();
       const snapshot = currentId ? snapshots.get(currentId) : null;
       return snapshot ? structuredClone(snapshot) : null;
     },
 
     async commit(input: ConversationCommitInput) {
-      clearExpired();
+      await clearExpired();
       const current = snapshots.get(input.conversationId);
       if (!current) return { status: CONVERSATION_COMMIT_STATUSES.unavailable };
       const completed = operations.get(input.conversationId);
@@ -108,7 +116,7 @@ export function createInMemoryConversationPersistence({
     },
 
     async clearCurrent() {
-      clear();
+      await clear();
     },
   };
 }

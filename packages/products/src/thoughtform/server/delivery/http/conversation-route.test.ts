@@ -288,7 +288,7 @@ describe("ThoughtForm conversation route", () => {
       ok: false,
       error: {
         code: "conversation_unavailable",
-        message: "This temporary conversation is no longer available.",
+        message: "This temporary workspace is no longer available.",
       },
     });
   });

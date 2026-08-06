@@ -48,6 +48,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Correct codebase audit findings before Task 036 (unnumbered)
 - 048 — Build-time repository Markdown compilation
 - 047 — Lazy-loaded ThoughtForm product client
 - 046 — Repository-backed public Markdown content and owner-only ThoughtForm

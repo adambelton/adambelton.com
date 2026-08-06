@@ -6,6 +6,7 @@ import {
   type TemporaryConversationStore,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import { createInMemoryConversationPersistence } from "apps/api/src/products/thoughtform/adapters/persistence/in-memory-conversation-persistence";
+import { clearTemporaryWorkspaceContent } from "packages/products/src/thoughtform/server/application/workspace";
 
 export type ConversationStoreAccess = {
   isSignedIn: boolean;
@@ -21,7 +22,9 @@ export type ConversationStoreResolver = {
 
 export function createConversationStoreResolver(configuration: {
   databaseUrl: string | undefined;
-  onTemporaryClear?: (userId: string, conversationId: string) => void | Promise<void>;
+  temporaryWorkspaceContent?: (userId: string) => {
+    clearDraftingState(conversationId: string): Promise<void>;
+  };
 }): ConversationStoreResolver {
   const temporaryStores = new Map<string, TemporaryConversationStore>();
   const ownerStores = new Map<string, PersistentConversationStore>();
@@ -48,8 +51,15 @@ export function createConversationStoreResolver(configuration: {
     const store = createConversationStore(
       createInMemoryConversationPersistence({
         temporary: true,
-        onClear: (conversationId) =>
-          configuration.onTemporaryClear?.(access.userId!, conversationId),
+        onClear: async (conversationId) => {
+          currentConversationId = null;
+          const content = configuration.temporaryWorkspaceContent?.(
+            access.userId!,
+          );
+          if (content) {
+            await clearTemporaryWorkspaceContent({ conversationId, content });
+          }
+        },
       }),
       {
         initializeOnAppend: true,

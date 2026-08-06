@@ -59,6 +59,26 @@ describe("host in-memory conversation persistence", () => {
     await expect(store.getCurrentConversation()).resolves.toBeNull();
     expect(cleared).toEqual([conversationId]);
   });
+
+  it("waits for complete workspace cleanup before clearing returns", async () => {
+    let cleanupCompleted = false;
+    const store = createConversationStore(
+      createInMemoryConversationPersistence({
+        temporary: true,
+        onClear: async () => {
+          await Promise.resolve();
+          cleanupCompleted = true;
+        },
+      }),
+      { initializeOnAppend: true },
+    );
+    const conversationId = store.createConversationId();
+    await store.appendConversationTurn(createTurn(conversationId));
+
+    await store.clearCurrentConversation();
+
+    expect(cleanupCompleted).toBe(true);
+  });
 });
 
 function createTurn(conversationId: string): AppendConversationTurnInput {

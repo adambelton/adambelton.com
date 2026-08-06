@@ -348,7 +348,7 @@ Product v1 should provide:
 - an inspectable, correctable idea map;
 - optional first-person Draft composition from selected established material;
 - direct editing, revision history, and reviewable assistant proposals;
-- coherent temporary demo lifecycle and durable owner work;
+- coherent temporary owner-workspace lifecycle and durable owner work;
 - proportionate privacy and sensitive-use boundaries;
 - calibrated hosted-use protection;
 - autonomous, user-correctable idea merge and split behaviour required by the

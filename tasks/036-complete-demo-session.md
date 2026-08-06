@@ -14,27 +14,25 @@ private, temporary experience before final usage limits are calibrated.
 
 ## Depends on
 
-The four completed unnumbered correction tasks: conversational-thinking course
-correction, Draft Format removal, conversational-thinking experience alignment,
-and the product rename to ThoughtForm.
+The completed unnumbered correction tasks, including the pre-036 codebase-audit
+correction that established fresh temporary identities, awaited cross-store
+cleanup, shared HTTP delivery, and mounted-state text recovery.
 
 ## Scope
 
-Hardens the baseline capabilities under **Client and API responsibilities** and
-the demo portion of **Persistence architecture** from the product architecture.
+Hardens the remaining baseline capabilities under **Client and API
+responsibilities** and the temporary portion of **Persistence architecture**.
 
 - Harden the already integrated conversation, Idea Map, optional Draft, retained
   revision history, and proposal capabilities under one temporary-workspace
   lifecycle.
-- Preserve temporary lifecycle and privacy behaviour.
 - Make expiry, early process loss, and clear-session behaviour coherent across
   conversation, Idea Map, Draft state, revision history, proposals, and
   completed-operation records.
 - Exercise guided and user-led paths.
 - Improve empty, loading, recovery, and unavailable states across the workspace.
-- Preserve locally typed composer text and unsaved Draft edits through ordinary
-  request, model, and concurrency failures where the current page remains
-  mounted.
+- Extend the established unavailable-workspace result and detached local-text
+  recovery to every temporary operation and remaining client state transition.
 
 ## Settled constraints
 
@@ -48,7 +46,7 @@ the demo portion of **Persistence architecture** from the product architecture.
   sooner.
 - Conversation, idea-map, draft, revision, and proposal
   content use the same product concepts as owner work but are never durably
-  persisted server-side for the demo.
+  persisted server-side for the temporary workspace.
 - Clearing removes the complete temporary workspace rather than conversation
   alone. Expiry or early loss returns a stable unavailable result and clears
   stale client identity safely.
@@ -56,9 +54,10 @@ the demo portion of **Persistence architecture** from the product architecture.
   readable, directly editable, and clearable.
 - Rejected editor text and unsaved local edits remain recoverable where possible;
   a failed model action must not discard them.
-- Ordinary request, hosted-AI, and concurrency failures retain locally typed
-  composer text or unsaved Draft edits in the mounted client so the user can
-  correct, retry, or copy them.
+- The corrective baseline already retains locally typed composer text and
+  unsaved Draft edits through audited request, hosted-AI, concurrency, and
+  unavailable-workspace failures; Task 036 must preserve and complete that
+  behaviour rather than reimplement it.
 - If the server workspace expires or disappears early, locally typed text remains
   visible and copyable while canonical server state and stale workspace identity
   are cleared. It must not be silently submitted into a newly created workspace.
@@ -79,7 +78,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ## Out of scope
 
-- Demo content persistence, host public-website delivery, preference learning, or
+- Temporary content persistence, host public-website delivery, preference learning, or
   live research.
 
 ## Expected files to create or modify
@@ -92,7 +91,7 @@ the demo portion of **Persistence architecture** from the product architecture.
 
 ## Definition of done
 
-- A demo user can explore and organise material without a Draft and can create
+- The owner can explore and organise temporary material without a Draft and can create
   and refine a first-person Draft without durable content persistence when useful.
 - Both guided discovery and explicit user-led composition work end to end.
 - Clearing, fixed expiry, early process loss, and hosted-AI failure remain
@@ -102,9 +101,9 @@ the demo portion of **Persistence architecture** from the product architecture.
 - Every temporary operation returns a stable unavailable-workspace outcome after
   expiry or early loss; the client clears stale canonical identity without
   discarding locally recoverable text or silently applying it to a new workspace.
-- Ordinary request, hosted-AI, and concurrency failures preserve recoverable
-  composer text and unsaved Draft edits while retained canonical work remains
-  readable, editable, copyable, and clearable.
+- Existing request, hosted-AI, concurrency, and unavailable recovery regressions
+  remain green while every other temporary operation receives equivalent stable
+  unavailable handling.
 - Explicit clearing confirms the destructive action and removes the complete
   temporary workspace, including local unsaved edits.
 - The complete temporary flow is verified through the real local client and API

@@ -18,12 +18,38 @@ describe("ThoughtForm conversation store resolver", () => {
     expect(first).not.toBe(other);
   });
 
-  it("keeps owner persistence separate from temporary preview state", () => {
+  it("keeps saved owner persistence separate from temporary workspace state", () => {
     const resolve = createConversationStoreResolver({ databaseUrl: undefined });
     const persistent = resolve({ isSignedIn: true, isOwner: true, userId: "owner-1" });
     const temporary = resolve({ isSignedIn: true, isOwner: false, userId: "owner-1" });
     expect(persistent).not.toBeNull();
     expect(temporary).not.toBeNull();
     expect(persistent).not.toBe(temporary);
+  });
+
+  it("creates a fresh temporary workspace identity after clearing", async () => {
+    const resolve = createConversationStoreResolver({ databaseUrl: undefined });
+    const store = resolve({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "owner-1",
+    });
+    expect(store).not.toBeNull();
+    const firstId = store!.createConversationId();
+    await store!.appendConversationTurn({
+      conversationId: firstId,
+      operationId: "first-turn",
+      expectedMessageCount: 0,
+      expectedIdeaMapRevision: 0,
+      ideaMap: { revision: 0, ideas: [] },
+      userMessage: { role: "user", content: "First workspace" },
+      assistantMessage: { role: "assistant", content: "First response" },
+    });
+
+    await store!.clearCurrentConversation();
+    const secondId = store!.createConversationId();
+
+    expect(secondId).not.toBe(firstId);
+    await expect(store!.getConversationWorkspace(firstId)).resolves.toBeNull();
   });
 });
