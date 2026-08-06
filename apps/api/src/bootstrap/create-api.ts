@@ -3,8 +3,12 @@ import { authRoute } from "apps/api/src/platform/auth/auth-route";
 import { healthRoute } from "apps/api/src/platform/health/health-route";
 import { thoughtFormRoute } from "apps/api/src/products/thoughtform/mount";
 
+export const apiRoute = new Hono();
+
+apiRoute.route("/health", healthRoute);
+apiRoute.route("/products/thoughtform", thoughtFormRoute);
+
 export const app = new Hono();
 
 app.route("/auth", authRoute);
-app.route("/health", healthRoute);
-app.route("/products/thoughtform", thoughtFormRoute);
+app.route("/", apiRoute);

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/bootstrap/prepare-development.ts && tsx watch src/bootstrap/start-server.ts",
+    "start": "node --import tsx src/bootstrap/start-production-server.ts",
     "evaluate:thoughtform-composition": "tsx src/products/thoughtform/testing/hosted-draft-evaluation.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
@@ -18,11 +19,11 @@
     "@adambelton/shared": "workspace:*",
     "@hono/node-server": "^1.14.4",
     "braintrust": "^3.27.0",
-    "hono": "^4.8.4"
+    "hono": "^4.8.4",
+    "tsx": "^4.20.3"
   },
   "devDependencies": {
     "@types/node": "^22.15.34",
-    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }

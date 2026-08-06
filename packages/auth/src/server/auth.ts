@@ -8,6 +8,7 @@ import {
 } from "packages/auth/src/adapters/email";
 import {
   getAuthBaseUrl,
+  getAuthClientIpHeaders,
   getAuthDatabaseUrl,
   getAuthEmailFrom,
   getAuthSecret,
@@ -23,6 +24,7 @@ type CreateAuthOptions = {
   trustedOrigins: string[];
   ownerEmail: string | null;
   sendMagicLinkEmail: SendMagicLinkEmail;
+  clientIpHeaders: string[];
 };
 
 export type AuthSessionResult = {
@@ -51,11 +53,17 @@ function createAuth({
   trustedOrigins,
   ownerEmail,
   sendMagicLinkEmail,
+  clientIpHeaders,
 }: CreateAuthOptions): AuthInstance {
   const database = createDatabaseClient(databaseUrl);
 
   return betterAuth({
     appName: "AdamBelton.com",
+    advanced: {
+      ipAddress: {
+        ipAddressHeaders: clientIpHeaders,
+      },
+    },
     baseURL: baseUrl,
     basePath: authBasePath,
     database: prismaAdapter(database, {
@@ -107,4 +115,5 @@ export const auth: AuthInstance = createAuth({
     apiKey: process.env.RESEND_API_KEY,
     from: getAuthEmailFrom(),
   }),
+  clientIpHeaders: getAuthClientIpHeaders(),
 });

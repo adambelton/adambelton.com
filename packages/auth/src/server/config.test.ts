@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   developmentAuthSecret,
   developmentDatabaseUrl,
+  getAuthClientIpHeaders,
   getAuthDatabaseUrl,
   getAuthSecret,
 } from "packages/auth/src/server/config";
@@ -21,6 +22,15 @@ describe("auth config", () => {
     vi.stubEnv("DATABASE_URL", "postgresql://example.com/app");
 
     expect(getAuthDatabaseUrl()).toBe("postgresql://example.com/app");
+  });
+
+  it("normalizes configured client IP headers", () => {
+    vi.stubEnv("AUTH_CLIENT_IP_HEADERS", " X-Real-IP, CF-Connecting-IP ");
+
+    expect(getAuthClientIpHeaders()).toEqual([
+      "x-real-ip",
+      "cf-connecting-ip",
+    ]);
   });
 
   it("allows development defaults outside production", () => {

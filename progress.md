@@ -2,6 +2,18 @@
 
 ## Current status
 
+The Railway deployment foundation is complete in the repository. One persistent
+Node process now serves the built Vite site, same-origin `/api` and `/auth`
+traffic, deployment health, static assets, and SPA deep links. Repository-owned
+Railway configuration defines the build, pre-deploy Prisma migration, start,
+health-check, and restart lifecycle; Serverless/App Sleeping is deliberately a
+documented disabled dashboard setting. Railway's `X-Real-IP` is configured for
+Better Auth rate-limit identity. The production command, direct HTTP smoke
+checks, mounted built-client routes, 297-test suite, typecheck, build, frozen
+install, and all three deterministic Playwright journeys pass. No Railway
+resource, secret, production migration, or DNS record has been created or
+changed; temporary-domain deployment remains the next external step.
+
 DM Sans is now retained as the site font after Adam's mounted review. The About
 Contact section exposes accessible text links for Email, LinkedIn, and GitHub
 without forced new tabs, while the global footer now contains only Privacy.

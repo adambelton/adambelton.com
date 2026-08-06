@@ -44,6 +44,17 @@ export function getTrustedOrigins(): string[] {
     .filter(Boolean);
 }
 
+export function getAuthClientIpHeaders(): string[] {
+  const headers = process.env.AUTH_CLIENT_IP_HEADERS;
+
+  if (!headers) return [];
+
+  return headers
+    .split(",")
+    .map((header) => header.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function getAuthDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL;
 
