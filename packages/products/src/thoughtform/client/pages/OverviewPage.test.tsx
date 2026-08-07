@@ -18,6 +18,11 @@ describe("ThoughtForm overview page", () => {
     expect(markup).toContain("Explore what you think or feel through conversation");
     expect(markup).toContain("when it is useful");
     expect(markup).toContain("remains yours to shape");
+    expect(markup).toContain("When it helps");
+    expect(markup).toContain("How it works");
+    expect(markup).toContain("Development snapshot");
+    expect(markup).toContain("Preparing for public beta");
+    expect(markup).toContain("user-correctable Idea Map");
     expect(markup).not.toContain("audience");
     expect(markup).not.toContain("word count");
   });

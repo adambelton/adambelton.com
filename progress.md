@@ -2,6 +2,21 @@
 
 ## Current status
 
+The approved ThoughtForm presentation pass is complete. The Products entry is
+now concise, while the ThoughtForm overview explains when the product helps,
+the conversation–Idea Map–Draft loop, user inspectability, and the current
+public-beta preparation work. The consent checkpoint now distinguishes active
+AI processing, temporary storage, and appropriate use without exposing
+owner-only implementation context. The active workspace uses a compact heading,
+a prominent temporary-lifetime notice, and visible Idea Map/Draft selection.
+About and writing bodies share the regular 672px, 16px/28px muted-copy treatment;
+the shared sign-in page uses neutral language and the standard public hero
+hierarchy. Symmetric stable scrollbar gutters prevent overflow state from
+shifting centred content while native visibility remains user-controlled.
+Focused and full unit tests, typecheck, production build, four deterministic
+browser journeys, mounted desktop inspection, and a 390px no-horizontal-overflow
+browser check pass.
+
 The merged Langfuse migration replaces Braintrust with manual
 Langfuse/OpenTelemetry owner tracing, native generation usage and prompt-version
 links, development/production Prompt Management labels, and repository
@@ -551,11 +566,11 @@ contract evaluation remains outside CI.
 
 - Browser-held temporary-workspace persistence; current temporary work is
   ephemeral in API-process memory with best-effort restoration.
-- Usage limits and cost protection.
-- Remaining temporary workspace lifecycle and recovery hardening.
-- Product v1 release readiness and later host-owned local-Markdown/static-content
-  delivery.
-- Admin UI.
+- Hosted-attempt accounting, representative measurement, usage enforcement, and
+  cost protection.
+- Autonomous, user-correctable Idea Map evolution.
+- Minimum beta operations visibility and the explicit production beta release
+  policy/verification task.
 
 ## Known gaps / risks
 
@@ -657,14 +672,14 @@ contract evaluation remains outside CI.
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after
   sustained complete-product and browser use; future public-user analytics need
-  a distinct privacy policy. Current Braintrust content capture is restricted to
-  owner and synthetic-evaluation flows.
+  a distinct privacy policy. Current Langfuse content capture is restricted to
+  owner and explicit synthetic-evaluation flows.
 
 ## Next recommended task
 
-Review Task 038, content-free hosted-attempt lifecycle and accounting, against
-the completed temporary-workspace and prompt-observability baseline before
-approval.
+Implement the approved Task 038 content-free hosted-attempt lifecycle and
+accounting proposal. Re-review every later beta task after its preceding work
+produces the evidence recorded in the revised proposals.
 
 ## Historical semantic-editor investigation
 

@@ -18,19 +18,25 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 038 — Content-free hosted-attempt lifecycle and accounting; requires Task 036
-  and a fresh approval review
-- 039 — Representative hosted-usage measurement; depends on Tasks 036 and 038
-- 040 — Calibrated atomic usage enforcement; blocked on Tasks 038 and 039
-- Autonomous, user-correctable Idea Map merge/split behaviour; required before
-  the editor is fully functional, but still needs its own proposal
-- 044 — Admin visibility; requires the accounting and enforcement contracts from
-  Tasks 038–040 and a fresh review
+- 038 — Content-free hosted-attempt lifecycle and accounting; approved, not
+  implemented
+- Autonomous, user-correctable Idea Map evolution; initial proposal recorded,
+  blocked on Task 038 and a fresh beta-scope review
+- 039 — Representative hosted-usage measurement; revised, blocked on Task 038,
+  the final beta capability set, and a fresh review
+- 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
+  039 plus explicit calibration-value approval
+- 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
+  and a fresh review
+- Release the authenticated ThoughtForm public beta; initial proposal recorded,
+  blocked on Tasks 038–040, Task 044, the Idea Map beta decision, and a fresh
+  release review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-The unnumbered correction tasks and Task 036 are complete. Tasks 038–040 remain
-downstream of the completed lifecycle baseline and require fresh proposal
-reviews. Preference learning is not a prerequisite.
+The unnumbered correction tasks, Task 036, and Langfuse prompt automation are
+complete. Task 038 is the next approved implementation. Every later beta task
+remains unapproved and must be re-reviewed after its dependencies establish new
+evidence. Preference learning is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
 from them—explicit current guidance, user correction, inspectability, narrow
@@ -46,6 +52,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Refine ThoughtForm presentation and workspace hierarchy (unnumbered)
 - Activate Langfuse prompt review automation (unnumbered)
 - 036 — Harden temporary workspace lifecycle and recovery
 - Correct codebase audit findings before Task 036 (unnumbered)

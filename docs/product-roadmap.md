@@ -50,13 +50,16 @@ Current implementation status:
   latency work requires new evidence.
 - Draft Format has been removed from product, client, temporary persistence,
   durable persistence, and database state.
-- Complete demo lifecycle hardening, calibrated usage limits, autonomous
-  user-correctable idea merge/split behaviour, release readiness, and admin
-  visibility remain planned.
+- Complete temporary-workspace lifecycle hardening and Langfuse prompt
+  automation are complete. Hosted-attempt accounting is approved but not
+  implemented. Calibrated usage limits, autonomous user-correctable Idea Map
+  evolution, minimum operations visibility, and the explicit beta release gate
+  remain planned and have current proposals.
 - Preference learning, product-owned export, and product publishing are not in
   the ThoughtForm roadmap.
 - Autonomous, user-correctable Idea Map merge/split behaviour remains required
-  before the editor is fully functional but still needs a bounded proposal.
+  before the editor is fully functional; its initial bounded proposal must be
+  re-reviewed after hosted-attempt accounting and the beta-scope decision.
 
 ## Public website writing
 

@@ -17,8 +17,11 @@ describe("ThoughtForm privacy acknowledgement", () => {
       />,
     );
 
-    expect(markup).toContain("Your thinking and ThoughtForm");
-    expect(markup).toContain("This workspace is held temporarily");
+    expect(markup).toContain("Before you begin");
+    expect(markup).toContain("Temporary storage");
+    expect(markup).toContain("no more than 24 hours");
+    expect(markup).toContain("Use appropriate information");
+    expect(markup).not.toContain("Saved owner conversations");
     expect(markup).toContain('type="checkbox"');
     expect(markup).not.toContain("What are you thinking?");
     expect(markup).toContain("Leave the editor");

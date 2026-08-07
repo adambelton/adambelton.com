@@ -18,6 +18,8 @@
 html {
   background: var(--background);
   color: var(--foreground);
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
   text-rendering: optimizeLegibility;
 }
 

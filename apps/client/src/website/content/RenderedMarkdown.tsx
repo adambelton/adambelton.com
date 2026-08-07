@@ -7,7 +7,7 @@ type RenderedMarkdownProps = {
 export function RenderedMarkdown({ html }: RenderedMarkdownProps) {
   return (
     <div
-      className="markdown-content max-w-2xl text-lg leading-8 text-[var(--foreground)]"
+      className="markdown-content max-w-2xl text-base leading-7 text-[var(--muted)]"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

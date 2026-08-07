@@ -23,6 +23,7 @@ describe("AiProcessingDisclosure", () => {
     />);
 
     expect(markup).toContain("currently processed by Anthropic");
+    expect(markup).toContain("Data processing details");
     expect(markup).toContain("Anthropic and OpenAI");
   });
 });

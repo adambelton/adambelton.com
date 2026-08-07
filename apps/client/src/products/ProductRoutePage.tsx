@@ -12,6 +12,7 @@ import { resolveProductRoute } from "apps/client/src/products/resolveProductRout
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
 import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
+import type { ReactNode } from "react";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
@@ -47,8 +48,9 @@ export function ProductRoutePage() {
     return (
       <>
         {metadata}
-        <Breadcrumbs items={route.breadcrumbs} />
-        {route.element}
+        <ProductRouteLayout breadcrumbs={route.breadcrumbs}>
+          {route.element}
+        </ProductRouteLayout>
       </>
     );
   }
@@ -67,11 +69,27 @@ export function ProductRoutePage() {
       ) : (
         <>
           {metadata}
-          <Breadcrumbs items={route.breadcrumbs} />
-          {route.element}
+          <ProductRouteLayout breadcrumbs={route.breadcrumbs}>
+            {route.element}
+          </ProductRouteLayout>
         </>
       )}
     </ProtectedRoute>
+  );
+}
+
+function ProductRouteLayout({
+  breadcrumbs,
+  children,
+}: {
+  breadcrumbs: Parameters<typeof Breadcrumbs>[0]["items"];
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <Breadcrumbs items={breadcrumbs} />
+      <div>{children}</div>
+    </div>
   );
 }
 

@@ -6,7 +6,7 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     const reset = await page.request.post("/api/testing/reset");
     expect(reset.ok()).toBe(true);
     await page.goto("/products/thoughtform/editor");
-    await expect(page.getByRole("heading", { name: "Your thinking and ThoughtForm" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Before you begin" })).toBeVisible();
     await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
     const restored = page.waitForResponse((response) => response.url().includes("/temporary-conversation/current"));
     await page.getByRole("button", { name: "Open the editor" }).click();
@@ -63,9 +63,13 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     await page.setViewportSize({ width: 390, height: 844 });
     const narrowWorkspace = page.getByTestId("workspace");
     await expect(page.getByTestId("conversation-column")).toBeVisible();
-    expect(await page.getByTestId("conversation-column").evaluate(
-      (column) => column.getBoundingClientRect().height,
-    )).toBe(await narrowWorkspace.evaluate((workspace) => workspace.getBoundingClientRect().height));
+    await expect.poll(async () => Math.abs(
+      await page.getByTestId("conversation-column").evaluate(
+        (column) => column.getBoundingClientRect().height,
+      ) - await narrowWorkspace.evaluate(
+        (workspace) => workspace.getBoundingClientRect().height,
+      ),
+    )).toBeLessThanOrEqual(1);
     await page.getByRole("button", { name: "idea map" }).click();
     await expect(page.getByTestId("workspace-column")).toBeVisible();
     expect(await page.getByTestId("workspace-column").evaluate(

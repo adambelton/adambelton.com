@@ -39,6 +39,9 @@ export function ProductsPage() {
               <h3 className="m-0 text-2xl font-semibold tracking-normal">
                 <TextLink href={product.publicPath}>{product.name}</TextLink>
               </h3>
+              <p className="mt-2 text-sm font-semibold text-[var(--accent)]">
+                Preparing for public beta
+              </p>
               <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">
                 {product.summary}
               </p>
