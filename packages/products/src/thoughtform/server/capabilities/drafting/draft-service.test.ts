@@ -68,6 +68,53 @@ describe("DraftService", () => {
     });
   });
 
+  it("does not recreate drafting state when the workspace is cleared during composition", async () => {
+    const persistence = new TestDraftPersistence();
+    persistence.registerWorkspace("conversation-1");
+    const store = createDraftStore(persistence);
+    let finishComposition!: () => void;
+    const compositionStarted = new Promise<void>((resolve) => {
+      finishComposition = resolve;
+    });
+    let releaseModel!: () => void;
+    const modelReleased = new Promise<void>((resolve) => {
+      releaseModel = resolve;
+    });
+    const service = new DraftService(
+      store,
+      {
+        compose: async () => {
+          finishComposition();
+          await modelReleased;
+          return { body: "A draft that arrived too late." };
+        },
+      },
+      {
+        propose: async () => ({
+          proposedContent: "unused",
+          intendedEffect: "unused",
+        }),
+      },
+    );
+
+    const composing = service.compose({
+      conversationId: "conversation-1",
+      operationId: "compose-after-clear",
+      selectedIdeaIds: [idea.id],
+      ideas: [idea],
+      relevantConversationLanguage: [],
+      instruction: "Compose.",
+    });
+    await compositionStarted;
+    await store.deleteDraftingState("conversation-1");
+    releaseModel();
+
+    await expect(composing).resolves.toEqual({
+      status: DRAFT_WRITE_STATUSES.notFound,
+    });
+    await expect(store.getDraftingState("conversation-1")).resolves.toBeNull();
+  });
+
   it("supplies composition with writing material rather than internal idea state", async () => {
     const persistence = new TestDraftPersistence();
     persistence.registerWorkspace("conversation-1");

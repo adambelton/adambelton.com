@@ -19,7 +19,7 @@ export function PrivacyPage({
       </h1>
       <div className="mt-8 max-w-3xl text-lg leading-8 text-[var(--muted)] [&_h2]:mb-3 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-[var(--foreground)] [&_li]:mb-2 [&_p]:my-4 [&_ul]:my-5 [&_ul]:pl-6">
         <p>
-          This page describes ThoughtForm as implemented on 4 August
+          This page describes ThoughtForm as implemented on 7 August
           2026. Read it before using the editor alongside the site-wide{" "}
           <TextLink href="/privacy" Link={Link}>
             privacy information
@@ -36,9 +36,10 @@ export function PrivacyPage({
         </p>
         <AiProcessingDisclosureLoader Link={Link} />
 
-        <h2>Temporary owner workspace</h2>
+        <h2>Temporary workspace</h2>
         <p>
-          The site owner can use one current temporary workspace. Its
+          An authenticated user with access to the editor can use one current
+          temporary workspace. Its
           conversation, Idea Map, and Draft state are held in application memory,
           are not written to the site&apos;s database, and expire 24 hours after
           creation. Continuing the work does not extend that deadline.

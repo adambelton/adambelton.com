@@ -13,6 +13,7 @@ export interface HandleIdeaActionRequestInput {
   conversationId: string;
   ideaId: string;
   conversations: ConversationStore;
+  kind: "persistent" | "temporary";
 }
 
 export async function handleIdeaActionRequest(
@@ -32,6 +33,15 @@ export async function handleIdeaActionRequest(
     conversations: input.conversations,
   });
   if (result.status === CONVERSATION_ERROR_CODES.notFound) {
+    if (input.kind === "temporary") {
+      return json(
+        failure(
+          CONVERSATION_ERROR_CODES.unavailable,
+          "This temporary workspace is no longer available.",
+        ),
+        409,
+      );
+    }
     return json(failure(result.status, "The conversation was not found."), 404);
   }
   if (result.status === IDEA_MAP_ERROR_CODES.conflict) {
@@ -43,7 +53,15 @@ export async function handleIdeaActionRequest(
           }),
           409,
         )
-      : json(failure(result.status, "The conversation was not found."), 404);
+      : input.kind === "temporary"
+        ? json(
+            failure(
+              CONVERSATION_ERROR_CODES.unavailable,
+              "This temporary workspace is no longer available.",
+            ),
+            409,
+          )
+        : json(failure(result.status, "The conversation was not found."), 404);
   }
   if (result.status === IDEA_MAP_ERROR_CODES.invalidAction) {
     return json(

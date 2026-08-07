@@ -35,7 +35,10 @@ import {
   type ConversationStreamCallbacks,
   type ConversationStreamResult,
 } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
-import { sendTemporaryIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
+import {
+  IdeaActionError,
+  sendTemporaryIdeaAction,
+} from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
 import { DraftPanel, type DraftPanelHandle } from "packages/products/src/thoughtform/client/workspace/components/DraftPanel";
 import type { DraftPersistenceKind } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 import { ResponseFormingIndicator } from "packages/products/src/thoughtform/client/workspace/components/ResponseFormingIndicator";
@@ -142,6 +145,25 @@ export function ConversationEditor({
   const canSubmit =
     trimmedMessage.length > 0 && status === CONVERSATION_STATUSES.idle;
 
+  function handleWorkspaceUnavailable(recoverMessage?: string) {
+    draftRef.current?.detachLocalEdits();
+    setConversationId(null);
+    setMessages([]);
+    setIdeaMap(EMPTY_IDEA_MAP);
+    setIdeaStatus(null);
+    setDraftSelection(null);
+    setDraftChange(null);
+    setHasDraftOffer(false);
+    setAnimateLatestAssistant(false);
+    setPartialAssistantMessage(null);
+    if (recoverMessage !== undefined) setMessage(recoverMessage);
+    revealSurface("conversation");
+    onUnavailable?.();
+    setError(
+      "This temporary workspace is no longer available. Recoverable text remains here for you to copy before starting again.",
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -212,18 +234,7 @@ export function ConversationEditor({
         (sendError.code === CONVERSATION_ERROR_CODES.notFound ||
           sendError.code === CONVERSATION_ERROR_CODES.unavailable)
       ) {
-        draftRef.current?.detachLocalEdits();
-        setConversationId(null);
-        setMessages([]);
-        setIdeaMap(EMPTY_IDEA_MAP);
-        setIdeaStatus(null);
-        setMessage(trimmedMessage);
-        setAnimateLatestAssistant(false);
-        setPartialAssistantMessage(null);
-        onUnavailable();
-        setError(
-          "This temporary conversation is no longer available. You can start a new conversation.",
-        );
+        handleWorkspaceUnavailable(trimmedMessage);
         return;
       }
 
@@ -255,7 +266,7 @@ export function ConversationEditor({
     if (
       !onClear ||
       !globalThis.confirm(
-        "Clear this temporary conversation? This cannot be undone.",
+        "Clear this complete temporary workspace, including unsaved local text? This cannot be undone.",
       )
     ) {
       return;
@@ -269,12 +280,17 @@ export function ConversationEditor({
       draftRef.current?.clearLocalState();
       setConversationId(null);
       setMessages([]);
+      setPartialAssistantMessage(null);
       setAnimateLatestAssistant(false);
       setIdeaMap(EMPTY_IDEA_MAP);
+      setIdeaStatus(null);
       setMessage("");
       setDraftSelection(null);
       setDraftChange(null);
       setHasDraftOffer(false);
+      setMobileSurface("conversation");
+      setWorkspaceView("idea-map");
+      setSurfaceStatus(null);
     } catch (clearError) {
       setError(
         clearError instanceof Error
@@ -332,7 +348,7 @@ export function ConversationEditor({
             </aside>
           ) : null}
           {canClear && messages.length > 0 ? (
-            <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this conversation</button>
+            <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this workspace</button>
           ) : null}
           {status === CONVERSATION_STATUSES.sending ? (
             <ResponseFormingIndicator />
@@ -382,6 +398,13 @@ export function ConversationEditor({
               }
               return true;
             } catch (actionError) {
+              if (
+                actionError instanceof IdeaActionError &&
+                actionError.code === CONVERSATION_ERROR_CODES.unavailable
+              ) {
+                handleWorkspaceUnavailable();
+                return false;
+              }
               setError(
                 actionError instanceof Error
                   ? actionError.message
@@ -437,6 +460,7 @@ export function ConversationEditor({
                 setDraftChange(null);
                 setDraftSelection(null);
               }}
+              onUnavailable={handleWorkspaceUnavailable}
               ref={draftRef}
             />
           </div>

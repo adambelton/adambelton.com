@@ -1,12 +1,12 @@
 # ThoughtForm privacy and data lifecycle
 
-Last reviewed: 4 August 2026.
+Last reviewed: 7 August 2026.
 
 This note records the product-specific privacy boundary for ThoughtForm.
 Shared authentication, contact, and platform-provider processing is documented in
 `docs/privacy-and-data-lifecycle.md`.
 
-## Non-owner workspace
+## Temporary workspace
 
 - The user must affirmatively acknowledge the processing summary in the current
   browser session before editor controls are available.
@@ -22,8 +22,11 @@ Shared authentication, contact, and platform-provider processing is documented i
   expiry remove all of this private writing state from application memory.
 - Reload and navigation recovery are best effort. A process restart, deployment,
   or request to another application instance can remove the conversation sooner.
-- Temporary owner-workspace operations emit no Braintrust traces. Neither their content nor
+- Temporary-workspace operations emit no Braintrust traces. Neither their content nor
   content-free request metadata is sent to the evaluation service.
+- The host currently enables authenticated non-owner access in development only.
+  Production remains owner-only until a separately approved demo release; this
+  release gate does not change the temporary data lifecycle.
 
 ## Owner workspace
 

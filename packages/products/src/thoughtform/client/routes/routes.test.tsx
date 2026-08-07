@@ -29,7 +29,7 @@ describe("renderProductRoute", () => {
     });
   });
 
-  it("requires owner access for the editor", () => {
+  it("defines the temporary editor as an authenticated product route", () => {
     expect(
       renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
@@ -38,7 +38,7 @@ describe("renderProductRoute", () => {
       })
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
       breadcrumbs: [
         { label: "Products", href: "/products" },
         { label: "ThoughtForm", href: "/products/thoughtform" },
@@ -56,7 +56,7 @@ describe("renderProductRoute", () => {
 
     expect(route).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
       element: { type: TemporaryWorkspacePage },
     });
   });

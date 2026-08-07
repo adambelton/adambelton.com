@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { loadLocalEnvironment } from "apps/api/src/bootstrap/local-environment";
 
 loadLocalEnvironment();
+process.env.NODE_ENV ??= "development";
 
 const { app } = await import("apps/api/src/bootstrap/create-api");
 

@@ -44,7 +44,9 @@ export class DraftService {
       input.operationId,
     );
     if (completed) return completed;
-    const workspace = await this.store.getDraftingState(input.conversationId);
+    const workspace = await this.store.initializeDraftingState(
+      input.conversationId,
+    );
     if (workspace?.draft) {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace };
     }

@@ -11,6 +11,7 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
+import { isThoughtFormNonOwnerTemporaryAccessEnabled } from "apps/client/src/products/thoughtform/access-policy";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
@@ -23,6 +24,9 @@ export function ProductRoutePage() {
     components: {
       Link: NavigationLink,
       navigate,
+      temporaryWorkspaceAvailable:
+        Boolean(session.data?.user.isOwner) ||
+        isNonOwnerTemporaryWorkspaceEnabled(productSlug, "editor"),
     },
     path: productPath,
     productSlug,
@@ -46,7 +50,9 @@ export function ProductRoutePage() {
 
   return (
     <ProtectedRoute>
-      {route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner &&
+      {(route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner ||
+        (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.authenticated &&
+          !isNonOwnerTemporaryWorkspaceEnabled(productSlug, productPath))) &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
@@ -58,6 +64,17 @@ export function ProductRoutePage() {
       )}
     </ProtectedRoute>
   );
+}
+
+function isNonOwnerTemporaryWorkspaceEnabled(
+  productSlug: string,
+  productPath: string,
+) {
+  return isThoughtFormNonOwnerTemporaryAccessEnabled({
+    development: import.meta.env.DEV,
+  }) &&
+    productSlug === "thoughtform" &&
+    productPath === "editor";
 }
 
 function getProductRouteMetadata(productSlug: string, productPath: string) {

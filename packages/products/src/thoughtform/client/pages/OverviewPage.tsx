@@ -37,13 +37,15 @@ export function OverviewPage({
         <p className="m-0 border-t border-[var(--line)] pt-5 text-2xl font-semibold tracking-normal">
           In Development
         </p>
-        {accessLevel === ACCESS_LEVELS.owner ? (
+        {accessLevel === ACCESS_LEVELS.owner ||
+        components.temporaryWorkspaceAvailable ? (
           <>
             <p className="mt-5 text-base leading-7 text-[var(--muted)]">
               <TextLink Link={components.Link} href="/products/thoughtform/editor">
                 Open the workspace
               </TextLink>
             </p>
+            {accessLevel === ACCESS_LEVELS.owner ? (
             <p className="mt-3 text-base leading-7 text-[var(--muted)]">
               <TextLink
                 Link={components.Link}
@@ -52,6 +54,7 @@ export function OverviewPage({
                 Saved conversations
               </TextLink>
             </p>
+            ) : null}
           </>
         ) : null}
         <p className="mt-3 text-base leading-7 text-[var(--muted)]">

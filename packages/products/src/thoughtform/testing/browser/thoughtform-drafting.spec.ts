@@ -129,7 +129,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await expect(page.getByLabel("Attached draft passage")).not.toBeVisible();
 
   page.once("dialog", (dialog) => dialog.accept());
-  await page.getByRole("button", { name: "Clear this conversation" }).click();
+  await page.getByRole("button", { name: "Clear this workspace" }).click();
   await expect(page.getByRole("list", { name: "Conversation" })).toContainText("No messages yet.");
   await mobileNavigation.getByRole("button", { name: "draft", exact: true }).click();
   await expect(page.getByText("A Draft is optional.", { exact: false })).toBeVisible();

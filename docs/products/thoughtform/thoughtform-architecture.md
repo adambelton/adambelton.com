@@ -741,7 +741,7 @@ The completed and proposed product sequence is:
 7. Conversational-thinking course correction.
 8. Draft Format removal.
 9. Conversational-thinking experience alignment.
-10. Complete temporary owner-workspace session.
+10. Complete authenticated temporary-workspace lifecycle and recovery.
 11. Calibrated usage limits and cost protection.
 12. Admin visibility and release readiness.
 

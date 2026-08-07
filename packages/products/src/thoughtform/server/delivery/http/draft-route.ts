@@ -33,6 +33,7 @@ export interface CreateDraftRouteDependencies {
   getConversationStore: Resolver<ConversationStore>;
   getDraftStore: Resolver<DraftStore>;
   proposalModel: RevisionProposalModel;
+  kind: "persistent" | "temporary";
 }
 
 export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
@@ -43,7 +44,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return notFound(context);
+      return missingWorkspace(context, dependencies.kind);
     }
     return context.json(success(
       await resolved.drafts.getDraftingState(conversationId),
@@ -57,7 +58,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     const workspace = await resolved.conversations.getConversationWorkspace(
       conversationId,
     );
-    if (!workspace) return notFound(context);
+    if (!workspace) return missingWorkspace(context, dependencies.kind);
     const body = await readBody(context.req.raw);
     const selectedIdeaIds = body?.selectedIdeaIds;
     if (!isStringArray(selectedIdeaIds)) return invalid(context);
@@ -78,13 +79,16 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.put("/:conversationId", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const expectedRevision = body?.expectedRevision;
     const draftBody = body?.body;
     if (typeof expectedRevision !== "number" || typeof draftBody !== "string") {
       return invalid(context);
     }
-    const conversationId = context.req.param("conversationId");
     return run(context, () => service(resolved.drafts, dependencies).save({
       conversationId,
       operationId: operationId(context.req.raw, body),
@@ -96,13 +100,16 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.post("/:conversationId/restore", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const expectedRevision = body?.expectedRevision;
     const restoreRevision = body?.restoreRevision;
     if (typeof expectedRevision !== "number" || typeof restoreRevision !== "number") {
       return invalid(context);
     }
-    const conversationId = context.req.param("conversationId");
     return run(context, () => service(resolved.drafts, dependencies).restore({
       conversationId,
       operationId: operationId(context.req.raw, body),
@@ -115,6 +122,9 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const change = isDraftChange(body.change) ? body.change : null;
     if (!change || !await validateDraftChange({
@@ -137,6 +147,10 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.post("/:conversationId/proposals", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const expectedDraftRevision = body?.expectedDraftRevision;
     const scope = body?.scope;
@@ -147,7 +161,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       !userInstruction
     ) return invalid(context);
     return run(context, () => service(resolved.drafts, dependencies).propose({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       operationId: operationId(context.req.raw, body),
       expectedDraftRevision,
       scope,
@@ -159,6 +173,10 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.patch("/:conversationId/proposals/:proposalId", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const expectedProposalRevision = body?.expectedProposalRevision;
     const userInstruction = stringValue(body?.userInstruction);
@@ -167,7 +185,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       !userInstruction
     ) return invalid(context);
     return run(context, () => service(resolved.drafts, dependencies).amend({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       proposalId: context.req.param("proposalId"),
       operationId: operationId(context.req.raw, body),
       expectedProposalRevision,
@@ -178,11 +196,15 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.post("/:conversationId/proposals/:proposalId/accept", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     const expectedDraftRevision = body?.expectedDraftRevision;
     if (typeof expectedDraftRevision !== "number") return invalid(context);
     return run(context, () => service(resolved.drafts, dependencies).accept({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       proposalId: context.req.param("proposalId"),
       operationId: operationId(context.req.raw, body),
       expectedDraftRevision,
@@ -192,9 +214,13 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
   route.post("/:conversationId/proposals/:proposalId/reject", async (context) => {
     const resolved = await resolve(context.req.raw, dependencies);
     if (!resolved) return notFound(context);
+    const conversationId = context.req.param("conversationId");
+    if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
+      return missingWorkspace(context, dependencies.kind);
+    }
     const body = await readBody(context.req.raw);
     return run(context, () => service(resolved.drafts, dependencies).reject({
-      conversationId: context.req.param("conversationId"),
+      conversationId,
       proposalId: context.req.param("proposalId"),
       operationId: operationId(context.req.raw, body),
     }));
@@ -309,4 +335,19 @@ function invalid(context: Context, message = "The draft request is invalid.") {
 
 function notFound(context: Context) {
   return context.json(failure(DRAFT_ERROR_CODES.notFound, "The requested drafting state was not found."), 404);
+}
+
+function missingWorkspace(
+  context: Context,
+  kind: CreateDraftRouteDependencies["kind"],
+) {
+  return kind === "temporary"
+    ? context.json(
+        failure(
+          DRAFT_ERROR_CODES.unavailable,
+          "This temporary workspace is no longer available.",
+        ),
+        409,
+      )
+    : notFound(context);
 }

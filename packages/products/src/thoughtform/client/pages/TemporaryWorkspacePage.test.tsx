@@ -83,7 +83,7 @@ describe("TemporaryWorkspacePage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
     expect(
-      await screen.findByText(/temporary conversation is no longer available/i),
+      await screen.findByText(/temporary workspace is no longer available/i),
     ).toBeTruthy();
     expect(screen.queryByText("Restored thought")).toBeNull();
     expect(screen.getByDisplayValue("An expiring thought")).toBeTruthy();
@@ -148,7 +148,7 @@ describe("TemporaryWorkspacePage", () => {
     render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear this conversation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear this workspace" }));
 
     await waitFor(() => {
       expect(screen.queryByText("Restored thought")).toBeNull();
@@ -156,6 +156,7 @@ describe("TemporaryWorkspacePage", () => {
     expect(screen.getByText("No messages yet.")).toBeTruthy();
     expect(screen.getByText(/24-hour lifetime begins/i)).toBeTruthy();
     expect(screen.queryByText(/scheduled to expire/i)).toBeNull();
+    expect(screen.queryByText("Idea Map updated.")).toBeNull();
   });
 });
 

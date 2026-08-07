@@ -8,6 +8,7 @@ import {
   createDraftModel,
   getPersistentConversationAccess,
   getTemporaryConversationAccess,
+  isNonOwnerTemporaryWorkspaceAccessEnabled,
 } from "apps/api/src/products/thoughtform/mount";
 import { parseOwnerClientObservation } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
 import {
@@ -25,6 +26,12 @@ import type {
 } from "packages/observability/src";
 
 describe("products API route mount", () => {
+  it("enables non-owner temporary access only in development", () => {
+    expect(isNonOwnerTemporaryWorkspaceAccessEnabled("development")).toBe(true);
+    expect(isNonOwnerTemporaryWorkspaceAccessEnabled("production")).toBe(false);
+    expect(isNonOwnerTemporaryWorkspaceAccessEnabled("test")).toBe(false);
+    expect(isNonOwnerTemporaryWorkspaceAccessEnabled(undefined)).toBe(false);
+  });
   it("accepts only bounded owner client timing observations", () => {
     expect(parseOwnerClientObservation({
       observationId: "123e4567-e89b-12d3-a456-426614174000",
@@ -146,7 +153,7 @@ describe("products API route mount", () => {
     })).toBeInstanceOf(DisabledConversationModelAdapter);
   });
 
-  it("selects temporary and persistent operations only for the owner", () => {
+  it("gates temporary non-owner access while keeping durable work owner-only", () => {
     const ownerSession = { user: { id: "owner-1", isOwner: true } };
     const demoSession = { user: { id: "demo-1", isOwner: false } };
 
@@ -161,6 +168,11 @@ describe("products API route mount", () => {
       userId: "owner-1",
     });
     expect(getTemporaryConversationAccess(demoSession)).toBeNull();
+    expect(getTemporaryConversationAccess(demoSession, true)).toEqual({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "demo-1",
+    });
     expect(getPersistentConversationAccess(demoSession)).toBeNull();
   });
 

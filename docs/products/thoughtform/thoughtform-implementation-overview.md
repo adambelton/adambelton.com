@@ -86,7 +86,7 @@ The frontend owns:
 - rendering the editor/demo experience
 - capturing user input
 - displaying streamed responses
-- holding temporary owner-workspace state
+- presenting temporary workspace state under the host access policy
 - rendering owner/admin screens
 
 ## Core architectural principle

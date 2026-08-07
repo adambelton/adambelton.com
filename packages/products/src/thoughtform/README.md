@@ -52,12 +52,18 @@ packages/products/src/thoughtform/
 
 Owner-only Braintrust observations use the runtime-neutral contracts in
 `packages/observability`. The API host supplies the Braintrust adapter only to
-the persistent owner conversation, Idea Map, and composition operations; the temporary owner workspace receives the no-op
+the persistent owner conversation, Idea Map, and composition operations; every temporary workspace receives the no-op
 implementation and emits neither content nor metadata. Synthetic evaluations
 may also record full content so behavioural regressions can be investigated.
 Anthropic owner-provider spans also record the explicitly selected effort. The
 local development baseline is Sonnet 5 at medium effort; temporary workspace traffic
 remains entirely outside this observation boundary.
+
+The temporary workspace is an authenticated product capability. The API host
+owns its release policy: development enables isolated non-owner workspaces,
+while production currently admits only the owner. Saved conversations and owner
+observations remain owner-only. The client host mirrors the API decision for
+navigation and route presentation but is not the security boundary.
 
 ## How the pieces interact
 

@@ -63,6 +63,7 @@ adambelton.com/
 │   │       ├── website/                       Public website experience
 │   │       ├── auth/                          Browser authentication experience
 │   │       ├── products/                      Mounts product applications
+│   │       │   └── thoughtform/               Host-owned product access policy
 │   │       └── ui/                            Host-owned reusable presentation
 │   └── api/                                   Server application
 │       └── src/

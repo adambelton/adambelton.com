@@ -187,11 +187,11 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
   await test.step("clear all visible conversation state", async () => {
     page.once("dialog", (dialog) => dialog.accept());
     const cleared = page.waitForResponse((response) => response.url().includes("/temporary-conversation/current") && response.request().method() === "DELETE");
-    await page.getByRole("button", { name: "Clear this conversation" }).click();
+    await page.getByRole("button", { name: "Clear this workspace" }).click();
     await cleared;
     await expect(page.getByRole("list", { name: "Conversation" })).toContainText("No messages yet.");
     await expect(page.getByRole("heading", { name: "Idea map" })).not.toBeVisible();
-    await expect(page.getByRole("button", { name: "Clear this conversation" })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "Clear this workspace" })).not.toBeVisible();
     await expect(page.getByLabel("What are you thinking?")).toHaveValue("");
   });
 });

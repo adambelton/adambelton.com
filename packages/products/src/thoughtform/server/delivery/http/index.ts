@@ -52,6 +52,7 @@ export function createThoughtFormApiRoute(
     observability: dependencies.persistentObservability,
   }));
   route.route("/drafts", createDraftRoute({
+    kind: "persistent",
     compositionModel: dependencies.compositionModel,
     interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,
@@ -59,6 +60,7 @@ export function createThoughtFormApiRoute(
     getDraftStore: dependencies.getPersistentDraftStore,
   }));
   route.route("/temporary-drafts", createDraftRoute({
+    kind: "temporary",
     compositionModel: dependencies.compositionModel,
     interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,

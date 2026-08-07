@@ -103,6 +103,7 @@ export function createConversationsRoute({
       conversationId: context.req.param("conversationId"),
       ideaId: context.req.param("ideaId"),
       conversations: store,
+      kind: "persistent",
     });
   });
 

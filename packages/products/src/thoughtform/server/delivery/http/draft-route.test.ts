@@ -41,6 +41,7 @@ describe("draft HTTP route", () => {
     });
     const drafts = createDraftStore(new TestDraftPersistence());
     app = new Hono().route("/drafts", createDraftRoute({
+      kind: "persistent",
       getConversationStore: async () => conversations,
       getDraftStore: async () => drafts,
       compositionModel: { compose: async () => ({ body: "The first draft." }) },
@@ -130,6 +131,65 @@ describe("draft HTTP route", () => {
     if (!accepted.payload.ok) throw new Error("Expected acceptance to succeed.");
     expect(accepted.payload.data.draft).toMatchObject({ body: "The reviewed draft.", currentRevision: 2 });
     expect(accepted.payload.data.revisions[1]).toMatchObject({ source: "accepted_proposal", proposalId });
+  });
+
+  it("returns one stable unavailable result across every temporary Draft operation after workspace loss", async () => {
+    const conversations = createConversationStore(
+      new TestConversationPersistence(),
+    );
+    const drafts = createDraftStore(new TestDraftPersistence());
+    const temporary = new Hono().route("/temporary-drafts", createDraftRoute({
+      kind: "temporary",
+      getConversationStore: async () => conversations,
+      getDraftStore: async () => drafts,
+      compositionModel: { compose: async () => ({ body: "Never called." }) },
+      interpretationModel: {
+        interpret: async () => ({
+          type: "composition",
+          assistantMessage: "Never called.",
+          potentialConflicts: [],
+        }),
+      },
+      proposalModel: {
+        propose: async () => ({
+          proposedContent: "Never called.",
+          intendedEffect: "Never called.",
+        }),
+      },
+    }));
+    const operations = [
+      { method: "GET", suffix: "", body: undefined },
+      { method: "POST", suffix: "/compose", body: { selectedIdeaIds: [idea.id] } },
+      { method: "PUT", suffix: "", body: { expectedRevision: 1, body: "Edit." } },
+      { method: "POST", suffix: "/restore", body: { expectedRevision: 2, restoreRevision: 1 } },
+      { method: "POST", suffix: "/interpret-change", body: { change: { fromRevision: 1, toRevision: 2, removedText: "A", addedText: "B" } } },
+      { method: "POST", suffix: "/proposals", body: { expectedDraftRevision: 1, scope: "whole_draft", userInstruction: "Revise." } },
+      { method: "PATCH", suffix: "/proposals/proposal-1", body: { expectedProposalRevision: 1, userInstruction: "Revise again." } },
+      { method: "POST", suffix: "/proposals/proposal-1/accept", body: { expectedDraftRevision: 1 } },
+      { method: "POST", suffix: "/proposals/proposal-1/reject", body: {} },
+    ] as const;
+
+    for (const operation of operations) {
+      const response = await temporary.request(
+        `/temporary-drafts/lost-workspace${operation.suffix}`,
+        {
+          method: operation.method,
+          headers: { "content-type": "application/json" },
+          ...(operation.body === undefined
+            ? {}
+            : { body: JSON.stringify(operation.body) }),
+        },
+      );
+      expect(response.status, `${operation.method} ${operation.suffix}`)
+        .toBe(409);
+      await expect(response.json()).resolves.toEqual({
+        ok: false,
+        error: {
+          code: "draft_unavailable",
+          message: "This temporary workspace is no longer available.",
+        },
+      });
+    }
   });
 });
 

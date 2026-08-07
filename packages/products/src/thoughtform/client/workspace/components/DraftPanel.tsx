@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  DRAFT_ERROR_CODES,
   REVISION_PROPOSAL_SCOPES,
   type DraftChange,
   type DraftOperationResponse,
@@ -27,6 +28,7 @@ import {
   resolveDraftProposal,
   restoreDraft,
   saveDraft,
+  DraftClientError,
   type DraftPersistenceKind,
 } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 
@@ -48,6 +50,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     change: DraftChange | null,
   ) => void;
   onDraftAdvanced: () => void;
+  onUnavailable?: () => void;
   hasDraftOffer?: boolean;
   initialWorkspace?: DraftingState | null;
 }>(function DraftPanel({
@@ -59,6 +62,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   onAttachSelection,
   onDraftInterpretation,
   onDraftAdvanced,
+  onUnavailable,
   hasDraftOffer = false,
   initialWorkspace = null,
 }, ref) {
@@ -96,8 +100,16 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       if (!isCurrent) return;
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
-    }).catch(() => {
-      if (isCurrent) setStatus("The drafting state could not be loaded.");
+    }).catch((error) => {
+      if (!isCurrent) return;
+      if (
+        error instanceof DraftClientError &&
+        error.code === DRAFT_ERROR_CODES.unavailable
+      ) {
+        onUnavailable?.();
+        return;
+      }
+      setStatus("The drafting state could not be loaded.");
     }).finally(() => {
       if (isCurrent) setLoading(false);
     });
@@ -139,6 +151,22 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       return true;
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "The draft could not be updated.");
+      if (
+        error instanceof DraftClientError &&
+        error.code === DRAFT_ERROR_CODES.unavailable
+      ) {
+        if (workspace?.draft && body !== workspace.draft.body) {
+          setDetachedBody(body);
+        }
+        setWorkspace(null);
+        setBody("");
+        setSelection(null);
+        setProposalInstruction("");
+        setHistoryOpen(false);
+        interpretationRevisionRef.current = null;
+        onUnavailable?.();
+        return false;
+      }
       if (conversationId) {
         const current = await loadDraft(kind, conversationId).catch(() => null);
         if (!current && workspace?.draft && body !== workspace.draft.body) {

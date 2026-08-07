@@ -1098,3 +1098,25 @@ Their access, persistence, identity, and expiry differences remain explicit at
 the route boundary. Host-owned disclosure and observation endpoints live in a
 focused `delivery` role beside the host mount, leaving `mount.ts` responsible
 for dependency assembly.
+
+## 057 — Temporary Workspace Capability Is Authenticated And Release-Gated
+
+Decision 053's and Decision 055's product-level owner-only boundary is
+superseded. ThoughtForm's intended temporary-workspace capability supports one
+isolated application-memory workspace for each authenticated user to whom the
+host grants access. The owner uses the same temporary capability and separately
+retains owner-only ID-addressed durable conversations and owner-observation
+surfaces.
+
+The API host owns a release gate rather than the product package owning a
+deployment policy. Development enables authenticated non-owner temporary
+workspaces so their complete lifecycle and user isolation can be exercised.
+Production denies every non-owner ThoughtForm operation until a later approved
+demo-release task changes that gate. The API remains authoritative; the client
+mirrors the decision only for route presentation and discoverability.
+
+Opening production demo access is not part of this decision. It remains
+deferred from Task 036 together with usage accounting, measurement, and
+enforcement. Temporary-workspace content continues to receive no Braintrust
+observation, regardless of whether the authenticated user is the owner or a
+non-owner.
