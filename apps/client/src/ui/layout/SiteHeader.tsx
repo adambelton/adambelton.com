@@ -2,9 +2,9 @@ import { useAuthSession } from "apps/client/src/auth";
 import { TextLink } from "apps/client/src/ui/components";
 
 export function SiteHeader({
-  showAnonymousLogin = import.meta.env.DEV,
+  showAuthentication = import.meta.env.DEV,
 }: {
-  showAnonymousLogin?: boolean;
+  showAuthentication?: boolean;
 } = {}) {
   const session = useAuthSession();
 
@@ -17,11 +17,11 @@ export function SiteHeader({
         <TextLink href="/">Home</TextLink>
         <TextLink href="/products">Products</TextLink>
         <TextLink href="/about">About</TextLink>
-        {session.data
-          ? <TextLink href="/logout">Log out</TextLink>
-          : showAnonymousLogin
-            ? <TextLink href="/login">Log in</TextLink>
-            : null}
+        {showAuthentication
+          ? session.data
+            ? <TextLink href="/logout">Log out</TextLink>
+            : <TextLink href="/login">Log in</TextLink>
+          : null}
       </nav>
     </header>
   );

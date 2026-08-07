@@ -18,7 +18,7 @@ describe("SiteHeader", () => {
   it("does not advertise the private login route to anonymous visitors", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAnonymousLogin={false} />
+        <SiteHeader showAuthentication={false} />
       </MemoryRouter>,
     );
 
@@ -29,7 +29,7 @@ describe("SiteHeader", () => {
   it("makes authentication discoverable when the development host enables it", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAnonymousLogin />
+        <SiteHeader showAuthentication />
       </MemoryRouter>,
     );
 
@@ -37,14 +37,29 @@ describe("SiteHeader", () => {
     expect(markup).toContain('href="/login"');
   });
 
-  it("keeps logout available for an authenticated owner", () => {
+  it("keeps authentication navigation hidden in production for an authenticated owner", () => {
     vi.mocked(useAuthSession).mockReturnValue({
       data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
     } as ReturnType<typeof useAuthSession>);
 
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader />
+        <SiteHeader showAuthentication={false} />
+      </MemoryRouter>,
+    );
+
+    expect(markup).not.toContain('href="/logout"');
+    expect(markup).not.toContain("Log out");
+  });
+
+  it("shows logout for an authenticated development session", () => {
+    vi.mocked(useAuthSession).mockReturnValue({
+      data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
+    } as ReturnType<typeof useAuthSession>);
+
+    const markup = renderToStaticMarkup(
+      <MemoryRouter>
+        <SiteHeader showAuthentication />
       </MemoryRouter>,
     );
 
