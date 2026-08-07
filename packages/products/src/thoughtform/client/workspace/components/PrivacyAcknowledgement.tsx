@@ -27,43 +27,33 @@ export function PrivacyAcknowledgement({
   return (
     <section aria-labelledby="privacy-acknowledgement-title">
       <h1
-        className="m-0 max-w-4xl text-5xl font-semibold leading-none tracking-normal sm:text-7xl"
+        className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
         id="privacy-acknowledgement-title"
       >
-        Your thinking and ThoughtForm
+        Before you begin
       </h1>
-      <div className="mt-8 grid max-w-2xl gap-5 text-base leading-7 text-[var(--muted)]">
+      <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
+        ThoughtForm is a private thinking workspace, but this temporary demo is
+        not a confidential service. Review how it works before continuing.
+      </p>
+      <div className="mt-8 grid max-w-4xl gap-4 text-[var(--muted)] sm:grid-cols-3">
         <AiProcessingDisclosureLoader Link={Link} />
-        <p className="m-0">
-          This workspace is held temporarily in application memory for no more
-          than 24 hours. It may disappear sooner after a restart or deployment,
-          and you can clear it at any time. Saved owner conversations use a
-          separate workspace route.
-        </p>
-        <p className="m-0">
-          This is a portfolio demo, not a confidential professional, medical,
-          legal, or therapeutic service. Do not include unnecessary identifying,
-          confidential, or highly sensitive information about yourself or anyone
-          else. It cannot provide diagnosis, therapy, crisis response, or urgent
-          help; contact local emergency or crisis support if you may be in
-          immediate danger.
-        </p>
-        <p className="m-0">
-          Read ThoughtForm&apos;s{" "}
-          <TextLink
-            href="/products/thoughtform/privacy"
-            Link={Link}
-          >
-            product privacy information
-          </TextLink>{" "}
-          and the site-wide{" "}
-          <TextLink href="/privacy" Link={Link}>
-            privacy information
-          </TextLink>
-          .
-        </p>
+        <section className="border border-[var(--line)] p-4" aria-labelledby="temporary-storage-title">
+          <h2 className="m-0 text-lg font-semibold text-[var(--foreground)]" id="temporary-storage-title">Temporary storage</h2>
+          <p className="mt-2 text-sm leading-6">Your workspace is held in application memory for no more than 24 hours. A restart or deployment may remove it sooner, and you can clear it at any time.</p>
+        </section>
+        <section className="border border-[var(--line)] p-4" aria-labelledby="appropriate-use-title">
+          <h2 className="m-0 text-lg font-semibold text-[var(--foreground)]" id="appropriate-use-title">Use appropriate information</h2>
+          <p className="mt-2 text-sm leading-6">Avoid unnecessary identifying, confidential, or highly sensitive information. This demo is not medical, legal, therapeutic, crisis, or urgent support.</p>
+        </section>
       </div>
-      <form className="mt-8 grid max-w-2xl gap-6" onSubmit={handleSubmit}>
+      <p className="mt-4 max-w-4xl text-sm leading-6 text-[var(--muted)]">
+        If you may be in immediate danger, contact local emergency or crisis
+        support. Read ThoughtForm&apos;s{" "}
+        <TextLink href="/products/thoughtform/privacy" Link={Link}>product privacy information</TextLink>{" "}
+        and the site-wide <TextLink href="/privacy" Link={Link}>privacy information</TextLink>.
+      </p>
+      <form className="mt-6 grid max-w-2xl gap-5 border-t border-[var(--line)] pt-5" onSubmit={handleSubmit}>
         <label className="flex items-start gap-3" htmlFor={acknowledgementId}>
           <input
             checked={isChecked}

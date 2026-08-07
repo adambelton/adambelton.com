@@ -17,6 +17,16 @@ export function AiProcessingDisclosureLoader({ Link }: { Link: ProductNavigation
   }, []);
 
   return hasFailed
-    ? <p role="status">Current AI processing details could not be loaded. Review the product privacy information before continuing.</p>
+    ? (
+      <section className="border border-[var(--line)] p-4" role="status">
+        <h2 className="m-0 text-lg font-semibold text-[var(--foreground)]">
+          AI processing
+        </h2>
+        <p className="mt-2 text-sm leading-6">
+          Current AI processing details could not be loaded. Review the product
+          privacy information before continuing.
+        </p>
+      </section>
+    )
     : <DisclosureView disclosure={disclosure} Link={Link} />;
 }

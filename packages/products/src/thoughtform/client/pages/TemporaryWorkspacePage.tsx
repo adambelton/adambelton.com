@@ -83,7 +83,7 @@ export function TemporaryWorkspacePage({
 
   return (
     <>
-      <p className="mb-8 text-sm leading-6 text-[var(--muted)]" role="status">
+      <p className="mb-6 max-w-4xl border-l-4 border-[var(--accent)] bg-[var(--selection)] px-4 py-3 text-sm leading-6" role="status">
         {expiresAt
           ? `This temporary workspace is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
           : "This workspace is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}

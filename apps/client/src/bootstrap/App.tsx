@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import {
   Container,
   SiteFooter,
@@ -29,13 +29,18 @@ const ProductRoutePage = lazy(() =>
 );
 
 export function App() {
+  const { pathname } = useLocation();
+  const isWorkspaceRoute = isThoughtFormWorkspacePath(pathname);
+
   return (
     <>
       <SkipLink />
       <Container className="min-h-screen">
         <SiteHeader />
         <main
-          className="grid gap-14 pb-24 pt-14 sm:gap-20 sm:pb-32 sm:pt-20"
+          className={`grid gap-14 pb-24 sm:gap-20 sm:pb-32 ${
+            isWorkspaceRoute ? "pt-6 sm:pt-8" : "pt-14 sm:pt-20"
+          }`}
           id="main-content"
         >
           <Routes>
@@ -62,4 +67,9 @@ export function App() {
       </Container>
     </>
   );
+}
+
+function isThoughtFormWorkspacePath(pathname: string) {
+  return pathname === "/products/thoughtform/editor" ||
+    /^\/products\/thoughtform\/conversations\/[^/]+\/editor$/.test(pathname);
 }

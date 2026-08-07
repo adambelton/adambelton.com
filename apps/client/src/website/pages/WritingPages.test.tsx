@@ -48,7 +48,7 @@ describe("public writing pages", () => {
       '<article aria-labelledby="post-title" class="min-w-0">',
     );
     expect(markup).toContain(
-      'class="markdown-content max-w-2xl text-lg leading-8 text-[var(--foreground)]"',
+      'class="markdown-content max-w-2xl text-base leading-7 text-[var(--muted)]"',
     );
     expect(markup).toContain(
       "<title>Portfolio Website Architecture for Dummies — Adam Belton</title>",

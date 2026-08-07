@@ -19,6 +19,9 @@ describe("ProductsPage", () => {
     expect(markup).toContain(
       "Products and experiments built around difficult, human problems.",
     );
+    expect(markup).toContain("Preparing for public beta");
+    expect(markup).toContain("A conversational workspace for exploring ideas");
+    expect(markup).not.toContain("Through focused questions");
     expect(markup).not.toContain("Things being built");
     expect(markup).not.toContain("will live here");
   });

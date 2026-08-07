@@ -18,6 +18,9 @@ describe("AboutPage", () => {
       'class="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"',
     );
     expect(markup).toContain(
+      "markdown-content max-w-2xl text-base leading-7 text-[var(--muted)]",
+    );
+    expect(markup).toContain(
       'class="max-w-3xl text-lg leading-8 text-[var(--muted)] mt-6"',
     );
     expect(markup).toContain(
