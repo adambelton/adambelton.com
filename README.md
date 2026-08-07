@@ -68,7 +68,7 @@ adambelton.com/
 │   └── api/                                   Server application
 │       └── src/
 │           ├── bootstrap/                     Starts and assembles the API
-│           ├── platform/                      Host-wide HTTP capabilities
+│           ├── platform/                      Host-wide access and HTTP capabilities
 │           └── products/                      Mounts products and supplies adapters
 │
 ├── packages/                                  Reusable ownership boundaries
