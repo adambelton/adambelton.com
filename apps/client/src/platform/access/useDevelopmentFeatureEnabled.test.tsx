@@ -1,23 +1,23 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthSession } from "apps/client/src/auth/session";
-import { useDevelopmentFeatureAccess } from "apps/client/src/platform/access/useDevelopmentFeatureAccess";
+import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
 
 vi.mock("apps/client/src/auth/session", () => ({
   useAuthSession: vi.fn(),
 }));
 
-describe("useDevelopmentFeatureAccess", () => {
+describe("useDevelopmentFeatureEnabled", () => {
   beforeEach(() => {
     vi.mocked(useAuthSession).mockReturnValue({ data: null } as ReturnType<
       typeof useAuthSession
     >);
   });
 
-  it("allows development features in development", () => {
+  it("enables development features in development", () => {
     let enabled = false;
     function Probe() {
-      enabled = useDevelopmentFeatureAccess();
+      enabled = useDevelopmentFeatureEnabled();
       return null;
     }
 
@@ -26,7 +26,7 @@ describe("useDevelopmentFeatureAccess", () => {
     expect(enabled).toBe(true);
   });
 
-  it("allows owners independently of the development environment", () => {
+  it("enables development features for owners", () => {
     vi.mocked(useAuthSession).mockReturnValue({
       data: {
         user: {
@@ -39,7 +39,7 @@ describe("useDevelopmentFeatureAccess", () => {
     } as ReturnType<typeof useAuthSession>);
     let enabled = false;
     function Probe() {
-      enabled = useDevelopmentFeatureAccess();
+      enabled = useDevelopmentFeatureEnabled();
       return null;
     }
 

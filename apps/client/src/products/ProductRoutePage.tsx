@@ -11,11 +11,11 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { useDevelopmentFeatureAccess } from "apps/client/src/platform/access/useDevelopmentFeatureAccess";
+import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
-  const hasDevelopmentFeatureAccess = useDevelopmentFeatureAccess();
+  const developmentFeatureEnabled = useDevelopmentFeatureEnabled();
   const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
@@ -30,7 +30,7 @@ export function ProductRoutePage() {
         isNonOwnerTemporaryWorkspaceEnabled(
           productSlug,
           "editor",
-          hasDevelopmentFeatureAccess,
+          developmentFeatureEnabled,
         ),
     },
     path: productPath,
@@ -60,7 +60,7 @@ export function ProductRoutePage() {
           !isNonOwnerTemporaryWorkspaceEnabled(
             productSlug,
             productPath,
-            hasDevelopmentFeatureAccess,
+            developmentFeatureEnabled,
           ))) &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
@@ -78,9 +78,9 @@ export function ProductRoutePage() {
 function isNonOwnerTemporaryWorkspaceEnabled(
   productSlug: string,
   productPath: string,
-  hasDevelopmentFeatureAccess: boolean,
+  developmentFeatureEnabled: boolean,
 ) {
-  return hasDevelopmentFeatureAccess &&
+  return developmentFeatureEnabled &&
     productSlug === "thoughtform" &&
     productPath === "editor";
 }

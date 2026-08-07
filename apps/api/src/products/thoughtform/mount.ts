@@ -42,7 +42,8 @@ import { createThoughtFormAiDisclosureRoute } from "apps/api/src/products/though
 import {
   createThoughtFormOwnerObservationRoute,
 } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
-import { hasDevelopmentFeatureAccess } from "apps/api/src/platform/access/has-development-feature-access";
+import { hasUserSession } from "apps/api/src/platform/access/has-user-session";
+import { isDevelopmentFeatureEnabled } from "apps/api/src/platform/access/is-development-feature-enabled";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -108,7 +109,7 @@ type ProductConversationSession = {
 export function getTemporaryConversationAccess(
   session: ProductConversationSession | null,
 ) {
-  return hasDevelopmentFeatureAccess(session)
+  return hasUserSession(session) && isDevelopmentFeatureEnabled(session)
     ? {
         isSignedIn: true as const,
         isOwner: false as const,
