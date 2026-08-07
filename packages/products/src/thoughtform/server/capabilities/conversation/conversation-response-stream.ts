@@ -1,14 +1,14 @@
 export function createJsonStringFieldDeltaDecoder(field: string) {
   let source = "";
   let cursor = 0;
-  let valueStarted = false;
-  let finished = false;
+  let hasValueStarted = false;
+  let isFinished = false;
 
   return {
     push(chunk: string) {
-      if (finished || !chunk) return "";
+      if (isFinished || !chunk) return "";
       source += chunk;
-      if (!valueStarted) {
+      if (!hasValueStarted) {
         const fieldIndex = source.indexOf(`"${field}"`);
         if (fieldIndex === -1) return "";
         const colonIndex = source.indexOf(":", fieldIndex + field.length + 2);
@@ -16,14 +16,14 @@ export function createJsonStringFieldDeltaDecoder(field: string) {
         const quoteIndex = source.indexOf('"', colonIndex + 1);
         if (quoteIndex === -1) return "";
         cursor = quoteIndex + 1;
-        valueStarted = true;
+        hasValueStarted = true;
       }
 
       let delta = "";
       while (cursor < source.length) {
         const character = source[cursor]!;
         if (character === '"') {
-          finished = true;
+          isFinished = true;
           cursor += 1;
           break;
         }

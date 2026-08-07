@@ -27,7 +27,7 @@ describe("draft HTTP route", () => {
   beforeEach(async () => {
     const conversationPersistence = new TestConversationPersistence();
     const conversations = createConversationStore(conversationPersistence, {
-      initializeOnAppend: true,
+      shouldInitializeOnAppend: true,
       createId: () => conversationId,
     });
     await conversations.appendConversationTurn({

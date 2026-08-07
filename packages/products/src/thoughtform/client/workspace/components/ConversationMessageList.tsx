@@ -12,21 +12,21 @@ import {
 
 type ConversationMessageListProps = {
   messages: ConversationMessage[];
-  animateLatestAssistant?: boolean;
+  shouldAnimateLatestAssistant?: boolean;
   followLatestRequest?: number;
 };
 
 export function ConversationMessageList({
   messages,
-  animateLatestAssistant = false,
+  shouldAnimateLatestAssistant = false,
   followLatestRequest = 0,
 }: ConversationMessageListProps) {
   const historyRef = useRef<HTMLDivElement>(null);
-  const followsLatestRef = useRef(true);
+  const isFollowingLatestRef = useRef(true);
 
   useLayoutEffect(() => {
     const history = historyRef.current;
-    if (history && followsLatestRef.current) {
+    if (history && isFollowingLatestRef.current) {
       history.scrollTop = history.scrollHeight;
     }
   }, [messages.length, messages.at(-1)?.content]);
@@ -34,7 +34,7 @@ export function ConversationMessageList({
   useLayoutEffect(() => {
     const history = historyRef.current;
     if (!history) return;
-    followsLatestRef.current = true;
+    isFollowingLatestRef.current = true;
     history.scrollTop = history.scrollHeight;
   }, [followLatestRequest]);
 
@@ -43,7 +43,7 @@ export function ConversationMessageList({
     const content = history?.querySelector("ol");
     if (!history || !content || !globalThis.ResizeObserver) return;
     const observer = new ResizeObserver(() => {
-      if (followsLatestRef.current) history.scrollTop = history.scrollHeight;
+      if (isFollowingLatestRef.current) history.scrollTop = history.scrollHeight;
     });
     observer.observe(content);
     return () => observer.disconnect();
@@ -55,7 +55,7 @@ export function ConversationMessageList({
       data-testid="conversation-history"
       onScroll={(event) => {
         const history = event.currentTarget;
-        followsLatestRef.current =
+        isFollowingLatestRef.current =
           history.scrollHeight - history.scrollTop - history.clientHeight <= 24;
       }}
       ref={historyRef}
@@ -68,10 +68,10 @@ export function ConversationMessageList({
       ) : (
         messages.map((message, index) => (
           <ConversationMessageItem
-            animate={
+            shouldAnimate={
               message.role === CONVERSATION_MESSAGE_ROLES.assistant &&
               index === messages.length - 1 &&
-              animateLatestAssistant
+              shouldAnimateLatestAssistant
             }
             key={`${message.role}-${index}`}
             message={message}
@@ -84,16 +84,16 @@ export function ConversationMessageList({
 }
 
 type ConversationMessageItemProps = {
-  animate: boolean;
+  shouldAnimate: boolean;
   message: ConversationMessage;
 };
 
-function ConversationMessageItem({ animate, message }: ConversationMessageItemProps) {
+function ConversationMessageItem({ shouldAnimate, message }: ConversationMessageItemProps) {
   const displayContent = message.role === CONVERSATION_MESSAGE_ROLES.assistant
     ? decodeConversationText(message.content)
     : message.content;
-  const { reduceMotion, visibleContent } = useBufferedText(displayContent, animate);
-  const isRevealing = animate && Array.from(visibleContent).length <
+  const { shouldReduceMotion, visibleContent } = useBufferedText(displayContent, shouldAnimate);
+  const isRevealing = shouldAnimate && Array.from(visibleContent).length <
     Array.from(displayContent).length;
   const latestCharacter = visibleContent.at(-1) ?? "";
   const settledContent = latestCharacter
@@ -116,7 +116,7 @@ function ConversationMessageItem({ animate, message }: ConversationMessageItemPr
               >
                 {latestCharacter}
               </span>
-              {isRevealing && !reduceMotion
+              {isRevealing && !shouldReduceMotion
                 ? <span className="ml-0.5 animate-pulse">▍</span>
                 : null}
             </span>
@@ -127,17 +127,17 @@ function ConversationMessageItem({ animate, message }: ConversationMessageItemPr
   );
 }
 
-function useBufferedText(content: string, animate: boolean) {
-  const reduceMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+function useBufferedText(content: string, shouldAnimate: boolean) {
+  const shouldReduceMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
     ?? false;
   const [visibleLength, setVisibleLength] = useState(() =>
-    animate && !reduceMotion ? 0 : Array.from(content).length);
+    shouldAnimate && !shouldReduceMotion ? 0 : Array.from(content).length);
   const characters = Array.from(content);
   const lastFrameRef = useRef<number | null>(null);
   const characterBudgetRef = useRef(0);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (shouldReduceMotion) {
       setVisibleLength(characters.length);
       return;
     }
@@ -163,10 +163,10 @@ function useBufferedText(content: string, animate: boolean) {
     };
     frame = globalThis.requestAnimationFrame(reveal);
     return () => globalThis.cancelAnimationFrame(frame);
-  }, [characters.length, reduceMotion, visibleLength]);
+  }, [characters.length, shouldReduceMotion, visibleLength]);
 
   return {
-    reduceMotion,
+    shouldReduceMotion,
     visibleContent: characters.slice(0, visibleLength).join(""),
   };
 }

@@ -11,5 +11,5 @@ export type ProductNavigationLink = ComponentType<ProductNavigationLinkProps>;
 export type ProductAppComponents = {
   Link: ProductNavigationLink;
   navigate: (href: string) => void;
-  temporaryWorkspaceAvailable?: boolean;
+  isTemporaryWorkspaceAvailable?: boolean;
 };

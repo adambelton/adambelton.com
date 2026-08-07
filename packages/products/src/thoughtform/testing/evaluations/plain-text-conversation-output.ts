@@ -72,16 +72,16 @@ export interface ConversationOutputSummary {
 
 export class PlainResponseDeltaDecoder {
   private buffer = "";
-  private completed = false;
+  private isCompleted = false;
 
   push(chunk: string) {
-    if (this.completed) return "";
+    if (this.isCompleted) return "";
     this.buffer += chunk;
     const metadataIndex = this.buffer.indexOf("<metadata>");
     if (metadataIndex >= 0) {
       const text = this.buffer.slice(0, metadataIndex);
       this.buffer = this.buffer.slice(metadataIndex + "<metadata>".length);
-      this.completed = true;
+      this.isCompleted = true;
       return text;
     }
     const safeLength = Math.max(0, this.buffer.length - "<metadata>".length);
@@ -91,7 +91,7 @@ export class PlainResponseDeltaDecoder {
   }
 
   finish() {
-    if (this.completed) return "";
+    if (this.isCompleted) return "";
     const text = this.buffer;
     this.buffer = "";
     return text;

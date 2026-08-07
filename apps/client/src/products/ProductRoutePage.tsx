@@ -25,7 +25,7 @@ export function ProductRoutePage() {
     components: {
       Link: NavigationLink,
       navigate,
-      temporaryWorkspaceAvailable:
+      isTemporaryWorkspaceAvailable:
         Boolean(session.data?.user.isOwner) ||
         isNonOwnerTemporaryWorkspaceEnabled(
           productSlug,

@@ -86,10 +86,10 @@ export function createPrismaConversationPersistence(
       }
 
       const addedMessages = input.nextSnapshot.messages.slice(current.messages.length);
-      const ideaMapChanged = input.nextSnapshot.ideaMap.revision !== current.ideaMap.revision;
-      let committed: boolean;
+      const hasIdeaMapChanged = input.nextSnapshot.ideaMap.revision !== current.ideaMap.revision;
+      let isCommitted: boolean;
       try {
-        committed = await prisma.$transaction(async (transaction) => {
+        isCommitted = await prisma.$transaction(async (transaction) => {
         await transaction.thoughtFormOperation.create({
           data: {
             conversationId: input.conversationId,
@@ -126,7 +126,7 @@ export function createPrismaConversationPersistence(
             })),
           });
         }
-        if (ideaMapChanged) {
+        if (hasIdeaMapChanged) {
           await transaction.thoughtFormIdeaMapRevision.create({
             data: {
               conversationId: input.conversationId,
@@ -162,7 +162,7 @@ export function createPrismaConversationPersistence(
         }
         throw error;
       }
-      if (!committed) {
+      if (!isCommitted) {
         const latest = await load(input.conversationId);
         return latest
           ? { status: CONVERSATION_COMMIT_STATUSES.conflict, snapshot: latest }

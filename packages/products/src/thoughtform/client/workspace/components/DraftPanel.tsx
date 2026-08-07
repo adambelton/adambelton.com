@@ -73,29 +73,29 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const [body, setBody] = useState(initialWorkspace?.draft?.body ?? "");
   const [selection, setSelection] = useState<DraftSelection | null>(null);
   const [proposalInstruction, setProposalInstruction] = useState("");
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isBusy, setIsBusy] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [detachedBody, setDetachedBody] = useState<string | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
-      setLoading(false);
+      setIsLoading(false);
       setWorkspace(null);
       setBody("");
       interpretationRevisionRef.current = null;
       return;
     }
     if (initialWorkspace) {
-      setLoading(false);
+      setIsLoading(false);
       setWorkspace(initialWorkspace);
       setBody(initialWorkspace.draft?.body ?? "");
       return;
     }
     if (!isActive) return;
     let isCurrent = true;
-    setLoading(true);
+    setIsLoading(true);
     void loadDraft(kind, conversationId).then((loaded) => {
       if (!isCurrent) return;
       setWorkspace(loaded);
@@ -111,7 +111,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       }
       setStatus("The drafting state could not be loaded.");
     }).finally(() => {
-      if (isCurrent) setLoading(false);
+      if (isCurrent) setIsLoading(false);
     });
     return () => {
       isCurrent = false;
@@ -122,7 +122,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     operation: () => Promise<DraftingState | DraftOperationResponse | null>,
     message: string,
   ) {
-    setBusy(true);
+    setIsBusy(true);
     setStatus(null);
     try {
       const result = await operation();
@@ -162,7 +162,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         setBody("");
         setSelection(null);
         setProposalInstruction("");
-        setHistoryOpen(false);
+        setIsHistoryOpen(false);
         interpretationRevisionRef.current = null;
         onUnavailable?.();
         return false;
@@ -177,7 +177,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       }
       return false;
     } finally {
-      setBusy(false);
+      setIsBusy(false);
     }
   }
 
@@ -201,7 +201,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setBody("");
       setSelection(null);
       setProposalInstruction("");
-      setHistoryOpen(false);
+      setIsHistoryOpen(false);
       setStatus(null);
       interpretationRevisionRef.current = null;
     },
@@ -213,7 +213,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setBody("");
       setSelection(null);
       setProposalInstruction("");
-      setHistoryOpen(false);
+      setIsHistoryOpen(false);
       interpretationRevisionRef.current = null;
     },
     save,
@@ -242,13 +242,13 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         {detachedDraftRecovery}
         <ComposeDraft
           ideas={ideas}
-          isBusy={busy}
+          isBusy={isBusy}
           onCompose={async (input) => {
-            const created = await run(
+            const wasDraftCreated = await run(
               () => composeDraft(kind, conversationId, input),
               "Draft composed.",
             );
-            if (created) onDraftCreated();
+            if (wasDraftCreated) onDraftCreated();
           }}
           submitLabel={hasDraftOffer ? "Accept offer and compose" : "Compose draft"}
         />
@@ -286,7 +286,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     >
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
-        <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
+        <button className="underline" onClick={() => setIsHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
       </header>
       {detachedDraftRecovery}
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
@@ -302,10 +302,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         value={body}
       />
       <div className="flex items-center gap-3">
-        <button className="border border-[var(--foreground)] px-4 py-2" disabled={busy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
+        <button className="border border-[var(--foreground)] px-4 py-2" disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
         <button
           className="underline"
-          disabled={busy || body !== draft.body}
+          disabled={isBusy || body !== draft.body}
           onClick={attachCurrentSelection}
           type="button"
         >
@@ -317,7 +317,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         <h3 className="font-semibold" id="revision-proposal-title">Assistant revision proposal</h3>
         {workspace.activeProposal?.state === "active" ? (
           <ProposalReview
-            isBusy={busy}
+            isBusy={isBusy}
             proposal={workspace.activeProposal}
             onAccept={() => run(
               () => resolveDraftProposal(kind, conversationId, workspace.activeProposal!.id, "accept", draft.currentRevision),
@@ -344,7 +344,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             </p>
             <button
               className="w-fit underline"
-              disabled={busy}
+              disabled={isBusy}
               onClick={() => void run(
                 () => resolveDraftProposal(
                   kind,
@@ -369,7 +369,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             <textarea onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
             <button
               className="w-fit border border-[var(--foreground)] px-4 py-2"
-              disabled={busy || !proposalInstruction.trim() || body !== draft.body}
+              disabled={isBusy || !proposalInstruction.trim() || body !== draft.body}
               onClick={() => {
                 const currentSelection = readCurrentSelection();
                 setSelection(currentSelection);
@@ -392,12 +392,12 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
           </>
         )}
       </section>
-      {historyOpen ? (
+      {isHistoryOpen ? (
         <DraftHistory
           draft={draft}
           revisions={workspace.revisions}
           onClose={() => {
-            setHistoryOpen(false);
+            setIsHistoryOpen(false);
             globalThis.setTimeout(() => historyButtonRef.current?.focus(), 0);
           }}
           onRestore={(revision) => run(

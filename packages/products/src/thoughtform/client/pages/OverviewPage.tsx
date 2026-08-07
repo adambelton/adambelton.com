@@ -38,7 +38,7 @@ export function OverviewPage({
           In Development
         </p>
         {accessLevel === ACCESS_LEVELS.owner ||
-        components.temporaryWorkspaceAvailable ? (
+        components.isTemporaryWorkspaceAvailable ? (
           <>
             <p className="mt-5 text-base leading-7 text-[var(--muted)]">
               <TextLink Link={components.Link} href="/products/thoughtform/editor">

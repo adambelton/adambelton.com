@@ -47,7 +47,7 @@ if (!apiKey) {
 }
 
 const scenario = selectScenario(process.env.EVALUATION_SCENARIO);
-const includeContent =
+const shouldIncludeContent =
   process.env.EVALUATION_INCLUDE_CONTENT === HOSTED_EVALUATION_ENABLED_VALUE;
 const maximumTurns = parseMaximumTurns(process.env.EVALUATION_MAX_TURNS);
 const models = createMeasuredModels(
@@ -139,7 +139,7 @@ for (const [index, message] of scenario.turns.slice(0, maximumTurns).entries()) 
     console.log(validationIssues.join("\n"));
     throw new Error(`Turn ${index + 1} returned invalid structured output.`);
   }
-  if (includeContent) {
+  if (shouldIncludeContent) {
     console.log(`User: ${message}`);
     console.log("Raw model outputs:");
     console.dir(measurements.map((entry) => ({

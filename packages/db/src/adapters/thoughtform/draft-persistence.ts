@@ -81,9 +81,9 @@ export function createPrismaDraftPersistence(
         (current.activeProposal?.currentProposalRevision ?? null) !== input.expectedProposalRevision
       ) return { status: DRAFT_COMMIT_STATUSES.conflict, workspace: current };
 
-      let committed: boolean;
+      let isCommitted: boolean;
       try {
-        committed = await prisma.$transaction(async (transaction) => {
+        isCommitted = await prisma.$transaction(async (transaction) => {
         await transaction.thoughtFormOperation.create({ data: { conversationId: input.conversationId, operationId: input.operationId, kind: input.operationKind } });
         const next = input.nextState;
         if (!current.draft && next.draft) {
@@ -153,7 +153,7 @@ export function createPrismaDraftPersistence(
         }
         throw error;
       }
-      if (!committed) {
+      if (!isCommitted) {
         const latest = await load(input.conversationId);
         return latest ? { status: DRAFT_COMMIT_STATUSES.conflict, workspace: latest } : { status: DRAFT_COMMIT_STATUSES.notFound };
       }

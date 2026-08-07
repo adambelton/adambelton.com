@@ -39,7 +39,7 @@ describe("respondInWorkspace", () => {
     };
     const conversations = createConversationStore(
       new TestConversationPersistence(),
-      { initializeOnAppend: true },
+      { shouldInitializeOnAppend: true },
     );
     const conversationId = conversations.createConversationId();
     await conversations.appendConversationTurn({

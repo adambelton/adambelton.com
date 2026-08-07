@@ -143,7 +143,7 @@ export async function respondInWorkspace(input: {
     async () => applyIdeaMapAnalysis({
       current: workspace.ideaMap,
       analysis: ideaMapAnalysis,
-      ignoreChanges: Boolean(input.draftChange),
+      shouldIgnoreChanges: Boolean(input.draftChange),
     }));
   const response: ConversationResponse = {
     ...generatedResponse,
@@ -200,17 +200,17 @@ export async function respondInWorkspace(input: {
 export function applyIdeaMapAnalysis(input: {
   current: IdeaMap;
   analysis: IdeaMapAnalysis;
-  ignoreChanges: boolean;
+  shouldIgnoreChanges: boolean;
 }) {
   const proposedMap = applyProposedIdeas({
     current: input.current,
-    proposedIdeas: input.ignoreChanges ? null : input.analysis.proposedIdeas,
+    proposedIdeas: input.shouldIgnoreChanges ? null : input.analysis.proposedIdeas,
   });
   let nextIdeaMap = proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid
     ? input.current
     : proposedMap.ideaMap;
-  let invalid = proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
-  for (const action of input.ignoreChanges
+  let isInvalid = proposedMap.status === IDEA_MAP_UPDATE_STATUSES.invalid;
+  for (const action of input.shouldIgnoreChanges
     ? []
     : (input.analysis.proposedIdeaActions ?? [])) {
     const result = applyIdeaAction({
@@ -223,24 +223,24 @@ export function applyIdeaMapAnalysis(input: {
       },
     });
     if (result.status === IDEA_MAP_UPDATE_STATUSES.invalid) {
-      invalid = true;
+      isInvalid = true;
       break;
     }
     nextIdeaMap = result.ideaMap;
   }
   if (
-    !invalid &&
-    !input.ignoreChanges &&
+    !isInvalid &&
+    !input.shouldIgnoreChanges &&
     input.analysis.resolvedPotentialConflictIds?.length
   ) {
     const result = removeResolvedPotentialConflicts({
       current: nextIdeaMap,
       conflictIds: input.analysis.resolvedPotentialConflictIds,
     });
-    if (result.status === IDEA_MAP_UPDATE_STATUSES.invalid) invalid = true;
+    if (result.status === IDEA_MAP_UPDATE_STATUSES.invalid) isInvalid = true;
     else nextIdeaMap = result.ideaMap;
   }
-  if (invalid) return input.current;
+  if (isInvalid) return input.current;
   return nextIdeaMap.revision === input.current.revision
     ? nextIdeaMap
     : { ...nextIdeaMap, revision: input.current.revision + 1 };

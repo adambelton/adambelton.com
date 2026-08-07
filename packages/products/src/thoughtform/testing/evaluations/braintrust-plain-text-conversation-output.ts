@@ -294,10 +294,10 @@ async function measureConversationCall(input: {
   if (!input.client.streamMessage) {
     throw new Error("The comparison requires Anthropic streaming.");
   }
-  const structured =
+  const isStructured =
     input.variant === CONVERSATION_OUTPUT_VARIANTS.structured;
   const startedAt = globalThis.performance.now();
-  const decoder = structured
+  const decoder = isStructured
     ? createJsonStringFieldDeltaDecoder("response")
     : new PlainResponseDeltaDecoder();
   let firstProviderTokenMs: number | null = null;
@@ -307,7 +307,7 @@ async function measureConversationCall(input: {
   for await (const event of input.client.streamMessage({
     maxTokens: input.request.maxOutputTokens,
     messages: input.request.messages,
-    ...(structured
+    ...(isStructured
       ? {
           outputFormat: {
             ...input.request.outputFormat,
@@ -318,7 +318,7 @@ async function measureConversationCall(input: {
           },
         }
       : {}),
-    system: structured
+    system: isStructured
       ? input.request.system
       : replaceStructuredOutputContract(input.request.system),
     context: input.request.context,
@@ -334,14 +334,14 @@ async function measureConversationCall(input: {
     }
   }
   if (!response) throw new Error("The comparison call did not complete.");
-  const parsedPlain = structured
+  const parsedPlain = isStructured
     ? null
     : parsePlainTextConversationOutput(response.content);
-  const canonicalContent = structured
+  const canonicalContent = isStructured
     ? response.content
     : parsedPlain!.canonicalContent;
   const canonical = parseConversationModelResponse(canonicalContent);
-  const contractIssues = structured
+  const contractIssues = isStructured
     ? getStructuredConversationContractIssues(response.content)
     : parsedPlain!.issues;
   const measurement: ConversationOutputMeasurement = {

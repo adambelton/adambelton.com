@@ -89,7 +89,7 @@ export function ConversationEditor({
     useState<ConversationMessage[]>(initialMessages);
   const [partialAssistantMessage, setPartialAssistantMessage] =
     useState<ConversationMessage | null>(null);
-  const [animateLatestAssistant, setAnimateLatestAssistant] = useState(false);
+  const [shouldAnimateLatestAssistant, setShouldAnimateLatestAssistant] = useState(false);
   const [followLatestRequest, setFollowLatestRequest] = useState(0);
   const [ideaMap, setIdeaMap] = useState<IdeaMap>(initialIdeaMap);
   const [ideaStatus, setIdeaStatus] = useState<string | null>(null);
@@ -154,7 +154,7 @@ export function ConversationEditor({
     setDraftSelection(null);
     setDraftChange(null);
     setHasDraftOffer(false);
-    setAnimateLatestAssistant(false);
+    setShouldAnimateLatestAssistant(false);
     setPartialAssistantMessage(null);
     if (recoverMessage !== undefined) setMessage(recoverMessage);
     revealSurface("conversation");
@@ -185,10 +185,10 @@ export function ConversationEditor({
     setError(null);
     setIdeaStatus("Updating the Idea Map.");
     setMessage("");
-    setAnimateLatestAssistant(true);
+    setShouldAnimateLatestAssistant(true);
     setFollowLatestRequest((current) => current + 1);
     setMessages((currentMessages) => [...currentMessages, userMessage]);
-    let disableAfterRequest = false;
+    let shouldDisableAfterRequest = false;
 
     try {
       const response = await sendMessage(
@@ -239,14 +239,14 @@ export function ConversationEditor({
       }
 
       setMessage(trimmedMessage);
-      setAnimateLatestAssistant(false);
+      setShouldAnimateLatestAssistant(false);
       setPartialAssistantMessage(null);
       setMessages((currentMessages) => currentMessages.slice(0, -1));
       if (
         sendError instanceof ConversationRequestError &&
         sendError.code === CONVERSATION_ERROR_CODES.hostedAiDisabled
       ) {
-        disableAfterRequest = true;
+        shouldDisableAfterRequest = true;
       }
       setError(
         sendError instanceof Error
@@ -255,7 +255,7 @@ export function ConversationEditor({
       );
     } finally {
       setStatus(
-        disableAfterRequest
+        shouldDisableAfterRequest
           ? CONVERSATION_STATUSES.disabled
           : CONVERSATION_STATUSES.idle,
       );
@@ -281,7 +281,7 @@ export function ConversationEditor({
       setConversationId(null);
       setMessages([]);
       setPartialAssistantMessage(null);
-      setAnimateLatestAssistant(false);
+      setShouldAnimateLatestAssistant(false);
       setIdeaMap(EMPTY_IDEA_MAP);
       setIdeaStatus(null);
       setMessage("");
@@ -323,7 +323,7 @@ export function ConversationEditor({
         <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
           <ConversationMessageList
             followLatestRequest={followLatestRequest}
-            animateLatestAssistant={animateLatestAssistant}
+            shouldAnimateLatestAssistant={shouldAnimateLatestAssistant}
             messages={partialAssistantMessage
               ? [...messages, partialAssistantMessage]
               : messages}

@@ -9,7 +9,7 @@ import {
 export const TEMPORARY_CONVERSATION_LIFETIME_MS = 24 * 60 * 60 * 1_000;
 
 export interface InMemoryConversationPersistenceOptions {
-  temporary?: boolean;
+  isTemporary?: boolean;
   now?: () => number;
   scheduleExpiration?: (callback: () => void, delayMs: number) => unknown;
   cancelExpiration?: (handle: unknown) => void;
@@ -17,7 +17,7 @@ export interface InMemoryConversationPersistenceOptions {
 }
 
 export function createInMemoryConversationPersistence({
-  temporary = false,
+  isTemporary = false,
   now = Date.now,
   scheduleExpiration = (callback, delayMs) =>
     globalThis.setTimeout(callback, delayMs),
@@ -56,11 +56,11 @@ export function createInMemoryConversationPersistence({
   return {
     async initialize(input) {
       await clearExpired();
-      if (temporary && currentId) {
+      if (isTemporary && currentId) {
         const current = snapshots.get(currentId);
         return current ? structuredClone(current) : null;
       }
-      const expiresAt = temporary
+      const expiresAt = isTemporary
         ? new Date(now() + TEMPORARY_CONVERSATION_LIFETIME_MS).toISOString()
         : null;
       const snapshot = emptyConversationSnapshot({
@@ -69,7 +69,7 @@ export function createInMemoryConversationPersistence({
         expiresAt,
       });
       snapshots.set(input.conversationId, snapshot);
-      if (temporary) {
+      if (isTemporary) {
         currentId = input.conversationId;
         expirationHandle = scheduleExpiration(
           () => void clear(),

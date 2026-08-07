@@ -54,9 +54,9 @@ async function sendRequest(
   request: ConversationRequest,
   callbacks: ConversationStreamCallbacks,
   fetcher: typeof fetch,
-  observeOwner: boolean,
+  shouldObserveOwner: boolean,
 ): Promise<ConversationStreamResult> {
-  const observationId = observeOwner ? globalThis.crypto.randomUUID() : null;
+  const observationId = shouldObserveOwner ? globalThis.crypto.randomUUID() : null;
   const startedAt = globalThis.performance.now();
   const response = await fetcher(endpoint, {
     method: "POST",
@@ -75,15 +75,15 @@ async function sendRequest(
   }
 
   return new Promise<ConversationStreamResult>((resolve, reject) => {
-    let responseSettled = false;
-    let firstDeltaObserved = false;
+    let isResponseSettled = false;
+    let isFirstDeltaObserved = false;
     void (async () => {
       try {
         for await (const event of parseConversationEvents(response.body!)) {
           if (event.type === CONVERSATION_STREAM_EVENT_TYPES.assistantDelta) {
             callbacks.onAssistantDelta?.(event.delta);
-            if (observationId && !firstDeltaObserved) {
-              firstDeltaObserved = true;
+            if (observationId && !isFirstDeltaObserved) {
+              isFirstDeltaObserved = true;
               recordClientObservation(fetcher, {
                 observationId,
                 operation: "conversation_first_token",
@@ -92,7 +92,7 @@ async function sendRequest(
               });
             }
           } else if (event.type === CONVERSATION_STREAM_EVENT_TYPES.assistantCompleted) {
-            responseSettled = true;
+            isResponseSettled = true;
             if (observationId) {
               recordClientObservation(fetcher, {
                 observationId,
@@ -111,20 +111,20 @@ async function sendRequest(
             callbacks.onIdeaMapFailed?.(event.message);
           } else if (
             event.type === CONVERSATION_STREAM_EVENT_TYPES.failed &&
-            !responseSettled
+            !isResponseSettled
           ) {
             reject(new ConversationRequestError(event.code, event.message));
             return;
           }
         }
-        if (!responseSettled) {
+        if (!isResponseSettled) {
           reject(new ConversationRequestError(
             "conversation_request_failed",
             "The conversation stream ended before the response was retained.",
           ));
         }
       } catch (error) {
-        if (!responseSettled) reject(error);
+        if (!isResponseSettled) reject(error);
       }
     })();
   });
@@ -137,8 +137,8 @@ async function* parseConversationEvents(
   const decoder = new TextDecoder();
   let buffer = "";
   while (true) {
-    const { done, value } = await reader.read();
-    buffer += decoder.decode(value, { stream: !done });
+    const { done: isDone, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !isDone });
     let boundary = buffer.indexOf("\n\n");
     while (boundary !== -1) {
       const frame = buffer.slice(0, boundary);
@@ -149,7 +149,7 @@ async function* parseConversationEvents(
       if (data) yield JSON.parse(data) as ConversationStreamEvent;
       boundary = buffer.indexOf("\n\n");
     }
-    if (done) break;
+    if (isDone) break;
   }
 }
 

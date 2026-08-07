@@ -67,7 +67,7 @@ describe("ConversationMessageList", () => {
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
 
     render(<ConversationMessageList
-      animateLatestAssistant
+      shouldAnimateLatestAssistant
       messages={[{
         role: "assistant",
         content: "This arrived in one large chunk and should remain buffered beyond one second.",
@@ -115,7 +115,7 @@ describe("ConversationMessageList", () => {
   it("shows canonical text immediately when reduced motion is preferred", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: true }));
     render(<ConversationMessageList
-      animateLatestAssistant
+      shouldAnimateLatestAssistant
       messages={[{ role: "assistant", content: "Canonical response." }]}
     />);
 

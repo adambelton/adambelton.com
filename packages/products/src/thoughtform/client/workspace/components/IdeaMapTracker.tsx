@@ -125,24 +125,24 @@ function IdeaRow({
           </div>
         ) : null}
         <div className="flex flex-wrap gap-3">
-          {idea.disposition !== IDEA_DISPOSITIONS.focused ? <ActionButton disabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.focus)}>Focus</ActionButton> : null}
-          {idea.disposition !== IDEA_DISPOSITIONS.satisfied ? <ActionButton disabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.satisfy)}>Satisfied for now</ActionButton> : null}
-          {idea.disposition !== IDEA_DISPOSITIONS.parked ? <ActionButton disabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.park)}>Park</ActionButton> : null}
-          {idea.disposition !== IDEA_DISPOSITIONS.dismissed ? <ActionButton disabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.dismiss)}>Dismiss</ActionButton> : null}
-          {REOPENABLE_IDEA_DISPOSITIONS.has(idea.disposition) ? <ActionButton disabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.reopen)}>Reopen</ActionButton> : null}
-          <ActionButton disabled={isBusy} onClick={() => setIsCorrecting((current) => !current)}>Correct</ActionButton>
+          {idea.disposition !== IDEA_DISPOSITIONS.focused ? <ActionButton isDisabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.focus)}>Focus</ActionButton> : null}
+          {idea.disposition !== IDEA_DISPOSITIONS.satisfied ? <ActionButton isDisabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.satisfy)}>Satisfied for now</ActionButton> : null}
+          {idea.disposition !== IDEA_DISPOSITIONS.parked ? <ActionButton isDisabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.park)}>Park</ActionButton> : null}
+          {idea.disposition !== IDEA_DISPOSITIONS.dismissed ? <ActionButton isDisabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.dismiss)}>Dismiss</ActionButton> : null}
+          {REOPENABLE_IDEA_DISPOSITIONS.has(idea.disposition) ? <ActionButton isDisabled={isBusy} onClick={() => action(IDEA_ACTION_TYPES.reopen)}>Reopen</ActionButton> : null}
+          <ActionButton isDisabled={isBusy} onClick={() => setIsCorrecting((isCurrent) => !isCurrent)}>Correct</ActionButton>
         </div>
         {isCorrecting ? (
           <form
             className="grid gap-2"
             onSubmit={async (event) => {
               event.preventDefault();
-              const saved = await onAction(idea.id, {
+              const wasCorrectionSaved = await onAction(idea.id, {
                 action: IDEA_ACTION_TYPES.correct,
                 expectedRevision: ideaMapRevision,
                 userInterpretation: correction,
               });
-              if (saved) setIsCorrecting(false);
+              if (wasCorrectionSaved) setIsCorrecting(false);
             }}
           >
             <label className="font-medium" htmlFor={`idea-correction-${idea.id}`}>Your interpretation</label>
@@ -163,10 +163,10 @@ const REOPENABLE_IDEA_DISPOSITIONS = new Set<IdeaDisposition>([
 
 interface ActionButtonProps {
   children: React.ReactNode;
-  disabled: boolean;
+  isDisabled: boolean;
   onClick: () => void;
 }
 
-function ActionButton({ children, disabled, onClick }: ActionButtonProps) {
-  return <button className="underline decoration-[var(--line)] underline-offset-4" disabled={disabled} onClick={onClick} type="button">{children}</button>;
+function ActionButton({ children, isDisabled, onClick }: ActionButtonProps) {
+  return <button className="underline decoration-[var(--line)] underline-offset-4" disabled={isDisabled} onClick={onClick} type="button">{children}</button>;
 }

@@ -50,7 +50,7 @@ export function createConversationStoreResolver(configuration: {
     let currentConversationId: string | null = null;
     const store = createConversationStore(
       createInMemoryConversationPersistence({
-        temporary: true,
+        isTemporary: true,
         onClear: async (conversationId) => {
           currentConversationId = null;
           const content = configuration.temporaryWorkspaceContent?.(
@@ -62,7 +62,7 @@ export function createConversationStoreResolver(configuration: {
         },
       }),
       {
-        initializeOnAppend: true,
+        shouldInitializeOnAppend: true,
         createId: () => {
           currentConversationId ??= globalThis.crypto.randomUUID();
           return currentConversationId;

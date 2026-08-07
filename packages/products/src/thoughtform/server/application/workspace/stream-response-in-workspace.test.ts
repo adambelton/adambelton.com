@@ -15,7 +15,7 @@ describe("streamResponseInWorkspace", () => {
   it("streams and retains the assistant before independently retaining the Idea Map", async () => {
     const backingStore = createConversationStore(
       new TestConversationPersistence(),
-      { initializeOnAppend: true, createId: () => "conversation-1" },
+      { shouldInitializeOnAppend: true, createId: () => "conversation-1" },
     );
     let appendCount = 0;
     const conversations = {
@@ -82,7 +82,7 @@ describe("streamResponseInWorkspace", () => {
   it("keeps a retained assistant turn when Idea Map analysis fails", async () => {
     const conversations = createConversationStore(
       new TestConversationPersistence(),
-      { initializeOnAppend: true, createId: () => "conversation-1" },
+      { shouldInitializeOnAppend: true, createId: () => "conversation-1" },
     );
     const events = [];
     for await (const event of streamResponseInWorkspace({
@@ -116,7 +116,7 @@ describe("streamResponseInWorkspace", () => {
   it("reports a recoverable conflict instead of overwriting a newer Idea Map revision", async () => {
     const backingStore = createConversationStore(
       new TestConversationPersistence(),
-      { initializeOnAppend: true, createId: () => "conversation-1" },
+      { shouldInitializeOnAppend: true, createId: () => "conversation-1" },
     );
     const events = [];
     for await (const event of streamResponseInWorkspace({

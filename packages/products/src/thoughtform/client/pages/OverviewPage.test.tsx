@@ -52,7 +52,7 @@ describe("ThoughtForm overview page", () => {
     const markup = renderToStaticMarkup(
       <OverviewPage
         accessLevel={ACCESS_LEVELS.demo}
-        components={{ ...components, temporaryWorkspaceAvailable: true }}
+        components={{ ...components, isTemporaryWorkspaceAvailable: true }}
       />,
     );
 

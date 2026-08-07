@@ -147,13 +147,13 @@ describe("ThoughtForm conversations route", () => {
   });
 
   it("does not invoke the model for an unknown persistent conversation", async () => {
-    let modelWasCalled = false;
+    let wasModelCalled = false;
     const route = createConversationsRoute({
       getPersistentConversationStore: async () =>
         createPersistentConversationStore(),
       conversationService: {
         async respond(request) {
-          modelWasCalled = true;
+          wasModelCalled = true;
           return new ConversationService().respond(request);
         },
       },
@@ -166,7 +166,7 @@ describe("ThoughtForm conversations route", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(modelWasCalled).toBe(false);
+    expect(wasModelCalled).toBe(false);
   });
 
   it("hides persistent response operations without an owner store", async () => {
@@ -224,13 +224,13 @@ describe("ThoughtForm conversations route", () => {
       status: 503,
     },
   ])("returns $code without appending a persistent turn", async ({ error, code, status }) => {
-    let appendWasCalled = false;
+    let wasAppendCalled = false;
     const store = createPersistentConversationStore();
     const route = createConversationsRoute({
       getPersistentConversationStore: async () => ({
         ...store,
         appendConversationTurn: async () => {
-          appendWasCalled = true;
+          wasAppendCalled = true;
           return { status: "retained" };
         },
       }),
@@ -252,7 +252,7 @@ describe("ThoughtForm conversations route", () => {
       ok: false,
       error: { code },
     });
-    expect(appendWasCalled).toBe(false);
+    expect(wasAppendCalled).toBe(false);
   });
 });
 

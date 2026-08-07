@@ -152,7 +152,7 @@ export async function* streamResponseInWorkspace(input: {
     conversationId,
     originalIdeaMap: workspace.ideaMap,
     analysis: analysed.analysis,
-    ignoreChanges: Boolean(input.draftChange),
+    shouldIgnoreChanges: Boolean(input.draftChange),
     observability,
   });
   if (mapResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
@@ -210,7 +210,7 @@ async function retainAnalysisAgainstLatestMap(input: {
   conversationId: string;
   originalIdeaMap: IdeaMap;
   analysis: IdeaMapAnalysis;
-  ignoreChanges: boolean;
+  shouldIgnoreChanges: boolean;
   observability: Observability;
 }): Promise<
   | { status: typeof CONVERSATION_TURN_RETENTION_STATUSES.retained; ideaMap: IdeaMap }
@@ -233,7 +233,7 @@ async function retainAnalysisAgainstLatestMap(input: {
           latest: latest.ideaMap,
           analysis: input.analysis,
         }),
-        ignoreChanges: input.ignoreChanges,
+        shouldIgnoreChanges: input.shouldIgnoreChanges,
       }),
     );
     if (ideaMap.revision === latest.ideaMap.revision) {
@@ -266,7 +266,7 @@ function safeAnalysisAgainstLatest(input: {
 }): IdeaMapAnalysis {
   const originalIdeas = new Map(input.original.ideas.map((idea) => [idea.id, idea]));
   const latestIdeas = new Map(input.latest.ideas.map((idea) => [idea.id, idea]));
-  const unchangedIdea = (ideaId: string) => originalIdeas.has(ideaId) &&
+  const isIdeaUnchanged = (ideaId: string) => originalIdeas.has(ideaId) &&
     latestIdeas.has(ideaId) &&
     JSON.stringify(originalIdeas.get(ideaId)) === JSON.stringify(latestIdeas.get(ideaId));
   const originalConflicts = new Map(
@@ -278,9 +278,9 @@ function safeAnalysisAgainstLatest(input: {
 
   return {
     proposedIdeas: input.analysis.proposedIdeas?.filter((idea) =>
-      idea.id === null || unchangedIdea(idea.id)) ?? null,
+      idea.id === null || isIdeaUnchanged(idea.id)) ?? null,
     proposedIdeaActions: input.analysis.proposedIdeaActions?.filter((action) =>
-      unchangedIdea(action.ideaId)) ?? null,
+      isIdeaUnchanged(action.ideaId)) ?? null,
     resolvedPotentialConflictIds: input.analysis.resolvedPotentialConflictIds?.filter(
       (conflictId) => JSON.stringify(originalConflicts.get(conflictId)) ===
         JSON.stringify(latestConflicts.get(conflictId)),

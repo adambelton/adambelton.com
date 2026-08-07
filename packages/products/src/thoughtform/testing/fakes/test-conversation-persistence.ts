@@ -66,7 +66,7 @@ export class TestConversationPersistence implements ConversationPersistence {
 export function createTestConversationStore() {
   let conversationId: string | null = null;
   return createConversationStore(new TestConversationPersistence(), {
-    initializeOnAppend: true,
+    shouldInitializeOnAppend: true,
     createId: () => {
       conversationId ??= globalThis.crypto.randomUUID();
       return conversationId;

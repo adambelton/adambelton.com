@@ -265,14 +265,14 @@ function parseGroundedIdeas(
     if (!Array.isArray(record.evidence) || typeof record.substance !== "string") {
       return false;
     }
-    const validEvidence = record.evidence.length > 0 && record.evidence.every((item) => {
+    const isEvidenceValid = record.evidence.length > 0 && record.evidence.every((item) => {
       if (!item || typeof item !== "object" || !("quote" in item)) return false;
       const quote = (item as { quote?: unknown }).quote;
       return typeof quote === "string" && quote.trim().length > 0 &&
         userSources.some((source) => source.includes(quote.trim()));
     });
     const substance = record.substance.toLocaleLowerCase();
-    return validEvidence && [...assistantOnlyHyphenatedWords].every(
+    return isEvidenceValid && [...assistantOnlyHyphenatedWords].every(
       (word) => !substance.includes(word),
     );
   });

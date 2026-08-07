@@ -21,11 +21,11 @@ import {
 const port = Number(process.env.PORT ?? 8788);
 let conversationStore = createTestConversationStore();
 let draftStore = createDraftStore(new TestDraftPersistence());
-let useConversationalThinkingScenario = false;
+let shouldUseConversationalThinkingScenario = false;
 const discoveryModel = createDiscoveryTestModel();
 const conversationService = new ConversationService({
   conversationModel: {
-    createResponse: (request) => useConversationalThinkingScenario
+    createResponse: (request) => shouldUseConversationalThinkingScenario
       ? Promise.resolve(createConversationalThinkingResponse(request))
       : hasAttachedDraftMaterial(request.context)
       ? Promise.resolve({ content: JSON.stringify({
@@ -41,7 +41,7 @@ const conversationService = new ConversationService({
 });
 const ideaMapAnalysis = new IdeaMapAnalysisService({
   async createAnalysis(request) {
-    const combined = useConversationalThinkingScenario
+    const combined = shouldUseConversationalThinkingScenario
       ? await createConversationalThinkingResponse(request as ConversationModelRequest)
       : hasAttachedDraftMaterial(request.context)
         ? { content: JSON.stringify({
@@ -80,14 +80,14 @@ app.get("/products/thoughtform/ai-disclosure", (context) => context.json({
 app.post("/testing/reset", (context) => {
   conversationStore = createTestConversationStore();
   draftStore = createDraftStore(new TestDraftPersistence());
-  useConversationalThinkingScenario = false;
+  shouldUseConversationalThinkingScenario = false;
   return context.json({ ok: true });
 });
 
 app.post("/testing/conversational-thinking", (context) => {
   conversationStore = createTestConversationStore();
   draftStore = createDraftStore(new TestDraftPersistence());
-  useConversationalThinkingScenario = true;
+  shouldUseConversationalThinkingScenario = true;
   return context.json({ ok: true });
 });
 
