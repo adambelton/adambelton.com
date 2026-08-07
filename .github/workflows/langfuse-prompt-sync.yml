@@ -1,0 +1,92 @@
+name: Langfuse prompt fallback sync
+
+on:
+  repository_dispatch:
+    types: [langfuse-prompt-review]
+  workflow_dispatch:
+    inputs:
+      prompt_name:
+        description: Known ThoughtForm prompt name
+        required: true
+        type: string
+      prompt_version:
+        description: Immutable Langfuse prompt version
+        required: true
+        type: number
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-fallback-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+      LANGFUSE_PROMPT_NAME: ${{ github.event.client_payload.prompt.name || inputs.prompt_name }}
+      LANGFUSE_PROMPT_VERSION: ${{ github.event.client_payload.prompt.version || inputs.prompt_version }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch and validate immutable review version
+        run: pnpm update:thoughtform-prompt-fallback
+
+      - name: Validate generated fallback and repository
+        run: |
+          pnpm validate:thoughtform-prompts
+          pnpm test
+          pnpm typecheck
+          pnpm build
+
+      - name: Create fallback branch
+        id: branch
+        env:
+          BRANCH_NAME: codex/langfuse-prompt-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH_NAME"
+          git add \
+            packages/products/src/thoughtform/server/capabilities/conversation/prompts \
+            packages/products/src/thoughtform/server/capabilities/drafting/prompts \
+            packages/products/src/thoughtform/server/capabilities/idea-map/prompts \
+            apps/api/src/products/thoughtform/adapters/prompts/automation/prompt-fallback-versions.json
+          git commit -m "Sync Langfuse prompt fallback"
+          git push --set-upstream origin "$BRANCH_NAME"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Open fallback review pull request
+        if: steps.branch.outputs.changed == 'true'
+        env:
+          BRANCH_NAME: ${{ steps.branch.outputs.branch }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --title "Sync $LANGFUSE_PROMPT_NAME v$LANGFUSE_PROMPT_VERSION fallback" \
+            --body "Automated fallback synchronization for reviewed Langfuse prompt \`$LANGFUSE_PROMPT_NAME\` version \`$LANGFUSE_PROMPT_VERSION\`. Production promotion occurs only after this pull request is reviewed, passes CI, and merges."

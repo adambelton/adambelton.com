@@ -2,6 +2,55 @@
 
 ## Current status
 
+The current Langfuse migration branch replaces Braintrust with manual
+Langfuse/OpenTelemetry owner tracing, native generation usage and prompt-version
+links, development/production Prompt Management labels, and repository
+fallbacks for all five active ThoughtForm prompts. Temporary workspaces retain
+no-op observability. The reviewed development prompt versions use structured
+XML contracts and are recorded by immutable version and SHA-256 fingerprint.
+Langfuse-hosted evaluations resolve the managed `development` prompts.
+Langfuse `review` events now produce fallback pull requests, and merged metadata
+promotes only exact matching versions. Local validation covers 324 tests, full
+typecheck/build, prompt/workflow validators, a byte-identical live updater
+simulation, a no-mutation promotion dry run, and Langfuse trace read-back. The
+GitHub secrets and Repository Dispatch automation still require repository
+configuration before the workflows can run remotely.
+
+### Langfuse migration completion audit
+
+- **Langfuse + OpenTelemetry tracing:** complete. The API host owns SDK setup;
+  native generation model, usage, prompt version, environment, and session data
+  were exported and read back from Langfuse.
+- **Prompt Management:** complete for the five runtime product prompts.
+  Development resolves the reviewed managed versions; production resolves its
+  label with independently updateable repository availability fallbacks. Model
+  response schemas and runtime parsers remain with their owning capabilities.
+- **Fallback synchronization:** complete in code. Known-name, immutable-version,
+  `review`-label, XML structure, variable, leading-newline, version, and SHA-256
+  checks precede an automated pull request. Main never receives a direct push.
+- **Post-merge promotion:** complete in code and verified by a no-mutation live
+  dry run. The workflow promotes only exact merged versions and fingerprints.
+- **Evaluation migration:** complete. Braintrust entry points and dependencies
+  are removed; Langfuse experiments use the managed development prompts while
+  repository-owned scenarios, fixtures, scores, and judge criteria remain
+  canonical.
+- **Privacy boundary:** complete. Temporary workspaces retain no-op
+  observability for conversation, Idea Map, composition, revision, and saved
+  change interpretation; owner persistent operations receive the host adapter.
+- **Validation:** 324 tests, full typecheck and build, three isolated browser
+  journeys, current database migration status, mounted client/API HTTP checks,
+  prompt/workflow validation, live updater idempotency, unknown-name rejection,
+  live prompt resolution, and Langfuse trace read-back passed. A mounted owner
+  walkthrough exercised Discovery, Idea Map analysis, Draft composition,
+  revision proposal, and saved-change interpretation; Langfuse recorded the
+  exact development prompt versions `2`, `2`, `3`, `3`, and `3` with native
+  usage. A separate temporary-workspace walkthrough exercised the same product
+  surfaces without producing a matching Langfuse trace.
+- **External activation:** the three Langfuse GitHub Actions secrets are
+  configured. Langfuse Repository Dispatch configuration remains pending; the
+  sync workflow uses GitHub's temporary built-in token and no long-lived
+  prompt-sync repository credential.
+
 The public website is live at `https://adambelton.com` on one persistent Railway
 service in Europe West. Railway serves the Vite site and same-origin API/auth
 boundaries, reports a healthy deployment, and has applied the committed initial

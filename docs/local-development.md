@@ -101,21 +101,74 @@ website and API can continue running. An unknown provider also fails closed. The
 application does not silently fall back between providers and never substitutes
 fake conversation responses for disabled or missing hosted configuration.
 
-## Owner Evaluation Tracing
+## Langfuse Prompts And Owner Evaluation Tracing
 
-Braintrust tracing is optional and applies only to owner persistent-conversation
-operations and explicitly run synthetic evaluations. Temporary demo operations
-emit no Braintrust traces. Configure both required values to enable owner traces:
+Langfuse is used in development for Prompt Management and for owner
+persistent-workspace tracing. Temporary demo operations fetch the same managed
+prompts but emit no Langfuse traces or request metadata. Configure all three
+required values:
 
 ```txt
-BRAINTRUST_API_KEY="replace-with-braintrust-api-key"
-BRAINTRUST_PROJECT="ThoughtForm"
-BRAINTRUST_ENVIRONMENT="development"
+LANGFUSE_PUBLIC_KEY="replace-with-langfuse-public-key"
+LANGFUSE_SECRET_KEY="replace-with-langfuse-secret-key"
+LANGFUSE_BASE_URL="https://cloud.langfuse.com"
+LANGFUSE_TRACING_ENVIRONMENT="development"
 ```
 
 Owner traces contain evaluation-relevant conversation and generated workspace
-content. They use Braintrust's retention independently of Neon; deleting a local
+content. They use Langfuse retention independently of Neon; deleting a local
 conversation does not currently delete its evaluation trace.
+
+Development fetches each prompt by the `development` label without a client
+cache so prompt changes can be tested without moving `production`. Production
+fetches `production` with the SDK cache. Both use the reviewed repository text
+as the availability fallback. A production prompt promotion is incomplete until
+the matching repository fallback is updated and synchronized:
+
+```txt
+pnpm sync:thoughtform-prompts
+```
+
+That command creates or updates only the `development` version and cannot
+promote production. Use Langfuse's `development` label for experimental
+versions; the reviewed pull-request workflow below is the sole repository-owned
+path to `production`.
+
+### Automated fallback pull requests
+
+The normal shared workflow starts in Langfuse rather than with the manual sync
+command:
+
+1. Test an immutable prompt version under `development`.
+2. Assign that version the `review` label.
+3. Langfuse sends a GitHub Repository Dispatch event of type
+   `langfuse-prompt-review`.
+4. `.github/workflows/langfuse-prompt-sync.yml` fetches that exact version,
+   validates it, updates its named fallback and fingerprint metadata, runs the
+   repository checks, and opens a `codex/langfuse-prompt-*` pull request.
+5. Ordinary pull-request CI and human review remain required.
+6. Once the fallback metadata reaches `main`,
+   `.github/workflows/langfuse-prompt-promote.yml` verifies every immutable
+   version and fingerprint again before moving `production`.
+
+The updater accepts only the five catalogued `thoughtform/*` names, text prompts
+with the established XML structure and leading newline, the existing variable
+contract, and versions carrying `review`. It never commits directly to `main`.
+
+Configure the following GitHub Actions secrets:
+
+```txt
+LANGFUSE_PUBLIC_KEY
+LANGFUSE_SECRET_KEY
+LANGFUSE_BASE_URL
+```
+
+The sync workflow uses GitHub's temporary built-in workflow token to push its
+branch and open the pull request. GitHub may require manual approval before CI
+runs on a pull request created by that token. Configure a Langfuse GitHub
+Repository Dispatch automation using a separate narrowly scoped credential with
+only the repository access needed to dispatch the event. Do not use that
+credential in application runtime configuration.
 
 Run the normal project checks:
 
@@ -138,20 +191,25 @@ Run it only when paid hosted model usage is intended:
 RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform
 ```
 
-The Braintrust-hosted evaluation runs the complete ten-turn synthetic FIFA
+The Langfuse-hosted evaluation runs the complete ten-turn synthetic FIFA
 accountability conversation through Claude Sonnet. It records complete inputs,
 outputs, per-turn Idea Maps, latency and usage metrics, and deterministic scores
 for structured output, readiness, final reflection intention, first-person
 canonical material, idea identity, conceptual coverage, unresolved practical
 tension, and one-question discipline:
 
+All Langfuse-hosted evaluation entry points resolve the `development` versions
+of the product prompts, so experiments measure the versions being considered
+for promotion rather than silently measuring repository fallbacks. Their
+LLM-as-judge instructions remain repository-owned evaluation criteria.
+
 ```txt
-RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-braintrust
+RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-langfuse
 ```
 
-It additionally requires `ANTHROPIC_API_KEY`, `BRAINTRUST_API_KEY`, and the exact
-case-sensitive `BRAINTRUST_PROJECT` name. Both evaluation commands incur hosted
-model usage and must be run only with explicit approval. The Braintrust command
+It additionally requires `ANTHROPIC_API_KEY` and the three Langfuse values.
+Both evaluation commands incur hosted model usage and must be run only with
+explicit approval. The Langfuse command
 uses only the repository-owned synthetic FIFA fixture; do not add personal
 conversation material to broaden the evaluation dataset.
 
@@ -204,7 +262,7 @@ RUN_HOSTED_EVALUATIONS=true pnpm evaluate:thoughtform-plain-text
 The default completion protocol uses only the synthetic ten-turn FIFA fixture,
 runs three alternating paired repetitions (30 conversation calls per variant),
 waits 310 seconds before the first pair and between pairs, and applies the same
-Braintrust quality judge to both variants. Development-only repetition, turn,
+Langfuse-hosted quality judge to both variants. Development-only repetition, turn,
 and wait overrides are available through the `PLAIN_TEXT_*` environment
 variables; they do not satisfy the completion protocol.
 

@@ -31,6 +31,8 @@ describe("ConversationService", () => {
       observe: (_name, _attributes, operation) => operation(),
       record() {},
       recordContent: (content) => contents.push(content),
+      recordPrompt() {},
+      recordGeneration() {},
     };
     const service = new ConversationService({
       observability,

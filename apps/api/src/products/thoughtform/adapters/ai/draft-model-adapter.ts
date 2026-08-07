@@ -9,30 +9,38 @@ import type {
   RevisionProposalModel,
   RevisionProposalModelInput,
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
+import {
+  DRAFT_COMPOSITION_PROMPT_DEFINITION,
+} from "packages/products/src/thoughtform/server/capabilities/drafting/prompts/draft-composition-prompt";
+import {
+  REVISION_PROPOSAL_PROMPT_DEFINITION,
+} from "packages/products/src/thoughtform/server/capabilities/drafting/prompts/revision-proposal-prompt";
+import {
+  fallbackThoughtFormPromptProvider,
+  type ThoughtFormPromptProvider,
+} from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
+import {
+  noOpObservability,
+  type Observability,
+} from "packages/observability/src";
 
 export class LlmDraftModelAdapter
   implements DraftCompositionModel, RevisionProposalModel
 {
-  constructor(private readonly llmClient: LlmClient) {}
+  constructor(
+    private readonly llmClient: LlmClient,
+    private readonly promptProvider: ThoughtFormPromptProvider =
+      fallbackThoughtFormPromptProvider,
+    private readonly observability: Observability = noOpObservability,
+  ) {}
 
   async compose(input: DraftCompositionModelInput) {
+    const prompt = await this.promptProvider.getPrompt(
+      DRAFT_COMPOSITION_PROMPT_DEFINITION,
+    );
     const response = await createDraftMessage(this.llmClient, {
       maxTokens: 8_192,
-      system: [
-        "Create the minimum coherent private articulation of only the supplied user-established material, in the user's own voice and perspective.",
-        "The result is the user's expression itself, never a report, analysis, diagnosis, or therapeutic interpretation of the user, conversation, or workspace.",
-        "Write in first person. Never write phrases such as 'the user reports', 'the user says', 'exact user language', or other provenance commentary.",
-        "Choose only as much shape as coherence requires: one sentence, a paragraph, a list, or a longer account. Do not lengthen, smooth, or conclude merely to make the result seem complete.",
-        "Find a deliberate throughline across the selected ideas. Order and connect related material so the draft reads as one articulation, not as concatenated idea summaries.",
-        "Every claim, contrast, and implication must be entailed by the supplied material. Connective wording may organise established meaning but must not add a new motive, metaphor, judgment, tension, conclusion, or description merely to make the draft flow.",
-        "Faithfully preserve uncertainty, mixed feelings, intentional contradictions, provisional conclusions, and unresolved questions. Never manufacture resolution, confidence, causes, or advice.",
-        "Do not quote the user's language merely to show that it came from them; integrate useful language naturally unless an actual quotation belongs in the requested piece.",
-        "The input field names are context, not headings. Never expose labels or sections such as Synthesis, Substance, Assistant assessment, Importance, Exploration, Disposition, User interpretation, or Unresolved questions.",
-        "The input contains established idea material only. Do not invent, reproduce, or answer idea-map questions.",
-        "Do not mention the assistant, the model, the idea map, readiness, assessment, provenance, or selection mechanics.",
-        "Follow the explicit instruction, including requests for deliberately early or rough writing.",
-        "Return structured JSON.",
-      ].join(" "),
+      system: prompt.content,
       messages: [{ role: "user", content: JSON.stringify(input) }],
       outputFormat: {
         name: "thoughtform_composition",
@@ -43,20 +51,19 @@ export class LlmDraftModelAdapter
           additionalProperties: false,
         },
       },
-    });
+    }, this.observability, "thoughtform.provider.compose_draft", prompt.reference);
     const parsed = parseObject(response.content);
     if (typeof parsed.body !== "string") throw new HostedAiUnavailableError();
     return { body: parsed.body };
   }
 
   async propose(input: RevisionProposalModelInput) {
+    const prompt = await this.promptProvider.getPrompt(
+      REVISION_PROPOSAL_PROMPT_DEFINITION,
+    );
     const response = await createDraftMessage(this.llmClient, {
       maxTokens: 8_192,
-      system: [
-        "Prepare an exact bounded revision proposal without changing canonical content.",
-        "Return only replacement content for the requested scope and a concise intended effect.",
-        "Do not add unsupported meaning. Return structured JSON.",
-      ].join(" "),
+      system: prompt.content,
       messages: [{ role: "user", content: JSON.stringify(input) }],
       outputFormat: {
         name: "thoughtform_revision_proposal",
@@ -70,7 +77,7 @@ export class LlmDraftModelAdapter
           additionalProperties: false,
         },
       },
-    });
+    }, this.observability, "thoughtform.provider.propose_revision", prompt.reference);
     const parsed = parseObject(response.content);
     if (
       typeof parsed.proposedContent !== "string" ||
@@ -110,9 +117,26 @@ function parseObject(content: string): Record<string, unknown> {
 async function createDraftMessage(
   llmClient: LlmClient,
   request: Parameters<LlmClient["createMessage"]>[0],
+  observability: Observability,
+  observationName: string,
+  prompt: Parameters<Observability["recordPrompt"]>[0],
 ) {
   try {
-    return await llmClient.createMessage(request);
+    return await observability.observe(observationName, {}, async () => {
+      observability.recordPrompt(prompt);
+      observability.recordContent({ input: request });
+      const response = await llmClient.createMessage(request);
+      observability.recordGeneration({
+        model: response.model,
+        inputTokens: response.inputTokens,
+        outputTokens: response.outputTokens,
+        reasoningTokens: response.reasoningTokens,
+        cacheReadTokens: response.cacheReadTokens,
+        cacheWriteTokens: response.cacheWriteTokens,
+      });
+      observability.recordContent({ output: response.content });
+      return response;
+    });
   } catch (error) {
     if (
       error instanceof HostedAiDisabledError ||

@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parseEnv } from "node:util";
-import { Eval, wrapAnthropic } from "braintrust";
+import { runLangfuseEvaluation } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation";
+import { createLangfuseEvaluationPromptProvider } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation-prompt-provider";
 import {
   AnthropicLlmClient,
   DEFAULT_ANTHROPIC_MODEL,
@@ -37,7 +38,7 @@ import {
   unresolvedPracticalTensionScore,
   type EvaluatedFifaTurn,
   type FifaConversationEvaluation,
-} from "packages/products/src/thoughtform/testing/evaluations/braintrust-fifa-scores";
+} from "packages/products/src/thoughtform/testing/evaluations/fifa-evaluation-scores";
 import {
   summariseHostedConversationEvaluation,
   type HostedConversationTurnMetrics,
@@ -62,11 +63,9 @@ if (process.env.RUN_HOSTED_EVALUATIONS !== ENABLED_VALUE) {
 if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error("ANTHROPIC_API_KEY is required.");
 }
-if (!process.env.BRAINTRUST_API_KEY) {
-  throw new Error("BRAINTRUST_API_KEY is required.");
-}
-if (!process.env.BRAINTRUST_PROJECT) {
-  throw new Error("BRAINTRUST_PROJECT is required.");
+if (!process.env.LANGFUSE_PUBLIC_KEY || !process.env.LANGFUSE_SECRET_KEY ||
+  !process.env.LANGFUSE_BASE_URL) {
+  throw new Error("Langfuse credentials and LANGFUSE_BASE_URL are required.");
 }
 
 const modelName = process.env.ANTHROPIC_MODEL ?? DEFAULT_ANTHROPIC_MODEL;
@@ -74,10 +73,10 @@ const client = new AnthropicLlmClient({
   apiKey: process.env.ANTHROPIC_API_KEY,
   effort: EVALUATION_ANTHROPIC_EFFORT,
   model: modelName,
-  decorateClient: wrapAnthropic,
 });
+const promptProvider = createLangfuseEvaluationPromptProvider();
 
-await Eval(process.env.BRAINTRUST_PROJECT, {
+await runLangfuseEvaluation({
   data: [{
     input: {
       scenarioId: scenario.id,
@@ -89,7 +88,7 @@ await Eval(process.env.BRAINTRUST_PROJECT, {
       minimumTurns: scenario.turns.length,
     },
   }],
-  experimentName: process.env.BRAINTRUST_EXPERIMENT,
+  experimentName: process.env.LANGFUSE_EXPERIMENT,
   metadata: {
     evaluation: "thoughtform-fifa-sustained-conversation",
     effort: EVALUATION_ANTHROPIC_EFFORT,
@@ -149,8 +148,12 @@ async function runFifaConversation(
   const models = createMeasuredModels(llmClient);
   const conversationService = new ConversationService({
     conversationModel: models.conversation,
+    promptProvider,
   });
-  const ideaMapAnalysis = new IdeaMapAnalysisService(models.ideaMap);
+  const ideaMapAnalysis = new IdeaMapAnalysisService(
+    models.ideaMap,
+    promptProvider,
+  );
   const conversations = createTestConversationStore();
   const conversationId = (await conversations.createConversation()).id;
   const turns: EvaluatedFifaTurn[] = [];

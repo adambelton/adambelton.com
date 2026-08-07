@@ -37,6 +37,9 @@ export class LlmIdeaMapAnalysisModelAdapter implements IdeaMapAnalysisModel {
           ).byteLength,
         },
         async () => {
+          if (request.promptReference) {
+            this.observability.recordPrompt(request.promptReference);
+          }
           this.observability.recordContent({ input: request });
           const response = await this.llmClient.createMessage({
             maxTokens: request.maxOutputTokens,
@@ -45,13 +48,15 @@ export class LlmIdeaMapAnalysisModelAdapter implements IdeaMapAnalysisModel {
             context: request.context,
             messages: request.messages,
           });
+          this.observability.recordGeneration({
+            model: response.model,
+            inputTokens: response.inputTokens,
+            outputTokens: response.outputTokens,
+            reasoningTokens: response.reasoningTokens,
+            cacheReadTokens: response.cacheReadTokens,
+            cacheWriteTokens: response.cacheWriteTokens,
+          });
           this.observability.record({
-            [OBSERVATION_ATTRIBUTE_NAMES.model]: response.model,
-            [OBSERVATION_ATTRIBUTE_NAMES.inputTokens]: response.inputTokens ?? 0,
-            [OBSERVATION_ATTRIBUTE_NAMES.outputTokens]: response.outputTokens ?? 0,
-            [OBSERVATION_ATTRIBUTE_NAMES.reasoningTokens]: response.reasoningTokens ?? 0,
-            [OBSERVATION_ATTRIBUTE_NAMES.cacheReadTokens]: response.cacheReadTokens ?? 0,
-            [OBSERVATION_ATTRIBUTE_NAMES.cacheWriteTokens]: response.cacheWriteTokens ?? 0,
             [OBSERVATION_ATTRIBUTE_NAMES.outputCharacters]: response.content.length,
           });
           this.observability.recordContent({ output: response.content });

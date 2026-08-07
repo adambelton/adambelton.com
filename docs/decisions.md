@@ -1117,6 +1117,45 @@ mirrors the decision only for route presentation and discoverability.
 
 Opening production demo access is not part of this decision. It remains
 deferred from Task 036 together with usage accounting, measurement, and
-enforcement. Temporary-workspace content continues to receive no Braintrust
+enforcement. Temporary-workspace content continues to receive no Langfuse
 observation, regardless of whether the authenticated user is the owner or a
 non-owner.
+
+## 058 — Langfuse Manages Prompts And Owner Evaluation Traces
+
+Decision 051's Braintrust backend and repository-only prompt source are
+superseded. ThoughtForm uses Langfuse Prompt Management plus the Langfuse
+OpenTelemetry SDK for evaluation observability. Product-owned prompt names,
+fallback content, required variables, fixtures, scenarios, and evaluation
+criteria remain in `packages/products`; the API host owns Langfuse credentials,
+SDK initialization, prompt retrieval, export policy, and access-aware adapter
+selection.
+
+Development retrieves the `development` prompt label with caching disabled so
+new versions can be exercised without promoting them. Production retrieves the
+`production` label with SDK caching. Every prompt has a repository fallback, and
+a production promotion is incomplete until that fallback is updated to the same
+content in the reviewed change. A Langfuse outage must not make an AI operation
+unavailable when its repository fallback can be used. Generation observations
+link the resolved non-fallback prompt name and version.
+
+Langfuse's `review` label triggers a GitHub Repository Dispatch automation that
+fetches the immutable version and opens a fallback pull request. It accepts only
+catalogued ThoughtForm prompts and established variables and structure. It
+cannot commit directly to `main`. Once reviewed fallback metadata reaches
+protected `main`, a separate workflow re-fetches and fingerprints the recorded
+versions before assigning `production`. Production is therefore downstream of
+repository review rather than the event that initiates synchronization.
+
+Complete evaluation-relevant content may be captured for owner persistent
+workspace operations and explicitly executed synthetic evaluation scenarios.
+Temporary-workspace operations use no-op observability and send neither content
+nor content-free request metadata to Langfuse, including in development.
+Automatic provider instrumentation remains prohibited because owner and
+temporary operations share hosted AI infrastructure. Manual instrumentation at
+the access-aware product mount preserves that boundary.
+
+Langfuse export is disabled unless its public key, secret key, and base URL are
+all explicit. Export or prompt-service failure must not change the result of a
+user operation. Langfuse retention remains independent of Neon persistence;
+deleting an owner conversation does not currently delete its evaluation traces.

@@ -1,4 +1,5 @@
 import type { ConversationMessage } from "packages/products/src/thoughtform/shared";
+import type { ThoughtFormPromptReference } from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
 
 export type ConversationModelRequest = {
   maxOutputTokens: number;
@@ -6,6 +7,7 @@ export type ConversationModelRequest = {
   outputFormat: ConversationModelOutputFormat;
   system: string;
   context?: string;
+  promptReference?: ThoughtFormPromptReference;
 };
 
 export interface ConversationModelOutputFormat {

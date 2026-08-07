@@ -36,6 +36,8 @@ describe("respondInWorkspace", () => {
       },
       record() {},
       recordContent() {},
+      recordPrompt() {},
+      recordGeneration() {},
     };
     const conversations = createConversationStore(
       new TestConversationPersistence(),

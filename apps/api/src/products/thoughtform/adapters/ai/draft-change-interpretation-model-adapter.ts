@@ -13,27 +13,39 @@ import {
   type DraftChangeInterpretationType,
   type PotentialConflictScope,
 } from "packages/products/src/thoughtform/shared";
+import {
+  SAVED_CHANGE_INTERPRETATION_PROMPT_DEFINITION,
+} from "packages/products/src/thoughtform/server/capabilities/drafting/prompts/saved-change-interpretation-prompt";
+import {
+  fallbackThoughtFormPromptProvider,
+  type ThoughtFormPromptProvider,
+} from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
+import { noOpObservability, type Observability } from "packages/observability/src";
 
 export class LlmDraftChangeInterpretationModelAdapter
   implements DraftChangeInterpretationModel
 {
-  constructor(private readonly llmClient: LlmClient) {}
+  constructor(
+    private readonly llmClient: LlmClient,
+    private readonly promptProvider: ThoughtFormPromptProvider =
+      fallbackThoughtFormPromptProvider,
+    private readonly observability: Observability = noOpObservability,
+  ) {}
 
   async interpret(input: DraftChangeInterpretationModelInput) {
     try {
-      const response = await this.llmClient.createMessage({
+      const prompt = await this.promptProvider.getPrompt(
+        SAVED_CHANGE_INTERPRETATION_PROMPT_DEFINITION,
+      );
+      const response = await this.observability.observe(
+        "thoughtform.provider.interpret_saved_change",
+        {},
+        async () => {
+          this.observability.recordPrompt(prompt.reference);
+          this.observability.recordContent({ input });
+          const result = await this.llmClient.createMessage({
         maxTokens: 1_024,
-        system: [
-          "Interpret one exact saved draft change conservatively.",
-          "Classify it as composition, conceptual_change, or structural_change; obvious textual maintenance has already been removed.",
-          "Write a brief provisional assistant response, preferably testing language in the user's voice, while making uncertainty explicit.",
-          "Keep the assistant response under 80 words.",
-          "Never claim the interpretation is established and never propose canonical idea changes.",
-          "Potential conflicts are only for known user-established material that appears incompatible, not unanswered questions or mere possibilities.",
-          "A conflict may be within_idea, between_ideas, or saved_edit and must reference existing idea ids.",
-          "Return at most one conflict. Keep its summary under 12 words and explanation under 40 words.",
-          "Return structured JSON.",
-        ].join(" "),
+        system: prompt.content,
         messages: [{ role: "user", content: JSON.stringify(input) }],
         outputFormat: {
           name: "thoughtform_saved_edit_interpretation",
@@ -62,7 +74,19 @@ export class LlmDraftChangeInterpretationModelAdapter
             additionalProperties: false,
           },
         },
-      });
+          });
+          this.observability.recordGeneration({
+            model: result.model,
+            inputTokens: result.inputTokens,
+            outputTokens: result.outputTokens,
+            reasoningTokens: result.reasoningTokens,
+            cacheReadTokens: result.cacheReadTokens,
+            cacheWriteTokens: result.cacheWriteTokens,
+          });
+          this.observability.recordContent({ output: result.content });
+          return result;
+        },
+      );
       return parseInterpretation(response.content);
     } catch (error) {
       if (error instanceof HostedAiUnavailableError) throw error;

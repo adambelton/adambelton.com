@@ -82,6 +82,9 @@ export async function respondInWorkspace(input: {
     ...(input.observationCorrelationId
       ? { [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: input.observationCorrelationId }
       : {}),
+    [OBSERVATION_ATTRIBUTE_NAMES.sessionId]:
+      input.conversationId ?? input.observationCorrelationId ??
+        globalThis.crypto.randomUUID(),
   }, async () => {
   const workspace = await observability.observe("thoughtform.workspace.load", {}, async () => input.conversationId
     ? await input.conversations.getConversationWorkspace(input.conversationId)

@@ -125,6 +125,8 @@ export async function handleConversationStream(
     "thoughtform.workspace.stream_turn",
     {
       [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
+      [OBSERVATION_ATTRIBUTE_NAMES.sessionId]:
+        prepared.conversationId ?? correlationId ?? globalThis.crypto.randomUUID(),
       ...(correlationId
         ? { [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: correlationId }
         : {}),

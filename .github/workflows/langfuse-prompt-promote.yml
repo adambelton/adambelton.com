@@ -1,0 +1,41 @@
+name: Promote merged Langfuse prompts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/api/src/products/thoughtform/adapters/prompts/automation/prompt-fallback-versions.json
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+
+    steps:
+      - name: Check out merged main revision
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Revalidate merged fallbacks
+        run: pnpm validate:thoughtform-prompts
+
+      - name: Promote exact merged versions
+        run: pnpm promote:thoughtform-prompt

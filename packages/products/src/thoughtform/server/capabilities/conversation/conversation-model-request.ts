@@ -2,6 +2,7 @@ import type { ConversationMessage, IdeaMap } from "packages/products/src/thought
 import { CONVERSATION_MESSAGE_ROLES, IDEA_DISPOSITIONS } from "packages/products/src/thoughtform/shared";
 import type { ConversationModelRequest } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
 import type { ConversationServiceRequest } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-service";
+import type { ThoughtFormPromptReference } from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
 
 const MAX_CONTEXT_SUBSTANCE_CHARACTERS = 8_000;
 
@@ -22,6 +23,7 @@ export function createConversationModelRequest(input: {
   outputFormat: ConversationModelRequest["outputFormat"];
   maxOutputTokens: number;
   maxInputBytes: number;
+  promptReference?: ThoughtFormPromptReference;
 }): ConversationModelRequest {
   const { request } = input;
   const context = `<workspace_context>
@@ -44,6 +46,7 @@ ${createDraftContext(request)}
       context,
       maxInputBytes: input.maxInputBytes,
     }),
+    promptReference: input.promptReference,
   };
 }
 
