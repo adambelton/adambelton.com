@@ -3,9 +3,13 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteHeader } from "apps/client/src/ui/layout/SiteHeader";
 import { useAuthSession } from "apps/client/src/auth";
+import { useDevelopmentFeatureAccess } from "apps/client/src/platform/access/useDevelopmentFeatureAccess";
 
 vi.mock("apps/client/src/auth", () => ({
   useAuthSession: vi.fn(),
+}));
+vi.mock("apps/client/src/platform/access/useDevelopmentFeatureAccess", () => ({
+  useDevelopmentFeatureAccess: vi.fn(),
 }));
 
 describe("SiteHeader", () => {
@@ -13,12 +17,13 @@ describe("SiteHeader", () => {
     vi.mocked(useAuthSession).mockReturnValue({ data: null } as ReturnType<
       typeof useAuthSession
     >);
+    vi.mocked(useDevelopmentFeatureAccess).mockReturnValue(false);
   });
 
   it("does not advertise the private login route to anonymous visitors", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAuthentication={false} />
+        <SiteHeader />
       </MemoryRouter>,
     );
 
@@ -27,9 +32,10 @@ describe("SiteHeader", () => {
   });
 
   it("makes authentication discoverable when the development host enables it", () => {
+    vi.mocked(useDevelopmentFeatureAccess).mockReturnValue(true);
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAuthentication />
+        <SiteHeader />
       </MemoryRouter>,
     );
 
@@ -44,7 +50,7 @@ describe("SiteHeader", () => {
 
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAuthentication={false} />
+        <SiteHeader />
       </MemoryRouter>,
     );
 
@@ -57,9 +63,10 @@ describe("SiteHeader", () => {
       data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
     } as ReturnType<typeof useAuthSession>);
 
+    vi.mocked(useDevelopmentFeatureAccess).mockReturnValue(true);
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader showAuthentication />
+        <SiteHeader />
       </MemoryRouter>,
     );
 

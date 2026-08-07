@@ -42,7 +42,6 @@ import { createThoughtFormAiDisclosureRoute } from "apps/api/src/products/though
 import {
   createThoughtFormOwnerObservationRoute,
 } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
-import { isDevelopmentFeatureEnabled } from "packages/shared/src";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -107,9 +106,8 @@ type ProductConversationSession = {
 
 export function getTemporaryConversationAccess(
   session: ProductConversationSession | null,
-  nonOwnerAccessEnabled = false,
 ) {
-  return session && (session.user.isOwner || nonOwnerAccessEnabled)
+  return session && (session.user.isOwner || process.env.NODE_ENV === "development")
     ? {
         isSignedIn: true as const,
         isOwner: false as const,
@@ -192,8 +190,6 @@ const hostedAiConfiguration = {
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL,
 } satisfies HostedAiConfiguration;
-const nonOwnerTemporaryWorkspaceAccessEnabled =
-  isDevelopmentFeatureEnabled(process.env.NODE_ENV === "development");
 const hostedLlmClient = createLlmClient(hostedAiConfiguration);
 const ownerObservability = createBraintrustObservability({
   apiKey: process.env.BRAINTRUST_API_KEY,
@@ -272,10 +268,7 @@ thoughtFormRoute.route(
     proposalModel: draftModel,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(
-        session,
-        nonOwnerTemporaryWorkspaceAccessEnabled,
-      );
+      const access = getTemporaryConversationAccess(session);
 
       return access ? getThoughtFormConversationStore(access) : null;
     },
@@ -287,10 +280,7 @@ thoughtFormRoute.route(
     },
     getTemporaryConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(
-        session,
-        nonOwnerTemporaryWorkspaceAccessEnabled,
-      );
+      const access = getTemporaryConversationAccess(session);
 
       return access ? getThoughtFormConversationStore(access) : null;
     },
@@ -301,10 +291,7 @@ thoughtFormRoute.route(
     },
     getTemporaryDraftStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(
-        session,
-        nonOwnerTemporaryWorkspaceAccessEnabled,
-      );
+      const access = getTemporaryConversationAccess(session);
       return access ? getThoughtFormDraftStore(access) : null;
     },
   }),

@@ -11,10 +11,11 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { isDevelopmentFeatureEnabled } from "packages/shared/src";
+import { useDevelopmentFeatureAccess } from "apps/client/src/platform/access/useDevelopmentFeatureAccess";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
+  const hasDevelopmentFeatureAccess = useDevelopmentFeatureAccess();
   const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
@@ -26,7 +27,11 @@ export function ProductRoutePage() {
       navigate,
       temporaryWorkspaceAvailable:
         Boolean(session.data?.user.isOwner) ||
-        isNonOwnerTemporaryWorkspaceEnabled(productSlug, "editor"),
+        isNonOwnerTemporaryWorkspaceEnabled(
+          productSlug,
+          "editor",
+          hasDevelopmentFeatureAccess,
+        ),
     },
     path: productPath,
     productSlug,
@@ -52,7 +57,11 @@ export function ProductRoutePage() {
     <ProtectedRoute>
       {(route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner ||
         (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.authenticated &&
-          !isNonOwnerTemporaryWorkspaceEnabled(productSlug, productPath))) &&
+          !isNonOwnerTemporaryWorkspaceEnabled(
+            productSlug,
+            productPath,
+            hasDevelopmentFeatureAccess,
+          ))) &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
@@ -69,8 +78,9 @@ export function ProductRoutePage() {
 function isNonOwnerTemporaryWorkspaceEnabled(
   productSlug: string,
   productPath: string,
+  hasDevelopmentFeatureAccess: boolean,
 ) {
-  return isDevelopmentFeatureEnabled(import.meta.env.DEV) &&
+  return hasDevelopmentFeatureAccess &&
     productSlug === "thoughtform" &&
     productPath === "editor";
 }
