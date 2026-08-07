@@ -77,7 +77,7 @@ by the live probe and a fresh scope review before implementation.
 
 ## Definition of done
 
-- A dedicated expiring credential can dispatch events only to the intended
+- A dedicated credential can dispatch events only to the intended
   repository and is stored in Langfuse rather than application configuration.
 - Assigning `review` to the chosen immutable Langfuse version automatically
   starts the GitHub fallback-sync workflow with its exact name and version.
@@ -173,3 +173,88 @@ job had not generated the Prisma client.
 - Do not change the schema or commit generated Prisma output.
 - Publish and merge the workflow correction through review before retriggering
   the immutable probe.
+
+## Completion audit
+
+Completed on 7 August 2026.
+
+### Scope evidence
+
+- **Restricted external credential:** a fine-grained, non-expiring GitHub token
+  is limited to `adambelton/adambelton.com`, with Contents read/write and
+  GitHub-required Metadata read access, and is stored only in the Langfuse
+  automation. Adam regenerated the token after the original clipboard value was
+  lost; the superseded token was identified for immediate revocation.
+- **Live automation:** `ThoughtForm prompt review sync` watches `updated` prompt
+  events whose names begin with `thoughtform/` and sends
+  `langfuse-prompt-review` to the repository dispatch endpoint. Run
+  [31184012583](https://github.com/adambelton/adambelton.com/actions/runs/31184012583)
+  received the reviewed immutable version; companion run
+  [31184013272](https://github.com/adambelton/adambelton.com/actions/runs/31184013272)
+  skipped the version that lost `review`.
+- **Content-identical probe:** `thoughtform/discovery` version 3 was created from
+  production version 2. Both resolve to SHA-256
+  `e4ae1a7d9b1d7d2de8631bd1a96681fcd2405586d0a2d440b8be7c3a1bb4fe0a`.
+- **Workflow correction:** reviewed PR
+  [#27](https://github.com/adambelton/adambelton.com/pull/27) added the
+  non-review job guard and the normal CI workflow's Prisma-generation
+  prerequisite after the first live dispatch exposed both gaps.
+- **Generated review boundary:** the successful dispatch created PR
+  [#28](https://github.com/adambelton/adambelton.com/pull/28) rather than writing
+  to `main`. Its complete diff changed only the discovery ledger version from 2
+  to 3; the fingerprint was unchanged and no prompt source changed.
+- **CI and human review:** Adam authorized the action-required run, and CI run
+  [31184135601](https://github.com/adambelton/adambelton.com/actions/runs/31184135601)
+  passed before Adam explicitly authorized merging PR #28.
+- **Exact promotion:** merge commit
+  `5e8d1b5ea5c6024291f20855cb468d2d7e11a06a` triggered promotion run
+  [31184495891](https://github.com/adambelton/adambelton.com/actions/runs/31184495891),
+  which succeeded. A cache-disabled production lookup then returned version 3,
+  labels `development`, `review`, `production`, and `latest`, the unchanged
+  fingerprint above, and `isFallback: false`.
+- **Operations documentation:** `docs/local-development.md` and
+  `docs/deployment.md` record the automation fields, two-stage label gate,
+  credential scope/storage/rotation, no-expiration decision, and recovery
+  behavior.
+
+### Definition-of-done evidence
+
+- Dedicated repository-restricted credential stored only in Langfuse: complete.
+- Automatic exact-name and immutable-version dispatch on `review`: complete.
+- Branch and PR creation without direct `main` writes: complete.
+- Metadata-only generated diff with unchanged prompt fingerprint: complete.
+- Required CI, human authorization, and reviewed merge: complete.
+- Post-merge exact-version production promotion: complete.
+- Hosted production resolution with `isFallback: false`: complete.
+- Byte-identical production prompt content throughout the probe: complete.
+- Setup, diagnosis, credential, approval, and recovery documentation: complete.
+- Workflow, PR, merge, promotion, and final resolution evidence: complete.
+
+### Complete branch-diff audit
+
+- Ownership remains unchanged: prompt meaning and fallbacks stay product-owned;
+  host automation metadata stays under the existing API adapter boundary.
+- No product behavior, presentation, response schema, evaluation, migration, or
+  application runtime credential changed.
+- No decision or implementation was duplicated across production and test
+  hosts. GitHub remains the label safety gate because Langfuse can filter prompt
+  names but not labels.
+- The approved credential expiration and automation-filter decisions are
+  settled and documented. Both live-probe defects are corrected and validated.
+- Progress, task, deployment, and local-development claims cite live evidence;
+  no browser or assistive-technology verification is claimed.
+- No migration changed, generated Prisma output was not committed, and the
+  schema-first migration workflow is unaffected.
+
+### Validation evidence
+
+- `pnpm validate:langfuse-workflows`
+- `pnpm db:generate`
+- `pnpm validate:thoughtform-prompts`
+- `pnpm test` — 91 files and 324 tests passed; 2 files and 5 tests skipped
+- `pnpm typecheck`
+- `pnpm build`
+- `git diff --check`
+- PR #27 CI passed in run `31183435283`.
+- Dispatch run `31184012583`, PR #28 CI run `31184135601`, and promotion run
+  `31184495891` passed.

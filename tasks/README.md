@@ -18,8 +18,6 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- Activate Langfuse prompt review automation (unnumbered); proposal awaiting
-  review
 - 038 — Content-free hosted-attempt lifecycle and accounting; requires Task 036
   and a fresh approval review
 - 039 — Representative hosted-usage measurement; depends on Tasks 036 and 038
@@ -48,6 +46,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Activate Langfuse prompt review automation (unnumbered)
 - 036 — Harden temporary workspace lifecycle and recovery
 - Correct codebase audit findings before Task 036 (unnumbered)
 - 048 — Build-time repository Markdown compilation
