@@ -6,7 +6,7 @@ export function hasDevelopmentFeatureAccess(
   session: DevelopmentFeatureSession | null,
 ): session is DevelopmentFeatureSession {
   return Boolean(
-    session &&
-      (session.user.isOwner || process.env.NODE_ENV === "development"),
+    session?.user.isOwner ||
+      (session !== null && process.env.NODE_ENV === "development"),
   );
 }
