@@ -9,13 +9,15 @@ fallbacks for all five active ThoughtForm prompts. Temporary workspaces retain
 no-op observability. The reviewed development prompt versions use structured
 XML contracts and are recorded by immutable version and SHA-256 fingerprint.
 Langfuse-hosted evaluations resolve the managed `development` prompts.
-The repository workflows can turn Langfuse `review` events into fallback pull
-requests and promote only exact merged versions. Local validation covers 324 tests, full
+Langfuse `review` events now produce fallback pull requests, and only exact
+merged versions are promoted. Local validation covers 324 tests, full
 typecheck/build, prompt/workflow validators, a byte-identical live updater
 simulation, a no-mutation promotion dry run, and Langfuse trace read-back. The
-GitHub Actions secrets are configured and exact production promotion has run
-successfully. Langfuse Repository Dispatch remains to be activated and proven
-as one complete event-driven lifecycle.
+GitHub Actions secrets and the repository-restricted Langfuse dispatch token are
+configured. The complete event-driven lifecycle was proven with a byte-identical
+`thoughtform/discovery` version 3: dispatch, guarded validation, generated
+metadata-only PR, approved CI, reviewed merge, exact promotion, and hosted
+production resolution all succeeded.
 
 ### Langfuse migration completion audit
 
@@ -26,11 +28,12 @@ as one complete event-driven lifecycle.
   Development resolves the reviewed managed versions; production resolves its
   label with independently updateable repository availability fallbacks. Model
   response schemas and runtime parsers remain with their owning capabilities.
-- **Fallback synchronization:** complete in code. Known-name, immutable-version,
+- **Fallback synchronization:** complete and live-proven. Known-name, immutable-version,
   `review`-label, XML structure, variable, leading-newline, version, and SHA-256
   checks precede an automated pull request. Main never receives a direct push.
-- **Post-merge promotion:** complete in code and verified by a no-mutation live
-  dry run. The workflow promotes only exact merged versions and fingerprints.
+- **Post-merge promotion:** complete and live-proven. The workflow promoted
+  `thoughtform/discovery` version 3 only after its unchanged fingerprint metadata
+  merged through the generated review PR.
 - **Evaluation migration:** complete. Braintrust entry points and dependencies
   are removed; Langfuse experiments use the managed development prompts while
   repository-owned scenarios, fixtures, scores, and judge criteria remain
@@ -47,10 +50,11 @@ as one complete event-driven lifecycle.
   exact development prompt versions `2`, `2`, `3`, `3`, and `3` with native
   usage. A separate temporary-workspace walkthrough exercised the same product
   surfaces without producing a matching Langfuse trace.
-- **External activation:** the three Langfuse GitHub Actions secrets are
-  configured. Langfuse Repository Dispatch configuration remains pending; the
-  sync workflow uses GitHub's temporary built-in token and no long-lived
-  prompt-sync repository credential.
+- **External activation:** complete. Langfuse filters `updated` events to
+  `thoughtform/*`; GitHub skips payloads without `review`, validates reviewed
+  immutable versions, and uses its temporary built-in token for the generated
+  branch and PR. The separate dispatch credential is stored only in Langfuse,
+  restricted to this repository, and intentionally has no expiration.
 
 The public website is live at `https://adambelton.com` on one persistent Railway
 service in Europe West. Railway serves the Vite site and same-origin API/auth
@@ -658,9 +662,9 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Review and approve the unnumbered Langfuse prompt-review automation activation
-proposal, then prove the complete `review` label to fallback PR to exact
-production-promotion lifecycle without changing prompt content.
+Review Task 038, content-free hosted-attempt lifecycle and accounting, against
+the completed temporary-workspace and prompt-observability baseline before
+approval.
 
 ## Historical semantic-editor investigation
 
