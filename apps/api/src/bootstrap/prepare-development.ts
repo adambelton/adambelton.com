@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { loadLocalEnvironment } from "apps/api/src/bootstrap/local-environment";
 
 loadLocalEnvironment();
+process.env.NODE_ENV ??= "development";
 
 if (process.env.DATABASE_URL) {
   const repositoryRoot = fileURLToPath(

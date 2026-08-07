@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
 import { ConversationRequestError } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
+import { IdeaActionError } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
 import {
   ACTIVITIES,
   ASSISTANT_MOVES,
@@ -183,6 +184,97 @@ describe("ConversationEditor", () => {
     expect(screen.queryByText("Existing thought")).toBeNull();
     expect(screen.queryByText("Accountability")).toBeNull();
     expect(screen.queryByText("Updating the Idea Map.")).toBeNull();
+  });
+
+  it("clears stale canonical state when an Idea Map action finds a lost workspace", async () => {
+    const unavailable = vi.fn();
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      initialMessages={[
+        { role: CONVERSATION_MESSAGE_ROLES.user, content: "Existing thought" },
+        { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "Existing response" },
+      ]}
+      onUnavailable={unavailable}
+      sendIdeaAction={async () => {
+        throw new IdeaActionError(
+          "conversation_unavailable",
+          "This temporary workspace is no longer available.",
+        );
+      }}
+    />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Park" }));
+
+    await waitFor(() => expect(unavailable).toHaveBeenCalledOnce());
+    expect(screen.queryByText("Existing thought")).toBeNull();
+    expect(screen.queryByText("Accountability")).toBeNull();
+    expect(screen.getByText(/This temporary workspace is no longer available/))
+      .toBeTruthy();
+  });
+
+  it("clears transient Idea Map and surface status with the complete workspace", async () => {
+    vi.stubGlobal("confirm", () => true);
+    render(<ConversationEditor
+      canClear
+      initialConversationId="conversation-1"
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      initialMessages={[
+        { role: CONVERSATION_MESSAGE_ROLES.user, content: "Existing thought" },
+      ]}
+      onClear={async () => undefined}
+      sendIdeaAction={async () => ({
+        status: "changed",
+        ideaMap: {
+          revision: 2,
+          ideas: [{ ...idea, disposition: IDEA_DISPOSITIONS.parked }],
+        },
+      })}
+    />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Park" }));
+    await screen.findByText("Idea map updated.");
+    fireEvent.click(screen.getByRole("button", { name: "Clear this workspace" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Idea map updated.")).toBeNull();
+    });
+    expect(screen.queryByText("Existing thought")).toBeNull();
+    expect(screen.queryByText("Accountability")).toBeNull();
+  });
+
+  it("detaches unsaved Draft text when a Draft operation finds a lost workspace", async () => {
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({
+        ok: false,
+        error: {
+          code: "draft_unavailable",
+          message: "This temporary workspace is no longer available.",
+        },
+      }), { status: 409 }),
+    ));
+    const unavailable = vi.fn();
+    render(<ConversationEditor
+      initialConversationId="conversation-1"
+      initialDraftingState={draftingState("Canonical body.")}
+      initialIdeaMap={{ revision: 1, ideas: [idea] }}
+      initialMessages={[
+        { role: CONVERSATION_MESSAGE_ROLES.user, content: "Existing thought" },
+        { role: CONVERSATION_MESSAGE_ROLES.assistant, content: "Existing response" },
+      ]}
+      onUnavailable={unavailable}
+    />);
+    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.change(screen.getByLabelText("Canonical draft"), {
+      target: { value: "Unsaved Draft text." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+
+    await waitFor(() => expect(unavailable).toHaveBeenCalledOnce());
+    expect(
+      (screen.getByLabelText("Recovered Draft text") as HTMLTextAreaElement).value,
+    ).toBe("Unsaved Draft text.");
+    expect(screen.queryByText("Existing thought")).toBeNull();
   });
 
   it("shows unsaved Draft text when a failed save cannot restore canonical state", async () => {

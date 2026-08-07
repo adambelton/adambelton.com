@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { app } from "apps/api/src/bootstrap/create-api";
 import {
   AI_PROVIDERS,
@@ -25,6 +25,9 @@ import type {
 } from "packages/observability/src";
 
 describe("products API route mount", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
   it("accepts only bounded owner client timing observations", () => {
     expect(parseOwnerClientObservation({
       observationId: "123e4567-e89b-12d3-a456-426614174000",
@@ -146,7 +149,8 @@ describe("products API route mount", () => {
     })).toBeInstanceOf(DisabledConversationModelAdapter);
   });
 
-  it("selects temporary and persistent operations only for the owner", () => {
+  it("gates temporary non-owner access while keeping durable work owner-only", () => {
+    vi.stubEnv("NODE_ENV", "production");
     const ownerSession = { user: { id: "owner-1", isOwner: true } };
     const demoSession = { user: { id: "demo-1", isOwner: false } };
 
@@ -161,6 +165,12 @@ describe("products API route mount", () => {
       userId: "owner-1",
     });
     expect(getTemporaryConversationAccess(demoSession)).toBeNull();
+    vi.stubEnv("NODE_ENV", "development");
+    expect(getTemporaryConversationAccess(demoSession)).toEqual({
+      isSignedIn: true,
+      isOwner: false,
+      userId: "demo-1",
+    });
     expect(getPersistentConversationAccess(demoSession)).toBeNull();
   });
 

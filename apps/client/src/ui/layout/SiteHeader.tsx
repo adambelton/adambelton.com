@@ -1,8 +1,10 @@
 import { useAuthSession } from "apps/client/src/auth";
 import { TextLink } from "apps/client/src/ui/components";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 export function SiteHeader() {
   const session = useAuthSession();
+  const isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
 
   return (
     <header className="flex items-center justify-end gap-8 py-7 sm:py-9">
@@ -13,7 +15,11 @@ export function SiteHeader() {
         <TextLink href="/">Home</TextLink>
         <TextLink href="/products">Products</TextLink>
         <TextLink href="/about">About</TextLink>
-        {session.data ? <TextLink href="/logout">Log out</TextLink> : null}
+        {isDevelopmentFeatureEnabled
+          ? session.data
+            ? <TextLink href="/logout">Log out</TextLink>
+            : <TextLink href="/login">Log in</TextLink>
+          : null}
       </nav>
     </header>
   );

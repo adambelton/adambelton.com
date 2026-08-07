@@ -49,7 +49,7 @@ export function renderProductRoute({
           components={components}
         />
       ),
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
+      requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
       breadcrumbs: [
         { label: "Products", href: "/products" },
         { label: "ThoughtForm", href: "/products/thoughtform" },

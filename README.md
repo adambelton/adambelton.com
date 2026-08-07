@@ -62,12 +62,13 @@ adambelton.com/
 │   │       ├── content/                       Repository-backed pages and posts
 │   │       ├── website/                       Public website experience
 │   │       ├── auth/                          Browser authentication experience
+│   │       ├── platform/                      Host-wide browser capabilities
 │   │       ├── products/                      Mounts product applications
 │   │       └── ui/                            Host-owned reusable presentation
 │   └── api/                                   Server application
 │       └── src/
 │           ├── bootstrap/                     Starts and assembles the API
-│           ├── platform/                      Host-wide HTTP capabilities
+│           ├── platform/                      Host-wide access and HTTP capabilities
 │           └── products/                      Mounts products and supplies adapters
 │
 ├── packages/                                  Reusable ownership boundaries

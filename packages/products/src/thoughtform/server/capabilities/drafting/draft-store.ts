@@ -61,6 +61,7 @@ export type DraftWriteResult =
   | { status: typeof DRAFT_WRITE_STATUSES.proposalNotActive; workspace: DraftingState };
 
 export interface DraftStore {
+  initializeDraftingState(conversationId: string): Promise<DraftingState | null>;
   getDraftingState(conversationId: string): Promise<DraftingState | null>;
   getCompletedDraftOperation(conversationId: string, operationId: string): Promise<DraftWriteResult | null>;
   deleteDraftingState(conversationId: string): Promise<void>;
@@ -108,6 +109,9 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
   }
 
   return {
+    initializeDraftingState: async (conversationId) =>
+      (await persistence.load(conversationId)) ??
+      persistence.initialize(conversationId),
     getDraftingState: (conversationId) => persistence.load(conversationId),
     getCompletedDraftOperation: duplicate,
     deleteDraftingState: (conversationId) => persistence.delete(conversationId),
@@ -115,9 +119,7 @@ export function createDraftStore(persistence: DraftPersistence): DraftStore {
     async createDraft(input) {
       const prior = await duplicate(input.conversationId, input.operationId);
       if (prior) return prior;
-      const current =
-        (await persistence.load(input.conversationId)) ??
-        (await persistence.initialize(input.conversationId));
+      const current = await persistence.load(input.conversationId);
       if (!current) return { status: DRAFT_WRITE_STATUSES.notFound };
       if (current.draft) return { status: DRAFT_WRITE_STATUSES.conflict, workspace: current };
       const next: DraftingState = {

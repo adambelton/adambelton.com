@@ -28,7 +28,7 @@ export async function* observeStream<T>(
   operation: () => AsyncIterable<T>,
 ): AsyncIterable<T> {
   const values: T[] = [];
-  let completed = false;
+  let isCompleted = false;
   let failure: unknown;
   let notify: (() => void) | null = null;
   const wake = () => {
@@ -45,12 +45,12 @@ export async function* observeStream<T>(
       failure = error;
       throw error;
     } finally {
-      completed = true;
+      isCompleted = true;
       wake();
     }
   }).catch(() => undefined);
 
-  while (!completed || values.length > 0) {
+  while (!isCompleted || values.length > 0) {
     if (values.length === 0) {
       await new Promise<void>((resolve) => { notify = resolve; });
       continue;

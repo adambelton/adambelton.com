@@ -18,8 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 036 — Complete temporary workspace lifecycle and recovery; reviewed and
-  awaiting approval
+- 036 — Harden temporary workspace lifecycle and recovery; revised and awaiting
+  fresh approval review
 - 038 — Content-free hosted-attempt lifecycle and accounting; requires Task 036
   and a fresh approval review
 - 039 — Representative hosted-usage measurement; depends on Tasks 036 and 038
@@ -30,8 +30,8 @@ change the proposal or grant approval for a later task.
   Tasks 038–040 and a fresh review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-The unnumbered correction tasks are complete. Task 036 has received its fresh
-dependency and language review and now awaits approval; Tasks 038–040 remain
+The unnumbered correction tasks are complete. Task 036 has been revised after a
+fresh authority review and now awaits fresh approval; Tasks 038–040 remain
 downstream of that work. Preference learning is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas

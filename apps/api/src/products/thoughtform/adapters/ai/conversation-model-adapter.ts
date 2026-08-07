@@ -88,7 +88,7 @@ export class LlmConversationModelAdapter implements ConversationModel {
 
   private async *generateStream(request: ConversationModelRequest) {
     const startedAt = globalThis.performance.now();
-    let firstDeltaRecorded = false;
+    let isFirstDeltaRecorded = false;
     this.observability.recordContent({ input: request });
     if (!this.llmClient.streamMessage) {
       const response = await this.llmClient.createMessage({
@@ -116,8 +116,8 @@ export class LlmConversationModelAdapter implements ConversationModel {
       messages: request.messages,
     })) {
       if (event.type === "text_delta") {
-        if (!firstDeltaRecorded) {
-          firstDeltaRecorded = true;
+        if (!isFirstDeltaRecorded) {
+          isFirstDeltaRecorded = true;
           this.observability.record({
             [OBSERVATION_ATTRIBUTE_NAMES.serverTimeToFirstTokenMs]: Math.round(
               globalThis.performance.now() - startedAt,

@@ -6,8 +6,10 @@ import type {
   DraftingState,
   RevisionProposalScope,
 } from "packages/products/src/thoughtform/shared";
-
-export type DraftPersistenceKind = "persistent" | "temporary";
+import {
+  WORKSPACE_PERSISTENCE_TYPES,
+  type WorkspacePersistenceType,
+} from "packages/products/src/thoughtform/shared";
 
 export class DraftClientError extends Error {
   constructor(readonly code: string, message: string) {
@@ -16,43 +18,43 @@ export class DraftClientError extends Error {
 }
 
 export function loadDraft(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
 ) {
-  return request(kind, conversationId, "", { method: "GET" });
+  return request(persistenceType, conversationId, "", { method: "GET" });
 }
 
 export function composeDraft(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   input: { selectedIdeaIds: string[]; instruction: string },
 ) {
-  return request(kind, conversationId, "/compose", mutation("POST", input));
+  return request(persistenceType, conversationId, "/compose", mutation("POST", input));
 }
 
 export function saveDraft(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   input: { expectedRevision: number; body: string },
 ) {
-  return request<DraftOperationResponse>(kind, conversationId, "", mutation("PUT", input));
+  return request<DraftOperationResponse>(persistenceType, conversationId, "", mutation("PUT", input));
 }
 
 export function restoreDraft(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   input: { expectedRevision: number; restoreRevision: number },
 ) {
-  return request<DraftOperationResponse>(kind, conversationId, "/restore", mutation("POST", input));
+  return request<DraftOperationResponse>(persistenceType, conversationId, "/restore", mutation("POST", input));
 }
 
 export function interpretDraftChange(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   change: import("packages/products/src/thoughtform/shared").DraftChange,
 ) {
   return request<DraftOperationInterpretation>(
-    kind,
+    persistenceType,
     conversationId,
     "/interpret-change",
     mutation("POST", { change }),
@@ -60,7 +62,7 @@ export function interpretDraftChange(
 }
 
 export function proposeDraftRevision(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   input: {
     expectedDraftRevision: number;
@@ -69,17 +71,17 @@ export function proposeDraftRevision(
     userInstruction: string;
   },
 ) {
-  return request(kind, conversationId, "/proposals", mutation("POST", input));
+  return request(persistenceType, conversationId, "/proposals", mutation("POST", input));
 }
 
 export function amendDraftProposal(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   proposalId: string,
   input: { expectedProposalRevision: number; userInstruction: string },
 ) {
   return request(
-    kind,
+    persistenceType,
     conversationId,
     `/proposals/${proposalId}`,
     mutation("PATCH", input),
@@ -87,14 +89,14 @@ export function amendDraftProposal(
 }
 
 export function resolveDraftProposal(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   proposalId: string,
   action: "accept" | "reject",
   expectedDraftRevision?: number,
 ) {
   return request(
-    kind,
+    persistenceType,
     conversationId,
     `/proposals/${proposalId}/${action}`,
     mutation("POST", { expectedDraftRevision }),
@@ -113,12 +115,14 @@ function mutation(method: string, body: object): RequestInit {
 }
 
 async function request<T = DraftingState | null>(
-  kind: DraftPersistenceKind,
+  persistenceType: WorkspacePersistenceType,
   conversationId: string,
   suffix: string,
   init: RequestInit,
 ) {
-  const collection = kind === "temporary" ? "temporary-drafts" : "drafts";
+  const collection = persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary
+    ? "temporary-drafts"
+    : "drafts";
   const response = await fetch(
     `/api/products/thoughtform/${collection}/${encodeURIComponent(conversationId)}${suffix}`,
     init,

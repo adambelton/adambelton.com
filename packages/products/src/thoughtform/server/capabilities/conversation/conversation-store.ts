@@ -75,7 +75,7 @@ export interface TemporaryConversationStore extends ConversationStore {
 
 export interface ConversationStoreOptions {
   createId?: () => string;
-  initializeOnAppend?: boolean;
+  shouldInitializeOnAppend?: boolean;
   now?: () => Date;
 }
 
@@ -83,7 +83,7 @@ export function createConversationStore(
   persistence: ConversationPersistence,
   {
     createId = () => globalThis.crypto.randomUUID(),
-    initializeOnAppend = false,
+    shouldInitializeOnAppend = false,
     now = () => new Date(),
   }: ConversationStoreOptions = {},
 ): PersistentConversationStore & TemporaryConversationStore {
@@ -113,7 +113,7 @@ export function createConversationStore(
       let current = await persistence.load(input.conversationId);
       if (
         !current &&
-        initializeOnAppend &&
+        shouldInitializeOnAppend &&
         input.expectedIdeaMapRevision === 0
       ) {
         current = await persistence.initialize({
@@ -123,7 +123,7 @@ export function createConversationStore(
       }
       if (!current) {
         return {
-          status: initializeOnAppend
+          status: shouldInitializeOnAppend
             ? CONVERSATION_TURN_RETENTION_STATUSES.unavailable
             : CONVERSATION_TURN_RETENTION_STATUSES.conflict,
         };

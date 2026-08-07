@@ -11,6 +11,7 @@ import type {
   DraftCompositionModel,
   RevisionProposalModel,
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
+import { WORKSPACE_PERSISTENCE_TYPES } from "packages/products/src/thoughtform/shared";
 
 export type CreateThoughtFormApiRouteDependencies =
   CreateConversationRouteDependencies &
@@ -52,6 +53,7 @@ export function createThoughtFormApiRoute(
     observability: dependencies.persistentObservability,
   }));
   route.route("/drafts", createDraftRoute({
+    persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
     compositionModel: dependencies.compositionModel,
     interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,
@@ -59,6 +61,7 @@ export function createThoughtFormApiRoute(
     getDraftStore: dependencies.getPersistentDraftStore,
   }));
   route.route("/temporary-drafts", createDraftRoute({
+    persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
     compositionModel: dependencies.compositionModel,
     interpretationModel: dependencies.interpretationModel,
     proposalModel: dependencies.proposalModel,

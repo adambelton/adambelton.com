@@ -16,6 +16,7 @@ import {
   handleConversationStream,
 } from "packages/products/src/thoughtform/server/delivery/http/conversation-response-handler";
 import { failure } from "packages/shared/src";
+import { WORKSPACE_PERSISTENCE_TYPES } from "packages/products/src/thoughtform/shared";
 
 export type CreateConversationRouteDependencies = {
   conversationStore?: TemporaryConversationStore;
@@ -48,7 +49,7 @@ export function createConversationRoute({
       conversations: store,
       draftStore: await resolveDraftStore(context.req.raw),
       ideaMapAnalysis,
-      kind: "temporary",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
     });
   });
 
@@ -61,7 +62,7 @@ export function createConversationRoute({
       conversation: conversationService,
       conversations: store,
       draftStore: await resolveDraftStore(context.req.raw),
-      kind: "temporary",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
     });
   });
 
@@ -73,6 +74,7 @@ export function createConversationRoute({
       conversationId: context.req.param("conversationId"),
       ideaId: context.req.param("ideaId"),
       conversations: store,
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
     });
   });
 

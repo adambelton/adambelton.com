@@ -6,17 +6,17 @@ import { AiProcessingDisclosure as DisclosureView } from "packages/products/src/
 
 export function AiProcessingDisclosureLoader({ Link }: { Link: ProductNavigationLink }) {
   const [disclosure, setDisclosure] = useState<AiProcessingDisclosure | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
 
   useEffect(() => {
-    let current = true;
+    let isCurrent = true;
     loadAiDisclosure()
-      .then((value) => current && setDisclosure(value))
-      .catch(() => current && setFailed(true));
-    return () => { current = false; };
+      .then((value) => isCurrent && setDisclosure(value))
+      .catch(() => isCurrent && setHasFailed(true));
+    return () => { isCurrent = false; };
   }, []);
 
-  return failed
+  return hasFailed
     ? <p role="status">Current AI processing details could not be loaded. Review the product privacy information before continuing.</p>
     : <DisclosureView disclosure={disclosure} Link={Link} />;
 }

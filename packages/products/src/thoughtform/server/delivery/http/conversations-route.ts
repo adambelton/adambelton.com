@@ -14,7 +14,10 @@ import {
   handleConversationResponse,
   handleConversationStream,
 } from "packages/products/src/thoughtform/server/delivery/http/conversation-response-handler";
-import { CONVERSATION_ERROR_CODES } from "packages/products/src/thoughtform/shared";
+import {
+  CONVERSATION_ERROR_CODES,
+  WORKSPACE_PERSISTENCE_TYPES,
+} from "packages/products/src/thoughtform/shared";
 import type { Observability } from "packages/observability/src";
 import { failure, success } from "packages/shared/src";
 
@@ -75,7 +78,7 @@ export function createConversationsRoute({
       conversation: conversationService,
       conversations: store,
       draftStore: await resolveDraftStore(context.req.raw),
-      kind: "persistent",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
       observability,
     });
   });
@@ -90,7 +93,7 @@ export function createConversationsRoute({
       conversations: store,
       draftStore: await resolveDraftStore(context.req.raw),
       ideaMapAnalysis,
-      kind: "persistent",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
       observability,
     });
   });
@@ -103,6 +106,7 @@ export function createConversationsRoute({
       conversationId: context.req.param("conversationId"),
       ideaId: context.req.param("ideaId"),
       conversations: store,
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
     });
   });
 

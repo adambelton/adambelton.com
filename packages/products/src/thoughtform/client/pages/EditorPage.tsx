@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import type { Conversation, DraftingState } from "packages/products/src/thoughtform/shared";
+import {
+  WORKSPACE_PERSISTENCE_TYPES,
+  type Conversation,
+  type DraftingState,
+} from "packages/products/src/thoughtform/shared";
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
 import { sendPersistentConversationMessage } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 import { sendPersistentIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
@@ -25,7 +29,7 @@ export function EditorPage({
 
     Promise.all([
       loadConversation(conversationId),
-      loadDraft("persistent", conversationId),
+      loadDraft(WORKSPACE_PERSISTENCE_TYPES.persistent, conversationId),
     ])
       .then(([loadedConversation, loadedDraftingState]) => {
         if (isCurrent) {
@@ -58,7 +62,7 @@ export function EditorPage({
 
   return (
     <ConversationEditor
-      draftPersistenceKind="persistent"
+      draftPersistenceType={WORKSPACE_PERSISTENCE_TYPES.persistent}
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}

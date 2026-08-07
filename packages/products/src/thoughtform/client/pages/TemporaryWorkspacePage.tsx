@@ -49,7 +49,7 @@ export function TemporaryWorkspacePage({
           setTemporaryConversation(null);
           setExpiresAt(null);
           setLoadError(
-            "Your temporary conversation could not be restored. You can safely start a new one.",
+            "Your temporary workspace could not be restored. You can safely start a new one.",
           );
         }
       })
@@ -78,14 +78,14 @@ export function TemporaryWorkspacePage({
   }
 
   if (isLoading) {
-    return <p role="status">Restoring your temporary conversation.</p>;
+    return <p role="status">Restoring your temporary workspace.</p>;
   }
 
   return (
     <>
       <p className="mb-8 text-sm leading-6 text-[var(--muted)]" role="status">
         {expiresAt
-          ? `This temporary conversation is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
+          ? `This temporary workspace is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
           : "This workspace is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}
       </p>
       {loadError ? <p role="status">{loadError}</p> : null}

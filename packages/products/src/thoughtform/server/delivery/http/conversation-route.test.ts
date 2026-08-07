@@ -430,6 +430,26 @@ describe("ThoughtForm conversation route", () => {
       },
     });
   });
+
+  it("returns the stable unavailable result when an idea action targets a lost temporary workspace", async () => {
+    const route = createConversationRoute({
+      conversationStore: createFakeConversationStore(),
+    });
+    const response = await route.request("/lost-workspace/ideas/idea-1", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "park", expectedRevision: 1 }),
+    });
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: {
+        code: "conversation_unavailable",
+        message: "This temporary workspace is no longer available.",
+      },
+    });
+  });
 });
 
 function createFakeConversationStore(): TemporaryConversationStore {

@@ -47,4 +47,16 @@ describe("ThoughtForm overview page", () => {
     expect(demoMarkup).not.toContain('href="/products/thoughtform/editor"');
     expect(demoMarkup).not.toContain("editor demo");
   });
+
+  it("makes the temporary workspace discoverable when the host enables it", () => {
+    const markup = renderToStaticMarkup(
+      <OverviewPage
+        accessLevel={ACCESS_LEVELS.demo}
+        components={{ ...components, isTemporaryWorkspaceAvailable: true }}
+      />,
+    );
+
+    expect(markup).toContain('href="/products/thoughtform/editor"');
+    expect(markup).not.toContain('href="/products/thoughtform/conversations"');
+  });
 });

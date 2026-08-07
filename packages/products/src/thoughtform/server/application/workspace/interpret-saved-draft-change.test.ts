@@ -16,7 +16,7 @@ const change: DraftChange = {
 
 async function store() {
   const conversations = createConversationStore(new TestConversationPersistence(), {
-    initializeOnAppend: true,
+    shouldInitializeOnAppend: true,
     createId: () => "conversation-1",
   });
   await conversations.appendConversationTurn({

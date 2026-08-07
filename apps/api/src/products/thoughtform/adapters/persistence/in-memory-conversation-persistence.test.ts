@@ -20,7 +20,7 @@ describe("host in-memory conversation persistence", () => {
     let currentTime = Date.parse("2026-08-01T12:00:00.000Z");
     const cleared: string[] = [];
     const persistence = createInMemoryConversationPersistence({
-      temporary: true,
+      isTemporary: true,
       now: () => currentTime,
       scheduleExpiration: () => null,
       cancelExpiration: () => undefined,
@@ -29,7 +29,7 @@ describe("host in-memory conversation persistence", () => {
       },
     });
     const store = createConversationStore(persistence, {
-      initializeOnAppend: true,
+      shouldInitializeOnAppend: true,
       now: () => new Date(currentTime),
     });
     const conversationId = store.createConversationId();
@@ -46,12 +46,12 @@ describe("host in-memory conversation persistence", () => {
     const cleared: string[] = [];
     const store = createConversationStore(
       createInMemoryConversationPersistence({
-        temporary: true,
+        isTemporary: true,
         onClear: (conversationId) => {
           cleared.push(conversationId);
         },
       }),
-      { initializeOnAppend: true },
+      { shouldInitializeOnAppend: true },
     );
     const conversationId = store.createConversationId();
     await store.appendConversationTurn(createTurn(conversationId));
@@ -61,23 +61,23 @@ describe("host in-memory conversation persistence", () => {
   });
 
   it("waits for complete workspace cleanup before clearing returns", async () => {
-    let cleanupCompleted = false;
+    let isCleanupCompleted = false;
     const store = createConversationStore(
       createInMemoryConversationPersistence({
-        temporary: true,
+        isTemporary: true,
         onClear: async () => {
           await Promise.resolve();
-          cleanupCompleted = true;
+          isCleanupCompleted = true;
         },
       }),
-      { initializeOnAppend: true },
+      { shouldInitializeOnAppend: true },
     );
     const conversationId = store.createConversationId();
     await store.appendConversationTurn(createTurn(conversationId));
 
     await store.clearCurrentConversation();
 
-    expect(cleanupCompleted).toBe(true);
+    expect(isCleanupCompleted).toBe(true);
   });
 });
 

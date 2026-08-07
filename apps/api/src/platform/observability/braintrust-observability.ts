@@ -51,8 +51,8 @@ class BraintrustObservability implements Observability {
         ? this.logger.traced.bind(this.logger)
         : parent.traced.bind(parent);
 
-    let operationStarted = false;
-    let operationCompleted = false;
+    let hasOperationStarted = false;
+    let hasOperationCompleted = false;
     let operationResult: T | undefined;
     let operationError: unknown;
     try {
@@ -63,11 +63,11 @@ class BraintrustObservability implements Observability {
           } catch {
             // Telemetry is best effort.
           }
-          operationStarted = true;
+          hasOperationStarted = true;
           try {
             const result = await operation();
             operationResult = result;
-            operationCompleted = true;
+            hasOperationCompleted = true;
             try {
               span.log({ metadata: { result: "success" } });
             } catch {
@@ -93,8 +93,8 @@ class BraintrustObservability implements Observability {
       );
     } catch (error) {
       if (operationError !== undefined) throw operationError;
-      if (operationCompleted) return operationResult as T;
-      if (!operationStarted) return operation();
+      if (hasOperationCompleted) return operationResult as T;
+      if (!hasOperationStarted) return operation();
       throw error;
     }
   }

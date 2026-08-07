@@ -37,13 +37,13 @@ describe("respondInWorkspace", () => {
   });
 
   it("does not invoke the model for a missing conversation", async () => {
-    let modelWasCalled = false;
+    let wasModelCalled = false;
     const result = await respondInWorkspace({
       conversationId: "missing",
       message: "Do not process this",
       conversation: {
         async respond() {
-          modelWasCalled = true;
+          wasModelCalled = true;
           return new ConversationService().respond({
             conversationId: "missing",
             message: "Do not process this",
@@ -57,7 +57,7 @@ describe("respondInWorkspace", () => {
     });
 
     expect(result).toEqual({ status: "conversation_not_found" });
-    expect(modelWasCalled).toBe(false);
+    expect(wasModelCalled).toBe(false);
   });
 
   it("reports when the complete turn cannot be retained", async () => {

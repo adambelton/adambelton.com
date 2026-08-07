@@ -11,9 +11,11 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
+  const isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
   const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
@@ -23,6 +25,13 @@ export function ProductRoutePage() {
     components: {
       Link: NavigationLink,
       navigate,
+      isTemporaryWorkspaceAvailable:
+        Boolean(session.data?.user.isOwner) ||
+        isNonOwnerTemporaryWorkspaceEnabled(
+          productSlug,
+          "editor",
+          isDevelopmentFeatureEnabled,
+        ),
     },
     path: productPath,
     productSlug,
@@ -46,7 +55,13 @@ export function ProductRoutePage() {
 
   return (
     <ProtectedRoute>
-      {route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner &&
+      {(route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner ||
+        (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.authenticated &&
+          !isNonOwnerTemporaryWorkspaceEnabled(
+            productSlug,
+            productPath,
+            isDevelopmentFeatureEnabled,
+          ))) &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
@@ -58,6 +73,16 @@ export function ProductRoutePage() {
       )}
     </ProtectedRoute>
   );
+}
+
+function isNonOwnerTemporaryWorkspaceEnabled(
+  productSlug: string,
+  productPath: string,
+  isDevelopmentFeatureEnabled: boolean,
+) {
+  return isDevelopmentFeatureEnabled &&
+    productSlug === "thoughtform" &&
+    productPath === "editor";
 }
 
 function getProductRouteMetadata(productSlug: string, productPath: string) {

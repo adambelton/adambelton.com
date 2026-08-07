@@ -25,6 +25,14 @@ export const ACTIVITIES = {
 
 export type Activity = (typeof ACTIVITIES)[keyof typeof ACTIVITIES];
 
+export const WORKSPACE_PERSISTENCE_TYPES = {
+  persistent: "persistent",
+  temporary: "temporary",
+} as const;
+
+export type WorkspacePersistenceType =
+  (typeof WORKSPACE_PERSISTENCE_TYPES)[keyof typeof WORKSPACE_PERSISTENCE_TYPES];
+
 export const READINESS_ACTIONS = {
   compose: "compose",
   reflect: "reflect",

@@ -19,8 +19,10 @@ import { validateDraftChange } from "packages/products/src/thoughtform/server/de
 import { validateDraftSelection } from "packages/products/src/thoughtform/server/delivery/http/draft-selection-context";
 import {
   CONVERSATION_ERROR_CODES,
+  WORKSPACE_PERSISTENCE_TYPES,
   type ConversationRequest,
   type ConversationStreamEvent,
+  type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import {
   noOpObservability,
@@ -30,15 +32,13 @@ import {
 } from "packages/observability/src";
 import { failure, success } from "packages/shared/src";
 
-type ConversationDeliveryKind = "persistent" | "temporary";
-
 type ConversationResponseHandlerInput = {
   context: Context;
   conversationId: string | null;
   conversation: ConversationResponder;
   conversations: ConversationStore;
   draftStore: DraftStore | null;
-  kind: ConversationDeliveryKind;
+  persistenceType: WorkspacePersistenceType;
   observability?: Observability;
 };
 
@@ -70,10 +70,14 @@ export async function handleConversationResponse(
     ),
   });
   if (result.status !== "responded") {
-    return conversationFailureResponse(input.context, result, input.kind);
+    return conversationFailureResponse(
+      input.context,
+      result,
+      input.persistenceType,
+    );
   }
 
-  if (input.kind === "temporary") {
+  if (input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary) {
     const current = await temporaryStore(input.conversations)
       .getCurrentConversation();
     if (!current) {
@@ -106,7 +110,7 @@ export async function handleConversationStream(
     observability: input.observability,
   });
 
-  if (input.kind === "temporary") {
+  if (input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary) {
     return conversationStreamResponse(withTemporaryExpiry(
       createEvents(),
       temporaryStore(input.conversations),
@@ -197,7 +201,7 @@ async function validateDraftContext(
 function conversationFailureResponse(
   context: Context,
   result: Exclude<RespondInWorkspaceResult, { status: "responded" }>,
-  kind: ConversationDeliveryKind,
+  persistenceType: WorkspacePersistenceType,
 ) {
   if (result.status === CONVERSATION_ERROR_CODES.notFound) {
     return context.json(failure(
@@ -206,7 +210,7 @@ function conversationFailureResponse(
     ), 404);
   }
   if (result.status === CONVERSATION_ERROR_CODES.unavailable) {
-    return kind === "temporary"
+    return persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary
       ? unavailableWorkspaceResponse(context)
       : context.json(failure(
           CONVERSATION_ERROR_CODES.notFound,

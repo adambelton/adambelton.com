@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  DRAFT_ERROR_CODES,
   REVISION_PROPOSAL_SCOPES,
   type DraftChange,
   type DraftOperationResponse,
@@ -13,6 +14,7 @@ import {
   type DraftSelection,
   type DraftingState,
   type Idea,
+  type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { ComposeDraft } from "packages/products/src/thoughtform/client/workspace/components/ComposeDraft";
 import { DraftHistory } from "packages/products/src/thoughtform/client/workspace/components/DraftHistory";
@@ -27,7 +29,7 @@ import {
   resolveDraftProposal,
   restoreDraft,
   saveDraft,
-  type DraftPersistenceKind,
+  DraftClientError,
 } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 
 export interface DraftPanelHandle {
@@ -40,7 +42,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   conversationId: string | null;
   ideas: Idea[];
   isActive: boolean;
-  kind: DraftPersistenceKind;
+  persistenceType: WorkspacePersistenceType;
   onDraftCreated: () => void;
   onAttachSelection: (selection: DraftSelection) => void;
   onDraftInterpretation: (
@@ -48,17 +50,19 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     change: DraftChange | null,
   ) => void;
   onDraftAdvanced: () => void;
+  onUnavailable?: () => void;
   hasDraftOffer?: boolean;
   initialWorkspace?: DraftingState | null;
 }>(function DraftPanel({
   conversationId,
   ideas,
   isActive,
-  kind,
+  persistenceType,
   onDraftCreated,
   onAttachSelection,
   onDraftInterpretation,
   onDraftAdvanced,
+  onUnavailable,
   hasDraftOffer = false,
   initialWorkspace = null,
 }, ref) {
@@ -69,48 +73,56 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   const [body, setBody] = useState(initialWorkspace?.draft?.body ?? "");
   const [selection, setSelection] = useState<DraftSelection | null>(null);
   const [proposalInstruction, setProposalInstruction] = useState("");
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isBusy, setIsBusy] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [detachedBody, setDetachedBody] = useState<string | null>(null);
 
   useEffect(() => {
     if (!conversationId) {
-      setLoading(false);
+      setIsLoading(false);
       setWorkspace(null);
       setBody("");
       interpretationRevisionRef.current = null;
       return;
     }
     if (initialWorkspace) {
-      setLoading(false);
+      setIsLoading(false);
       setWorkspace(initialWorkspace);
       setBody(initialWorkspace.draft?.body ?? "");
       return;
     }
     if (!isActive) return;
     let isCurrent = true;
-    setLoading(true);
-    void loadDraft(kind, conversationId).then((loaded) => {
+    setIsLoading(true);
+    void loadDraft(persistenceType, conversationId).then((loaded) => {
       if (!isCurrent) return;
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
-    }).catch(() => {
-      if (isCurrent) setStatus("The drafting state could not be loaded.");
+    }).catch((error) => {
+      if (!isCurrent) return;
+      if (
+        error instanceof DraftClientError &&
+        error.code === DRAFT_ERROR_CODES.unavailable
+      ) {
+        onUnavailable?.();
+        return;
+      }
+      setStatus("The drafting state could not be loaded.");
     }).finally(() => {
-      if (isCurrent) setLoading(false);
+      if (isCurrent) setIsLoading(false);
     });
     return () => {
       isCurrent = false;
     };
-  }, [conversationId, initialWorkspace, isActive, kind]);
+  }, [conversationId, initialWorkspace, isActive, persistenceType]);
 
   async function run(
     operation: () => Promise<DraftingState | DraftOperationResponse | null>,
     message: string,
   ) {
-    setBusy(true);
+    setIsBusy(true);
     setStatus(null);
     try {
       const result = await operation();
@@ -122,7 +134,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         interpretationRevisionRef.current = nextChange?.toRevision ?? null;
         onDraftAdvanced();
         if (nextChange && conversationId) {
-          void interpretDraftChange(kind, conversationId, nextChange)
+          void interpretDraftChange(persistenceType, conversationId, nextChange)
             .then((interpretation) => {
               if (interpretationRevisionRef.current === nextChange.toRevision) {
                 onDraftInterpretation(interpretation, nextChange);
@@ -139,8 +151,24 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       return true;
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "The draft could not be updated.");
+      if (
+        error instanceof DraftClientError &&
+        error.code === DRAFT_ERROR_CODES.unavailable
+      ) {
+        if (workspace?.draft && body !== workspace.draft.body) {
+          setDetachedBody(body);
+        }
+        setWorkspace(null);
+        setBody("");
+        setSelection(null);
+        setProposalInstruction("");
+        setIsHistoryOpen(false);
+        interpretationRevisionRef.current = null;
+        onUnavailable?.();
+        return false;
+      }
       if (conversationId) {
-        const current = await loadDraft(kind, conversationId).catch(() => null);
+        const current = await loadDraft(persistenceType, conversationId).catch(() => null);
         if (!current && workspace?.draft && body !== workspace.draft.body) {
           setDetachedBody(body);
           setBody("");
@@ -149,7 +177,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       }
       return false;
     } finally {
-      setBusy(false);
+      setIsBusy(false);
     }
   }
 
@@ -158,7 +186,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       return true;
     }
     return run(
-      () => saveDraft(kind, conversationId, {
+      () => saveDraft(persistenceType, conversationId, {
         expectedRevision: workspace.draft!.currentRevision,
         body,
       }),
@@ -173,7 +201,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setBody("");
       setSelection(null);
       setProposalInstruction("");
-      setHistoryOpen(false);
+      setIsHistoryOpen(false);
       setStatus(null);
       interpretationRevisionRef.current = null;
     },
@@ -185,7 +213,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       setBody("");
       setSelection(null);
       setProposalInstruction("");
-      setHistoryOpen(false);
+      setIsHistoryOpen(false);
       interpretationRevisionRef.current = null;
     },
     save,
@@ -214,13 +242,13 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         {detachedDraftRecovery}
         <ComposeDraft
           ideas={ideas}
-          isBusy={busy}
+          isBusy={isBusy}
           onCompose={async (input) => {
-            const created = await run(
-              () => composeDraft(kind, conversationId, input),
+            const wasDraftCreated = await run(
+              () => composeDraft(persistenceType, conversationId, input),
               "Draft composed.",
             );
-            if (created) onDraftCreated();
+            if (wasDraftCreated) onDraftCreated();
           }}
           submitLabel={hasDraftOffer ? "Accept offer and compose" : "Compose draft"}
         />
@@ -258,7 +286,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     >
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
-        <button className="underline" onClick={() => setHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
+        <button className="underline" onClick={() => setIsHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
       </header>
       {detachedDraftRecovery}
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
@@ -274,10 +302,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         value={body}
       />
       <div className="flex items-center gap-3">
-        <button className="border border-[var(--foreground)] px-4 py-2" disabled={busy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
+        <button className="border border-[var(--foreground)] px-4 py-2" disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
         <button
           className="underline"
-          disabled={busy || body !== draft.body}
+          disabled={isBusy || body !== draft.body}
           onClick={attachCurrentSelection}
           type="button"
         >
@@ -289,18 +317,18 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         <h3 className="font-semibold" id="revision-proposal-title">Assistant revision proposal</h3>
         {workspace.activeProposal?.state === "active" ? (
           <ProposalReview
-            isBusy={busy}
+            isBusy={isBusy}
             proposal={workspace.activeProposal}
             onAccept={() => run(
-              () => resolveDraftProposal(kind, conversationId, workspace.activeProposal!.id, "accept", draft.currentRevision),
+              () => resolveDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, "accept", draft.currentRevision),
               "Proposal accepted as a new draft revision.",
             ).then(() => undefined)}
             onReject={() => run(
-              () => resolveDraftProposal(kind, conversationId, workspace.activeProposal!.id, "reject"),
+              () => resolveDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, "reject"),
               "Proposal rejected; the draft is unchanged.",
             ).then(() => undefined)}
             onAmend={(instruction) => run(
-              () => amendDraftProposal(kind, conversationId, workspace.activeProposal!.id, {
+              () => amendDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, {
                 expectedProposalRevision: workspace.activeProposal!.currentProposalRevision,
                 userInstruction: instruction,
               }),
@@ -316,10 +344,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             </p>
             <button
               className="w-fit underline"
-              disabled={busy}
+              disabled={isBusy}
               onClick={() => void run(
                 () => resolveDraftProposal(
-                  kind,
+                  persistenceType,
                   conversationId,
                   workspace.activeProposal!.id,
                   "reject",
@@ -341,12 +369,12 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             <textarea onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
             <button
               className="w-fit border border-[var(--foreground)] px-4 py-2"
-              disabled={busy || !proposalInstruction.trim() || body !== draft.body}
+              disabled={isBusy || !proposalInstruction.trim() || body !== draft.body}
               onClick={() => {
                 const currentSelection = readCurrentSelection();
                 setSelection(currentSelection);
                 void run(
-                () => proposeDraftRevision(kind, conversationId, {
+                () => proposeDraftRevision(persistenceType, conversationId, {
                   expectedDraftRevision: draft.currentRevision,
                   scope: currentSelection
                     ? REVISION_PROPOSAL_SCOPES.passage
@@ -364,16 +392,16 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
           </>
         )}
       </section>
-      {historyOpen ? (
+      {isHistoryOpen ? (
         <DraftHistory
           draft={draft}
           revisions={workspace.revisions}
           onClose={() => {
-            setHistoryOpen(false);
+            setIsHistoryOpen(false);
             globalThis.setTimeout(() => historyButtonRef.current?.focus(), 0);
           }}
           onRestore={(revision) => run(
-            () => restoreDraft(kind, conversationId, {
+            () => restoreDraft(persistenceType, conversationId, {
               expectedRevision: draft.currentRevision,
               restoreRevision: revision,
             }),
