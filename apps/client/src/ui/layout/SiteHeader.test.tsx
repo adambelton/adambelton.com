@@ -18,12 +18,23 @@ describe("SiteHeader", () => {
   it("does not advertise the private login route to anonymous visitors", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter>
-        <SiteHeader />
+        <SiteHeader showAnonymousLogin={false} />
       </MemoryRouter>,
     );
 
     expect(markup).not.toContain("Log in");
     expect(markup).not.toContain('href="/login"');
+  });
+
+  it("makes authentication discoverable when the development host enables it", () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter>
+        <SiteHeader showAnonymousLogin />
+      </MemoryRouter>,
+    );
+
+    expect(markup).toContain("Log in");
+    expect(markup).toContain('href="/login"');
   });
 
   it("keeps logout available for an authenticated owner", () => {

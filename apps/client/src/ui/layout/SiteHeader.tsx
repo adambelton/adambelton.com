@@ -1,7 +1,11 @@
 import { useAuthSession } from "apps/client/src/auth";
 import { TextLink } from "apps/client/src/ui/components";
 
-export function SiteHeader() {
+export function SiteHeader({
+  showAnonymousLogin = import.meta.env.DEV,
+}: {
+  showAnonymousLogin?: boolean;
+} = {}) {
   const session = useAuthSession();
 
   return (
@@ -13,7 +17,11 @@ export function SiteHeader() {
         <TextLink href="/">Home</TextLink>
         <TextLink href="/products">Products</TextLink>
         <TextLink href="/about">About</TextLink>
-        {session.data ? <TextLink href="/logout">Log out</TextLink> : null}
+        {session.data
+          ? <TextLink href="/logout">Log out</TextLink>
+          : showAnonymousLogin
+            ? <TextLink href="/login">Log in</TextLink>
+            : null}
       </nav>
     </header>
   );
