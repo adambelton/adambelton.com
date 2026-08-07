@@ -40,7 +40,10 @@ import {
   sendTemporaryIdeaAction,
 } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
 import { DraftPanel, type DraftPanelHandle } from "packages/products/src/thoughtform/client/workspace/components/DraftPanel";
-import type { DraftPersistenceKind } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
+import {
+  WORKSPACE_PERSISTENCE_TYPES,
+  type WorkspacePersistenceType,
+} from "packages/products/src/thoughtform/shared";
 import { ResponseFormingIndicator } from "packages/products/src/thoughtform/client/workspace/components/ResponseFormingIndicator";
 
 interface ConversationEditorProps {
@@ -60,7 +63,7 @@ interface ConversationEditorProps {
     ideaId: string,
     request: IdeaActionRequest,
   ) => Promise<IdeaActionResult>;
-  draftPersistenceKind?: DraftPersistenceKind;
+  draftPersistenceType?: WorkspacePersistenceType;
   initialDraftingState?: DraftingState | null;
 }
 
@@ -74,7 +77,7 @@ export function ConversationEditor({
   onUnavailable,
   sendMessage = sendConversationMessage,
   sendIdeaAction = sendTemporaryIdeaAction,
-  draftPersistenceKind = "temporary",
+  draftPersistenceType = WORKSPACE_PERSISTENCE_TYPES.temporary,
   initialDraftingState = null,
 }: ConversationEditorProps) {
   const draftRef = useRef<DraftPanelHandle>(null);
@@ -425,7 +428,7 @@ export function ConversationEditor({
               isActive={
                 mobileSurface === "draft" || workspaceView === "draft"
               }
-              kind={draftPersistenceKind}
+              persistenceType={draftPersistenceType}
               hasDraftOffer={hasDraftOffer}
               initialWorkspace={initialDraftingState}
               onDraftCreated={() => {

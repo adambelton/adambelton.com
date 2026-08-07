@@ -5,8 +5,12 @@ import { createDraftStore } from "packages/products/src/thoughtform/server/capab
 import { createDraftRoute } from "packages/products/src/thoughtform/server/delivery/http/draft-route";
 import { TestConversationPersistence } from "packages/products/src/thoughtform/testing/fakes/test-conversation-persistence";
 import { TestDraftPersistence } from "packages/products/src/thoughtform/testing/fakes/test-draft-persistence";
-import type { Idea } from "packages/products/src/thoughtform/shared";
-import type { DraftOperationResponse, DraftingState } from "packages/products/src/thoughtform/shared";
+import {
+  WORKSPACE_PERSISTENCE_TYPES,
+  type DraftOperationResponse,
+  type DraftingState,
+  type Idea,
+} from "packages/products/src/thoughtform/shared";
 import type { ApiResponse } from "packages/shared/src";
 
 const idea: Idea = {
@@ -41,7 +45,7 @@ describe("draft HTTP route", () => {
     });
     const drafts = createDraftStore(new TestDraftPersistence());
     app = new Hono().route("/drafts", createDraftRoute({
-      kind: "persistent",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
       getConversationStore: async () => conversations,
       getDraftStore: async () => drafts,
       compositionModel: { compose: async () => ({ body: "The first draft." }) },
@@ -139,7 +143,7 @@ describe("draft HTTP route", () => {
     );
     const drafts = createDraftStore(new TestDraftPersistence());
     const temporary = new Hono().route("/temporary-drafts", createDraftRoute({
-      kind: "temporary",
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
       getConversationStore: async () => conversations,
       getDraftStore: async () => drafts,
       compositionModel: { compose: async () => ({ body: "Never called." }) },

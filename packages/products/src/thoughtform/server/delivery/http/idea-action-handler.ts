@@ -5,6 +5,8 @@ import {
   CONVERSATION_ERROR_CODES,
   IDEA_ACTION_RESULT_STATUSES,
   IDEA_MAP_ERROR_CODES,
+  WORKSPACE_PERSISTENCE_TYPES,
+  type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { failure, success } from "packages/shared/src";
 
@@ -13,7 +15,7 @@ export interface HandleIdeaActionRequestInput {
   conversationId: string;
   ideaId: string;
   conversations: ConversationStore;
-  kind: "persistent" | "temporary";
+  persistenceType: WorkspacePersistenceType;
 }
 
 export async function handleIdeaActionRequest(
@@ -33,7 +35,7 @@ export async function handleIdeaActionRequest(
     conversations: input.conversations,
   });
   if (result.status === CONVERSATION_ERROR_CODES.notFound) {
-    if (input.kind === "temporary") {
+    if (input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary) {
       return json(
         failure(
           CONVERSATION_ERROR_CODES.unavailable,
@@ -53,7 +55,7 @@ export async function handleIdeaActionRequest(
           }),
           409,
         )
-      : input.kind === "temporary"
+      : input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary
         ? json(
             failure(
               CONVERSATION_ERROR_CODES.unavailable,

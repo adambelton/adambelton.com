@@ -18,8 +18,10 @@ import {
 import {
   DRAFT_ERROR_CODES,
   REVISION_PROPOSAL_SCOPES,
+  WORKSPACE_PERSISTENCE_TYPES,
   type DraftSelection,
   type RevisionProposalScope,
+  type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { interpretSavedDraftChange } from "packages/products/src/thoughtform/server/application/workspace";
 import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
@@ -33,7 +35,7 @@ export interface CreateDraftRouteDependencies {
   getConversationStore: Resolver<ConversationStore>;
   getDraftStore: Resolver<DraftStore>;
   proposalModel: RevisionProposalModel;
-  kind: "persistent" | "temporary";
+  persistenceType: WorkspacePersistenceType;
 }
 
 export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
@@ -44,7 +46,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     return context.json(success(
       await resolved.drafts.getDraftingState(conversationId),
@@ -58,7 +60,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     const workspace = await resolved.conversations.getConversationWorkspace(
       conversationId,
     );
-    if (!workspace) return missingWorkspace(context, dependencies.kind);
+    if (!workspace) return missingWorkspace(context, dependencies.persistenceType);
     const body = await readBody(context.req.raw);
     const selectedIdeaIds = body?.selectedIdeaIds;
     if (!isStringArray(selectedIdeaIds)) return invalid(context);
@@ -81,7 +83,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const expectedRevision = body?.expectedRevision;
@@ -102,7 +104,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const expectedRevision = body?.expectedRevision;
@@ -123,7 +125,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const change = isDraftChange(body.change) ? body.change : null;
@@ -149,7 +151,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const expectedDraftRevision = body?.expectedDraftRevision;
@@ -175,7 +177,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const expectedProposalRevision = body?.expectedProposalRevision;
@@ -198,7 +200,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     const expectedDraftRevision = body?.expectedDraftRevision;
@@ -216,7 +218,7 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!resolved) return notFound(context);
     const conversationId = context.req.param("conversationId");
     if (!(await resolved.conversations.getConversationWorkspace(conversationId))) {
-      return missingWorkspace(context, dependencies.kind);
+      return missingWorkspace(context, dependencies.persistenceType);
     }
     const body = await readBody(context.req.raw);
     return run(context, () => service(resolved.drafts, dependencies).reject({
@@ -339,9 +341,9 @@ function notFound(context: Context) {
 
 function missingWorkspace(
   context: Context,
-  kind: CreateDraftRouteDependencies["kind"],
+  persistenceType: CreateDraftRouteDependencies["persistenceType"],
 ) {
-  return kind === "temporary"
+  return persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary
     ? context.json(
         failure(
           DRAFT_ERROR_CODES.unavailable,

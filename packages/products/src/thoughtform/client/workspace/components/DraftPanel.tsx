@@ -14,6 +14,7 @@ import {
   type DraftSelection,
   type DraftingState,
   type Idea,
+  type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { ComposeDraft } from "packages/products/src/thoughtform/client/workspace/components/ComposeDraft";
 import { DraftHistory } from "packages/products/src/thoughtform/client/workspace/components/DraftHistory";
@@ -29,7 +30,6 @@ import {
   restoreDraft,
   saveDraft,
   DraftClientError,
-  type DraftPersistenceKind,
 } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 
 export interface DraftPanelHandle {
@@ -42,7 +42,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   conversationId: string | null;
   ideas: Idea[];
   isActive: boolean;
-  kind: DraftPersistenceKind;
+  persistenceType: WorkspacePersistenceType;
   onDraftCreated: () => void;
   onAttachSelection: (selection: DraftSelection) => void;
   onDraftInterpretation: (
@@ -57,7 +57,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
   conversationId,
   ideas,
   isActive,
-  kind,
+  persistenceType,
   onDraftCreated,
   onAttachSelection,
   onDraftInterpretation,
@@ -96,7 +96,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     if (!isActive) return;
     let isCurrent = true;
     setIsLoading(true);
-    void loadDraft(kind, conversationId).then((loaded) => {
+    void loadDraft(persistenceType, conversationId).then((loaded) => {
       if (!isCurrent) return;
       setWorkspace(loaded);
       setBody(loaded?.draft?.body ?? "");
@@ -116,7 +116,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     return () => {
       isCurrent = false;
     };
-  }, [conversationId, initialWorkspace, isActive, kind]);
+  }, [conversationId, initialWorkspace, isActive, persistenceType]);
 
   async function run(
     operation: () => Promise<DraftingState | DraftOperationResponse | null>,
@@ -134,7 +134,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         interpretationRevisionRef.current = nextChange?.toRevision ?? null;
         onDraftAdvanced();
         if (nextChange && conversationId) {
-          void interpretDraftChange(kind, conversationId, nextChange)
+          void interpretDraftChange(persistenceType, conversationId, nextChange)
             .then((interpretation) => {
               if (interpretationRevisionRef.current === nextChange.toRevision) {
                 onDraftInterpretation(interpretation, nextChange);
@@ -168,7 +168,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         return false;
       }
       if (conversationId) {
-        const current = await loadDraft(kind, conversationId).catch(() => null);
+        const current = await loadDraft(persistenceType, conversationId).catch(() => null);
         if (!current && workspace?.draft && body !== workspace.draft.body) {
           setDetachedBody(body);
           setBody("");
@@ -186,7 +186,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       return true;
     }
     return run(
-      () => saveDraft(kind, conversationId, {
+      () => saveDraft(persistenceType, conversationId, {
         expectedRevision: workspace.draft!.currentRevision,
         body,
       }),
@@ -245,7 +245,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
           isBusy={isBusy}
           onCompose={async (input) => {
             const wasDraftCreated = await run(
-              () => composeDraft(kind, conversationId, input),
+              () => composeDraft(persistenceType, conversationId, input),
               "Draft composed.",
             );
             if (wasDraftCreated) onDraftCreated();
@@ -320,15 +320,15 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             isBusy={isBusy}
             proposal={workspace.activeProposal}
             onAccept={() => run(
-              () => resolveDraftProposal(kind, conversationId, workspace.activeProposal!.id, "accept", draft.currentRevision),
+              () => resolveDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, "accept", draft.currentRevision),
               "Proposal accepted as a new draft revision.",
             ).then(() => undefined)}
             onReject={() => run(
-              () => resolveDraftProposal(kind, conversationId, workspace.activeProposal!.id, "reject"),
+              () => resolveDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, "reject"),
               "Proposal rejected; the draft is unchanged.",
             ).then(() => undefined)}
             onAmend={(instruction) => run(
-              () => amendDraftProposal(kind, conversationId, workspace.activeProposal!.id, {
+              () => amendDraftProposal(persistenceType, conversationId, workspace.activeProposal!.id, {
                 expectedProposalRevision: workspace.activeProposal!.currentProposalRevision,
                 userInstruction: instruction,
               }),
@@ -347,7 +347,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
               disabled={isBusy}
               onClick={() => void run(
                 () => resolveDraftProposal(
-                  kind,
+                  persistenceType,
                   conversationId,
                   workspace.activeProposal!.id,
                   "reject",
@@ -374,7 +374,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
                 const currentSelection = readCurrentSelection();
                 setSelection(currentSelection);
                 void run(
-                () => proposeDraftRevision(kind, conversationId, {
+                () => proposeDraftRevision(persistenceType, conversationId, {
                   expectedDraftRevision: draft.currentRevision,
                   scope: currentSelection
                     ? REVISION_PROPOSAL_SCOPES.passage
@@ -401,7 +401,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             globalThis.setTimeout(() => historyButtonRef.current?.focus(), 0);
           }}
           onRestore={(revision) => run(
-            () => restoreDraft(kind, conversationId, {
+            () => restoreDraft(persistenceType, conversationId, {
               expectedRevision: draft.currentRevision,
               restoreRevision: revision,
             }),
