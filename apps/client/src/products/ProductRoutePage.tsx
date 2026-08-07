@@ -11,7 +11,7 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { isThoughtFormNonOwnerTemporaryAccessEnabled } from "apps/client/src/products/thoughtform/access-policy";
+import { isDevelopmentFeatureEnabled } from "packages/shared/src";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
@@ -70,9 +70,7 @@ function isNonOwnerTemporaryWorkspaceEnabled(
   productSlug: string,
   productPath: string,
 ) {
-  return isThoughtFormNonOwnerTemporaryAccessEnabled({
-    development: import.meta.env.DEV,
-  }) &&
+  return isDevelopmentFeatureEnabled(import.meta.env.DEV) &&
     productSlug === "thoughtform" &&
     productPath === "editor";
 }

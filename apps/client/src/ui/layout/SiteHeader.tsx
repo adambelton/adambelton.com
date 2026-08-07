@@ -1,8 +1,9 @@
 import { useAuthSession } from "apps/client/src/auth";
 import { TextLink } from "apps/client/src/ui/components";
+import { isDevelopmentFeatureEnabled } from "packages/shared/src";
 
 export function SiteHeader({
-  showAuthentication = import.meta.env.DEV,
+  showAuthentication = isDevelopmentFeatureEnabled(import.meta.env.DEV),
 }: {
   showAuthentication?: boolean;
 } = {}) {

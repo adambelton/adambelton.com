@@ -42,6 +42,7 @@ import { createThoughtFormAiDisclosureRoute } from "apps/api/src/products/though
 import {
   createThoughtFormOwnerObservationRoute,
 } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
+import { isDevelopmentFeatureEnabled } from "packages/shared/src";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -115,12 +116,6 @@ export function getTemporaryConversationAccess(
         userId: session.user.id,
       }
     : null;
-}
-
-export function isNonOwnerTemporaryWorkspaceAccessEnabled(
-  environment: string | undefined,
-) {
-  return environment === "development";
 }
 
 export function getPersistentConversationAccess(
@@ -198,7 +193,7 @@ const hostedAiConfiguration = {
   openAiModel: process.env.OPENAI_MODEL,
 } satisfies HostedAiConfiguration;
 const nonOwnerTemporaryWorkspaceAccessEnabled =
-  isNonOwnerTemporaryWorkspaceAccessEnabled(process.env.NODE_ENV);
+  isDevelopmentFeatureEnabled(process.env.NODE_ENV === "development");
 const hostedLlmClient = createLlmClient(hostedAiConfiguration);
 const ownerObservability = createBraintrustObservability({
   apiKey: process.env.BRAINTRUST_API_KEY,
