@@ -30,18 +30,22 @@ packages/products/src/thoughtform/
 ├── server/                                    What the product does
 │   ├── capabilities/                          Rules owned by one product capability
 │   │   ├── conversation/                      Guides inquiry and retains its history
-│   │   │   ├── conversation-model-contract.ts Owns the prompt and output schema
+│   │   │   ├── conversation-model-contract.ts Owns the structured output schema
 │   │   │   ├── conversation-model-request.ts  Builds bounded model context
 │   │   │   ├── conversation-model-response.ts Validates model output
+│   │   │   ├── prompts/                        Owns the Discovery prompt fallback
 │   │   │   └── ports/                         AI and storage requirements
 │   │   ├── idea-map/                          Analyses and maintains established ideas
-│   │   │   └── idea-map-model-output.ts        Validates proposed model changes
-│   │   └── drafting/                          Composes, versions and revises the draft
-│   │       └── ports/                         AI and storage requirements
+│   │   │   ├── idea-map-model-output.ts        Validates proposed model changes
+│   │   │   └── prompts/                        Owns the Idea Map prompt fallback
+│   │   ├── drafting/                          Composes, versions and revises the draft
+│   │   │   ├── prompts/                        Owns the three Draft prompt fallbacks
+│   │   │   └── ports/                         AI and storage requirements
 │   ├── application/                           Coordinates complete user operations
 │   │   └── workspace/                         Connects conversation, ideas and drafts
-│   └── delivery/                              Ways to invoke product operations
-│       └── http/                              Browser-facing HTTP entrance
+│   ├── delivery/                              Ways to invoke product operations
+│   │   └── http/                              Browser-facing HTTP entrance
+│   └── ports/                                 Shared product server requirements
 │
 └── testing/                                   Product-owned verification
     ├── fakes/                                  Deterministic external substitutes
@@ -50,14 +54,23 @@ packages/products/src/thoughtform/
     └── evaluations/                            Real-model behavioural checks
 ```
 
-Owner-only Braintrust observations use the runtime-neutral contracts in
-`packages/observability`. The API host supplies the Braintrust adapter only to
-the persistent owner conversation, Idea Map, and composition operations; every temporary workspace receives the no-op
-implementation and emits neither content nor metadata. Synthetic evaluations
-may also record full content so behavioural regressions can be investigated.
-Anthropic owner-provider spans also record the explicitly selected effort. The
-local development baseline is Sonnet 5 at medium effort; temporary workspace traffic
-remains entirely outside this observation boundary.
+Owner-only Langfuse observations use the runtime-neutral contracts in
+`packages/observability`. The API host supplies the Langfuse/OpenTelemetry
+adapter only to the persistent owner conversation, Idea Map, and composition
+operations; every temporary workspace receives the no-op implementation and
+emits neither content nor metadata. Synthetic evaluations may also record full
+content so behavioural regressions can be investigated. Anthropic owner-provider
+spans also record the explicitly selected effort. The local development baseline
+is Sonnet 5 at medium effort; temporary workspace traffic remains entirely
+outside this observation boundary.
+
+ThoughtForm owns the five prompt definitions and reviewed availability fallbacks.
+The API host retrieves their `development` or `production` Langfuse versions and
+links the resolved version to generation observations. A production promotion
+must update its repository fallback in the same reviewed change.
+Langfuse `review` versions enter the repository through an automated pull
+request; the host-owned automation ledger records immutable versions and SHA-256
+fingerprints so post-merge promotion fails closed on drift.
 
 The temporary workspace is an authenticated product capability. The API host
 owns its release policy: development enables isolated non-owner workspaces,

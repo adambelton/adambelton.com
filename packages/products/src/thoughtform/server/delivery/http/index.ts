@@ -26,6 +26,9 @@ export type CreateThoughtFormApiRouteDependencies =
       persistentStreamingConversationService?: CreateConversationsRouteDependencies["streamingConversationService"];
       persistentIdeaMapAnalysis?: CreateConversationsRouteDependencies["ideaMapAnalysis"];
       persistentObservability?: CreateConversationsRouteDependencies["observability"];
+      persistentCompositionModel?: DraftCompositionModel;
+      persistentInterpretationModel?: CreateDraftRouteDependencies["interpretationModel"];
+      persistentProposalModel?: RevisionProposalModel;
     };
 
 export function createThoughtFormApiRoute(
@@ -54,9 +57,12 @@ export function createThoughtFormApiRoute(
   }));
   route.route("/drafts", createDraftRoute({
     persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
-    compositionModel: dependencies.compositionModel,
-    interpretationModel: dependencies.interpretationModel,
-    proposalModel: dependencies.proposalModel,
+    compositionModel:
+      dependencies.persistentCompositionModel ?? dependencies.compositionModel,
+    interpretationModel:
+      dependencies.persistentInterpretationModel ?? dependencies.interpretationModel,
+    proposalModel:
+      dependencies.persistentProposalModel ?? dependencies.proposalModel,
     getConversationStore: dependencies.getPersistentConversationStore,
     getDraftStore: dependencies.getPersistentDraftStore,
   }));

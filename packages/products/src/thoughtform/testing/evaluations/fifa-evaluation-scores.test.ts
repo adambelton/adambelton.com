@@ -10,7 +10,7 @@ import {
   structuredOutputScore,
   unresolvedPracticalTensionScore,
   type FifaConversationEvaluation,
-} from "packages/products/src/thoughtform/testing/evaluations/braintrust-fifa-scores";
+} from "packages/products/src/thoughtform/testing/evaluations/fifa-evaluation-scores";
 import {
   ACTIVITIES,
   ASSISTANT_MOVES,
@@ -24,7 +24,7 @@ import {
   type IdeaMap,
 } from "packages/products/src/thoughtform/shared";
 
-describe("Braintrust FIFA evaluation scores", () => {
+describe("FIFA evaluation scores", () => {
   it("scores a sustained synthetic FIFA conversation deterministically", () => {
     const output = createEvaluation();
 

@@ -1,0 +1,27 @@
+{
+  "thoughtform/discovery": {
+    "version": 2,
+    "sha256": "e4ae1a7d9b1d7d2de8631bd1a96681fcd2405586d0a2d440b8be7c3a1bb4fe0a",
+    "variables": []
+  },
+  "thoughtform/idea-map-analysis": {
+    "version": 2,
+    "sha256": "afa7fc0b17080e379d8c2ebf0c8b11ba929c3a788dda5ed7fea23c423f664959",
+    "variables": []
+  },
+  "thoughtform/draft-composition": {
+    "version": 3,
+    "sha256": "b85f52db7b7d1c82c8761a9aa1459253b3a9b7a18546080d752bb518bfa3a0e5",
+    "variables": []
+  },
+  "thoughtform/revision-proposal": {
+    "version": 3,
+    "sha256": "006bdc3c0a84116732780b3a73854b684665d60c3b2130e35436cc1f2b6306b8",
+    "variables": []
+  },
+  "thoughtform/saved-change-interpretation": {
+    "version": 3,
+    "sha256": "2e2aed7ca52b9fec88118c806ea92fc110ee7ff13d7107d04780b502f06287e9",
+    "variables": []
+  }
+}

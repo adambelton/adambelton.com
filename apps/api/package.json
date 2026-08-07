@@ -7,6 +7,10 @@
     "dev": "tsx src/bootstrap/prepare-development.ts && tsx watch src/bootstrap/start-server.ts",
     "start": "node --import tsx src/bootstrap/start-production-server.ts",
     "evaluate:thoughtform-composition": "tsx src/products/thoughtform/testing/hosted-draft-evaluation.ts",
+    "update:thoughtform-prompt-fallback": "tsx src/products/thoughtform/adapters/prompts/automation/update-thoughtform-prompt-fallback.ts",
+    "validate:thoughtform-prompts": "tsx src/products/thoughtform/adapters/prompts/automation/validate-thoughtform-prompt-fallbacks.ts",
+    "promote:thoughtform-prompt": "tsx src/products/thoughtform/adapters/prompts/automation/promote-thoughtform-prompt-fallbacks.ts",
+    "sync:thoughtform-prompts": "tsx src/products/thoughtform/adapters/prompts/automation/sync-langfuse-development-prompts.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
   },
@@ -18,7 +22,11 @@
     "@adambelton/products": "workspace:*",
     "@adambelton/shared": "workspace:*",
     "@hono/node-server": "^1.14.4",
-    "braintrust": "^3.27.0",
+    "@langfuse/client": "5.10.0",
+    "@langfuse/otel": "5.10.0",
+    "@langfuse/tracing": "5.10.0",
+    "@opentelemetry/api": "1.9.1",
+    "@opentelemetry/sdk-node": "0.221.0",
     "hono": "^4.8.4",
     "tsx": "^4.20.3"
   },

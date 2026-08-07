@@ -35,6 +35,9 @@ export class LlmConversationModelAdapter implements ConversationModel {
           }),
         ).byteLength,
       }, async () => {
+      if (request.promptReference) {
+        this.observability.recordPrompt(request.promptReference);
+      }
       this.observability.recordContent({ input: request });
       const response = await this.llmClient.createMessage({
         maxTokens: request.maxOutputTokens,
@@ -44,13 +47,15 @@ export class LlmConversationModelAdapter implements ConversationModel {
         messages: request.messages,
       });
 
+      this.observability.recordGeneration({
+        model: response.model,
+        inputTokens: response.inputTokens,
+        outputTokens: response.outputTokens,
+        reasoningTokens: response.reasoningTokens,
+        cacheReadTokens: response.cacheReadTokens,
+        cacheWriteTokens: response.cacheWriteTokens,
+      });
       this.observability.record({
-        [OBSERVATION_ATTRIBUTE_NAMES.model]: response.model,
-        [OBSERVATION_ATTRIBUTE_NAMES.inputTokens]: response.inputTokens ?? 0,
-        [OBSERVATION_ATTRIBUTE_NAMES.outputTokens]: response.outputTokens ?? 0,
-        [OBSERVATION_ATTRIBUTE_NAMES.reasoningTokens]: response.reasoningTokens ?? 0,
-        [OBSERVATION_ATTRIBUTE_NAMES.cacheReadTokens]: response.cacheReadTokens ?? 0,
-        [OBSERVATION_ATTRIBUTE_NAMES.cacheWriteTokens]: response.cacheWriteTokens ?? 0,
         [OBSERVATION_ATTRIBUTE_NAMES.outputCharacters]: response.content.length,
       });
       this.observability.recordContent({ output: response.content });
@@ -89,6 +94,9 @@ export class LlmConversationModelAdapter implements ConversationModel {
   private async *generateStream(request: ConversationModelRequest) {
     const startedAt = globalThis.performance.now();
     let isFirstDeltaRecorded = false;
+    if (request.promptReference) {
+      this.observability.recordPrompt(request.promptReference);
+    }
     this.observability.recordContent({ input: request });
     if (!this.llmClient.streamMessage) {
       const response = await this.llmClient.createMessage({
@@ -134,19 +142,15 @@ export class LlmConversationModelAdapter implements ConversationModel {
   }
 
   private recordUsage(response: Awaited<ReturnType<LlmClient["createMessage"]>>) {
+    this.observability.recordGeneration({
+      model: response.model,
+      inputTokens: response.inputTokens,
+      outputTokens: response.outputTokens,
+      reasoningTokens: response.reasoningTokens,
+      cacheReadTokens: response.cacheReadTokens,
+      cacheWriteTokens: response.cacheWriteTokens,
+    });
     this.observability.record({
-      ...(this.provider
-        ? { [OBSERVATION_ATTRIBUTE_NAMES.provider]: this.provider }
-        : {}),
-      ...(this.effort
-        ? { [OBSERVATION_ATTRIBUTE_NAMES.effort]: this.effort }
-        : {}),
-      [OBSERVATION_ATTRIBUTE_NAMES.model]: response.model,
-      [OBSERVATION_ATTRIBUTE_NAMES.inputTokens]: response.inputTokens ?? 0,
-      [OBSERVATION_ATTRIBUTE_NAMES.outputTokens]: response.outputTokens ?? 0,
-      [OBSERVATION_ATTRIBUTE_NAMES.reasoningTokens]: response.reasoningTokens ?? 0,
-      [OBSERVATION_ATTRIBUTE_NAMES.cacheReadTokens]: response.cacheReadTokens ?? 0,
-      [OBSERVATION_ATTRIBUTE_NAMES.cacheWriteTokens]: response.cacheWriteTokens ?? 0,
       [OBSERVATION_ATTRIBUTE_NAMES.outputCharacters]: response.content.length,
     });
     this.observability.recordContent({ output: response.content });

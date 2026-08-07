@@ -49,14 +49,22 @@ ANTHROPIC_MODEL=claude-sonnet-5
 ANTHROPIC_EFFORT=medium
 ```
 
-Owner-only Braintrust observation is optional. If enabled, configure the three
-values together:
+Langfuse Prompt Management and owner-only observation are enabled by configuring
+the three credentials together:
 
 ```txt
-BRAINTRUST_API_KEY=<production Braintrust key>
-BRAINTRUST_PROJECT=ThoughtForm
-BRAINTRUST_ENVIRONMENT=production
+LANGFUSE_PUBLIC_KEY=<production Langfuse public key>
+LANGFUSE_SECRET_KEY=<production Langfuse secret key>
+LANGFUSE_BASE_URL=https://cloud.langfuse.com
+LANGFUSE_TRACING_ENVIRONMENT=production
 ```
+
+Production prompt promotion is repository-driven. Configure the Langfuse
+secrets and Repository Dispatch credential described in
+`docs/local-development.md`, protect `main`, and require CI before merging
+generated fallback pull requests. The promotion
+workflow runs only when reviewed fallback metadata reaches `main`; it fetches
+the recorded immutable versions and refuses any content or fingerprint mismatch.
 
 Do not set `PORT`; Railway supplies it. The server listens on `0.0.0.0` by
 default. Railway documents `X-Real-IP` as the client address supplied by its
@@ -74,7 +82,7 @@ reach the origin directly or does not replace the incoming header.
 6. Verify the homepage, article, About, Products, ThoughtForm overview and
    privacy pages, direct deep links, static assets, owner sign-in, restored
    owner conversations, and a streamed ThoughtForm response.
-7. Inspect Railway logs and Braintrust for unexpected errors or duplicate
+7. Inspect Railway logs and Langfuse for unexpected errors or duplicate
    observations.
 
 Do not attach `adambelton.com` during this verification. Custom-domain DNS,

@@ -4,6 +4,19 @@ export type ObservationContent = Readonly<{
   input?: unknown;
   output?: unknown;
 }>;
+export type ObservationPrompt = Readonly<{
+  name: string;
+  version: number;
+  isFallback: boolean;
+}>;
+export type ObservationGeneration = Readonly<{
+  model: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  reasoningTokens?: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
+}>;
 
 export interface Observability {
   observe<T>(
@@ -13,12 +26,16 @@ export interface Observability {
   ): Promise<T>;
   record(attributes: ObservationAttributes): void;
   recordContent(content: ObservationContent): void;
+  recordPrompt(prompt: ObservationPrompt): void;
+  recordGeneration(generation: ObservationGeneration): void;
 }
 
 export const noOpObservability: Observability = {
   observe: (_name, _attributes, operation) => operation(),
   record() {},
   recordContent() {},
+  recordPrompt() {},
+  recordGeneration() {},
 };
 
 export async function* observeStream<T>(
@@ -80,4 +97,5 @@ export const OBSERVATION_ATTRIBUTE_NAMES = {
   clientDurationMs: "client_duration_ms",
   serverTimeToFirstTokenMs: "server_time_to_first_token_ms",
   correlationId: "correlation_id",
+  sessionId: "session_id",
 } as const;

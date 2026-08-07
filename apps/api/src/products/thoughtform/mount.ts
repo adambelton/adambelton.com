@@ -37,7 +37,9 @@ import {
 import { createThoughtFormApiRoute } from "packages/products/src/thoughtform/server/delivery/http";
 import { noOpObservability } from "packages/observability/src";
 import type { Observability } from "packages/observability/src";
-import { createBraintrustObservability } from "apps/api/src/platform/observability/braintrust-observability";
+import { createLangfuseObservability } from "apps/api/src/platform/observability/langfuse-observability";
+import { createLangfuseThoughtFormPromptProvider } from "apps/api/src/products/thoughtform/adapters/prompts/langfuse-thoughtform-prompt-provider";
+import { fallbackThoughtFormPromptProvider } from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
 import { createThoughtFormAiDisclosureRoute } from "apps/api/src/products/thoughtform/delivery/ai-disclosure-route";
 import {
   createThoughtFormOwnerObservationRoute,
@@ -193,11 +195,22 @@ const hostedAiConfiguration = {
   openAiModel: process.env.OPENAI_MODEL,
 } satisfies HostedAiConfiguration;
 const hostedLlmClient = createLlmClient(hostedAiConfiguration);
-const ownerObservability = createBraintrustObservability({
-  apiKey: process.env.BRAINTRUST_API_KEY,
-  projectName: process.env.BRAINTRUST_PROJECT,
-  environment: process.env.BRAINTRUST_ENVIRONMENT,
+const langfuseEnvironment = process.env.NODE_ENV === "production"
+  ? "production"
+  : "development";
+const ownerObservability = createLangfuseObservability({
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
+  baseUrl: process.env.LANGFUSE_BASE_URL,
+  environment: process.env.LANGFUSE_TRACING_ENVIRONMENT ?? langfuseEnvironment,
 }) ?? noOpObservability;
+const thoughtFormPromptProvider = createLangfuseThoughtFormPromptProvider({
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
+  baseUrl: process.env.LANGFUSE_BASE_URL,
+  label: langfuseEnvironment,
+  cacheTtlSeconds: langfuseEnvironment === "development" ? 0 : 60,
+}) ?? fallbackThoughtFormPromptProvider;
 export function createConversationServices(
   client: LlmClient | null,
   observability: Observability,
@@ -217,13 +230,23 @@ export function createConversationServices(
     ? new LlmIdeaMapAnalysisModelAdapter(client, observability, provider, effort)
     : new DisabledIdeaMapAnalysisModelAdapter();
   return {
-    temporary: new ConversationService({ conversationModel: temporaryModel }),
+    temporary: new ConversationService({
+      conversationModel: temporaryModel,
+      promptProvider: thoughtFormPromptProvider,
+    }),
     persistent: new ConversationService({
       conversationModel: ownerModel,
       observability,
+      promptProvider: thoughtFormPromptProvider,
     }),
-    temporaryIdeaMapAnalysis: new IdeaMapAnalysisService(temporaryIdeaMapModel),
-    ownerIdeaMapAnalysis: new IdeaMapAnalysisService(ownerIdeaMapModel),
+    temporaryIdeaMapAnalysis: new IdeaMapAnalysisService(
+      temporaryIdeaMapModel,
+      thoughtFormPromptProvider,
+    ),
+    ownerIdeaMapAnalysis: new IdeaMapAnalysisService(
+      ownerIdeaMapModel,
+      thoughtFormPromptProvider,
+    ),
   };
 }
 const conversationServices = createConversationServices(
@@ -233,10 +256,27 @@ const conversationServices = createConversationServices(
   hostedAiConfiguration.anthropicEffort,
 );
 const draftModel = hostedLlmClient
-  ? new LlmDraftModelAdapter(hostedLlmClient)
+  ? new LlmDraftModelAdapter(hostedLlmClient, thoughtFormPromptProvider)
+  : new DisabledDraftModelAdapter();
+const ownerDraftModel = hostedLlmClient
+  ? new LlmDraftModelAdapter(
+      hostedLlmClient,
+      thoughtFormPromptProvider,
+      ownerObservability,
+    )
   : new DisabledDraftModelAdapter();
 const draftChangeInterpretationModel = hostedLlmClient
-  ? new LlmDraftChangeInterpretationModelAdapter(hostedLlmClient)
+  ? new LlmDraftChangeInterpretationModelAdapter(
+      hostedLlmClient,
+      thoughtFormPromptProvider,
+    )
+  : new DisabledDraftChangeInterpretationModelAdapter();
+const ownerDraftChangeInterpretationModel = hostedLlmClient
+  ? new LlmDraftChangeInterpretationModelAdapter(
+      hostedLlmClient,
+      thoughtFormPromptProvider,
+      ownerObservability,
+    )
   : new DisabledDraftChangeInterpretationModelAdapter();
 
 export const thoughtFormRoute = new Hono();
@@ -268,6 +308,9 @@ thoughtFormRoute.route(
     compositionModel: draftModel,
     interpretationModel: draftChangeInterpretationModel,
     proposalModel: draftModel,
+    persistentCompositionModel: ownerDraftModel,
+    persistentInterpretationModel: ownerDraftChangeInterpretationModel,
+    persistentProposalModel: ownerDraftModel,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
       const access = getTemporaryConversationAccess(session);

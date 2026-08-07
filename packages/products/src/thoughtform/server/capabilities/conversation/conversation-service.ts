@@ -12,8 +12,8 @@ import {
 } from "packages/products/src/thoughtform/shared";
 import {
   CONVERSATION_MODEL_OUTPUT_FORMAT,
-  THOUGHTFORM_SYSTEM_PROMPT,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-model-contract";
+import { THOUGHTFORM_SYSTEM_PROMPT_DEFINITION } from "packages/products/src/thoughtform/server/capabilities/conversation/prompts/discovery-prompt";
 import {
   createBoundedIdeaContext,
   createConversationModelRequest as buildConversationModelRequest,
@@ -30,6 +30,10 @@ import {
   OBSERVATION_ATTRIBUTE_NAMES,
   type Observability,
 } from "packages/observability/src";
+import {
+  fallbackThoughtFormPromptProvider,
+  type ThoughtFormPromptProvider,
+} from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
 
 const DEFAULT_CONVERSATION_ID = "draft-conversation";
 export const MAX_CONVERSATION_INPUT_BYTES = 32 * 1024;
@@ -53,6 +57,7 @@ export type ConversationGenerationStreamEvent =
 export interface ConversationServiceDependencies {
   conversationModel?: ConversationModel;
   observability?: Observability;
+  promptProvider?: ThoughtFormPromptProvider;
 }
 
 export class ConversationInputTooLargeError extends Error {
@@ -65,13 +70,16 @@ export class ConversationInputTooLargeError extends Error {
 export class ConversationService {
   private readonly conversationModel: ConversationModel;
   private readonly observability: Observability;
+  private readonly promptProvider: ThoughtFormPromptProvider;
 
   constructor({
     conversationModel = new FallbackConversationModel(),
     observability = noOpObservability,
+    promptProvider = fallbackThoughtFormPromptProvider,
   }: ConversationServiceDependencies = {}) {
     this.conversationModel = conversationModel;
     this.observability = observability;
+    this.promptProvider = promptProvider;
   }
 
   async respond(
@@ -90,7 +98,7 @@ export class ConversationService {
       draftChange: request.draftChange,
       hasDraft: request.hasDraft ?? false,
     } });
-    const modelRequest = createConversationModelRequest(request);
+    const modelRequest = await this.createConversationModelRequest(request);
 
     if (measureConversationInputBytes(modelRequest) > MAX_CONVERSATION_INPUT_BYTES) {
       throw new ConversationInputTooLargeError();
@@ -122,7 +130,7 @@ export class ConversationService {
   async *respondStream(
     request: ConversationServiceRequest,
   ): AsyncIterable<ConversationGenerationStreamEvent> {
-    const modelRequest = createConversationModelRequest(request);
+    const modelRequest = await this.createConversationModelRequest(request);
     if (measureConversationInputBytes(modelRequest) > MAX_CONVERSATION_INPUT_BYTES) {
       throw new ConversationInputTooLargeError();
     }
@@ -165,6 +173,20 @@ export class ConversationService {
       yield { type: "completed", generation };
     }
   }
+
+  private async createConversationModelRequest(request: ConversationServiceRequest) {
+    const prompt = await this.promptProvider.getPrompt(
+      THOUGHTFORM_SYSTEM_PROMPT_DEFINITION,
+    );
+    return buildConversationModelRequest({
+      request,
+      system: prompt.content,
+      promptReference: prompt.reference,
+      outputFormat: CONVERSATION_MODEL_OUTPUT_FORMAT,
+      maxOutputTokens: MAX_CONVERSATION_OUTPUT_TOKENS,
+      maxInputBytes: MAX_CONVERSATION_INPUT_BYTES,
+    });
+  }
 }
 
 export function measureConversationRequestInputBytes(
@@ -176,7 +198,7 @@ export function measureConversationRequestInputBytes(
 function createConversationModelRequest(request: ConversationServiceRequest) {
   return buildConversationModelRequest({
     request,
-    system: THOUGHTFORM_SYSTEM_PROMPT,
+    system: THOUGHTFORM_SYSTEM_PROMPT_DEFINITION.fallback,
     outputFormat: CONVERSATION_MODEL_OUTPUT_FORMAT,
     maxOutputTokens: MAX_CONVERSATION_OUTPUT_TOKENS,
     maxInputBytes: MAX_CONVERSATION_INPUT_BYTES,

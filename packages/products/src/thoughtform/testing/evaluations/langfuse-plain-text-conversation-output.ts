@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parseEnv } from "node:util";
-import { Eval, wrapAnthropic } from "braintrust";
+import { runLangfuseEvaluation } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation";
+import { createLangfuseEvaluationPromptProvider } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation-prompt-provider";
 import {
   AnthropicLlmClient,
   DEFAULT_ANTHROPIC_MODEL,
@@ -62,8 +63,9 @@ if (process.env.RUN_HOSTED_EVALUATIONS !== ENABLED_VALUE) {
 if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error("ANTHROPIC_API_KEY is required.");
 }
-if (!process.env.BRAINTRUST_API_KEY || !process.env.BRAINTRUST_PROJECT) {
-  throw new Error("BRAINTRUST_API_KEY and BRAINTRUST_PROJECT are required.");
+if (!process.env.LANGFUSE_PUBLIC_KEY || !process.env.LANGFUSE_SECRET_KEY ||
+  !process.env.LANGFUSE_BASE_URL) {
+  throw new Error("Langfuse credentials and LANGFUSE_BASE_URL are required.");
 }
 
 const repetitions = readPositiveInteger(
@@ -92,8 +94,9 @@ const cacheExpiryWaitMs = readPositiveInteger(
   "PLAIN_TEXT_CACHE_EXPIRY_WAIT_MS",
 );
 const modelName = process.env.ANTHROPIC_MODEL ?? DEFAULT_ANTHROPIC_MODEL;
+const promptProvider = createLangfuseEvaluationPromptProvider();
 
-await Eval(process.env.BRAINTRUST_PROJECT, {
+await runLangfuseEvaluation({
   data: [{
     input: {
       scenarioId: scenario.id,
@@ -108,7 +111,7 @@ await Eval(process.env.BRAINTRUST_PROJECT, {
       variants: Object.values(CONVERSATION_OUTPUT_VARIANTS),
     },
   }],
-  experimentName: process.env.BRAINTRUST_EXPERIMENT,
+  experimentName: process.env.LANGFUSE_EXPERIMENT,
   metadata: {
     evaluation: "thoughtform-plain-text-conversation-output",
     effort: EFFORT,
@@ -213,7 +216,10 @@ async function runSequence(input: {
   variant: ConversationOutputVariant;
 }): Promise<SequenceWithoutQuality> {
   const model = createMeasuredConversationModel(input);
-  const service = new ConversationService({ conversationModel: model.conversation });
+  const service = new ConversationService({
+    conversationModel: model.conversation,
+    promptProvider,
+  });
   const previousMessages: ConversationMessage[] = [];
   const turns: EvaluatedConversationTurn[] = [];
 
@@ -409,7 +415,6 @@ function createClient() {
     apiKey: process.env.ANTHROPIC_API_KEY!,
     effort: EFFORT,
     model: modelName,
-    decorateClient: wrapAnthropic,
   });
 }
 

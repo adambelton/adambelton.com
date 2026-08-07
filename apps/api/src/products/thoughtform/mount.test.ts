@@ -49,6 +49,8 @@ describe("products API route mount", () => {
       observe: (_name, _attributes, operation) => operation(),
       record() {},
       recordContent: (content) => observedContent.push(content),
+      recordPrompt() {},
+      recordGeneration() {},
     };
     const services = createConversationServices({
       async createMessage() {

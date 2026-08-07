@@ -22,7 +22,7 @@ Shared authentication, contact, and platform-provider processing is documented i
   expiry remove all of this private writing state from application memory.
 - Reload and navigation recovery are best effort. A process restart, deployment,
   or request to another application instance can remove the conversation sooner.
-- Temporary-workspace operations emit no Braintrust traces. Neither their content nor
+- Temporary-workspace operations emit no Langfuse traces. Neither their content nor
   content-free request metadata is sent to the evaluation service.
 - The host currently enables authenticated non-owner access in development only.
   Production remains owner-only until a separately approved demo release; this
@@ -43,10 +43,10 @@ Shared authentication, contact, and platform-provider processing is documented i
 - They are private thinking and articulation material. The product has no
   publishing lifecycle. Later public website content is prepared and delivered
   separately by the host after product v1.
-- When the owner explicitly configures Braintrust, owner conversation turns may
+- When the owner explicitly configures Langfuse, owner conversation turns may
   send evaluation-relevant user messages, assistant responses, model output,
   Idea Map context, prompt/profile context, and latency/token metadata to the
-  owner's private Braintrust project. Braintrust retention is separate from
+  owner's private Langfuse project. Langfuse retention is separate from
   Neon persistence, and deleting a ThoughtForm conversation does not currently
   delete its evaluation traces.
 
