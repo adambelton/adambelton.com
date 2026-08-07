@@ -15,15 +15,15 @@ describe("useIsDevelopmentFeatureEnabled", () => {
   });
 
   it("enables development features in development", () => {
-    let enabled = false;
+    let isDevelopmentFeatureEnabled = false;
     function Probe() {
-      enabled = useIsDevelopmentFeatureEnabled();
+      isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
       return null;
     }
 
     renderToStaticMarkup(<Probe />);
 
-    expect(enabled).toBe(true);
+    expect(isDevelopmentFeatureEnabled).toBe(true);
   });
 
   it("enables development features for owners", () => {
@@ -37,14 +37,14 @@ describe("useIsDevelopmentFeatureEnabled", () => {
         },
       },
     } as ReturnType<typeof useAuthSession>);
-    let enabled = false;
+    let isDevelopmentFeatureEnabled = false;
     function Probe() {
-      enabled = useIsDevelopmentFeatureEnabled();
+      isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
       return null;
     }
 
     renderToStaticMarkup(<Probe />);
 
-    expect(enabled).toBe(true);
+    expect(isDevelopmentFeatureEnabled).toBe(true);
   });
 });

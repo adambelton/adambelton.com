@@ -9,6 +9,8 @@ These standards apply to human contributors and coding agents.
 Code should explain its intent before it explains its mechanics.
 
 - Use precise names that describe domain meaning and responsibility.
+- Name boolean variables and parameters as predicates with verbs such as `is`,
+  `has`, `can`, or `should` so their type and meaning are clear at the call site.
 - Prefer declarative top-level code that reads in the order a human would explain the feature.
 - Hide complexity behind well-named functions, services, and modules.
 - Keep files focused enough that their purpose is obvious from their names and exports.

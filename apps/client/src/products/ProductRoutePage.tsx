@@ -15,7 +15,7 @@ import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/
 
 export function ProductRoutePage() {
   const session = useAuthSession();
-  const developmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
+  const isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
   const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({
@@ -30,7 +30,7 @@ export function ProductRoutePage() {
         isNonOwnerTemporaryWorkspaceEnabled(
           productSlug,
           "editor",
-          developmentFeatureEnabled,
+          isDevelopmentFeatureEnabled,
         ),
     },
     path: productPath,
@@ -60,7 +60,7 @@ export function ProductRoutePage() {
           !isNonOwnerTemporaryWorkspaceEnabled(
             productSlug,
             productPath,
-            developmentFeatureEnabled,
+            isDevelopmentFeatureEnabled,
           ))) &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
@@ -78,9 +78,9 @@ export function ProductRoutePage() {
 function isNonOwnerTemporaryWorkspaceEnabled(
   productSlug: string,
   productPath: string,
-  developmentFeatureEnabled: boolean,
+  isDevelopmentFeatureEnabled: boolean,
 ) {
-  return developmentFeatureEnabled &&
+  return isDevelopmentFeatureEnabled &&
     productSlug === "thoughtform" &&
     productPath === "editor";
 }
