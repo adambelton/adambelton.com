@@ -1,13 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthSession } from "apps/client/src/auth/session";
-import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 vi.mock("apps/client/src/auth/session", () => ({
   useAuthSession: vi.fn(),
 }));
 
-describe("useDevelopmentFeatureEnabled", () => {
+describe("useIsDevelopmentFeatureEnabled", () => {
   beforeEach(() => {
     vi.mocked(useAuthSession).mockReturnValue({ data: null } as ReturnType<
       typeof useAuthSession
@@ -17,7 +17,7 @@ describe("useDevelopmentFeatureEnabled", () => {
   it("enables development features in development", () => {
     let enabled = false;
     function Probe() {
-      enabled = useDevelopmentFeatureEnabled();
+      enabled = useIsDevelopmentFeatureEnabled();
       return null;
     }
 
@@ -39,7 +39,7 @@ describe("useDevelopmentFeatureEnabled", () => {
     } as ReturnType<typeof useAuthSession>);
     let enabled = false;
     function Probe() {
-      enabled = useDevelopmentFeatureEnabled();
+      enabled = useIsDevelopmentFeatureEnabled();
       return null;
     }
 

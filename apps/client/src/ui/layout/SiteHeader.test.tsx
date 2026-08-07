@@ -3,13 +3,13 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteHeader } from "apps/client/src/ui/layout/SiteHeader";
 import { useAuthSession } from "apps/client/src/auth";
-import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 vi.mock("apps/client/src/auth", () => ({
   useAuthSession: vi.fn(),
 }));
-vi.mock("apps/client/src/platform/access/useDevelopmentFeatureEnabled", () => ({
-  useDevelopmentFeatureEnabled: vi.fn(),
+vi.mock("apps/client/src/platform/access/useIsDevelopmentFeatureEnabled", () => ({
+  useIsDevelopmentFeatureEnabled: vi.fn(),
 }));
 
 describe("SiteHeader", () => {
@@ -17,7 +17,7 @@ describe("SiteHeader", () => {
     vi.mocked(useAuthSession).mockReturnValue({ data: null } as ReturnType<
       typeof useAuthSession
     >);
-    vi.mocked(useDevelopmentFeatureEnabled).mockReturnValue(false);
+    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(false);
   });
 
   it("does not advertise the private login route to anonymous visitors", () => {
@@ -32,7 +32,7 @@ describe("SiteHeader", () => {
   });
 
   it("makes authentication discoverable when the development host enables it", () => {
-    vi.mocked(useDevelopmentFeatureEnabled).mockReturnValue(true);
+    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(true);
     const markup = renderToStaticMarkup(
       <MemoryRouter>
         <SiteHeader />
@@ -63,7 +63,7 @@ describe("SiteHeader", () => {
       data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
     } as ReturnType<typeof useAuthSession>);
 
-    vi.mocked(useDevelopmentFeatureEnabled).mockReturnValue(true);
+    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(true);
     const markup = renderToStaticMarkup(
       <MemoryRouter>
         <SiteHeader />

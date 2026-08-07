@@ -11,11 +11,11 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
-  const developmentFeatureEnabled = useDevelopmentFeatureEnabled();
+  const developmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
   const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const route = resolveProductRoute({

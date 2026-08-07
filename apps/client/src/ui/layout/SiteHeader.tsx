@@ -1,10 +1,10 @@
 import { useAuthSession } from "apps/client/src/auth";
 import { TextLink } from "apps/client/src/ui/components";
-import { useDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useDevelopmentFeatureEnabled";
+import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 export function SiteHeader() {
   const session = useAuthSession();
-  const developmentFeatureEnabled = useDevelopmentFeatureEnabled();
+  const developmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
 
   return (
     <header className="flex items-center justify-end gap-8 py-7 sm:py-9">
