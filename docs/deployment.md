@@ -65,6 +65,11 @@ secrets and Repository Dispatch credential described in
 generated fallback pull requests. The promotion
 workflow runs only when reviewed fallback metadata reaches `main`; it fetches
 the recorded immutable versions and refuses any content or fingerprint mismatch.
+The Langfuse automation filters `updated` events to `thoughtform/*`; because the
+Langfuse UI cannot filter by label, the GitHub sync workflow safely skips payloads
+without `review`. The dedicated dispatch token is stored only in Langfuse,
+restricted to this repository, and intentionally has no expiration; revoke any
+superseded token immediately and rotate the active token manually when required.
 
 Do not set `PORT`; Railway supplies it. The server listens on `0.0.0.0` by
 default. Railway documents `X-Real-IP` as the client address supplied by its

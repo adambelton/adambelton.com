@@ -18,8 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 036 — Harden temporary workspace lifecycle and recovery; revised and awaiting
-  fresh approval review
+- Activate Langfuse prompt review automation (unnumbered); proposal awaiting
+  review
 - 038 — Content-free hosted-attempt lifecycle and accounting; requires Task 036
   and a fresh approval review
 - 039 — Representative hosted-usage measurement; depends on Tasks 036 and 038
@@ -30,9 +30,9 @@ change the proposal or grant approval for a later task.
   Tasks 038–040 and a fresh review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-The unnumbered correction tasks are complete. Task 036 has been revised after a
-fresh authority review and now awaits fresh approval; Tasks 038–040 remain
-downstream of that work. Preference learning is not a prerequisite.
+The unnumbered correction tasks and Task 036 are complete. Tasks 038–040 remain
+downstream of the completed lifecycle baseline and require fresh proposal
+reviews. Preference learning is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
 from them—explicit current guidance, user correction, inspectability, narrow
@@ -48,6 +48,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 036 — Harden temporary workspace lifecycle and recovery
 - Correct codebase audit findings before Task 036 (unnumbered)
 - 048 — Build-time repository Markdown compilation
 - 047 — Lazy-loaded ThoughtForm product client

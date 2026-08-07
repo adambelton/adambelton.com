@@ -2,19 +2,20 @@
 
 ## Current status
 
-The current Langfuse migration branch replaces Braintrust with manual
+The merged Langfuse migration replaces Braintrust with manual
 Langfuse/OpenTelemetry owner tracing, native generation usage and prompt-version
 links, development/production Prompt Management labels, and repository
 fallbacks for all five active ThoughtForm prompts. Temporary workspaces retain
 no-op observability. The reviewed development prompt versions use structured
 XML contracts and are recorded by immutable version and SHA-256 fingerprint.
 Langfuse-hosted evaluations resolve the managed `development` prompts.
-Langfuse `review` events now produce fallback pull requests, and merged metadata
-promotes only exact matching versions. Local validation covers 324 tests, full
+The repository workflows can turn Langfuse `review` events into fallback pull
+requests and promote only exact merged versions. Local validation covers 324 tests, full
 typecheck/build, prompt/workflow validators, a byte-identical live updater
 simulation, a no-mutation promotion dry run, and Langfuse trace read-back. The
-GitHub secrets and Repository Dispatch automation still require repository
-configuration before the workflows can run remotely.
+GitHub Actions secrets are configured and exact production promotion has run
+successfully. Langfuse Repository Dispatch remains to be activated and proven
+as one complete event-driven lifecycle.
 
 ### Langfuse migration completion audit
 
@@ -657,9 +658,9 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Review the revised Task 036, harden temporary workspace lifecycle and recovery,
-against the corrected architecture, lifecycle, recovery, access-gate,
-terminology, and testing baseline before approval.
+Review and approve the unnumbered Langfuse prompt-review automation activation
+proposal, then prove the complete `review` label to fallback PR to exact
+production-promotion lifecycle without changing prompt content.
 
 ## Historical semantic-editor investigation
 
