@@ -155,6 +155,14 @@ The updater accepts only the five catalogued `thoughtform/*` names, text prompts
 with the established XML structure and leading newline, the existing variable
 contract, and versions carrying `review`. It never commits directly to `main`.
 
+Langfuse's prompt automation filters `updated` events to prompt names beginning
+with `thoughtform/`; its current filter UI cannot select prompt labels. The
+GitHub workflow is therefore the authoritative label gate: dispatched updates
+without `review` are skipped successfully, while reviewed versions continue to
+the immutable-version validation. Create a candidate under `development`, then
+assign `review` as a separate label update so the automation receives the
+`updated` event.
+
 Configure the following GitHub Actions secrets:
 
 ```txt
@@ -169,6 +177,15 @@ runs on a pull request created by that token. Configure a Langfuse GitHub
 Repository Dispatch automation using a separate narrowly scoped credential with
 only the repository access needed to dispatch the event. Do not use that
 credential in application runtime configuration.
+
+The current automation is named `ThoughtForm prompt review sync`, dispatches to
+`https://api.github.com/repos/adambelton/adambelton.com/dispatches`, and uses the
+event type `langfuse-prompt-review`. Its fine-grained GitHub token is restricted
+to `adambelton/adambelton.com` with Contents read/write and GitHub-required
+Metadata read access. Adam chose no expiration; keep only the active replacement
+credential in Langfuse, revoke superseded credentials immediately, and rotate it
+manually from GitHub's fine-grained token settings if delivery starts returning
+authentication or authorization errors.
 
 Run the normal project checks:
 

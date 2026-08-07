@@ -31,6 +31,15 @@ if (!sync.source.includes("GH_TOKEN: ${{ github.token }}")) {
 if (sync.source.includes("PROMPT_SYNC_GITHUB_TOKEN")) {
   issues.push(`${sync.path}: must not require a long-lived prompt-sync token`);
 }
+if (!sync.source.includes("contains(github.event.client_payload.prompt.labels, 'review')")) {
+  issues.push(`${sync.path}: must skip dispatched prompt updates without the review label`);
+}
+if (!sync.source.includes("github.event_name == 'workflow_dispatch'")) {
+  issues.push(`${sync.path}: the review guard must preserve manual workflow dispatches`);
+}
+if (!sync.source.includes("run: pnpm db:generate")) {
+  issues.push(`${sync.path}: must generate the Prisma client before repository tests`);
+}
 if (!sync.source.includes("gh pr create")) {
   issues.push(`${sync.path}: must open a review pull request`);
 }

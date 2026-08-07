@@ -20,6 +20,9 @@ permissions:
 
 jobs:
   create-fallback-pr:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.client_payload.prompt.labels, 'review')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -47,6 +50,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
 
       - name: Fetch and validate immutable review version
         run: pnpm update:thoughtform-prompt-fallback
