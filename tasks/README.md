@@ -52,6 +52,8 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Update ThoughtForm product-page copy (unnumbered)
+- Refine ThoughtForm product direction (unnumbered)
 - Refine ThoughtForm presentation and workspace hierarchy (unnumbered)
 - Activate Langfuse prompt review automation (unnumbered)
 - 036 — Harden temporary workspace lifecycle and recovery

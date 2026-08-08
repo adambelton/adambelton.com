@@ -1,8 +1,9 @@
 # adambelton.com
 
 Adam Belton's personal website and product-demo monorepo. The public site,
-writing tools, authentication, persistence, and AI infrastructure live together
-so products can share a platform without losing ownership of their behaviour.
+product experiences, authentication, persistence, and AI infrastructure live
+together so products can share a platform without losing ownership of their
+behaviour.
 
 ## How the repository is organised
 
@@ -92,8 +93,11 @@ adapter.
 
 ## ThoughtForm
 
-ThoughtForm is a private conversational thinking workspace that helps the
-user explore, organise, and express what they think or feel. Its self-contained
+ThoughtForm is a private conversational thinking workspace that helps the user
+explore what is on their mind, inspect an evolving Idea Map, and articulate a
+coherent understanding in their own words. Articulation is the intended
+culmination and likely value-realisation moment, without being a forced product
+gate. Its self-contained
 [product guide](packages/products/src/thoughtform/README.md) explains its
 internal structure, interaction flow, integration points, testing strategy, and
 where to begin investigating product behaviour.

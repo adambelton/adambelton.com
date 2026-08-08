@@ -76,24 +76,26 @@ not begun merely because the assistant or user discusses composing.
 ### Articulation
 
 - **Grammatical role:** product-outcome noun; ordinary product-facing language.
-- **Meaning:** the user's current understanding expressed coherently enough for
-  them to inspect and recognise as faithful.
-- **May be contained by:** an optional first-person Draft.
+- **Meaning:** the intended culmination of the reflective process: the user's
+  current understanding expressed coherently enough for them to inspect and
+  recognise as faithful.
+- **Contained by:** a first-person Draft when the user reaches articulation.
 - **Does not mean:** a third activity, command, lifecycle phase, completion state,
   assistant report, or objectively final understanding.
 
 Use articulation to explain why bringing the material together is valuable. Use
 compose for the operation, Composition for the internal activity, and Draft for
-the artifact.
+the artifact. A workspace may stop before articulation, but that possibility does
+not make articulation an incidental or equivalent optional outcome.
 
 ## Workspace representations
 
 ### Workspace
 
-The private body of connected work in which exploration, organisation, and
-optional expression occur. It coordinates conversation history, the idea map,
-and an optional Draft without merging them into one state object or requiring
-all three to exist.
+The private body of connected work in which exploration, inspection, and
+articulation can occur. It coordinates conversation history, the idea map, and a
+Draft without merging them into one state object or requiring all three to exist
+at every point in the journey.
 
 ### Drafting state
 

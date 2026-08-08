@@ -8,14 +8,17 @@ It is context, not approval to build future product behaviour. Each product stil
 
 ThoughtForm is the first product in the repo.
 
-It is a private conversational thinking workspace that helps a person explore,
-organise, and express what they think or feel. Conversation and the idea map
-support Discovery and may remain useful without any Draft. When bringing the
-material together would help, Composition creates an optional user-owned Draft
-containing a first-person articulation of the user's current understanding.
-Reviewing and correcting that whole expression creates the product's
-characteristic recognition value, but there is no completion state or required
-artifact.
+It is a private conversational thinking workspace that helps a person Explore
+what is on their mind, Inspect an evolving Idea Map, and Articulate the resulting
+understanding in their own words. These product-facing labels do not replace the
+implemented Discovery and Composition concepts or create rigid phases.
+
+Conversation and the Idea Map support Discovery and can be useful before a Draft
+exists. Composition creates or develops the user-owned Draft containing the
+first-person articulation. Reviewing and correcting that whole expression is
+the intended culmination and likely the moment where the product proves its
+distinctive value. A user may stop earlier without being forced onward or marked
+incomplete, but earlier stopping is not an equivalent intended endpoint.
 
 Conversation messages preserve the exploration history. The idea map maintains
 ideas, distilled syntheses, richer substance, contextual importance, exploration,
@@ -60,6 +63,22 @@ Current implementation status:
 - Autonomous, user-correctable Idea Map merge/split behaviour remains required
   before the editor is fully functional; its initial bounded proposal must be
   re-reviewed after hosted-attempt accounting and the beta-scope decision.
+
+Current product and business status:
+
+- ThoughtForm is a portfolio project and product experiment, not a launched
+  commercial service.
+- “Open-source, AI-assisted cathartic journaling platform” is an accessible
+  possible category position. It is not a therapeutic claim or the current
+  operating model.
+- A possible commercial model would combine an open-source core, a freely
+  available approximation of the conversational method as a prompt, and a
+  hosted service that competes on the craft of the complete experience rather
+  than lock-in.
+- A hosted service would likely use non-expiring usage credit rather than a
+  subscription so pricing matches intermittent utility and does not reward
+  manufactured engagement. No distribution, prompt release, hosted offering,
+  billing system, or pricing has been launched or approved for implementation.
 
 ## Public website writing
 

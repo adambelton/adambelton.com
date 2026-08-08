@@ -1,11 +1,13 @@
 # ThoughtForm
 
-ThoughtForm is a private conversational thinking workspace that helps a
-person explore, organise, and express what they think or feel. Conversation and
-the Idea Map can stand alone; an optional Draft contains a first-person
-articulation when bringing the material together would be useful. This guide is the
-starting point for developing, integrating, testing, or diagnosing the product
-without first learning the surrounding website.
+ThoughtForm is a private conversational thinking workspace that helps a person
+explore what is on their mind, inspect an evolving Idea Map, and articulate the
+resulting understanding in their own words. A Draft contains that first-person
+articulation. Reaching it is the intended culmination and likely the moment where
+the product proves its distinctive value, although the system does not force a
+user to continue or treat stopping earlier as failure. This guide is the starting
+point for developing, integrating, testing, or diagnosing the product without
+first learning the surrounding website.
 
 The product follows the repository's [organising principles](../../../../README.md):
 ownership is explicit, product meaning is separated from external mechanisms,
@@ -181,8 +183,8 @@ audience, publishing, or document-type state.
 - `testing/fixtures` provides reusable product states and deterministic scenario model behaviour.
 - `testing/browser` exercises complete product journeys.
 - `testing/browser` includes personal reflection, unresolved feelings, a
-  practical decision, an argument, early articulation, correction, and valid
-  no-Draft use through deterministic adapters.
+  practical decision, an argument, early articulation, correction, and a user
+  stopping before articulation through deterministic adapters.
 - `testing/evaluations` checks those conversational shapes with a hosted model;
   invalid structured idea material fails the evaluation rather than being only
   reported.
