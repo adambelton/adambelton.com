@@ -1159,3 +1159,51 @@ Langfuse export is disabled unless its public key, secret key, and base URL are
 all explicit. Export or prompt-service failure must not change the result of a
 user operation. Langfuse retention remains independent of Neon persistence;
 deleting an owner conversation does not currently delete its evaluation traces.
+
+## 059 — Articulation Is ThoughtForm's Intended Culmination
+
+ThoughtForm's product-facing journey is Explore, Inspect, and Articulate. The
+user talks through what is on their mind, inspects and corrects the evolving Idea
+Map, and brings the resulting understanding together in a coherent first-person
+expression. These labels explain the experience; they do not replace Discovery,
+Composition, Draft, Idea Map, conversation, or workspace terminology and do not
+create stored phases or modes.
+
+Articulation is the intended culmination and likely the moment where ThoughtForm
+proves its distinctive value. Recognition of the whole expression consolidates
+the reflective process and is where the expected cathartic benefit principally
+lives. This is a product hypothesis and possible personal benefit, not a promise
+or clinically validated outcome.
+
+The system does not force a Draft, prevent a person from stopping earlier, or
+record a universal completed state. A useful conversation or Idea Map can still
+stand on its own in an individual session. That flexibility does not make
+stopping before articulation an equivalent intended endpoint. This decision
+supersedes Decision 045 and Decision 047 only where their wording gave those
+outcomes equal product weight or described articulation as merely optional. It
+preserves the distinction between articulation as outcome, Composition as
+activity, compose as operation, and Draft as artifact.
+
+The central product principle is that reflective technology should make the user
+more capable, not replace their judgement. The assistant supports rather than
+becomes the authority; the Idea Map exposes interpretation for correction;
+speculative interpretations remain tentative; and uncertainty, mixed feelings,
+and unresolved tensions must not be polished away. ThoughtForm must not optimise
+for dependency, excessive engagement, or manufactured retention.
+
+ThoughtForm currently operates as a portfolio project and product experiment.
+“Open-source, AI-assisted cathartic journaling platform” records an accessible
+possible category and commercialisation position, not a therapeutic claim,
+launched distribution model, or current company strategy. A possible future
+model combines an open-source self-hostable core, a freely available prompt that
+approximates but does not reproduce the product, and a hosted service competing
+on interaction quality, UX, idea modelling, privacy, safety, reliability,
+continuity, and refinement rather than lock-in. Non-expiring usage credit is the
+preferred pricing hypothesis over subscription because reflective use may be
+intermittent and should not create incentives for manufactured engagement.
+
+Licensing, open-source release, self-hosting support, prompt publication, hosted
+service operation, billing, and pricing are not implemented or approved by this
+decision. Each requires separate proposal and approval. User-facing copy is also
+deferred. Existing terminology remains unchanged; any proposed terminology
+rename, addition, or removal requires separate explicit approval.

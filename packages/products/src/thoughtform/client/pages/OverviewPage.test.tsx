@@ -10,21 +10,35 @@ const components: ProductAppComponents = {
 };
 
 describe("ThoughtForm overview page", () => {
-  it("presents conversational thinking and an optional user-owned Draft", () => {
+  it("presents cathartic journaling and the complete reflective loop", () => {
     const markup = renderToStaticMarkup(
       <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
     );
 
-    expect(markup).toContain("Explore what you think or feel through conversation");
-    expect(markup).toContain("when it is useful");
-    expect(markup).toContain("remains yours to shape");
+    expect(markup).toContain("AI-assisted cathartic journaling");
+    expect(markup).toContain(
+      "something is bothering you, but you cannot quite put your finger on why",
+    );
     expect(markup).toContain("When it helps");
     expect(markup).toContain("How it works");
+    expect(markup).toContain("Explore");
+    expect(markup).toContain("Inspect");
+    expect(markup).toContain("Articulate");
+    expect(markup).toContain("Designed around your agency");
+    expect(markup).toContain("make you more capable, not replace your judgement");
+    expect(markup).toContain("not a therapist, diagnostic tool");
+    expect(markup).toContain("A possible open model");
+    expect(markup).toContain("rather than a commercial service");
+    expect(markup).toContain("non-expiring usage credit");
+    expect(markup).toContain("This is not yet how ThoughtForm is operated");
     expect(markup).toContain("Development snapshot");
     expect(markup).toContain("Preparing for public beta");
+    expect(markup).toContain("complete reflective loop is working today");
     expect(markup).toContain("user-correctable Idea Map");
+    expect(markup).toContain("privacy safeguards");
     expect(markup).not.toContain("audience");
     expect(markup).not.toContain("word count");
+    expect(markup).not.toContain("when it is useful");
   });
 
   it("links to the product privacy information", () => {

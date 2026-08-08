@@ -2,6 +2,40 @@
 
 ## Current status
 
+The ThoughtForm product overview now uses the approved AI-assisted cathartic-
+journaling copy. It introduces the gateway use case, presents Explore, Inspect,
+and Articulate as the complete reflective loop, makes user agency and the non-
+therapy boundary explicit, and explains the possible open-source/prompt/hosted-
+service/usage-credit model as hypothetical. The development snapshot now states
+that conversation, the user-correctable Idea Map, articulation, and revision are
+working while public-beta usage, privacy, safety, and operations preparation
+continues. Existing workspace, saved-conversation, and privacy link permissions
+are unchanged.
+
+The refined ThoughtForm direction was documented on 8 August 2026.
+ThoughtForm remains a conversational thinking workspace, now expressed through
+the product-facing journey Explore, Inspect, and Articulate. Articulation is the
+intended culmination and likely the point where the experience proves its
+distinctive value; a user may stop earlier without coercion, but that earlier
+stop is not an equivalent intended endpoint. Existing `Draft`, compose,
+`Composition`, Discovery, Idea Map, conversation, and workspace terminology is
+unchanged.
+
+The current operating intent remains a portfolio project and product experiment.
+“Open-source, AI-assisted cathartic journaling platform,” an open-source core, a
+freely available approximation of the conversational method, a craft-led hosted
+service, and non-expiring usage credit are conceptual positioning and business-
+model ideas only. They are not launched functionality, current pricing, clinical
+claims, or company strategy.
+
+The documentation pass itself did not change user-facing copy, prompts, runtime
+behaviour, or evaluations. The separately approved product-page copy task has
+since corrected the mounted overview's weaker “when it is useful” hierarchy. The
+discovery prompt still calls an offer an “optional articulation”; that remaining
+behavioural mismatch requires separate approval. Deterministic no-Draft coverage
+remains valid evidence that the system does not coerce continuation; it should
+not be read as establishing an equal intended endpoint.
+
 The approved ThoughtForm presentation pass is complete. The Products entry is
 now concise, while the ThoughtForm overview explains when the product helps,
 the conversation–Idea Map–Draft loop, user inspectability, and the current
@@ -206,7 +240,7 @@ excludes idea-map questions and requests a coherent throughline, pending replies
 show an accessible response-forming indicator, and the shared host width is
 1440px. Automated validation and a real mounted Sonnet verification pass.
 
-ThoughtForm product model has been course-corrected before remaining
+ThoughtForm product model was course-corrected before remaining
 product work. It is now documented as a private conversational thinking workspace
 that helps a person explore, organise, and express what they think or feel.
 Conversation and an inspectable Idea Map can stand alone. Composition remains the
@@ -214,7 +248,9 @@ internal activity for creating or developing an optional first-person Draft;
 articulation names the outcome and recognition value rather than a third activity
 or completion state. Preference learning, product export, and product publishing
 have been retired. Later local-Markdown and static public-writing delivery belongs
-to the host website after product v1.
+to the host website after product v1. Decision 059 and the 8 August 2026 refined
+direction supersede this historical summary only where it gave stopping before
+articulation equal product weight.
 
 Task 030 has been completed. Its implementation preserves the intentional
 boundary: discovery can recognise composition readiness and intention while Task
@@ -291,14 +327,17 @@ explicit restatement updated the idea and removed the conflict. A trivial edit
 produced no assistant response. Automated unit, browser, typecheck, build, diff,
 and a focused hosted evaluation also pass.
 
-The unnumbered conversational-thinking course correction has been completed. The
+The unnumbered conversational-thinking course correction was completed. The
 canonical brief, architecture, terminology, decisions, roadmap, privacy note,
 READMEs, and planned-task boundaries now define exploration, organisation, and
 optional first-person expression consistently. `Draft`, compose, and
 `Composition` remain accurate implementation concepts; articulation is the
 product outcome whose value comes from user recognition. The current Draft
 Format implementation has now been removed through product, client, HTTP,
-temporary persistence, durable persistence, and database state.
+temporary persistence, durable persistence, and database state. The later
+8 August 2026 refinement supersedes “optional first-person expression” as a
+statement of product importance: articulation is not forced, but it is the
+intended culmination and likely value-realisation moment.
 
 The unnumbered conversational-thinking experience alignment has been completed.
 Mounted overview, onboarding, editor, empty-state, Draft, readiness, recovery,

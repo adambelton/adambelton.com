@@ -1,6 +1,6 @@
 # ThoughtForm privacy and data lifecycle
 
-Last reviewed: 7 August 2026.
+Last reviewed: 8 August 2026.
 
 This note records the product-specific privacy boundary for ThoughtForm.
 Shared authentication, contact, and platform-provider processing is documented in
@@ -87,6 +87,12 @@ The product may be used for thoughts and feelings, but it is not a therapist,
 diagnostic tool, clinical intervention, crisis service, or substitute for
 professional support. The assistant must not present its interpretations as
 authoritative facts about the user's identity or experience.
+
+“AI-assisted cathartic journaling” may describe an accessible category or first
+use, but it does not assert that catharsis will occur or that the product has a
+validated therapeutic or wellbeing effect. The product should strengthen user
+judgement and agency, not encourage dependency, exclusive reliance, excessive
+engagement, or disclosure beyond what is needed for the user's purpose.
 
 ### Temporary content survives longer than represented
 

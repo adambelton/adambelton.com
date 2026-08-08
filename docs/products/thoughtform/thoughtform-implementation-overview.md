@@ -15,7 +15,10 @@ Canonical current rules live in `AGENTS.md` and `docs/decisions.md`. In particul
   `docs/products/thoughtform/thoughtform-product-brief.md`. In
   particular, the product is now a conversational thinking workspace; Draft
   Format, preference learning, product export, product publishing, phase models,
-  and the publishing examples below are superseded.
+  and the publishing examples below are superseded. Explore, Inspect, and
+  Articulate describe the current product-facing flow, and articulation is its
+  intended culmination; the historical “Socratic writing tool” wording below is
+  not current product positioning.
 - The `ConversationPhase` examples and phase-based state shapes later in this
   early overview are superseded. Do not use them for implementation. Task 027
   replaces the current phase contract with interaction-scoped activity,

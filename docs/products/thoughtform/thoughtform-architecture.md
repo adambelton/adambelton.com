@@ -25,15 +25,16 @@ the intended product difficult to develop later.
 - Keep the user authoritative over meaning, direction, and draft content.
 - Make user-established idea material visible and correctable while keeping
   qualitative assistant assessment limited and negotiable.
-- Support exploration, organisation, and expression without making a Draft or a
-  completion state mandatory.
+- Support Explore, Inspect, and Articulate as the product journey, with
+  articulation as its intended culmination, without forcing a Draft or storing a
+  universal completion state.
 - Support fluid movement between discovery and composition once a draft exists.
 - Let conversation and interface actions participate in one collaboration model.
 - Keep conversation history, the idea map, and the draft distinct.
 - Allow conversation, idea mapping, and drafting to develop independently behind
   product-owned contracts.
-- Preserve ephemeral temporary-workspace writing and durable owner writing without giving them
-  different product semantics.
+- Preserve ephemeral temporary-workspace material and durable owner material
+  without giving them different product semantics.
 - Keep provider, auth, database, usage, and public-website infrastructure outside
   the product package.
 - Deliver new behaviour as observable vertical slices rather than disconnected
@@ -78,11 +79,12 @@ production code never imports test support.
 
 ## Core workspace model
 
-A workspace is the private body of work in which the user explores, organises,
-and may express their current understanding. Discovery can occur with only
-conversation and the idea map. Composition occurs only when an optional Draft is
-created or developed. The workspace connects three representations without
-merging them:
+A workspace is the private body of work in which the user explores what is on
+their mind, inspects the system's evolving interpretation, and normally brings
+the resulting understanding together in a first-person articulation. Discovery
+can occur with only conversation and the Idea Map. Composition occurs when a
+Draft is created or developed. The workspace connects three representations
+without merging them or requiring all three to exist at every moment:
 
 ```mermaid
 flowchart LR
@@ -119,11 +121,13 @@ state rather than transient presentation data.
 
 ### Draft
 
-The user's optional canonical first-person expression of their current
-understanding. A Draft can be composed from selected user-established workspace
-material and then changed freely by the user. It need not contain every important
-or well-explored idea, resolve uncertainty, follow a conventional document form,
-or exist for the workspace to be useful.
+The user's canonical first-person expression of their current understanding and
+the artifact through which the product normally reaches articulation. A Draft
+can be composed from selected user-established workspace material and then
+changed freely by the user. It need not contain every important or well-explored
+idea, resolve uncertainty, or follow a conventional document form. A workspace
+may stop before one exists, but that does not make articulation an equivalent
+optional endpoint.
 
 ### Discovery and composition
 
@@ -134,11 +138,13 @@ Discovery and composition are activities, not exclusive workspace modes:
 - **Composition** creates and continually develops the canonical draft from
   selected ideas.
 
-**Articulation** describes the product outcome and value: the user's current
-understanding expressed coherently in their own first-person words. It is not a
-third activity, stored state, completion threshold, or command. Composition is
-the accurate internal activity that creates or develops the optional Draft in
-which an articulation can be inspected and recognised.
+**Articulation** describes the intended product culmination and principal value-
+realisation moment: the user's current understanding expressed coherently in
+their own first-person words. It consolidates the reflective process so the user
+can inspect the whole, recognise it as faithful, or correct it. It is not a third
+activity, stored state, universal completion threshold, or command. Composition
+is the accurate internal activity that creates or develops the Draft in which an
+articulation can be inspected and recognised.
 
 A composition request or accepted offer creates the first draft and begins
 composition. Before that operation, reflection, paraphrasing, and finding words
@@ -214,8 +220,9 @@ The following rules are architectural invariants:
 13. A saved-edit interpretation is provisional; neither its wording nor a
     potential conflict becomes established idea substance without subsequent
     user confirmation, clarification, or elaboration.
-14. Creating a Draft is optional. Its absence is not product failure,
-    incompletion, or evidence that discovery should continue.
+14. The product must not force Draft creation or label a user incomplete for
+    stopping earlier. Articulation nevertheless remains the intended culmination,
+    not an outcome of equal importance to stopping after exploration or inspection.
 15. A composed Draft is the user's first-person expression, not an assistant
     report, diagnosis, or authoritative explanation of the user.
 
@@ -702,7 +709,8 @@ Representative scenario tests should cover:
 - drafting with acknowledged unresolved uncertainty;
 - a manual edit revealing a discovery gap;
 - an assistant proposal becoming stale after a user edit;
-- a useful conversation and idea map without any Draft;
+- a user stopping after a useful conversation and Idea Map without being coerced
+  or labelled incomplete;
 - a first-person articulation corrected until the user recognises it as faithful;
 - temporary-workspace expiry or hosted limits preserving recoverable local work.
 
