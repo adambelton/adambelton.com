@@ -1,18 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { createConversationStore } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import { CONVERSATION_MODEL_STREAM_EVENT_TYPES } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
 import { streamResponseInWorkspace } from "packages/products/src/thoughtform/server/application/workspace/stream-response-in-workspace";
 import { TestConversationPersistence } from "packages/products/src/thoughtform/testing/fakes/test-conversation-persistence";
 import {
   ACTIVITIES,
   ASSISTANT_MOVES,
+  CONVERSATION_ERROR_CODES,
   CONVERSATION_MESSAGE_ROLES,
+  IDEA_MAP_ERROR_CODES,
   IDEA_DISPOSITIONS,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
 } from "packages/products/src/thoughtform/shared";
+import {
+  HOSTED_ATTEMPT_ACTIONS,
+  HOSTED_ATTEMPT_OUTCOMES,
+  type HostedAttemptAction,
+  type HostedAttemptLifecycle,
+  type HostedAttemptOutcome,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 describe("streamResponseInWorkspace", () => {
   it("streams and retains the assistant before independently retaining the Idea Map", async () => {
+    const attempts: Array<{ action: HostedAttemptAction; outcome?: HostedAttemptOutcome }> = [];
     const backingStore = createConversationStore(
       new TestConversationPersistence(),
       { shouldInitializeOnAppend: true, createId: () => "conversation-1" },
@@ -32,9 +43,9 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "text_delta", text: "That makes " } as const;
-          yield { type: "text_delta", text: "the centre clear." } as const;
-          yield { type: "completed", generation: generation() } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta, text: "That makes " } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta, text: "the centre clear." } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation() } as const;
         },
       },
       ideaMapAnalysis: {
@@ -57,6 +68,8 @@ describe("streamResponseInWorkspace", () => {
           };
         },
       },
+      hostedAttempts: recordingLifecycle(attempts),
+      operationId: "turn-operation",
     })) events.push(event);
 
     expect(events.map((event) => event.type)).toEqual([
@@ -77,6 +90,16 @@ describe("streamResponseInWorkspace", () => {
       ideas: [{ title: "Accountability gives legitimacy" }],
     });
     expect(appendCount).toBe(1);
+    expect(attempts).toEqual([
+      {
+        action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+        outcome: HOSTED_ATTEMPT_OUTCOMES.succeeded,
+      },
+      {
+        action: HOSTED_ATTEMPT_ACTIONS.ideaMapAnalysis,
+        outcome: HOSTED_ATTEMPT_OUTCOMES.succeeded,
+      },
+    ]);
   });
 
   it("keeps a retained assistant turn when Idea Map analysis fails", async () => {
@@ -91,8 +114,8 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "text_delta", text: "It is retained." } as const;
-          yield { type: "completed", generation: generation("It is retained.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta, text: "It is retained." } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("It is retained.") } as const;
         },
       },
       ideaMapAnalysis: {
@@ -113,6 +136,36 @@ describe("streamResponseInWorkspace", () => {
       .toHaveLength(2);
   });
 
+  it("rejects oversized input before admitting either hosted attempt", async () => {
+    const attempts: Array<{ action: HostedAttemptAction; outcome?: HostedAttemptOutcome }> = [];
+    const events = [];
+    for await (const event of streamResponseInWorkspace({
+      conversationId: null,
+      message: "x".repeat(40_000),
+      conversations: createConversationStore(
+        new TestConversationPersistence(),
+        { shouldInitializeOnAppend: true },
+      ),
+      conversation: {
+        async *respondStream() {
+          throw new Error("Model must not be called.");
+        },
+      },
+      ideaMapAnalysis: {
+        async analyse() {
+          throw new Error("Model must not be called.");
+        },
+      },
+      hostedAttempts: recordingLifecycle(attempts),
+    })) events.push(event);
+
+    expect(events).toEqual([expect.objectContaining({
+      type: "failed",
+      code: CONVERSATION_ERROR_CODES.inputTooLarge,
+    })]);
+    expect(attempts).toEqual([]);
+  });
+
   it("reports a recoverable conflict instead of overwriting a newer Idea Map revision", async () => {
     const backingStore = createConversationStore(
       new TestConversationPersistence(),
@@ -130,8 +183,8 @@ describe("streamResponseInWorkspace", () => {
       },
       conversation: {
         async *respondStream() {
-          yield { type: "text_delta", text: "That matters." } as const;
-          yield { type: "completed", generation: generation("That matters.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta, text: "That matters." } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("That matters.") } as const;
         },
       },
       ideaMapAnalysis: {
@@ -163,7 +216,7 @@ describe("streamResponseInWorkspace", () => {
       "idea_map_failed",
       "completed",
     ]);
-    expect(events).toContainEqual(expect.objectContaining({ code: "idea_map_conflict" }));
+    expect(events).toContainEqual(expect.objectContaining({ code: IDEA_MAP_ERROR_CODES.conflict }));
     expect((await backingStore.getConversationWorkspace("conversation-1"))?.ideaMap.revision)
       .toBe(0);
   });
@@ -198,7 +251,7 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "completed", generation: generation("It follows safely.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("It follows safely.") } as const;
         },
       },
       ideaMapAnalysis: { async analyse() { return emptyAnalysis(); } },
@@ -246,7 +299,7 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "completed", generation: generation("Original response.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("Original response.") } as const;
         },
       },
       ideaMapAnalysis: { async analyse() { return emptyAnalysis(); } },
@@ -254,7 +307,7 @@ describe("streamResponseInWorkspace", () => {
 
     expect(events).toContainEqual(expect.objectContaining({
       type: "failed",
-      code: "conversation_conflict",
+      code: CONVERSATION_ERROR_CODES.conflict,
     }));
     expect(appendCount).toBe(1);
     expect((await backingStore.getConversationWorkspace("conversation-1"))?.messages)
@@ -292,7 +345,7 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "completed", generation: generation("Let us explore it.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("Let us explore it.") } as const;
         },
       },
       ideaMapAnalysis: {
@@ -362,7 +415,7 @@ describe("streamResponseInWorkspace", () => {
       conversations,
       conversation: {
         async *respondStream() {
-          yield { type: "completed", generation: generation("Let us sharpen it.") } as const;
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation: generation("Let us sharpen it.") } as const;
         },
       },
       ideaMapAnalysis: {
@@ -386,6 +439,26 @@ describe("streamResponseInWorkspace", () => {
       });
   });
 });
+
+function recordingLifecycle(
+  attempts: Array<{ action: HostedAttemptAction; outcome?: HostedAttemptOutcome }>,
+): HostedAttemptLifecycle {
+  return {
+    async admit(input) {
+      const record: { action: HostedAttemptAction; outcome?: HostedAttemptOutcome } = {
+        action: input.action,
+      };
+      attempts.push(record);
+      return {
+        id: input.operationId,
+        run: (operation) => operation(),
+        runStream: (operation) => operation(),
+        async complete(outcome) { record.outcome = outcome; },
+        async discard() {},
+      };
+    },
+  };
+}
 
 function emptyAnalysis() {
   return {

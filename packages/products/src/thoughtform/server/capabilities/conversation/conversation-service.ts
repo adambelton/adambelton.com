@@ -20,7 +20,10 @@ import {
   measureConversationInputBytes,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-model-request";
 import { parseConversationModelResponse } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-model-response";
-import type { ConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
+import {
+  CONVERSATION_MODEL_STREAM_EVENT_TYPES,
+  type ConversationModel,
+} from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
 import { FallbackConversationModel } from "packages/products/src/thoughtform/server/capabilities/conversation/fallback-conversation-model";
 import {
   createJsonStringFieldDeltaDecoder,
@@ -51,8 +54,14 @@ export interface ConversationServiceRequest {
 
 export type ConversationGeneration = Omit<ConversationResponse, "ideaMap">;
 export type ConversationGenerationStreamEvent =
-  | { type: "text_delta"; text: string }
-  | { type: "completed"; generation: ConversationGeneration };
+  | {
+      type: typeof CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta;
+      text: string;
+    }
+  | {
+      type: typeof CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed;
+      generation: ConversationGeneration;
+    };
 
 export interface ConversationServiceDependencies {
   conversationModel?: ConversationModel;
@@ -136,19 +145,22 @@ export class ConversationService {
     }
     if (!this.conversationModel.streamResponse) {
       const generation = await this.respond(request);
-      yield { type: "text_delta", text: generation.message.content };
-      yield { type: "completed", generation };
+      yield {
+        type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta,
+        text: generation.message.content,
+      };
+      yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation };
       return;
     }
 
     const decoder = createJsonStringFieldDeltaDecoder("response");
     let emittedText = "";
     for await (const event of this.conversationModel.streamResponse(modelRequest)) {
-      if (event.type === "text_delta") {
+      if (event.type === CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta) {
         const text = decoder.push(event.text);
         if (text) {
           emittedText += text;
-          yield { type: "text_delta", text };
+          yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta, text };
         }
         continue;
       }
@@ -156,7 +168,10 @@ export class ConversationService {
       const responseText = decodeConversationText(structured.response);
       if (!emittedText) {
         emittedText = responseText;
-        yield { type: "text_delta", text: emittedText };
+        yield {
+          type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta,
+          text: emittedText,
+        };
       }
       const generation: ConversationGeneration = {
         conversationId: request.conversationId ?? DEFAULT_CONVERSATION_ID,
@@ -170,7 +185,7 @@ export class ConversationService {
         userIntention: structured.userIntention,
       };
       this.observability.recordContent({ output: generation });
-      yield { type: "completed", generation };
+      yield { type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed, generation };
     }
   }
 

@@ -1207,3 +1207,37 @@ service operation, billing, and pricing are not implemented or approved by this
 decision. Each requires separate proposal and approval. User-facing copy is also
 deferred. Existing terminology remains unchanged; any proposed terminology
 rename, addition, or removal requires separate explicit approval.
+
+## 060 — Hosted Attempts Are Content-Free Product Operations
+
+Every ThoughtForm operation that may invoke a hosted model is admitted and
+completed through one product-owned lifecycle. The actions are conversation
+response, Idea Map analysis, Draft composition, revision proposal, and
+model-backed saved-change interpretation. Concurrent conversation response and
+Idea Map analysis are separate attempts because either may succeed or fail
+independently. Invalid input and disabled or rejected host configuration create
+no durable attempt.
+
+The API host supplies an authenticated-account-scoped adapter and captures
+provider-neutral model and token usage inside the admitted async context. One
+product operation retains one attempt identity across bounded provider repair
+calls and persistence retries that reuse generated output. Known usage is
+aggregated; if any call omits a metric, that aggregate remains unknown rather
+than understating consumption.
+
+Neon persists only the account reference, action, operation id, model, token
+counts, timestamps, and operational outcome. Prompts, messages, ideas, drafts,
+proposals, generated prose, IP addresses, user-agent strings, and behavioural
+profiles are prohibited. Outcomes are `succeeded`, `provider_failed`,
+`persistence_failed`, and `interrupted`. Completion is conditional and
+idempotent. Admitted attempts older than one hour reconcile to `interrupted`;
+completed attempts are retained for 90 days and removed during later admission
+cleanup. Deleting the authentication user cascades their attempt records, while
+clearing temporary workspace content does not remove this separate operational
+metadata early.
+
+This ledger is distinct from Langfuse. Temporary workspace operations continue
+to export neither content nor content-free metadata to Langfuse. The ledger
+records attempts but does not yet reject usage, calculate billing, expose an
+admin surface, or establish calibrated allowances; Tasks 039, 040, and 044 own
+those later decisions.

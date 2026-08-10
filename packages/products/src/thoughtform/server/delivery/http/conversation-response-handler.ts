@@ -7,6 +7,7 @@ import {
   type IdeaMapAnalyser,
   type RespondInWorkspaceResult,
   type StreamingConversationResponder,
+  WORKSPACE_RESPONSE_STATUSES,
 } from "packages/products/src/thoughtform/server/application/workspace";
 import type {
   ConversationStore,
@@ -19,6 +20,7 @@ import { validateDraftChange } from "packages/products/src/thoughtform/server/de
 import { validateDraftSelection } from "packages/products/src/thoughtform/server/delivery/http/draft-selection-context";
 import {
   CONVERSATION_ERROR_CODES,
+  CONVERSATION_STREAM_EVENT_TYPES,
   WORKSPACE_PERSISTENCE_TYPES,
   type ConversationRequest,
   type ConversationStreamEvent,
@@ -31,6 +33,8 @@ import {
   type Observability,
 } from "packages/observability/src";
 import { failure, success } from "packages/shared/src";
+import type { HostedAttemptLifecycle } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
+import { CONVERSATION_OPERATION_KINDS } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-persistence";
 
 type ConversationResponseHandlerInput = {
   context: Context;
@@ -40,6 +44,7 @@ type ConversationResponseHandlerInput = {
   draftStore: DraftStore | null;
   persistenceType: WorkspacePersistenceType;
   observability?: Observability;
+  hostedAttempts?: HostedAttemptLifecycle;
 };
 
 type ConversationStreamHandlerInput = Omit<
@@ -68,8 +73,10 @@ export async function handleConversationResponse(
     observationCorrelationId: parseObservationCorrelationId(
       input.context.req.header("x-thoughtform-observation-id"),
     ),
+    hostedAttempts: input.hostedAttempts,
+    operationId: requestOperationId(input.context.req.raw),
   });
-  if (result.status !== "responded") {
+  if (result.status !== WORKSPACE_RESPONSE_STATUSES.responded) {
     return conversationFailureResponse(
       input.context,
       result,
@@ -108,6 +115,8 @@ export async function handleConversationStream(
     draftChange: prepared.request.draftChange,
     hasDraft: prepared.hasDraft,
     observability: input.observability,
+    hostedAttempts: input.hostedAttempts,
+    operationId: requestOperationId(input.context.req.raw),
   });
 
   if (input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary) {
@@ -124,7 +133,8 @@ export async function handleConversationStream(
     input.observability ?? noOpObservability,
     "thoughtform.workspace.stream_turn",
     {
-      [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
+      [OBSERVATION_ATTRIBUTE_NAMES.operation]:
+        CONVERSATION_OPERATION_KINDS.conversationTurn,
       [OBSERVATION_ATTRIBUTE_NAMES.sessionId]:
         prepared.conversationId ?? correlationId ?? globalThis.crypto.randomUUID(),
       ...(correlationId
@@ -133,6 +143,11 @@ export async function handleConversationStream(
     },
     createEvents,
   ));
+}
+
+function requestOperationId(request: Request) {
+  return request.headers.get("Idempotency-Key")?.trim() ||
+    globalThis.crypto.randomUUID();
 }
 
 async function prepareConversationRequest(input: {
@@ -202,7 +217,10 @@ async function validateDraftContext(
 
 function conversationFailureResponse(
   context: Context,
-  result: Exclude<RespondInWorkspaceResult, { status: "responded" }>,
+  result: Exclude<
+    RespondInWorkspaceResult,
+    { status: typeof WORKSPACE_RESPONSE_STATUSES.responded }
+  >,
   persistenceType: WorkspacePersistenceType,
 ) {
   if (result.status === CONVERSATION_ERROR_CODES.notFound) {
@@ -255,7 +273,7 @@ async function* withTemporaryExpiry(
   store: TemporaryConversationStore,
 ) {
   for await (const event of events) {
-    if (event.type === "assistant_completed") {
+    if (event.type === CONVERSATION_STREAM_EVENT_TYPES.assistantCompleted) {
       const current = await store.getCurrentConversation();
       yield { ...event, ...(current ? { expiresAt: current.expiresAt } : {}) };
     } else {

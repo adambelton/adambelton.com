@@ -19,10 +19,19 @@ export const CONVERSATION_COMMIT_STATUSES = {
   unavailable: "unavailable",
 } as const;
 
+export const CONVERSATION_OPERATION_KINDS = {
+  conversationTurn: "conversation_turn",
+  savedEditResponse: "saved_edit_response",
+  ideaAction: "idea_action",
+} as const;
+
+export type ConversationOperationKind =
+  (typeof CONVERSATION_OPERATION_KINDS)[keyof typeof CONVERSATION_OPERATION_KINDS];
+
 export interface ConversationCommitInput {
   conversationId: string;
   operationId: string;
-  operationKind: "conversation_turn" | "saved_edit_response" | "idea_action";
+  operationKind: ConversationOperationKind;
   expectedIdeaMapRevision: number;
   nextSnapshot: ConversationPersistenceSnapshot;
 }

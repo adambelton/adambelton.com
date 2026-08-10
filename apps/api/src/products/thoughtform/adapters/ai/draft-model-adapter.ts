@@ -53,7 +53,9 @@ export class LlmDraftModelAdapter
       },
     }, this.observability, "thoughtform.provider.compose_draft", prompt.reference);
     const parsed = parseObject(response.content);
-    if (typeof parsed.body !== "string") throw new HostedAiUnavailableError();
+    if (typeof parsed.body !== "string" || !parsed.body.trim()) {
+      throw new HostedAiUnavailableError();
+    }
     return { body: parsed.body };
   }
 
@@ -81,6 +83,7 @@ export class LlmDraftModelAdapter
     const parsed = parseObject(response.content);
     if (
       typeof parsed.proposedContent !== "string" ||
+      !parsed.proposedContent.trim() ||
       typeof parsed.intendedEffect !== "string"
     ) throw new HostedAiUnavailableError();
     return {

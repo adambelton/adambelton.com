@@ -15,6 +15,7 @@ vi.mock("openai", () => ({
 }));
 
 import { OpenAiLlmClient } from "packages/ai/src/providers/openai-llm-client";
+import { LLM_STREAM_EVENT_TYPES } from "packages/ai/src/contracts/types";
 
 describe("OpenAI LLM client", () => {
   beforeEach(() => {
@@ -118,10 +119,10 @@ describe("OpenAI LLM client", () => {
     }
 
     expect(events).toEqual([
-      { type: "text_delta", text: "A " },
-      { type: "text_delta", text: "response" },
+      { type: LLM_STREAM_EVENT_TYPES.textDelta, text: "A " },
+      { type: LLM_STREAM_EVENT_TYPES.textDelta, text: "response" },
       {
-        type: "completed",
+        type: LLM_STREAM_EVENT_TYPES.completed,
         response: {
           content: "A response",
           inputTokens: 20,

@@ -1,6 +1,7 @@
 import { createConversationLabel } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-label";
 import {
   CONVERSATION_COMMIT_STATUSES,
+  CONVERSATION_OPERATION_KINDS,
   type ConversationPersistence,
   type ConversationPersistenceSnapshot,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-persistence";
@@ -137,7 +138,7 @@ export function createConversationStore(
       return commitResult(await persistence.commit({
         conversationId: input.conversationId,
         operationId: input.operationId,
-        operationKind: "conversation_turn",
+        operationKind: CONVERSATION_OPERATION_KINDS.conversationTurn,
         expectedIdeaMapRevision: input.expectedIdeaMapRevision,
         nextSnapshot: {
           ...current,
@@ -166,7 +167,7 @@ export function createConversationStore(
       return commitResult(await persistence.commit({
         conversationId: input.conversationId,
         operationId: input.operationId,
-        operationKind: "saved_edit_response",
+        operationKind: CONVERSATION_OPERATION_KINDS.savedEditResponse,
         expectedIdeaMapRevision: input.expectedIdeaMapRevision,
         nextSnapshot: {
           ...current,
@@ -188,7 +189,7 @@ export function createConversationStore(
       return commitResult(await persistence.commit({
         conversationId: input.conversationId,
         operationId: input.operationId,
-        operationKind: "idea_action",
+        operationKind: CONVERSATION_OPERATION_KINDS.ideaAction,
         expectedIdeaMapRevision: input.expectedRevision,
         nextSnapshot: {
           ...current,

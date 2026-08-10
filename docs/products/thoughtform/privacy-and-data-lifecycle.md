@@ -1,6 +1,6 @@
 # ThoughtForm privacy and data lifecycle
 
-Last reviewed: 8 August 2026.
+Last reviewed: 10 August 2026.
 
 This note records the product-specific privacy boundary for ThoughtForm.
 Shared authentication, contact, and platform-provider processing is documented in
@@ -24,6 +24,17 @@ Shared authentication, contact, and platform-provider processing is documented i
   or request to another application instance can remove the conversation sooner.
 - Temporary-workspace operations emit no Langfuse traces. Neither their content nor
   content-free request metadata is sent to the evaluation service.
+- Each admitted hosted-model operation writes a separate content-free operational
+  attempt record to Neon. It contains the authenticated account reference,
+  product action, model slug, timestamps, provider-neutral token counts, and
+  operational outcome only. It never contains messages, prompts, ideas, drafts,
+  proposals, generated prose, IP addresses, user-agent strings, or behavioural
+  profiles.
+- Completed hosted-attempt records are retained for 90 days and removed during
+  later admission cleanup. An admitted record left unfinished for one hour is
+  reconciled as interrupted. Deleting the authentication user cascades all of
+  that user's hosted-attempt records. Clearing or expiring temporary workspace
+  content does not delete this separate operational metadata early.
 - The host currently enables authenticated non-owner access in development only.
   Production remains owner-only until a separately approved demo release; this
   release gate does not change the temporary data lifecycle.
@@ -71,6 +82,10 @@ Application code does not intentionally log temporary workspace conversation mes
 bodies or generated writing. Explicitly configured owner evaluation tracing is
 the sole current exception. Deployment-level access and request logging must be
 checked separately before public launch.
+
+The content-free hosted-attempt ledger is operational accounting rather than
+content logging. It is stored separately from private workspace content and is
+not exported to Langfuse for temporary users.
 
 ## Primary risks and mitigations
 

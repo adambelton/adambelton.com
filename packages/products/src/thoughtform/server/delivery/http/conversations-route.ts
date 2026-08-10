@@ -20,6 +20,7 @@ import {
 } from "packages/products/src/thoughtform/shared";
 import type { Observability } from "packages/observability/src";
 import { failure, success } from "packages/shared/src";
+import type { HostedAttemptLifecycle } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 export type CreateConversationsRouteDependencies = {
   getPersistentConversationStore: (
@@ -30,6 +31,9 @@ export type CreateConversationsRouteDependencies = {
   ideaMapAnalysis?: IdeaMapAnalyser;
   getPersistentDraftStore?: (request: Request) => Promise<DraftStore | null>;
   observability?: Observability;
+  getHostedAttemptLifecycle?: (
+    request: Request,
+  ) => Promise<HostedAttemptLifecycle | null>;
 };
 
 export function createConversationsRoute({
@@ -39,6 +43,7 @@ export function createConversationsRoute({
   ideaMapAnalysis,
   getPersistentDraftStore,
   observability,
+  getHostedAttemptLifecycle,
 }: CreateConversationsRouteDependencies) {
   const route = new Hono();
 
@@ -80,6 +85,7 @@ export function createConversationsRoute({
       draftStore: await resolveDraftStore(context.req.raw),
       persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
       observability,
+      hostedAttempts: await getHostedAttemptLifecycle?.(context.req.raw) ?? undefined,
     });
   });
 
@@ -95,6 +101,7 @@ export function createConversationsRoute({
       ideaMapAnalysis,
       persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
       observability,
+      hostedAttempts: await getHostedAttemptLifecycle?.(context.req.raw) ?? undefined,
     });
   });
 

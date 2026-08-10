@@ -15,6 +15,7 @@ vi.mock("@anthropic-ai/sdk", () => ({
 }));
 
 import { AnthropicLlmClient } from "packages/ai/src/providers/anthropic-llm-client";
+import { LLM_STREAM_EVENT_TYPES } from "packages/ai/src/contracts/types";
 
 function completedResponse() {
   return {
@@ -179,10 +180,10 @@ describe("Anthropic LLM client", () => {
     }
 
     expect(events).toEqual([
-      { type: "text_delta", text: '{"response":"A ' },
-      { type: "text_delta", text: 'response"}' },
+      { type: LLM_STREAM_EVENT_TYPES.textDelta, text: '{"response":"A ' },
+      { type: LLM_STREAM_EVENT_TYPES.textDelta, text: 'response"}' },
       {
-        type: "completed",
+        type: LLM_STREAM_EVENT_TYPES.completed,
         response: {
           content: '{"response":"A response"}',
           inputTokens: 28,

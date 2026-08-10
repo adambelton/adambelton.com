@@ -2,6 +2,21 @@
 
 ## Current status
 
+Task 038 is complete. Every current hosted ThoughtForm model operation now uses
+one product-owned authorization/completion lifecycle backed by a host-owned,
+content-free Neon ledger. Conversation response and Idea Map analysis remain
+independent attempts; Draft composition, revision proposals, and model-backed
+saved-change interpretation use the same boundary. Provider-neutral usage is
+aggregated across calls, partial metrics remain explicitly unknown, completion
+is idempotent, stale admitted work reconciles as interrupted after one hour,
+completed records expire after 90 days, and deleting an auth user cascades the
+ledger. Invalid input and disabled/configuration rejection create no durable
+attempt. A mounted owner walkthrough produced and read back five successful
+Sonnet 5 rows through the real client/API/Anthropic/Neon composition, then
+cleared the synthetic workspace. Automated validation covers 333 ordinary
+tests, eight unskipped Neon integration tests, four browser journeys, full
+typecheck/build, schema validation, current migration status, and diff checks.
+
 The ThoughtForm product overview now uses the approved AI-assisted cathartic-
 journaling copy. It introduces the gateway use case, presents Explore, Inspect,
 and Articulate as the complete reflective loop, makes user agency and the non-
@@ -716,9 +731,10 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Implement the approved Task 038 content-free hosted-attempt lifecycle and
-accounting proposal. Re-review every later beta task after its preceding work
-produces the evidence recorded in the revised proposals.
+Freshly review the autonomous, user-correctable Idea Map evolution proposal
+against the current beta scope and the completed Task 038 ledger. That decision
+settles the final beta capability set required before Task 039 usage measurement
+can be reviewed and approved.
 
 ## Historical semantic-editor investigation
 
