@@ -1,4 +1,4 @@
-import type { LlmClient } from "packages/ai/src";
+import { LLM_STREAM_EVENT_TYPES, type LlmClient } from "packages/ai/src";
 import type {
   ConversationModel,
   ConversationModelRequest,
@@ -7,6 +7,7 @@ import {
   HostedAiDisabledError,
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import { CONVERSATION_MODEL_STREAM_EVENT_TYPES } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
 import {
   noOpObservability,
   OBSERVATION_ATTRIBUTE_NAMES,
@@ -111,9 +112,15 @@ export class LlmConversationModelAdapter implements ConversationModel {
           globalThis.performance.now() - startedAt,
         ),
       });
-      yield { type: "text_delta" as const, text: response.content };
+      yield {
+        type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta,
+        text: response.content,
+      };
       this.recordUsage(response);
-      yield { type: "completed" as const, content: response.content };
+      yield {
+        type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed,
+        content: response.content,
+      };
       return;
     }
     for await (const event of this.llmClient.streamMessage({
@@ -123,7 +130,7 @@ export class LlmConversationModelAdapter implements ConversationModel {
       context: request.context,
       messages: request.messages,
     })) {
-      if (event.type === "text_delta") {
+      if (event.type === LLM_STREAM_EVENT_TYPES.textDelta) {
         if (!isFirstDeltaRecorded) {
           isFirstDeltaRecorded = true;
           this.observability.record({
@@ -136,7 +143,10 @@ export class LlmConversationModelAdapter implements ConversationModel {
       }
       else {
         this.recordUsage(event.response);
-        yield { type: "completed" as const, content: event.response.content };
+        yield {
+          type: CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed,
+          content: event.response.content,
+        };
       }
     }
   }

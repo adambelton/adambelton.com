@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { LLM_STREAM_EVENT_TYPES } from "packages/ai/src/contracts/types";
 import type {
   LlmClient,
   LlmRequest,
@@ -134,7 +135,7 @@ export class AnthropicLlmClient implements LlmClient {
         event.type === "content_block_delta" &&
         event.delta.type === "text_delta"
       ) {
-        yield { type: "text_delta", text: event.delta.text };
+        yield { type: LLM_STREAM_EVENT_TYPES.textDelta, text: event.delta.text };
       }
     }
 
@@ -152,7 +153,7 @@ export class AnthropicLlmClient implements LlmClient {
       throw new Error("The Anthropic model response did not contain text.");
     }
     yield {
-      type: "completed",
+      type: LLM_STREAM_EVENT_TYPES.completed,
       response: {
         content,
         inputTokens:

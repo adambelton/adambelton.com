@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { LLM_STREAM_EVENT_TYPES } from "packages/ai/src/contracts/types";
 import type {
   LlmClient,
   LlmRequest,
@@ -95,7 +96,7 @@ export class OpenAiLlmClient implements LlmClient {
 
     for await (const event of stream) {
       if (event.type === "response.output_text.delta") {
-        yield { type: "text_delta", text: event.delta };
+        yield { type: LLM_STREAM_EVENT_TYPES.textDelta, text: event.delta };
       }
     }
 
@@ -104,7 +105,7 @@ export class OpenAiLlmClient implements LlmClient {
       throw new Error("The model response was incomplete.");
     }
     yield {
-      type: "completed",
+      type: LLM_STREAM_EVENT_TYPES.completed,
       response: {
         content: response.output_text,
         inputTokens: response.usage?.input_tokens,

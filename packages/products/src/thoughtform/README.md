@@ -43,7 +43,9 @@ packages/products/src/thoughtform/
 │   │   ├── drafting/                          Composes, versions and revises the draft
 │   │   │   ├── prompts/                        Owns the three Draft prompt fallbacks
 │   │   │   └── ports/                         AI and storage requirements
+│   │   └── hosted-attempt/                    Defines hosted-operation accounting meaning
 │   ├── application/                           Coordinates complete user operations
+│   │   ├── hosted-attempt/                    Completes admitted model operations
 │   │   └── workspace/                         Connects conversation, ideas and drafts
 │   ├── delivery/                              Ways to invoke product operations
 │   │   └── http/                              Browser-facing HTTP entrance
@@ -132,6 +134,7 @@ apps/api/src/products/thoughtform/
 ├── delivery/                                  Host-owned disclosure and observations
 ├── adapters/ai/                               Connects product requests to packages/ai
 ├── adapters/persistence/                      Selects temporary or durable storage
+├── adapters/usage/                            Accounts for hosted attempts and model usage
 └── testing/                                   Host-specific model evaluation
 
 packages/db/src/adapters/thoughtform/       Durable Prisma persistence
@@ -140,6 +143,14 @@ packages/db/src/adapters/thoughtform/       Durable Prisma persistence
 The reusable entry points are `shared/index.ts`, `server/index.ts`, and
 `client/index.ts`. A future host should integrate through those product-owned
 contracts rather than importing internal implementation files.
+
+Every hosted model operation is admitted through the product-owned
+`hosted-attempt` contract immediately before provider invocation. Conversation
+response and Idea Map analysis are independent attempts. The API host captures
+provider-neutral usage inside each admitted async context and completes the
+record only after the relevant product persistence succeeds or fails. Durable
+records contain quantitative operational metadata only and remain separate
+from both workspace content and Langfuse observation.
 
 ## Where to look when something goes wrong
 
@@ -155,6 +166,7 @@ contracts rather than importing internal implementation files.
 | A complete user journey regresses | `testing/browser` |
 | Deterministic tests pass but real-model behaviour regresses | `testing/evaluations` |
 | Product behaviour is correct but hosted AI or storage is wrong | Host adapters listed above |
+| Hosted usage or attempt outcome is wrong | `server/capabilities/hosted-attempt`, then the host `adapters/usage` |
 
 Within a capability, the filename identifies the next decision:
 

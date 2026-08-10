@@ -17,6 +17,7 @@ import {
 } from "packages/products/src/thoughtform/server/delivery/http/conversation-response-handler";
 import { failure } from "packages/shared/src";
 import { WORKSPACE_PERSISTENCE_TYPES } from "packages/products/src/thoughtform/shared";
+import type { HostedAttemptLifecycle } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 export type CreateConversationRouteDependencies = {
   conversationStore?: TemporaryConversationStore;
@@ -27,6 +28,9 @@ export type CreateConversationRouteDependencies = {
   streamingConversationService?: StreamingConversationResponder;
   ideaMapAnalysis?: IdeaMapAnalyser;
   getDraftStore?: (request: Request) => Promise<DraftStore | null>;
+  getHostedAttemptLifecycle?: (
+    request: Request,
+  ) => Promise<HostedAttemptLifecycle | null>;
 };
 
 export function createConversationRoute({
@@ -36,6 +40,7 @@ export function createConversationRoute({
   streamingConversationService = new ConversationService(),
   ideaMapAnalysis,
   getDraftStore,
+  getHostedAttemptLifecycle,
 }: CreateConversationRouteDependencies) {
   const route = new Hono();
 
@@ -50,6 +55,7 @@ export function createConversationRoute({
       draftStore: await resolveDraftStore(context.req.raw),
       ideaMapAnalysis,
       persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
+      hostedAttempts: await getHostedAttemptLifecycle?.(context.req.raw) ?? undefined,
     });
   });
 
@@ -63,6 +69,7 @@ export function createConversationRoute({
       conversations: store,
       draftStore: await resolveDraftStore(context.req.raw),
       persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
+      hostedAttempts: await getHostedAttemptLifecycle?.(context.req.raw) ?? undefined,
     });
   });
 

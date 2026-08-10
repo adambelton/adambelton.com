@@ -65,6 +65,7 @@ export function createThoughtFormApiRoute(
       dependencies.persistentProposalModel ?? dependencies.proposalModel,
     getConversationStore: dependencies.getPersistentConversationStore,
     getDraftStore: dependencies.getPersistentDraftStore,
+    getHostedAttemptLifecycle: dependencies.getHostedAttemptLifecycle,
   }));
   route.route("/temporary-drafts", createDraftRoute({
     persistenceType: WORKSPACE_PERSISTENCE_TYPES.temporary,
@@ -73,6 +74,7 @@ export function createThoughtFormApiRoute(
     proposalModel: dependencies.proposalModel,
     getConversationStore: dependencies.getTemporaryConversationStore,
     getDraftStore: dependencies.getTemporaryDraftStore,
+    getHostedAttemptLifecycle: dependencies.getHostedAttemptLifecycle,
   }));
 
   return route;

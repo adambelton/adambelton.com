@@ -27,9 +27,14 @@ export type LlmResponse = {
   model: string;
 };
 
+export const LLM_STREAM_EVENT_TYPES = {
+  textDelta: "text_delta",
+  completed: "completed",
+} as const;
+
 export type LlmStreamEvent =
-  | { type: "text_delta"; text: string }
-  | { type: "completed"; response: LlmResponse };
+  | { type: typeof LLM_STREAM_EVENT_TYPES.textDelta; text: string }
+  | { type: typeof LLM_STREAM_EVENT_TYPES.completed; response: LlmResponse };
 
 export interface LlmClient {
   createMessage(request: LlmRequest): Promise<LlmResponse>;

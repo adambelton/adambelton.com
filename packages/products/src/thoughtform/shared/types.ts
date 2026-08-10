@@ -213,6 +213,7 @@ export type IdeaMapRevisionSourceType =
 export const IDEA_MAP_ERROR_CODES = {
   conflict: "idea_map_conflict",
   invalidAction: "invalid_idea_action",
+  unavailable: "idea_map_unavailable",
 } as const;
 
 export const CONVERSATION_MESSAGE_ROLES = {
@@ -293,7 +294,9 @@ export type ConversationStreamEvent =
     }
   | {
       type: typeof CONVERSATION_STREAM_EVENT_TYPES.ideaMapFailed;
-      code: "idea_map_unavailable" | "idea_map_conflict";
+      code:
+        | typeof IDEA_MAP_ERROR_CODES.unavailable
+        | typeof IDEA_MAP_ERROR_CODES.conflict;
       message: string;
     }
   | {
@@ -411,10 +414,29 @@ export interface DraftChangeInterpretation {
   potentialConflicts: PotentialConflict[];
 }
 
+export const DRAFT_OPERATION_INTERPRETATION_STATUSES = {
+  notNeeded: "not_needed",
+  responded: "responded",
+  failed: "failed",
+} as const;
+
+export type DraftOperationInterpretationStatus =
+  (typeof DRAFT_OPERATION_INTERPRETATION_STATUSES)[keyof typeof DRAFT_OPERATION_INTERPRETATION_STATUSES];
+
+export const DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES = {
+  workspace: "workspace",
+  generation: "generation",
+  interpretation: "interpretation",
+  retention: "retention",
+} as const;
+
+export type DraftOperationInterpretationFailureStage =
+  (typeof DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES)[keyof typeof DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES];
+
 export interface DraftOperationInterpretation {
-  status: "not_needed" | "responded" | "failed";
+  status: DraftOperationInterpretationStatus;
   response?: ConversationResponse;
-  failureStage?: "workspace" | "generation" | "interpretation" | "retention";
+  failureStage?: DraftOperationInterpretationFailureStage;
 }
 
 export interface DraftOperationResponse {

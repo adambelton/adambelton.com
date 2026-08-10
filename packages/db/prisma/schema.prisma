@@ -25,8 +25,32 @@ model User {
   accounts                 Account[]
   sessions                 Session[]
   thoughtFormConversations ThoughtFormConversation[]
+  thoughtFormHostedAttempts ThoughtFormHostedAttempt[]
 
   @@map("users")
+}
+
+model ThoughtFormHostedAttempt {
+  id               String    @id
+  userId           String    @map("user_id")
+  operationId      String    @map("operation_id")
+  action           String
+  outcome          String?
+  model            String?
+  inputTokens      Int?      @map("input_tokens")
+  outputTokens     Int?      @map("output_tokens")
+  reasoningTokens  Int?      @map("reasoning_tokens")
+  cacheReadTokens  Int?      @map("cache_read_tokens")
+  cacheWriteTokens Int?      @map("cache_write_tokens")
+  admittedAt       DateTime  @default(now()) @map("admitted_at")
+  completedAt      DateTime? @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, action, operationId])
+  @@index([userId, admittedAt])
+  @@index([outcome, admittedAt])
+  @@map("thoughtform_hosted_attempts")
 }
 
 model Session {

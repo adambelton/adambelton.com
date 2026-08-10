@@ -12,10 +12,18 @@ import { deriveDraftChange } from "packages/products/src/thoughtform/server/capa
 import {
   DRAFT_REVISION_SOURCES,
   REVISION_PROPOSAL_SCOPES,
+  REVISION_PROPOSAL_STATES,
   type DraftSelection,
   type Idea,
   type RevisionProposalScope,
 } from "packages/products/src/thoughtform/shared";
+import { performHostedAttempt } from "packages/products/src/thoughtform/server/application/hosted-attempt";
+import {
+  HOSTED_ATTEMPT_ACTIONS,
+  HOSTED_ATTEMPT_OUTCOMES,
+  noOpHostedAttemptLifecycle,
+  type HostedAttemptLifecycle,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 export class InvalidDraftOperationError extends Error {}
 
@@ -25,6 +33,7 @@ export class DraftService {
     private readonly compositionModel: DraftCompositionModel,
     private readonly proposalModel: RevisionProposalModel,
     private readonly now: () => Date = () => new Date(),
+    private readonly hostedAttempts: HostedAttemptLifecycle = noOpHostedAttemptLifecycle,
   ) {}
 
   load(conversationId: string) {
@@ -54,18 +63,26 @@ export class DraftService {
     if (selected.length === 0) {
       throw new InvalidDraftOperationError("Select at least one idea to compose.");
     }
-    const generated = await this.compositionModel.compose({
-      selectedIdeas: createDraftCompositionIdeaMaterial(selected),
-      relevantConversationLanguage: input.relevantConversationLanguage,
-      instruction: input.instruction,
-    });
-    const body = requireBody(generated.body);
-    return this.store.createDraft({
-      conversationId: input.conversationId,
-      draftId: globalThis.crypto.randomUUID(),
+    return performHostedAttempt({
+      action: HOSTED_ATTEMPT_ACTIONS.draftComposition,
       operationId: input.operationId,
-      body,
-      createdAt: this.now().toISOString(),
+      lifecycle: this.hostedAttempts,
+      operation: async () => {
+        const generated = await this.compositionModel.compose({
+          selectedIdeas: createDraftCompositionIdeaMaterial(selected),
+          relevantConversationLanguage: input.relevantConversationLanguage,
+          instruction: input.instruction,
+        });
+        const body = requireBody(generated.body);
+        return this.store.createDraft({
+          conversationId: input.conversationId,
+          draftId: globalThis.crypto.randomUUID(),
+          operationId: input.operationId,
+          body,
+          createdAt: this.now().toISOString(),
+        });
+      },
+      outcome: draftAttemptOutcome,
     });
   }
 
@@ -127,34 +144,43 @@ export class DraftService {
     if (workspace.draft.currentRevision !== input.expectedDraftRevision) {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace } as const;
     }
-    if (workspace.activeProposal?.state === "active") {
+    if (workspace.activeProposal?.state === REVISION_PROPOSAL_STATES.active) {
       return { status: DRAFT_WRITE_STATUSES.conflict, workspace } as const;
     }
+    const draft = workspace.draft;
     const range = proposalRange(
-      workspace.draft.body,
+      draft.body,
       input.expectedDraftRevision,
       input.scope,
       input.selection,
     );
-    const generated = await this.proposalModel.propose({
-      draftBody: workspace.draft.body,
-      scope: input.scope,
-      originalContent: range.originalContent,
-      userInstruction: input.userInstruction,
-    });
-    return this.store.createRevisionProposal({
-      conversationId: input.conversationId,
-      proposalId: globalThis.crypto.randomUUID(),
+    return performHostedAttempt({
+      action: HOSTED_ATTEMPT_ACTIONS.revisionProposal,
       operationId: input.operationId,
-      baseDraftRevision: input.expectedDraftRevision,
-      scope: input.scope,
-      originalStart: range.start,
-      originalEnd: range.end,
-      originalContent: range.originalContent,
-      userInstruction: input.userInstruction.trim(),
-      intendedEffect: generated.intendedEffect.trim(),
-      proposedContent: requireBody(generated.proposedContent),
-      createdAt: this.now().toISOString(),
+      lifecycle: this.hostedAttempts,
+      operation: async () => {
+        const generated = await this.proposalModel.propose({
+          draftBody: draft.body,
+          scope: input.scope,
+          originalContent: range.originalContent,
+          userInstruction: input.userInstruction,
+        });
+        return this.store.createRevisionProposal({
+          conversationId: input.conversationId,
+          proposalId: globalThis.crypto.randomUUID(),
+          operationId: input.operationId,
+          baseDraftRevision: input.expectedDraftRevision,
+          scope: input.scope,
+          originalStart: range.start,
+          originalEnd: range.end,
+          originalContent: range.originalContent,
+          userInstruction: input.userInstruction.trim(),
+          intendedEffect: generated.intendedEffect.trim(),
+          proposedContent: requireBody(generated.proposedContent),
+          createdAt: this.now().toISOString(),
+        });
+      },
+      outcome: draftAttemptOutcome,
     });
   }
 
@@ -176,25 +202,34 @@ export class DraftService {
       return { status: DRAFT_WRITE_STATUSES.notFound } as const;
     }
     if (
-      proposal.state !== "active" ||
+      proposal.state !== REVISION_PROPOSAL_STATES.active ||
       proposal.currentProposalRevision !== input.expectedProposalRevision
     ) {
       return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace } as const;
     }
-    const generated = await this.proposalModel.propose({
-      draftBody: workspace.draft.body,
-      scope: proposal.scope,
-      originalContent: proposal.originalContent,
-      userInstruction: input.userInstruction,
-    });
-    return this.store.amendRevisionProposal({
-      conversationId: input.conversationId,
-      proposalId: input.proposalId,
+    const draft = workspace.draft;
+    return performHostedAttempt({
+      action: HOSTED_ATTEMPT_ACTIONS.revisionProposal,
       operationId: input.operationId,
-      expectedProposalRevision: input.expectedProposalRevision,
-      intendedEffect: generated.intendedEffect.trim(),
-      proposedContent: requireBody(generated.proposedContent),
-      createdAt: this.now().toISOString(),
+      lifecycle: this.hostedAttempts,
+      operation: async () => {
+        const generated = await this.proposalModel.propose({
+          draftBody: draft.body,
+          scope: proposal.scope,
+          originalContent: proposal.originalContent,
+          userInstruction: input.userInstruction,
+        });
+        return this.store.amendRevisionProposal({
+          conversationId: input.conversationId,
+          proposalId: input.proposalId,
+          operationId: input.operationId,
+          expectedProposalRevision: input.expectedProposalRevision,
+          intendedEffect: generated.intendedEffect.trim(),
+          proposedContent: requireBody(generated.proposedContent),
+          createdAt: this.now().toISOString(),
+        });
+      },
+      outcome: draftAttemptOutcome,
     });
   }
 
@@ -220,6 +255,13 @@ export class DraftService {
       createdAt: this.now().toISOString(),
     });
   }
+}
+
+function draftAttemptOutcome(result: DraftWriteResult) {
+  return result.status === DRAFT_WRITE_STATUSES.changed ||
+      result.status === DRAFT_WRITE_STATUSES.duplicate
+    ? HOSTED_ATTEMPT_OUTCOMES.succeeded
+    : HOSTED_ATTEMPT_OUTCOMES.persistenceFailed;
 }
 
 function withDraftChange(result: DraftWriteResult, expectedRevision: number) {

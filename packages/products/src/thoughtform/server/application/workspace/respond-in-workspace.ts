@@ -1,5 +1,7 @@
 import {
   ConversationInputTooLargeError,
+  MAX_CONVERSATION_INPUT_BYTES,
+  measureConversationRequestInputBytes,
   type ConversationService,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-service";
 import {
@@ -33,6 +35,13 @@ import {
   OBSERVATION_ATTRIBUTE_NAMES,
   type Observability,
 } from "packages/observability/src";
+import {
+  HOSTED_ATTEMPT_ACTIONS,
+  HOSTED_ATTEMPT_OUTCOMES,
+  noOpHostedAttemptLifecycle,
+  type HostedAttemptLifecycle,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
+import { CONVERSATION_OPERATION_KINDS } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-persistence";
 
 export const WORKSPACE_RESPONSE_STATUSES = {
   responded: "responded",
@@ -75,10 +84,13 @@ export async function respondInWorkspace(input: {
   hasDraft?: boolean;
   observability?: Observability;
   observationCorrelationId?: string;
+  hostedAttempts?: HostedAttemptLifecycle;
+  operationId?: string;
 }): Promise<RespondInWorkspaceResult> {
   const observability = input.observability ?? noOpObservability;
   return observability.observe("thoughtform.workspace.turn", {
-    [OBSERVATION_ATTRIBUTE_NAMES.operation]: "conversation_turn",
+    [OBSERVATION_ATTRIBUTE_NAMES.operation]:
+      CONVERSATION_OPERATION_KINDS.conversationTurn,
     ...(input.observationCorrelationId
       ? { [OBSERVATION_ATTRIBUTE_NAMES.correlationId]: input.observationCorrelationId }
       : {}),
@@ -94,18 +106,50 @@ export async function respondInWorkspace(input: {
     return { status: CONVERSATION_ERROR_CODES.notFound };
   }
 
+  if (measureConversationRequestInputBytes({
+    conversationId: input.conversationId,
+    message: input.message,
+    previousMessages: workspace.messages,
+    ideaMap: workspace.ideaMap,
+    draftSelection: input.draftSelection,
+    draftChange: input.draftChange,
+    hasDraft: input.hasDraft,
+  }) > MAX_CONVERSATION_INPUT_BYTES) {
+    return { status: CONVERSATION_ERROR_CODES.inputTooLarge };
+  }
+
+  const operationId = input.operationId ?? globalThis.crypto.randomUUID();
+  const hostedAttempts = input.hostedAttempts ?? noOpHostedAttemptLifecycle;
+  const conversationAttempt = await hostedAttempts.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId,
+    });
+  const ideaMapAttempt = input.ideaMapAnalysis
+    ? await hostedAttempts.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.ideaMapAnalysis,
+      operationId: `${operationId}:idea-map`,
+    })
+    : null;
+
   const ideaMapAnalysisPromise = input.ideaMapAnalysis
-    ?.analyse({
+    ? ideaMapAttempt!.run(() => input.ideaMapAnalysis!.analyse({
       message: input.message,
       previousMessages: workspace.messages,
       ideaMap: workspace.ideaMap,
       draftChange: input.draftChange,
-    })
-    .catch(() => ({
+    }))
+    .catch(async (error) => {
+      if (error instanceof ConversationInputTooLargeError) {
+        await ideaMapAttempt!.discard();
+      } else {
+        await ideaMapAttempt!.complete(HOSTED_ATTEMPT_OUTCOMES.providerFailed);
+      }
+      return {
       proposedIdeas: null,
       proposedIdeaActions: null,
       resolvedPotentialConflictIds: null,
-    })) ?? Promise.resolve({
+      };
+    }) : Promise.resolve({
       proposedIdeas: null,
       proposedIdeaActions: null,
       resolvedPotentialConflictIds: null,
@@ -114,7 +158,7 @@ export async function respondInWorkspace(input: {
   let generatedResponse: Awaited<ReturnType<ConversationResponder["respond"]>>;
 
   try {
-    generatedResponse = await input.conversation.respond({
+    generatedResponse = await conversationAttempt.run(() => input.conversation.respond({
       conversationId: input.conversationId,
       message: input.message,
       previousMessages: workspace.messages,
@@ -122,10 +166,17 @@ export async function respondInWorkspace(input: {
       draftSelection: input.draftSelection,
       draftChange: input.draftChange,
       hasDraft: input.hasDraft,
-    });
+    }));
   } catch (error) {
     if (error instanceof ConversationInputTooLargeError) {
+      await conversationAttempt.discard();
       return { status: CONVERSATION_ERROR_CODES.inputTooLarge };
+    }
+    await conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.providerFailed);
+    if (ideaMapAttempt) {
+      void ideaMapAnalysisPromise.then(() =>
+        ideaMapAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed))
+        .catch(() => undefined);
     }
     if (error instanceof HostedAiDisabledError) {
       return { status: CONVERSATION_ERROR_CODES.hostedAiDisabled };
@@ -136,7 +187,6 @@ export async function respondInWorkspace(input: {
     throw error;
   }
 
-  const operationId = globalThis.crypto.randomUUID();
   const conversationId =
     input.conversationId ?? input.conversations.createConversationId();
   const ideaMapAnalysis = await ideaMapAnalysisPromise;
@@ -167,11 +217,24 @@ export async function respondInWorkspace(input: {
   }));
 
   if (appendResult.status === CONVERSATION_TURN_RETENTION_STATUSES.conflict) {
+    await Promise.all([
+      conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed),
+      ideaMapAttempt?.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed),
+    ]);
     return { status: CONVERSATION_ERROR_CODES.conflict };
   }
   if (appendResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
+    await Promise.all([
+      conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed),
+      ideaMapAttempt?.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed),
+    ]);
     return { status: CONVERSATION_ERROR_CODES.unavailable };
   }
+
+  await Promise.all([
+    conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.succeeded),
+    ideaMapAttempt?.complete(HOSTED_ATTEMPT_OUTCOMES.succeeded),
+  ]);
 
   observability.record({
     [OBSERVATION_ATTRIBUTE_NAMES.result]: "responded",

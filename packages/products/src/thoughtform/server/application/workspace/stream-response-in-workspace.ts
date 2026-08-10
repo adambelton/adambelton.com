@@ -1,9 +1,12 @@
 import {
   ConversationInputTooLargeError,
+  MAX_CONVERSATION_INPUT_BYTES,
+  measureConversationRequestInputBytes,
   type ConversationGeneration,
   type ConversationService,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/conversation-service";
 import {
+  CONVERSATION_MODEL_STREAM_EVENT_TYPES,
   HostedAiDisabledError,
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-model";
@@ -19,6 +22,7 @@ import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_MESSAGE_ROLES,
   CONVERSATION_STREAM_EVENT_TYPES,
+  IDEA_MAP_ERROR_CODES,
   type ConversationStreamEvent,
   type ConversationMessage,
   type DraftChange,
@@ -31,8 +35,19 @@ import {
   OBSERVATION_ATTRIBUTE_NAMES,
   type Observability,
 } from "packages/observability/src";
+import {
+  HOSTED_ATTEMPT_ACTIONS,
+  HOSTED_ATTEMPT_OUTCOMES,
+  noOpHostedAttemptLifecycle,
+  type HostedAttemptLifecycle,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 export type StreamingConversationResponder = Pick<ConversationService, "respondStream">;
+
+const IDEA_MAP_ANALYSIS_RESULT_STATUSES = {
+  completed: "completed",
+  failed: "failed",
+} as const;
 
 export async function* streamResponseInWorkspace(input: {
   conversationId: string | null;
@@ -44,6 +59,8 @@ export async function* streamResponseInWorkspace(input: {
   draftChange?: DraftChange;
   hasDraft?: boolean;
   observability?: Observability;
+  hostedAttempts?: HostedAttemptLifecycle;
+  operationId?: string;
 }): AsyncIterable<ConversationStreamEvent> {
   const observability = input.observability ?? noOpObservability;
   const workspace = await observability.observe(
@@ -58,6 +75,19 @@ export async function* streamResponseInWorkspace(input: {
     return;
   }
 
+  if (measureConversationRequestInputBytes({
+    conversationId: input.conversationId,
+    message: input.message,
+    previousMessages: workspace.messages,
+    ideaMap: workspace.ideaMap,
+    draftSelection: input.draftSelection,
+    draftChange: input.draftChange,
+    hasDraft: input.hasDraft,
+  }) > MAX_CONVERSATION_INPUT_BYTES) {
+    yield failure(CONVERSATION_ERROR_CODES.inputTooLarge, "This conversation is too large to continue.");
+    return;
+  }
+
   const conversationId = input.conversationId ?? input.conversations.createConversationId();
   await observability.observe(
     "thoughtform.workspace.request_accepted",
@@ -66,19 +96,38 @@ export async function* streamResponseInWorkspace(input: {
   );
   yield { type: CONVERSATION_STREAM_EVENT_TYPES.accepted, conversationId };
 
-  const ideaMapResult = input.ideaMapAnalysis.analyse({
+  const operationId = input.operationId ?? globalThis.crypto.randomUUID();
+  const [conversationAttempt, ideaMapAttempt] = await Promise.all([
+    (input.hostedAttempts ?? noOpHostedAttemptLifecycle).admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId,
+    }),
+    (input.hostedAttempts ?? noOpHostedAttemptLifecycle).admit({
+      action: HOSTED_ATTEMPT_ACTIONS.ideaMapAnalysis,
+      operationId: `${operationId}:idea-map`,
+    }),
+  ]);
+
+  const ideaMapResult = ideaMapAttempt.run(() => input.ideaMapAnalysis.analyse({
     message: input.message,
     previousMessages: workspace.messages,
     ideaMap: workspace.ideaMap,
     draftChange: input.draftChange,
-  }).then(
-    (analysis) => ({ status: "completed" as const, analysis }),
-    () => ({ status: "failed" as const }),
+  })).then(
+    (analysis) => ({ status: IDEA_MAP_ANALYSIS_RESULT_STATUSES.completed, analysis }),
+    async (error) => {
+      if (error instanceof ConversationInputTooLargeError) {
+        await ideaMapAttempt.discard();
+      } else {
+        await ideaMapAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.providerFailed);
+      }
+      return { status: IDEA_MAP_ANALYSIS_RESULT_STATUSES.failed };
+    },
   );
 
   let generation: ConversationGeneration | null = null;
   try {
-    for await (const event of input.conversation.respondStream({
+    for await (const event of conversationAttempt.runStream(() => input.conversation.respondStream({
       conversationId,
       message: input.message,
       previousMessages: workspace.messages,
@@ -86,8 +135,8 @@ export async function* streamResponseInWorkspace(input: {
       draftSelection: input.draftSelection,
       draftChange: input.draftChange,
       hasDraft: input.hasDraft,
-    })) {
-      if (event.type === "text_delta") {
+    }))) {
+      if (event.type === CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta) {
         yield {
           type: CONVERSATION_STREAM_EVENT_TYPES.assistantDelta,
           delta: event.text,
@@ -97,10 +146,18 @@ export async function* streamResponseInWorkspace(input: {
       }
     }
   } catch (error) {
+    if (error instanceof ConversationInputTooLargeError) {
+      await conversationAttempt.discard();
+    } else {
+      await conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.providerFailed);
+    }
+    void completeUnretainedIdeaMapAttempt(ideaMapResult, ideaMapAttempt).catch(() => undefined);
     yield conversationFailure(error);
     return;
   }
   if (!generation) {
+    await conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.providerFailed);
+    void completeUnretainedIdeaMapAttempt(ideaMapResult, ideaMapAttempt).catch(() => undefined);
     yield failure(
       CONVERSATION_ERROR_CODES.hostedAiUnavailable,
       "ThoughtForm could not complete its response.",
@@ -121,6 +178,8 @@ export async function* streamResponseInWorkspace(input: {
     }),
   );
   if (turnResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
+    await conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed);
+    void completeUnretainedIdeaMapAttempt(ideaMapResult, ideaMapAttempt).catch(() => undefined);
     yield failure(
       turnResult.status === CONVERSATION_TURN_RETENTION_STATUSES.conflict
         ? CONVERSATION_ERROR_CODES.conflict
@@ -129,6 +188,7 @@ export async function* streamResponseInWorkspace(input: {
     );
     return;
   }
+  await conversationAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.succeeded);
   yield {
     type: CONVERSATION_STREAM_EVENT_TYPES.assistantCompleted,
     response: generation,
@@ -138,10 +198,10 @@ export async function* streamResponseInWorkspace(input: {
   });
 
   const analysed = await ideaMapResult;
-  if (analysed.status === "failed") {
+  if (analysed.status === IDEA_MAP_ANALYSIS_RESULT_STATUSES.failed) {
     yield {
       type: CONVERSATION_STREAM_EVENT_TYPES.ideaMapFailed,
-      code: "idea_map_unavailable",
+      code: IDEA_MAP_ERROR_CODES.unavailable,
       message: "The response was saved, but the Idea Map could not be updated.",
     };
     yield { type: CONVERSATION_STREAM_EVENT_TYPES.completed };
@@ -156,16 +216,18 @@ export async function* streamResponseInWorkspace(input: {
     observability,
   });
   if (mapResult.status !== CONVERSATION_TURN_RETENTION_STATUSES.retained) {
+    await ideaMapAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed);
     yield {
       type: CONVERSATION_STREAM_EVENT_TYPES.ideaMapFailed,
       code: mapResult.status === CONVERSATION_TURN_RETENTION_STATUSES.conflict
-        ? "idea_map_conflict"
-        : "idea_map_unavailable",
+        ? IDEA_MAP_ERROR_CODES.conflict
+        : IDEA_MAP_ERROR_CODES.unavailable,
       message: "The response was saved, but the Idea Map changed before this update could be retained.",
     };
     yield { type: CONVERSATION_STREAM_EVENT_TYPES.completed };
     return;
   }
+  await ideaMapAttempt.complete(HOSTED_ATTEMPT_OUTCOMES.succeeded);
   const ideaMap = mapResult.ideaMap;
   observability.record({
     [OBSERVATION_ATTRIBUTE_NAMES.result]: "idea_map_retained",
@@ -174,6 +236,21 @@ export async function* streamResponseInWorkspace(input: {
   });
   yield { type: CONVERSATION_STREAM_EVENT_TYPES.ideaMapCompleted, ideaMap };
   yield { type: CONVERSATION_STREAM_EVENT_TYPES.completed };
+}
+
+async function completeUnretainedIdeaMapAttempt(
+  result: Promise<
+    | {
+        status: typeof IDEA_MAP_ANALYSIS_RESULT_STATUSES.completed;
+        analysis: IdeaMapAnalysis;
+      }
+    | { status: typeof IDEA_MAP_ANALYSIS_RESULT_STATUSES.failed }
+  >,
+  attempt: Awaited<ReturnType<HostedAttemptLifecycle["admit"]>>,
+) {
+  if ((await result).status === IDEA_MAP_ANALYSIS_RESULT_STATUSES.completed) {
+    await attempt.complete(HOSTED_ATTEMPT_OUTCOMES.persistenceFailed);
+  }
 }
 
 async function retainTurnAgainstLatestMap(input: {

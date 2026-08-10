@@ -17,6 +17,9 @@ import {
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import {
   DRAFT_ERROR_CODES,
+  DRAFT_OPERATION_INTERPRETATION_STATUSES,
+  CONVERSATION_ERROR_CODES,
+  CONVERSATION_MESSAGE_ROLES,
   REVISION_PROPOSAL_SCOPES,
   WORKSPACE_PERSISTENCE_TYPES,
   type DraftSelection,
@@ -24,6 +27,10 @@ import {
   type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { interpretSavedDraftChange } from "packages/products/src/thoughtform/server/application/workspace";
+import {
+  noOpHostedAttemptLifecycle,
+  type HostedAttemptLifecycle,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
 import { failure, success } from "packages/shared/src";
 
@@ -36,6 +43,7 @@ export interface CreateDraftRouteDependencies {
   getDraftStore: Resolver<DraftStore>;
   proposalModel: RevisionProposalModel;
   persistenceType: WorkspacePersistenceType;
+  getHostedAttemptLifecycle?: Resolver<HostedAttemptLifecycle>;
 }
 
 export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
@@ -66,13 +74,14 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
     if (!isStringArray(selectedIdeaIds)) return invalid(context);
     const instruction = stringValue(body?.instruction) ??
       "Compose a draft from the selected ideas.";
-    return run(context, () => service(resolved.drafts, dependencies).compose({
+    const requestOperationId = operationId(context.req.raw, body);
+    return run(context, () => service(resolved.drafts, dependencies, resolved.hostedAttempts).compose({
       conversationId,
-      operationId: operationId(context.req.raw, body),
+      operationId: requestOperationId,
       selectedIdeaIds,
       ideas: workspace.ideaMap.ideas,
       relevantConversationLanguage: workspace.messages
-        .filter((message) => message.role === "user")
+        .filter((message) => message.role === CONVERSATION_MESSAGE_ROLES.user)
         .map((message) => message.content),
       instruction,
     }), 201);
@@ -139,8 +148,10 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       change,
       model: dependencies.interpretationModel,
       conversations: resolved.conversations,
+      hostedAttempts: resolved.hostedAttempts,
+      operationId: operationId(context.req.raw, body),
     });
-    if (interpretation.status === "failed") {
+    if (interpretation.status === DRAFT_OPERATION_INTERPRETATION_STATUSES.failed) {
       console.warn(`Saved-edit interpretation failed during ${interpretation.failureStage ?? "unknown"}.`);
     }
     return context.json(success(interpretation));
@@ -162,9 +173,10 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       !isScope(scope) ||
       !userInstruction
     ) return invalid(context);
-    return run(context, () => service(resolved.drafts, dependencies).propose({
+    const requestOperationId = operationId(context.req.raw, body);
+    return run(context, () => service(resolved.drafts, dependencies, resolved.hostedAttempts).propose({
       conversationId,
-      operationId: operationId(context.req.raw, body),
+      operationId: requestOperationId,
       expectedDraftRevision,
       scope,
       selection: isSelection(body?.selection) ? body.selection : undefined,
@@ -186,10 +198,11 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       typeof expectedProposalRevision !== "number" ||
       !userInstruction
     ) return invalid(context);
-    return run(context, () => service(resolved.drafts, dependencies).amend({
+    const requestOperationId = operationId(context.req.raw, body);
+    return run(context, () => service(resolved.drafts, dependencies, resolved.hostedAttempts).amend({
       conversationId,
       proposalId: context.req.param("proposalId"),
-      operationId: operationId(context.req.raw, body),
+      operationId: requestOperationId,
       expectedProposalRevision,
       userInstruction,
     }));
@@ -235,18 +248,27 @@ async function resolve(
   request: Request,
   dependencies: CreateDraftRouteDependencies,
 ) {
-  const [conversations, drafts] = await Promise.all([
+  const [conversations, drafts, hostedAttempts] = await Promise.all([
     dependencies.getConversationStore(request),
     dependencies.getDraftStore(request),
+    dependencies.getHostedAttemptLifecycle?.(request) ?? noOpHostedAttemptLifecycle,
   ]);
-  return conversations && drafts ? { conversations, drafts } : null;
+  return conversations && drafts && hostedAttempts
+    ? { conversations, drafts, hostedAttempts }
+    : null;
 }
 
-function service(store: DraftStore, dependencies: CreateDraftRouteDependencies) {
+function service(
+  store: DraftStore,
+  dependencies: CreateDraftRouteDependencies,
+  hostedAttempts: HostedAttemptLifecycle = noOpHostedAttemptLifecycle,
+) {
   return new DraftService(
     store,
     dependencies.compositionModel,
     dependencies.proposalModel,
+    undefined,
+    hostedAttempts,
   );
 }
 
@@ -270,10 +292,16 @@ async function run(
   } catch (error) {
     if (error instanceof InvalidDraftOperationError) return invalid(context, error.message);
     if (error instanceof HostedAiDisabledError) {
-      return context.json(failure("hosted_ai_disabled", "ThoughtForm is currently disabled."), 503);
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.hostedAiDisabled,
+        "ThoughtForm is currently disabled.",
+      ), 503);
     }
     if (error instanceof HostedAiUnavailableError) {
-      return context.json(failure("hosted_ai_unavailable", "ThoughtForm could not respond. Try again shortly."), 503);
+      return context.json(failure(
+        CONVERSATION_ERROR_CODES.hostedAiUnavailable,
+        "ThoughtForm could not respond. Try again shortly.",
+      ), 503);
     }
     throw error;
   }

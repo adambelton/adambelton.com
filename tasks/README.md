@@ -18,10 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 038 — Content-free hosted-attempt lifecycle and accounting; approved, not
-  implemented
 - Autonomous, user-correctable Idea Map evolution; initial proposal recorded,
-  blocked on Task 038 and a fresh beta-scope review
+  ready for a fresh beta-scope review after Task 038
 - 039 — Representative hosted-usage measurement; revised, blocked on Task 038,
   the final beta capability set, and a fresh review
 - 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
@@ -33,10 +31,10 @@ change the proposal or grant approval for a later task.
   release review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-The unnumbered correction tasks, Task 036, and Langfuse prompt automation are
-complete. Task 038 is the next approved implementation. Every later beta task
-remains unapproved and must be re-reviewed after its dependencies establish new
-evidence. Preference learning is not a prerequisite.
+Task 038, the unnumbered correction tasks, Task 036, and Langfuse prompt
+automation are complete. Every later beta task remains unapproved and must be
+re-reviewed after its dependencies establish new evidence. Preference learning
+is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
 from them—explicit current guidance, user correction, inspectability, narrow
@@ -52,6 +50,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 038 — Content-free hosted-attempt lifecycle and accounting
 - Update ThoughtForm product-page copy (unnumbered)
 - Refine ThoughtForm product direction (unnumbered)
 - Refine ThoughtForm presentation and workspace hierarchy (unnumbered)

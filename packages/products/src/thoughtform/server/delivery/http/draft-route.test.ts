@@ -7,11 +7,17 @@ import { TestConversationPersistence } from "packages/products/src/thoughtform/t
 import { TestDraftPersistence } from "packages/products/src/thoughtform/testing/fakes/test-draft-persistence";
 import {
   WORKSPACE_PERSISTENCE_TYPES,
+  DRAFT_OPERATION_INTERPRETATION_STATUSES,
   type DraftOperationResponse,
   type DraftingState,
   type Idea,
 } from "packages/products/src/thoughtform/shared";
 import type { ApiResponse } from "packages/shared/src";
+import {
+  HOSTED_ATTEMPT_ACTIONS,
+  type HostedAttemptAction,
+  type HostedAttemptLifecycle,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 const idea: Idea = {
   id: "idea-1",
@@ -27,8 +33,10 @@ const idea: Idea = {
 describe("draft HTTP route", () => {
   let app: Hono;
   const conversationId = "conversation-1";
+  let attemptedActions: HostedAttemptAction[];
 
   beforeEach(async () => {
+    attemptedActions = [];
     const conversationPersistence = new TestConversationPersistence();
     const conversations = createConversationStore(conversationPersistence, {
       shouldInitializeOnAppend: true,
@@ -62,6 +70,7 @@ describe("draft HTTP route", () => {
           intendedEffect: "Make authorship explicit.",
         }),
       },
+      getHostedAttemptLifecycle: async () => recordingLifecycle(attemptedActions),
     }));
   });
 
@@ -95,7 +104,7 @@ describe("draft HTTP route", () => {
     expect(interpreted.response.status).toBe(200);
     if (!interpreted.payload.ok) throw new Error("Expected interpretation to succeed.");
     expect(interpreted.payload.data).toMatchObject({
-      status: "responded",
+      status: DRAFT_OPERATION_INTERPRETATION_STATUSES.responded,
       response: { message: { role: "assistant" } },
     });
 
@@ -106,6 +115,10 @@ describe("draft HTTP route", () => {
     expect(stale.response.status).toBe(409);
     if (stale.payload.ok) throw new Error("Expected stale save to fail.");
     expect(stale.payload.error.code).toBe("draft_conflict");
+    expect(attemptedActions).toEqual([
+      HOSTED_ATTEMPT_ACTIONS.draftComposition,
+      HOSTED_ATTEMPT_ACTIONS.savedChangeInterpretation,
+    ]);
   });
 
   it("reviews and accepts the exact proposed whole draft", async () => {
@@ -135,6 +148,10 @@ describe("draft HTTP route", () => {
     if (!accepted.payload.ok) throw new Error("Expected acceptance to succeed.");
     expect(accepted.payload.data.draft).toMatchObject({ body: "The reviewed draft.", currentRevision: 2 });
     expect(accepted.payload.data.revisions[1]).toMatchObject({ source: "accepted_proposal", proposalId });
+    expect(attemptedActions).toEqual([
+      HOSTED_ATTEMPT_ACTIONS.draftComposition,
+      HOSTED_ATTEMPT_ACTIONS.revisionProposal,
+    ]);
   });
 
   it("returns one stable unavailable result across every temporary Draft operation after workspace loss", async () => {
@@ -210,5 +227,20 @@ async function jsonRequest<T = DraftingState>(
   return {
     response,
     payload: await response.json() as ApiResponse<T>,
+  };
+}
+
+function recordingLifecycle(actions: HostedAttemptAction[]): HostedAttemptLifecycle {
+  return {
+    async admit(input) {
+      actions.push(input.action);
+      return {
+        id: input.operationId,
+        run: (operation) => operation(),
+        runStream: (operation) => operation(),
+        async complete() {},
+        async discard() {},
+      };
+    },
   };
 }

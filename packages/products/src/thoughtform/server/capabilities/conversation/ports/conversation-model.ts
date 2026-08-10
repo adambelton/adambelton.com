@@ -19,9 +19,20 @@ export type ConversationModelResponse = {
   content: string;
 };
 
+export const CONVERSATION_MODEL_STREAM_EVENT_TYPES = {
+  textDelta: "text_delta",
+  completed: "completed",
+} as const;
+
 export type ConversationModelStreamEvent =
-  | { type: "text_delta"; text: string }
-  | { type: "completed"; content: string };
+  | {
+      type: typeof CONVERSATION_MODEL_STREAM_EVENT_TYPES.textDelta;
+      text: string;
+    }
+  | {
+      type: typeof CONVERSATION_MODEL_STREAM_EVENT_TYPES.completed;
+      content: string;
+    };
 
 export interface ConversationModel {
   createResponse(

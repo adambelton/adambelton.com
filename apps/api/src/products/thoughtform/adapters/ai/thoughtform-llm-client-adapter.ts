@@ -1,4 +1,8 @@
-import type { LlmClient, LlmRequest } from "packages/ai/src";
+import {
+  LLM_STREAM_EVENT_TYPES,
+  type LlmClient,
+  type LlmRequest,
+} from "packages/ai/src";
 import {
   projectThoughtFormOutputSchema,
   type ThoughtFormAiProfile,
@@ -21,8 +25,8 @@ export class ThoughtFormLlmClientAdapter implements LlmClient {
       return;
     }
     const response = await this.client.createMessage(projectedRequest);
-    yield { type: "text_delta" as const, text: response.content };
-    yield { type: "completed" as const, response };
+    yield { type: LLM_STREAM_EVENT_TYPES.textDelta, text: response.content };
+    yield { type: LLM_STREAM_EVENT_TYPES.completed, response };
   }
 
   private projectRequest(request: LlmRequest): LlmRequest {

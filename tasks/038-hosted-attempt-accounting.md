@@ -135,7 +135,7 @@ schema migration. User-facing limit policy and UI are deferred to Task 040.
 
 ## Status
 
-Approved. Implementation has not started.
+Completed on 10 August 2026.
 
 ## Approval record
 
@@ -163,3 +163,57 @@ Approved by Adam on 7 August 2026.
   pre-admission disabled/configuration rejection create no record; private
   writing remains outside the durable ledger; and Langfuse remains qualitative
   and quantitative only for owner use and explicit synthetic evaluation flows.
+
+Corrective const-object pass approved on 10 August 2026:
+
+- Add shared const objects for saved-change interpretation statuses and failure
+  stages, and derive their public types from those objects.
+- Use the existing `POTENTIAL_CONFLICT_SCOPES` object instead of repeating the
+  saved-edit scope literal in the application flow.
+- Preserve every existing wire value and all runtime behaviour. Broader status
+  refactoring remains outside this correction.
+
+Touched-file const-object scan approved on 10 August 2026:
+
+- Scan every file changed by Task 038 for repeated domain and protocol literals
+  that should be owned by a const object.
+- Add owner-level objects for Idea Map analysis results, Idea Map failure codes,
+  conversation model stream events, LLM stream events, and conversation
+  persistence operation kinds; reuse existing objects for roles, proposal
+  states, hosted-attempt outcomes, response statuses, and hosted-AI errors.
+- Preserve all wire values and runtime behaviour. Ordinary prose, external SDK
+  protocol discriminants, JSON Schema keywords, environment labels, headers,
+  fixtures, and one-off observability result labels remain outside this pass.
+
+## Completion record
+
+- ThoughtForm owns one hosted-attempt lifecycle contract with the five approved
+  product actions and the outcomes `succeeded`, `provider_failed`,
+  `persistence_failed`, and `interrupted`. Invalid oversized input is rejected
+  before admission; disabled or invalid host configuration supplies no durable
+  lifecycle.
+- The API host scopes lifecycle adapters to the authenticated account and
+  captures provider-neutral usage inside isolated async contexts. Multiple
+  provider calls in one operation aggregate; any partially missing metric stays
+  unknown rather than being undercounted.
+- The Prisma ledger uses account/action/operation idempotency, conditional
+  exactly-once completion, nullable usage, and account deletion cascade.
+  Admitted rows older than one hour reconcile to `interrupted`; completed rows
+  are retained for 90 days and then removed during admission cleanup.
+- The schema-first generated migration
+  `20260810151214_add_thoughtform_hosted_attempts` was reviewed, applied to the
+  Neon development database, and reported current. The database-backed
+  concurrency/privacy/lifecycle suite is
+  `packages/db/src/adapters/thoughtform/hosted-attempt-record-store.integration.test.ts`;
+  it ran without skips beside the conversation and draft integration suites.
+- The mounted authenticated owner walkthrough exercised conversation response,
+  independent Idea Map analysis, Draft composition, saved-change
+  interpretation, and revision proposal generation through the real Vite/API,
+  Anthropic, and Neon development adapters. Five content-free rows were read
+  back with the expected distinct actions, `succeeded` outcomes,
+  `claude-sonnet-5`, provider-neutral usage, and completion timestamps. The
+  synthetic temporary workspace was cleared afterward.
+- Validation passed: 333 tests in the ordinary suite, eight configured Neon
+  integration tests with none skipped, four Playwright browser journeys,
+  repository typecheck, production build, Prisma validation, migration status,
+  and `git diff --check`.

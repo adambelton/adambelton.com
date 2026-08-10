@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { interpretSavedDraftChange } from "packages/products/src/thoughtform/server/application/workspace/interpret-saved-draft-change";
 import { createConversationStore } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import { TestConversationPersistence } from "packages/products/src/thoughtform/testing/fakes/test-conversation-persistence";
-import type { DraftChange } from "packages/products/src/thoughtform/shared";
+import {
+  DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES,
+  DRAFT_OPERATION_INTERPRETATION_STATUSES,
+  POTENTIAL_CONFLICT_SCOPES,
+  type DraftChange,
+} from "packages/products/src/thoughtform/shared";
 
 const change: DraftChange = {
   fromRevision: 1,
@@ -56,7 +61,7 @@ describe("interpretSavedDraftChange", () => {
           type: "conceptual_change",
           assistantMessage: "It sounds as though accountability, rather than power itself, is the concern. Is that right?",
           potentialConflicts: [{
-            scope: "saved_edit",
+            scope: POTENTIAL_CONFLICT_SCOPES.savedEdit,
             summary: "The emphasis may have shifted",
             explanation: "The saved wording narrows the earlier established claim.",
             ideaIds: ["idea-1"],
@@ -64,7 +69,7 @@ describe("interpretSavedDraftChange", () => {
         }),
       },
     });
-    expect(result.status).toBe("responded");
+    expect(result.status).toBe(DRAFT_OPERATION_INTERPRETATION_STATUSES.responded);
     const retained = await conversations.getConversationWorkspace("conversation-1");
     expect(retained?.messages.map((message) => message.role)).toEqual(["user", "assistant", "assistant"]);
     expect(retained?.ideaMap.potentialConflicts?.[0]).toMatchObject({
@@ -82,7 +87,9 @@ describe("interpretSavedDraftChange", () => {
       conversations,
       model: { interpret },
     });
-    expect(result).toEqual({ status: "not_needed" });
+    expect(result).toEqual({
+      status: DRAFT_OPERATION_INTERPRETATION_STATUSES.notNeeded,
+    });
     expect(interpret).not.toHaveBeenCalled();
   });
 
@@ -94,7 +101,10 @@ describe("interpretSavedDraftChange", () => {
       conversations,
       model: { interpret: async () => { throw new Error("offline"); } },
     });
-    expect(result).toEqual({ status: "failed", failureStage: "generation" });
+    expect(result).toEqual({
+      status: DRAFT_OPERATION_INTERPRETATION_STATUSES.failed,
+      failureStage: DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES.generation,
+    });
     expect((await conversations.getConversationWorkspace("conversation-1"))?.messages).toHaveLength(2);
     expect(change.toRevision).toBe(2);
   });
@@ -110,7 +120,7 @@ describe("interpretSavedDraftChange", () => {
           type: "conceptual_change",
           assistantMessage: "It sounds as though answerability is the sharper claim. Is that right?",
           potentialConflicts: [{
-            scope: "between_ideas",
+            scope: POTENTIAL_CONFLICT_SCOPES.betweenIdeas,
             summary: "Invalid model reference",
             explanation: "One referenced idea does not exist.",
             ideaIds: ["idea-1", "invented-idea"],
@@ -118,7 +128,7 @@ describe("interpretSavedDraftChange", () => {
         }),
       },
     });
-    expect(result.status).toBe("responded");
+    expect(result.status).toBe(DRAFT_OPERATION_INTERPRETATION_STATUSES.responded);
     const retained = await conversations.getConversationWorkspace("conversation-1");
     expect(retained?.messages.at(-1)?.content).toContain("answerability");
     expect(retained?.ideaMap.potentialConflicts ?? []).toEqual([]);
