@@ -25,34 +25,46 @@ let shouldUseConversationalThinkingScenario = false;
 const discoveryModel = createDiscoveryTestModel();
 const conversationService = new ConversationService({
   conversationModel: {
-    createResponse: (request) => shouldUseConversationalThinkingScenario
-      ? Promise.resolve(createConversationalThinkingResponse(request))
-      : hasAttachedDraftMaterial(request.context)
-      ? Promise.resolve({ content: JSON.stringify({
-          response: "What feels most important to examine in that passage?",
-          move: "probe",
-          assistantReadiness: [],
-          userIntention: null,
-          proposedIdeas: null,
-          ideaActions: null,
-        }) })
-      : discoveryModel.createResponse(request),
+    createResponse: createTestConversationResponse,
   },
 });
 const ideaMapAnalysis = new IdeaMapAnalysisService({
   async createAnalysis(request) {
-    const combined = shouldUseConversationalThinkingScenario
-      ? await createConversationalThinkingResponse(request as ConversationModelRequest)
-      : hasAttachedDraftMaterial(request.context)
-        ? { content: JSON.stringify({
-            proposedIdeas: null,
-            ideaActions: null,
-            resolvedPotentialConflictIds: null,
-          }) }
-        : await discoveryModel.createResponse(request as ConversationModelRequest);
+    const combined = await createTestIdeaMapAnalysis(request as ConversationModelRequest);
     return selectIdeaMapAnalysis(combined.content, request);
   },
 });
+
+async function createTestConversationResponse(request: ConversationModelRequest) {
+  if (shouldUseConversationalThinkingScenario) {
+    return createConversationalThinkingResponse(request);
+  }
+  if (hasAttachedDraftMaterial(request.context)) {
+    return { content: JSON.stringify({
+      response: "What feels most important to examine in that passage?",
+      move: "probe",
+      assistantReadiness: [],
+      userIntention: null,
+      proposedIdeas: null,
+      ideaActions: null,
+    }) };
+  }
+  return discoveryModel.createResponse(request);
+}
+
+async function createTestIdeaMapAnalysis(request: ConversationModelRequest) {
+  if (shouldUseConversationalThinkingScenario) {
+    return createConversationalThinkingResponse(request);
+  }
+  if (hasAttachedDraftMaterial(request.context)) {
+    return { content: JSON.stringify({
+      proposedIdeas: null,
+      ideaActions: null,
+      resolvedPotentialConflictIds: null,
+    }) };
+  }
+  return discoveryModel.createResponse(request);
+}
 const app = new Hono();
 
 app.get("/products/thoughtform/ai-disclosure", (context) => context.json({

@@ -42,7 +42,7 @@ export function IdeaMapTracker({ ideaMap, isBusy, onAction, onStructure }: IdeaM
           A negotiable record of what you have explored. Assessments are qualitative, not objective scores.
         </p>
       </div>
-      {ideaMap.structuralChange ? (
+      {ideaMap.structuralChange && (
         <aside className="mb-5 border border-[var(--line)] p-4" aria-labelledby="idea-structure-change-title">
           <h3 className="font-semibold" id="idea-structure-change-title">Idea map reorganised</h3>
           <p className="mt-1 text-sm text-[var(--muted)]">
@@ -63,8 +63,8 @@ export function IdeaMapTracker({ ideaMap, isBusy, onAction, onStructure }: IdeaM
             Undo reorganisation
           </button>
         </aside>
-      ) : null}
-      {(ideaMap.potentialConflicts ?? []).length > 0 ? (
+      )}
+      {(ideaMap.potentialConflicts ?? []).length > 0 && (
         <section aria-labelledby="potential-conflicts-title" className="mb-5 border border-[var(--line)] p-4">
           <h3 className="font-semibold" id="potential-conflicts-title">Potential conflicts</h3>
           <p className="mt-1 text-sm text-[var(--muted)]">
@@ -84,7 +84,7 @@ export function IdeaMapTracker({ ideaMap, isBusy, onAction, onStructure }: IdeaM
             ))}
           </div>
         </section>
-      ) : null}
+      )}
       <div className="grid gap-3">
         {ideaMap.ideas.map((idea) => (
           <IdeaRow

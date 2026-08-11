@@ -214,32 +214,34 @@ function toSnapshot(
       createdAt: row.createdAt.toISOString(),
     }),
     messages: row.messages.map((message) => ({ ...message })),
-    ideaMap: latestIdeaMap
-      ? {
-          revision: latestIdeaMap.revision,
-          ideas: latestIdeaMap.ideas as unknown as IdeaMap["ideas"],
-          ...(Array.isArray(latestIdeaMap.potentialConflicts)
-            ? {
-                potentialConflicts:
-                  latestIdeaMap.potentialConflicts as unknown as NonNullable<IdeaMap["potentialConflicts"]>,
-              }
-            : {}),
-          ...(isJsonObject(latestIdeaMap.structuralChange)
-            ? {
-                structuralChange:
-                  latestIdeaMap.structuralChange as unknown as NonNullable<IdeaMap["structuralChange"]>,
-              }
-            : {}),
-          ...(Array.isArray(latestIdeaMap.suppressedStructuralOperationSignatures)
-            ? {
-                suppressedStructuralOperationSignatures:
-                  latestIdeaMap.suppressedStructuralOperationSignatures as string[],
-              }
-            : {}),
-        }
-      : { revision: row.ideaMapRevision, ideas: [] },
+    ideaMap: toIdeaMap(latestIdeaMap, row.ideaMapRevision),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+function toIdeaMap(
+  latestIdeaMap: SelectedConversationRow["ideaMapRevisions"][number] | undefined,
+  currentRevision: number,
+): IdeaMap {
+  if (!latestIdeaMap) return { revision: currentRevision, ideas: [] };
+
+  const ideaMap: IdeaMap = {
+    revision: latestIdeaMap.revision,
+    ideas: latestIdeaMap.ideas as unknown as IdeaMap["ideas"],
+  };
+  if (Array.isArray(latestIdeaMap.potentialConflicts)) {
+    ideaMap.potentialConflicts =
+      latestIdeaMap.potentialConflicts as unknown as NonNullable<IdeaMap["potentialConflicts"]>;
+  }
+  if (isJsonObject(latestIdeaMap.structuralChange)) {
+    ideaMap.structuralChange =
+      latestIdeaMap.structuralChange as unknown as NonNullable<IdeaMap["structuralChange"]>;
+  }
+  if (Array.isArray(latestIdeaMap.suppressedStructuralOperationSignatures)) {
+    ideaMap.suppressedStructuralOperationSignatures =
+      latestIdeaMap.suppressedStructuralOperationSignatures as string[];
+  }
+  return ideaMap;
 }
 
 function isJsonObject(value: unknown) {

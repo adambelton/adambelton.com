@@ -242,13 +242,18 @@ function remapConflicts(conflicts: PotentialConflict[], sourceIds: Set<string>, 
     return {
       ...cloneConflict(conflict),
       ideaIds,
-      scope: conflict.scope === POTENTIAL_CONFLICT_SCOPES.savedEdit
-        ? conflict.scope
-        : ideaIds.length === 1
-          ? POTENTIAL_CONFLICT_SCOPES.withinIdea
-          : POTENTIAL_CONFLICT_SCOPES.betweenIdeas,
+      scope: remappedConflictScope(conflict.scope, ideaIds.length),
     };
   });
+}
+
+function remappedConflictScope(
+  currentScope: PotentialConflict["scope"],
+  ideaCount: number,
+): PotentialConflict["scope"] {
+  if (currentScope === POTENTIAL_CONFLICT_SCOPES.savedEdit) return currentScope;
+  if (ideaCount === 1) return POTENTIAL_CONFLICT_SCOPES.withinIdea;
+  return POTENTIAL_CONFLICT_SCOPES.betweenIdeas;
 }
 
 function conflictsReferencing(current: IdeaMap, ids: Set<string>) {

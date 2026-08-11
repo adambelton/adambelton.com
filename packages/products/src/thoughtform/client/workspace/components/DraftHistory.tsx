@@ -61,7 +61,7 @@ export function DraftHistory({
           </li>
         ))}
       </ol>
-      {preview ? (
+      {preview && (
         <section className="mt-6 grid gap-3" aria-label={`Preview revision ${preview.revision}`}>
           <h4 className="font-semibold">Preview revision {preview.revision}</h4>
           <nav aria-label="Revision preview navigation" className="flex gap-3">
@@ -103,7 +103,7 @@ export function DraftHistory({
             </>
           ) : null}
         </section>
-      ) : null}
+      )}
         </Dialog>
       </Modal>
     </ModalOverlay>

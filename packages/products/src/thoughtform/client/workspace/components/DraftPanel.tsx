@@ -315,7 +315,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       </div>
       <section aria-labelledby="revision-proposal-title" className="grid gap-3 border-t border-[var(--line)] pt-5">
         <h3 className="font-semibold" id="revision-proposal-title">Assistant revision proposal</h3>
-        {workspace.activeProposal?.state === "active" ? (
+        {workspace.activeProposal?.state === "active" && (
           <ProposalReview
             isBusy={isBusy}
             proposal={workspace.activeProposal}
@@ -335,7 +335,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
               "Proposal amended.",
             ).then(() => undefined)}
           />
-        ) : workspace.activeProposal?.state === "stale" ? (
+        )}
+        {workspace.activeProposal?.state === "stale" && (
           <section className="grid gap-3 border border-[var(--line)] p-4" role="status">
             <h4 className="font-medium">This proposal is stale</h4>
             <p className="text-sm">
@@ -359,7 +360,8 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
               Dismiss stale proposal
             </button>
           </section>
-        ) : (
+        )}
+        {!workspace.activeProposal && (
           <>
             <p className="text-sm text-[var(--muted)]">
               {selection
