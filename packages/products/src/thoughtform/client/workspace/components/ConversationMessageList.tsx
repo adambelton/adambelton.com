@@ -99,7 +99,6 @@ function ConversationMessageItem({ shouldAnimate, message }: ConversationMessage
   const settledContent = latestCharacter
     ? visibleContent.slice(0, -latestCharacter.length)
     : visibleContent;
-  const isAssistant = message.role === CONVERSATION_MESSAGE_ROLES.assistant;
 
   return (
     <li className="border-t border-[var(--line)] pt-5">
@@ -107,7 +106,7 @@ function ConversationMessageItem({ shouldAnimate, message }: ConversationMessage
         {message.role === CONVERSATION_MESSAGE_ROLES.user ? "You" : "Assistant"}
       </p>
       <p className="mt-3 max-w-3xl text-base leading-7">
-        {isAssistant && (
+        {message.role === CONVERSATION_MESSAGE_ROLES.assistant ? (
           <span aria-label={displayContent}>
             <span aria-hidden="true">
               {settledContent}
@@ -122,8 +121,7 @@ function ConversationMessageItem({ shouldAnimate, message }: ConversationMessage
                 : null}
             </span>
           </span>
-        )}
-        {!isAssistant && message.content}
+        ) : message.content}
       </p>
     </li>
   );
