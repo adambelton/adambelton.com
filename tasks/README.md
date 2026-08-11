@@ -18,10 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- Autonomous, user-correctable Idea Map evolution; initial proposal recorded,
-  ready for a fresh beta-scope review after Task 038
-- 039 — Representative hosted-usage measurement; revised, blocked on Task 038,
-  the final beta capability set, and a fresh review
+- 039 — Representative hosted-usage measurement; revised, blocked on a fresh
+  review against the now-settled beta capability set
 - 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
   039 plus explicit calibration-value approval
 - 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
@@ -50,6 +48,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Autonomous, user-correctable Idea Map evolution (unnumbered)
 - 038 — Content-free hosted-attempt lifecycle and accounting
 - Update ThoughtForm product-page copy (unnumbered)
 - Refine ThoughtForm product direction (unnumbered)

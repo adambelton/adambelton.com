@@ -156,7 +156,9 @@ evaluation is paid, outside ordinary CI, and requires explicit approval.
 
 ## Status
 
-Approved by Adam on 11 August 2026. Implementation in progress.
+Completed on 11 August 2026 after the approved local, hosted-evaluation, and
+mounted-browser validation. Pull request 33 remains a draft awaiting Adam's
+review and explicit merge approval.
 
 ## Approval record
 
@@ -184,3 +186,43 @@ Approved by Adam on 11 August 2026. Implementation in progress.
   optimistic Idea Map revisions; temporary and durable workspaces receive the
   same product behavior; temporary workspaces emit no Langfuse trace; and a new
   hosted call or separate hosted action requires fresh scope review.
+
+## Completion audit
+
+- **Bounded autonomous structure:** complete. The existing asynchronous Idea Map
+  analysis response can propose at most one merge or split, and
+  `idea-structure.ts` validates references, material preservation, limits,
+  dispositions, identity, and conflict remapping before atomic application.
+- **Visible user correction:** complete. Temporary and saved workspaces expose
+  optimistic merge, split, and one-step undo operations through the same
+  product-owned application boundary. The editor identifies the source and
+  explanation of a reorganisation and provides accessible direct controls.
+- **Persistence and concurrency:** complete. Temporary state and the generated
+  durable migration preserve current structure, bounded provenance, potential
+  conflicts, and suppression signatures. Concurrent analysis retains a
+  structural proposal only while every referenced source idea remains unchanged.
+- **Downstream current-map use:** complete. Structural operations replace the
+  canonical current Idea Map; subsequent conversation analysis and Draft
+  composition therefore receive corrected identities rather than retired ones.
+- **Attempt and privacy boundary:** complete. Structure remains part of the
+  existing Idea Map analysis attempt, adds no hosted action, and direct
+  temporary-workspace corrections emit no Langfuse trace.
+- **Deterministic evidence:** complete. The ordinary suite passed 345 tests with
+  nine configured integration skips; the explicitly configured Neon suite
+  passed five tests without skips; typecheck, build, database validation,
+  prompt validation, and all five Playwright journeys passed.
+- **Representative hosted evidence:** complete. The Langfuse development prompt
+  version 3 produced the expected merge and split with product application
+  outcome `changed`; both scenarios scored 1.0 for the expected operation and
+  1.0 for product validation. The evaluation harness uses the same
+  provider-specific output-schema projection as production.
+- **Mounted browser evidence:** complete. The deterministic mounted client and
+  API preserved merge, undo, and split outcomes across reload, emitted no
+  console errors, and exposed the corrected Idea Map through the 390 by 844
+  responsive workspace controls.
+- **Complete branch-diff audit:** complete. The diff keeps product meaning and
+  application coordination in `packages/products`, host persistence mechanics
+  in `packages/db`, and delivery routes thin. It adds no relative TypeScript
+  imports or duplicate host behavior. Documentation claims match automated,
+  hosted-evaluation, database, and mounted-browser evidence. The migration was
+  produced and applied through the approved schema-first generated workflow.
