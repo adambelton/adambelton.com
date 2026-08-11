@@ -196,6 +196,15 @@ merge, run the task's approved local validation and require the repository CI
 checks to pass. Committing, pushing, and opening or merging a pull request remain
 explicit actions and should only be performed when Adam requests them.
 
+Before requesting merge approval for any task that changes a managed Langfuse
+prompt fallback or `prompt-fallback-versions.json`, verify that every changed
+immutable Langfuse version is byte-identical to the merged fallback, matches its
+recorded fingerprint, and carries the `review` label. Run the promotion command
+with `LANGFUSE_PROMPT_DRY_RUN=true` and record the exact version/label evidence
+in the task completion audit. Development resolution, hosted evaluation, local
+fallback validation, and ordinary pull-request CI do not replace this external
+promotion-eligibility check.
+
 Use local `git` for branches, staging, commits, and pushes. Use the authenticated
 GitHub CLI (`gh`) directly for GitHub mutations and GitHub Actions operations,
 including creating pull requests, monitoring checks, reading workflow logs, and

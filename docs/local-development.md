@@ -151,6 +151,20 @@ command:
    `.github/workflows/langfuse-prompt-promote.yml` verifies every immutable
    version and fingerprint again before moving `production`.
 
+Before requesting merge approval for a pull request that changes a managed
+fallback or `prompt-fallback-versions.json`, verify promotion eligibility from
+the proposed branch:
+
+```txt
+LANGFUSE_PROMPT_DRY_RUN=true pnpm promote:thoughtform-prompt
+```
+
+The dry run must report the exact changed version as ready for promotion or
+already production. Record the version and its `review` label in the task
+completion audit. A successful evaluation, development-label fetch, fallback
+validation, or ordinary pull-request CI does not establish promotion
+eligibility because those checks do not require the external `review` label.
+
 The updater accepts only the five catalogued `thoughtform/*` names, text prompts
 with the established XML structure and leading newline, the existing variable
 contract, and versions carrying `review`. It never commits directly to `main`.
