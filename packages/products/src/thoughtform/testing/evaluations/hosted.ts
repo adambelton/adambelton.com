@@ -14,6 +14,7 @@ import {
   type IdeaMapAnalysisModel,
   type IdeaMapAnalysisModelRequest,
   getProposedIdeaActionsValidationIssues,
+  getProposedIdeaStructureValidationIssues,
   getProposedIdeasValidationIssues,
 } from "packages/products/src/thoughtform/server";
 import { respondInWorkspace } from "packages/products/src/thoughtform/server/application/workspace";
@@ -252,6 +253,7 @@ function getStructuredOutputValidationIssues(content: string): string[] {
     return [
       ...getProposedIdeasValidationIssues(parsed.proposedIdeas),
       ...getProposedIdeaActionsValidationIssues(parsed.ideaActions),
+      ...getProposedIdeaStructureValidationIssues(parsed.proposedStructure),
     ];
   } catch {
     return ["model output is not valid JSON"];

@@ -6,6 +6,7 @@ import { DEFAULT_OPENAI_MODEL, OpenAiLlmClient } from "packages/ai/src";
 import {
   ConversationService,
   getProposedIdeaActionsValidationIssues,
+  getProposedIdeaStructureValidationIssues,
   getProposedIdeasValidationIssues,
   type ConversationModel,
   type ConversationModelRequest,
@@ -117,6 +118,7 @@ for (const scenario of scenarios) {
     [
       ...getProposedIdeasValidationIssues(structured.proposedIdeas),
       ...getProposedIdeaActionsValidationIssues(structured.ideaActions),
+      ...getProposedIdeaStructureValidationIssues(structured.proposedStructure),
     ],
     [],
   );

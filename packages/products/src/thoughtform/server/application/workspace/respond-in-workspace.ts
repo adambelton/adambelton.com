@@ -24,12 +24,17 @@ import {
 } from "packages/products/src/thoughtform/shared";
 import {
   applyIdeaAction,
+  applyIdeaStructure,
   applyProposedIdeas,
   type IdeaMapAnalysisService,
   type IdeaMapAnalysis,
   removeResolvedPotentialConflicts,
   IDEA_MAP_UPDATE_STATUSES,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map";
+import {
+  IDEA_STRUCTURE_CHANGE_SOURCES,
+  IDEA_STRUCTURE_OPERATION_TYPES,
+} from "packages/products/src/thoughtform/shared";
 import {
   noOpObservability,
   OBSERVATION_ATTRIBUTE_NAMES,
@@ -268,6 +273,24 @@ export function applyIdeaMapAnalysis(input: {
   analysis: IdeaMapAnalysis;
   shouldIgnoreChanges: boolean;
 }) {
+  if (!input.shouldIgnoreChanges && input.analysis.proposedStructure) {
+    const structuralResult = applyIdeaStructure({
+      current: input.current,
+      source: IDEA_STRUCTURE_CHANGE_SOURCES.assistant,
+      request: input.analysis.proposedStructure.type === IDEA_STRUCTURE_OPERATION_TYPES.merge
+        ? {
+            ...input.analysis.proposedStructure,
+            expectedRevision: input.current.revision,
+          }
+        : {
+            ...input.analysis.proposedStructure,
+            expectedRevision: input.current.revision,
+          },
+    });
+    return structuralResult.status === IDEA_MAP_UPDATE_STATUSES.invalid
+      ? input.current
+      : structuralResult.ideaMap;
+  }
   const proposedMap = applyProposedIdeas({
     current: input.current,
     proposedIdeas: input.shouldIgnoreChanges ? null : input.analysis.proposedIdeas,

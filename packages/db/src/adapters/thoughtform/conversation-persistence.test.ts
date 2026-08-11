@@ -148,6 +148,7 @@ describe("Prisma ThoughtForm conversation persistence", () => {
           disposition: "active",
         },
       ],
+      suppressedStructuralOperationSignatures: ["rejected-structure"],
     };
     await expect(
       store.replaceIdeaMap?.({
@@ -213,7 +214,7 @@ function createAdapterFixture(
 function createFakePrismaConversationPersistenceClient() {
   const conversations: FakeConversation[] = [];
   const messages: FakeMessage[] = [];
-  const revisions: { conversationId: string; revision: number; ideas: unknown }[] = [];
+  const revisions: FakeRevision[] = [];
   const operations: { conversationId: string; operationId: string; kind: string }[] = [];
 
   const transaction = {
@@ -263,7 +264,7 @@ function createFakePrismaConversationPersistenceClient() {
     },
     thoughtFormIdeaMapRevision: {
       async create(input: {
-        data: { conversationId: string; revision: number; ideas: unknown };
+        data: FakeRevision;
       }) {
         revisions.push(input.data);
         return input.data;
@@ -334,10 +335,19 @@ function createFakePrismaConversationPersistenceClient() {
   };
 }
 
+type FakeRevision = {
+  conversationId: string;
+  revision: number;
+  ideas: unknown;
+  potentialConflicts?: unknown;
+  structuralChange?: unknown;
+  suppressedStructuralOperationSignatures?: unknown;
+};
+
 function toConversationRow(
   conversation: FakeConversation,
   messages: FakeMessage[],
-  revisions: { conversationId: string; revision: number; ideas: unknown }[],
+  revisions: FakeRevision[],
 ) {
   return {
     id: conversation.id,
@@ -348,7 +358,7 @@ function toConversationRow(
       .filter((revision) => revision.conversationId === conversation.id)
       .sort((first, second) => second.revision - first.revision)
       .slice(0, 1)
-      .map(({ revision, ideas }) => ({ revision, ideas })),
+      .map((revision) => ({ ...revision })),
     messages: messages
       .filter((message) => message.conversationId === conversation.id)
       .sort((first, second) => first.position - second.position)

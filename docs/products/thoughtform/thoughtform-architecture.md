@@ -304,6 +304,23 @@ Owns:
 - provenance needed to distinguish user-established material from transient
   assistant reasoning.
 
+The Idea Map may change structural boundaries through a bounded merge or split.
+The existing asynchronous analysis call may propose one operation, but the
+capability validates and constructs canonical state. Merges retain the earliest
+source identity and mechanically preserve source substance, questions, user
+interpretations, references, and a disposition no more active than its sources.
+Splits retain the original identity for the primary result, allocate new IDs for
+the remaining results, inherit disposition, and require an exact distribution of
+established substance and unresolved questions. Dismissed ideas cannot
+participate automatically.
+
+One structural change stores only its affected previous ideas, affected conflict
+references, insertion position, produced IDs, explanation, and a content-derived
+signature. That bounded provenance supports immediate undo without introducing
+a general history subsystem. Undo suppresses an equivalent proposal against the
+same source material; materially changed source content produces a different
+signature. Any intervening Idea Map mutation invalidates the one-step undo.
+
 Exploration and contextual importance are independent. Contextual importance asks
 how much explanatory, emotional, argumentative, or structural weight an idea
 appears to carry in this workspace. Exploration asks how fully it appears to have

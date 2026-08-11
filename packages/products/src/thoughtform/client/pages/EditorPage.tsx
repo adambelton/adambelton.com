@@ -7,6 +7,7 @@ import {
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
 import { sendPersistentConversationMessage } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 import { sendPersistentIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
+import { sendPersistentIdeaStructure } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-structure";
 import { loadConversation } from "packages/products/src/thoughtform/client/conversations/actions/load-conversations";
 import { loadDraft } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
 
@@ -68,6 +69,7 @@ export function EditorPage({
       initialIdeaMap={conversation.ideaMap}
       initialDraftingState={draftingState}
       sendIdeaAction={sendPersistentIdeaAction}
+      sendIdeaStructure={sendPersistentIdeaStructure}
       sendMessage={(request, callbacks) =>
         sendPersistentConversationMessage({
           ...request,

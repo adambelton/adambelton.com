@@ -64,7 +64,7 @@ export function addPotentialConflicts(input: {
   return {
     status: IDEA_MAP_UPDATE_STATUSES.changed,
     ideaMap: {
-      ...cloneIdeaMap(input.current),
+      ...cloneForNewRevision(input.current),
       revision: input.current.revision + 1,
       potentialConflicts: [...existing.map(clonePotentialConflict), ...additions],
     },
@@ -105,6 +105,7 @@ export function resolvePotentialConflict(input: {
       potentialConflicts: conflicts
         .filter((candidate) => candidate.id !== input.conflictId)
         .map(clonePotentialConflict),
+      ...structuralSuppression(input.current),
     },
   };
 }
@@ -124,7 +125,7 @@ export function removeResolvedPotentialConflicts(input: {
   return {
     status: IDEA_MAP_UPDATE_STATUSES.changed,
     ideaMap: {
-      ...cloneIdeaMap(input.current),
+      ...cloneForNewRevision(input.current),
       revision: input.current.revision + 1,
       potentialConflicts: conflicts.filter((conflict) => !ids.has(conflict.id)).map(clonePotentialConflict),
     },
@@ -202,6 +203,7 @@ export function applyProposedIdeas(input: {
       potentialConflicts: input.current.potentialConflicts?.map(
         clonePotentialConflict,
       ),
+      ...structuralSuppression(input.current),
     },
   };
 }
@@ -280,6 +282,7 @@ export function applyIdeaAction(input: {
       potentialConflicts: input.current.potentialConflicts?.map(
         clonePotentialConflict,
       ),
+      ...structuralSuppression(input.current),
     },
   };
 }
@@ -294,6 +297,27 @@ export function cloneIdeaMap(ideaMap: IdeaMap = EMPTY_IDEA_MAP): IdeaMap {
     })),
     ...(ideaMap.potentialConflicts
       ? { potentialConflicts: ideaMap.potentialConflicts.map(clonePotentialConflict) }
+      : {}),
+    ...(ideaMap.structuralChange
+      ? {
+          structuralChange: {
+            ...ideaMap.structuralChange,
+            previousIdeas: ideaMap.structuralChange.previousIdeas.map((idea) => ({
+              ...idea,
+              assistantAssessment: { ...idea.assistantAssessment },
+              unresolvedQuestions: [...idea.unresolvedQuestions],
+            })),
+            previousPotentialConflicts:
+              ideaMap.structuralChange.previousPotentialConflicts.map(clonePotentialConflict),
+            resultIdeaIds: [...ideaMap.structuralChange.resultIdeaIds],
+          },
+        }
+      : {}),
+    ...(ideaMap.suppressedStructuralOperationSignatures
+      ? {
+          suppressedStructuralOperationSignatures:
+            [...ideaMap.suppressedStructuralOperationSignatures],
+        }
       : {}),
   };
 }
@@ -324,4 +348,16 @@ function appendEstablishedMeaning(substance: string, meaning: string) {
 
 function countActiveIdeas(ideas: Idea[]) {
   return ideas.filter((idea) => ACTIVE_IDEA_DISPOSITIONS.has(idea.disposition)).length;
+}
+
+function cloneForNewRevision(ideaMap: IdeaMap) {
+  const cloned = cloneIdeaMap(ideaMap);
+  delete cloned.structuralChange;
+  return cloned;
+}
+
+function structuralSuppression(ideaMap: IdeaMap) {
+  return ideaMap.suppressedStructuralOperationSignatures
+    ? { suppressedStructuralOperationSignatures: [...ideaMap.suppressedStructuralOperationSignatures] }
+    : {};
 }

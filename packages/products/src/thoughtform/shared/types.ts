@@ -110,6 +110,73 @@ export interface Idea {
   disposition: IdeaDisposition;
 }
 
+export const IDEA_STRUCTURE_OPERATION_TYPES = {
+  merge: "merge",
+  split: "split",
+} as const;
+
+export type IdeaStructureOperationType =
+  (typeof IDEA_STRUCTURE_OPERATION_TYPES)[keyof typeof IDEA_STRUCTURE_OPERATION_TYPES];
+
+export const IDEA_STRUCTURE_CHANGE_SOURCES = {
+  assistant: "assistant",
+  user: "user",
+} as const;
+
+export type IdeaStructureChangeSource =
+  (typeof IDEA_STRUCTURE_CHANGE_SOURCES)[keyof typeof IDEA_STRUCTURE_CHANGE_SOURCES];
+
+export interface IdeaStructureResultInput {
+  title: string;
+  synthesis: string;
+  substance: string;
+  unresolvedQuestions: string[];
+  assistantAssessment: AssistantIdeaAssessment;
+}
+
+export interface MergeIdeasRequest {
+  type: typeof IDEA_STRUCTURE_OPERATION_TYPES.merge;
+  expectedRevision: number;
+  ideaIds: string[];
+  result: Pick<IdeaStructureResultInput, "title" | "synthesis" | "assistantAssessment">;
+  explanation: string;
+}
+
+export interface SplitIdeaRequest {
+  type: typeof IDEA_STRUCTURE_OPERATION_TYPES.split;
+  expectedRevision: number;
+  ideaId: string;
+  results: IdeaStructureResultInput[];
+  explanation: string;
+}
+
+export type IdeaStructureRequest = MergeIdeasRequest | SplitIdeaRequest;
+
+export const IDEA_STRUCTURE_COMMAND_TYPES = {
+  ...IDEA_STRUCTURE_OPERATION_TYPES,
+  undo: "undo",
+} as const;
+
+export interface UndoIdeaStructureRequest {
+  type: typeof IDEA_STRUCTURE_COMMAND_TYPES.undo;
+  expectedRevision: number;
+}
+
+export type IdeaStructureCommandRequest =
+  | IdeaStructureRequest
+  | UndoIdeaStructureRequest;
+
+export interface IdeaStructureChange {
+  type: IdeaStructureOperationType;
+  source: IdeaStructureChangeSource;
+  explanation: string;
+  signature: string;
+  insertionIndex: number;
+  previousIdeas: Idea[];
+  previousPotentialConflicts: PotentialConflict[];
+  resultIdeaIds: string[];
+}
+
 export const POTENTIAL_CONFLICT_SCOPES = {
   withinIdea: "within_idea",
   betweenIdeas: "between_ideas",
@@ -132,6 +199,8 @@ export interface IdeaMap {
   revision: number;
   ideas: Idea[];
   potentialConflicts?: PotentialConflict[];
+  structuralChange?: IdeaStructureChange;
+  suppressedStructuralOperationSignatures?: string[];
 }
 
 export const EMPTY_IDEA_MAP: IdeaMap = {
@@ -201,6 +270,8 @@ export interface IdeaActionConflictResult {
 export type IdeaActionResult =
   | IdeaActionChangedResult
   | IdeaActionConflictResult;
+
+export type IdeaStructureCommandResult = IdeaActionResult;
 
 export const IDEA_MAP_REVISION_SOURCE_TYPES = {
   conversationTurn: "conversation_turn",

@@ -189,7 +189,7 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
             <p className="mt-4 text-sm">Updated August 2026</p>
           </div>
           <div>
-            {isWorkspaceAvailable ? (
+            {isWorkspaceAvailable && (
               <>
                 <p className="m-0 text-base leading-7 text-[var(--muted)]">
                   <TextLink
@@ -210,7 +210,7 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
                   </p>
                 ) : null}
               </>
-            ) : null}
+            )}
             <p
               className={`${isWorkspaceAvailable ? "mt-3" : "m-0"} text-base leading-7 text-[var(--muted)]`}
             >

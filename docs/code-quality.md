@@ -18,6 +18,8 @@ Code should explain its intent before it explains its mechanics.
 - Hide complexity behind well-named functions, services, and modules.
 - Keep files focused enough that their purpose is obvious from their names and exports.
 - Avoid cleverness that requires re-reading to understand ordinary behaviour.
+- Do not nest ternary conditional expressions. Use a named predicate, an early
+  return, or a small function so each decision can be read independently.
 
 Good names are a primary design tool in this repo. If a name is vague, overloaded, or implementation-shaped, improve the name before adding more structure around it.
 
@@ -64,6 +66,7 @@ Before completing a task, review changed code against these questions:
 
 - Do the names explain intent in the project's domain language?
 - Can the main flow be read top-down without chasing every helper?
+- Are conditional expressions flat, with no ternary nested inside another?
 - Does each changed file have a clear reason to exist?
 - Are package boundaries still respected?
 - Are shared contracts defined once in the right package?

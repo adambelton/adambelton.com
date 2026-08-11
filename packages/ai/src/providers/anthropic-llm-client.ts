@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { LLM_STREAM_EVENT_TYPES } from "packages/ai/src/contracts/types";
 import type {
   LlmClient,
+  LlmOutputFormat,
   LlmRequest,
   LlmResponse,
   LlmStreamEvent,
@@ -35,6 +36,7 @@ export class AnthropicLlmClient implements LlmClient {
   }
 
   async createMessage(request: LlmRequest): Promise<LlmResponse> {
+    const outputConfig = createOutputConfig(request, this.effort);
     const response = await this.client.messages.create({
       max_tokens: request.maxTokens,
       messages: request.messages,
@@ -52,21 +54,7 @@ export class AnthropicLlmClient implements LlmClient {
             },
           ]
         : request.system,
-      ...(request.outputFormat || this.effort
-        ? {
-            output_config: {
-              ...(this.effort ? { effort: this.effort } : {}),
-              ...(request.outputFormat
-                ? {
-                    format: {
-                      type: "json_schema" as const,
-                      schema: request.outputFormat.schema,
-                    },
-                  }
-                : {}),
-            },
-          }
-        : {}),
+      ...(outputConfig ? { output_config: outputConfig } : {}),
     });
 
     if (response.stop_reason !== "end_turn") {
@@ -99,6 +87,7 @@ export class AnthropicLlmClient implements LlmClient {
   }
 
   async *streamMessage(request: LlmRequest): AsyncIterable<LlmStreamEvent> {
+    const outputConfig = createOutputConfig(request, this.effort);
     const stream = this.client.messages.stream({
       max_tokens: request.maxTokens,
       messages: request.messages,
@@ -113,21 +102,7 @@ export class AnthropicLlmClient implements LlmClient {
             { type: "text" as const, text: request.context },
           ]
         : request.system,
-      ...(request.outputFormat || this.effort
-        ? {
-            output_config: {
-              ...(this.effort ? { effort: this.effort } : {}),
-              ...(request.outputFormat
-                ? {
-                    format: {
-                      type: "json_schema" as const,
-                      schema: request.outputFormat.schema,
-                    },
-                  }
-                : {}),
-            },
-          }
-        : {}),
+      ...(outputConfig ? { output_config: outputConfig } : {}),
     });
 
     for await (const event of stream) {
@@ -168,4 +143,27 @@ export class AnthropicLlmClient implements LlmClient {
       },
     };
   }
+}
+
+function createOutputConfig(
+  request: LlmRequest,
+  effort: AnthropicEffort | undefined,
+) {
+  if (!request.outputFormat && !effort) return undefined;
+
+  const outputConfig: {
+    effort?: AnthropicEffort;
+    format?: {
+      type: "json_schema";
+      schema: LlmOutputFormat["schema"];
+    };
+  } = {};
+  if (effort) outputConfig.effort = effort;
+  if (request.outputFormat) {
+    outputConfig.format = {
+      type: "json_schema",
+      schema: request.outputFormat.schema,
+    };
+  }
+  return outputConfig;
 }

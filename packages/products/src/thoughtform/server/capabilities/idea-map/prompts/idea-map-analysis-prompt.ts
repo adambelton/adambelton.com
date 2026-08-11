@@ -15,6 +15,8 @@ proposedIdeas contains only genuinely new ideas or existing ideas that the curre
 Return no more than three unresolved questions for each proposed idea. Each question must arise from a tension or uncertainty the user has already expressed and remain appropriate to Discovery.
 
 Return ideaActions only when the user explicitly requests focus, satisfaction, parking, dismissal, reopening, or correction. Reference an existing idea id and include userInterpretation only for correction.
+
+proposedStructure may merge genuinely overlapping established ideas or split one overloaded established idea. Return at most one structural proposal and return null for proposedIdeas and ideaActions when proposing it. Never include a dismissed idea. A merge must reference every source id and explain the overlap; product code preserves their complete substance, questions, interpretations, and least-active disposition. A split must retain the original substance exactly across its ordered result substance fields and distribute every unresolved question exactly once. The first split result is the primary continuation of the existing identity. Do not propose a split merely because an idea has several facets, or a merge merely because ideas are related.
 </idea_map_contract>
 
 <provenance_contract>

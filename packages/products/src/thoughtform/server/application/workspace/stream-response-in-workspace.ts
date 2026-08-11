@@ -23,6 +23,7 @@ import {
   CONVERSATION_MESSAGE_ROLES,
   CONVERSATION_STREAM_EVENT_TYPES,
   IDEA_MAP_ERROR_CODES,
+  IDEA_STRUCTURE_OPERATION_TYPES,
   type ConversationStreamEvent,
   type ConversationMessage,
   type DraftChange,
@@ -362,7 +363,20 @@ function safeAnalysisAgainstLatest(input: {
       (conflictId) => JSON.stringify(originalConflicts.get(conflictId)) ===
         JSON.stringify(latestConflicts.get(conflictId)),
     ) ?? null,
+    proposedStructure: safeProposedStructure(input.analysis, isIdeaUnchanged),
   };
+}
+
+function safeProposedStructure(
+  analysis: IdeaMapAnalysis,
+  isIdeaUnchanged: (ideaId: string) => boolean,
+) {
+  const proposed = analysis.proposedStructure;
+  if (!proposed) return null;
+  const ideaIds = proposed.type === IDEA_STRUCTURE_OPERATION_TYPES.merge
+    ? proposed.ideaIds
+    : [proposed.ideaId];
+  return ideaIds.every(isIdeaUnchanged) ? proposed : null;
 }
 
 function messagesMatch(first: ConversationMessage[], second: ConversationMessage[]) {

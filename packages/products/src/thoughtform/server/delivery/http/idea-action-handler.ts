@@ -47,23 +47,25 @@ export async function handleIdeaActionRequest(
     return json(failure(result.status, "The conversation was not found."), 404);
   }
   if (result.status === IDEA_MAP_ERROR_CODES.conflict) {
-    return result.ideaMap
-      ? json(
-          success({
-            status: IDEA_ACTION_RESULT_STATUSES.conflict,
-            ideaMap: result.ideaMap,
-          }),
-          409,
-        )
-      : input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary
-        ? json(
-            failure(
-              CONVERSATION_ERROR_CODES.unavailable,
-              "This temporary workspace is no longer available.",
-            ),
-            409,
-          )
-        : json(failure(result.status, "The conversation was not found."), 404);
+    if (result.ideaMap) {
+      return json(
+        success({
+          status: IDEA_ACTION_RESULT_STATUSES.conflict,
+          ideaMap: result.ideaMap,
+        }),
+        409,
+      );
+    }
+    if (input.persistenceType === WORKSPACE_PERSISTENCE_TYPES.temporary) {
+      return json(
+        failure(
+          CONVERSATION_ERROR_CODES.unavailable,
+          "This temporary workspace is no longer available.",
+        ),
+        409,
+      );
+    }
+    return json(failure(result.status, "The conversation was not found."), 404);
   }
   if (result.status === IDEA_MAP_ERROR_CODES.invalidAction) {
     return json(

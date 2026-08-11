@@ -8,6 +8,7 @@ import {
   IDEA_ACTION_TYPES,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
+  IDEA_STRUCTURE_OPERATION_TYPES,
 } from "packages/products/src/thoughtform/shared";
 
 describe("IdeaMapAnalysisService", () => {
@@ -15,6 +16,7 @@ describe("IdeaMapAnalysisService", () => {
     const properties = IDEA_MAP_ANALYSIS_OUTPUT_FORMAT.schema.properties;
     const proposedIdea = properties.proposedIdeas.anyOf[0].items.properties;
     const ideaAction = properties.ideaActions.anyOf[0].items.properties;
+    const proposedMerge = properties.proposedStructure.anyOf[0].properties;
 
     expect(proposedIdea.assistantAssessment.properties.exploration.enum).toEqual(
       Object.values(IDEA_EXPLORATION_ASSESSMENTS),
@@ -23,6 +25,41 @@ describe("IdeaMapAnalysisService", () => {
       Object.values(IDEA_IMPORTANCE_ASSESSMENTS),
     );
     expect(ideaAction.action.enum).toEqual(Object.values(IDEA_ACTION_TYPES));
+    expect(proposedMerge.type.enum).toEqual([IDEA_STRUCTURE_OPERATION_TYPES.merge]);
+  });
+
+  it("parses one bounded structural proposal from the existing analysis call", async () => {
+    const service = new IdeaMapAnalysisService({
+      async createAnalysis() {
+        return { content: JSON.stringify({
+          proposedIdeas: null,
+          ideaActions: null,
+          resolvedPotentialConflictIds: null,
+          proposedStructure: {
+            type: IDEA_STRUCTURE_OPERATION_TYPES.merge,
+            ideaIds: ["idea-1", "idea-2"],
+            result: {
+              title: "One concern",
+              synthesis: "The concerns overlap.",
+              assistantAssessment: {
+                exploration: IDEA_EXPLORATION_ASSESSMENTS.developing,
+                importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
+              },
+            },
+            explanation: "Both ideas describe the same concern.",
+          },
+        }) };
+      },
+    });
+    const result = await service.analyse({
+      message: "These are really the same concern.",
+      previousMessages: [],
+      ideaMap: { revision: 1, ideas: [] },
+    });
+    expect(result.proposedStructure).toMatchObject({
+      type: IDEA_STRUCTURE_OPERATION_TYPES.merge,
+      ideaIds: ["idea-1", "idea-2"],
+    });
   });
 
   it("analyses the user message independently and retains grounded proposals", async () => {

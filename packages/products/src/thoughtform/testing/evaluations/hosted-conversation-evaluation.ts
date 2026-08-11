@@ -39,14 +39,7 @@ export function summariseHostedConversationEvaluation(
     .map((turn) => turn.totalLatencyMs)
     .sort((left, right) => left - right);
   const middle = Math.floor(orderedLatencies.length / 2);
-  const medianTotalLatencyMs =
-    orderedLatencies.length === 0
-      ? 0
-      : orderedLatencies.length % 2 === 0
-        ? Math.round(
-            (orderedLatencies[middle - 1]! + orderedLatencies[middle]!) / 2,
-          )
-        : orderedLatencies[middle]!;
+  const medianTotalLatencyMs = median(orderedLatencies, middle);
   const finalTurn = turns.at(-1);
 
   return {
@@ -62,6 +55,12 @@ export function summariseHostedConversationEvaluation(
     finalIdeaCount: finalTurn?.ideaCount ?? 0,
     finalSubstanceCharacters: finalTurn?.totalSubstanceCharacters ?? 0,
   };
+}
+
+function median(orderedValues: number[], middle: number) {
+  if (orderedValues.length === 0) return 0;
+  if (orderedValues.length % 2 !== 0) return orderedValues[middle]!;
+  return Math.round((orderedValues[middle - 1]! + orderedValues[middle]!) / 2);
 }
 
 function sumMetric(

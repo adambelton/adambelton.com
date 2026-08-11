@@ -12,6 +12,7 @@ import {
   ConversationService,
   IdeaMapAnalysisService,
   getProposedIdeaActionsValidationIssues,
+  getProposedIdeaStructureValidationIssues,
   getProposedIdeasValidationIssues,
   projectThoughtFormOutputSchema,
   THOUGHTFORM_AI_PROFILES,
@@ -316,6 +317,7 @@ function getStructuredOutputValidationIssues(content: string): string[] {
     return [
       ...getProposedIdeasValidationIssues(parsed.proposedIdeas),
       ...getProposedIdeaActionsValidationIssues(parsed.ideaActions),
+      ...getProposedIdeaStructureValidationIssues(parsed.proposedStructure),
     ];
   } catch {
     return ["model output is not valid JSON"];

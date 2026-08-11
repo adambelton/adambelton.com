@@ -111,6 +111,15 @@ Completed analysis is optimistically rebased onto the latest map with bounded
 revision protection. A failed or persistently stale Idea Map update is reported
 as recoverable and never discards the retained assistant turn.
 
+The same analysis call may propose one bounded merge or split of established
+ideas. Product capability code validates references, limits, dispositions, and
+meaning preservation before applying it. Merges retain the earliest map identity
+and complete source substance; splits retain the original identity for the
+primary result and require the exact established substance and open questions to
+be distributed. The map retains only the affected pre-change state needed for
+one immediate undo. User-directed merge, split, and undo use the same optimistic
+operation through both temporary and durable hosts.
+
 A changed draft save is returned immediately with its exact revision-bounded
 `DraftChange`. The client then launches the product's saved-edit interpretation
 operation. Obvious maintenance stops deterministically; meaningful changes can

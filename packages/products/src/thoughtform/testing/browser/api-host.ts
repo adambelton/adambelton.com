@@ -25,34 +25,46 @@ let shouldUseConversationalThinkingScenario = false;
 const discoveryModel = createDiscoveryTestModel();
 const conversationService = new ConversationService({
   conversationModel: {
-    createResponse: (request) => shouldUseConversationalThinkingScenario
-      ? Promise.resolve(createConversationalThinkingResponse(request))
-      : hasAttachedDraftMaterial(request.context)
-      ? Promise.resolve({ content: JSON.stringify({
-          response: "What feels most important to examine in that passage?",
-          move: "probe",
-          assistantReadiness: [],
-          userIntention: null,
-          proposedIdeas: null,
-          ideaActions: null,
-        }) })
-      : discoveryModel.createResponse(request),
+    createResponse: createTestConversationResponse,
   },
 });
 const ideaMapAnalysis = new IdeaMapAnalysisService({
   async createAnalysis(request) {
-    const combined = shouldUseConversationalThinkingScenario
-      ? await createConversationalThinkingResponse(request as ConversationModelRequest)
-      : hasAttachedDraftMaterial(request.context)
-        ? { content: JSON.stringify({
-            proposedIdeas: null,
-            ideaActions: null,
-            resolvedPotentialConflictIds: null,
-          }) }
-        : await discoveryModel.createResponse(request as ConversationModelRequest);
+    const combined = await createTestIdeaMapAnalysis(request as ConversationModelRequest);
     return selectIdeaMapAnalysis(combined.content, request);
   },
 });
+
+async function createTestConversationResponse(request: ConversationModelRequest) {
+  if (shouldUseConversationalThinkingScenario) {
+    return createConversationalThinkingResponse(request);
+  }
+  if (hasAttachedDraftMaterial(request.context)) {
+    return { content: JSON.stringify({
+      response: "What feels most important to examine in that passage?",
+      move: "probe",
+      assistantReadiness: [],
+      userIntention: null,
+      proposedIdeas: null,
+      ideaActions: null,
+    }) };
+  }
+  return discoveryModel.createResponse(request);
+}
+
+async function createTestIdeaMapAnalysis(request: ConversationModelRequest) {
+  if (shouldUseConversationalThinkingScenario) {
+    return createConversationalThinkingResponse(request);
+  }
+  if (hasAttachedDraftMaterial(request.context)) {
+    return { content: JSON.stringify({
+      proposedIdeas: null,
+      ideaActions: null,
+      resolvedPotentialConflictIds: null,
+    }) };
+  }
+  return discoveryModel.createResponse(request);
+}
 const app = new Hono();
 
 app.get("/products/thoughtform/ai-disclosure", (context) => context.json({
@@ -115,6 +127,50 @@ app.post("/testing/draft-workspace", async (context) => {
         },
         userInterpretation: null,
       }],
+    },
+  });
+  return context.json({ ok: true, conversationId });
+});
+
+app.post("/testing/structural-workspace", async (context) => {
+  const conversationId = "structural-browser-conversation";
+  await conversationStore.appendConversationTurn({
+    conversationId,
+    operationId: "seed-structural-browser-workspace",
+    expectedMessageCount: 0,
+    expectedIdeaMapRevision: 0,
+    userMessage: { role: "user", content: "These concerns may overlap." },
+    assistantMessage: { role: "assistant", content: "You can decide whether they belong together." },
+    ideaMap: {
+      revision: 1,
+      ideas: [
+        {
+          id: "idea-authority",
+          title: "Authority needs scrutiny",
+          synthesis: "Authority must remain answerable.",
+          substance: "I distrust authority that cannot be questioned.",
+          unresolvedQuestions: [],
+          disposition: IDEA_DISPOSITIONS.active,
+          assistantAssessment: {
+            exploration: IDEA_EXPLORATION_ASSESSMENTS.developing,
+            importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
+          },
+          userInterpretation: null,
+        },
+        {
+          id: "idea-legitimacy",
+          title: "Legitimacy depends on accountability",
+          synthesis: "Legitimacy is earned through accountability.",
+          substance: "I think legitimacy disappears when leaders avoid accountability.",
+          unresolvedQuestions: [],
+          disposition: IDEA_DISPOSITIONS.active,
+          assistantAssessment: {
+            exploration: IDEA_EXPLORATION_ASSESSMENTS.developing,
+            importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
+          },
+          userInterpretation: null,
+        },
+      ],
     },
   });
   return context.json({ ok: true, conversationId });

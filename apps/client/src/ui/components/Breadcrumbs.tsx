@@ -11,6 +11,7 @@ export function Breadcrumbs({ items }: { items: readonly BreadcrumbItem[] }) {
       <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
         {items.map((item, index) => {
           const isCurrent = index === items.length - 1;
+          const ariaCurrent = isCurrent ? "page" : undefined;
           return (
             <li
               className="flex min-w-0 items-center gap-2"
@@ -23,7 +24,7 @@ export function Breadcrumbs({ items }: { items: readonly BreadcrumbItem[] }) {
                 </NavigationLink>
               ) : (
                 <span
-                  aria-current={isCurrent ? "page" : undefined}
+                  aria-current={ariaCurrent}
                   className="min-w-0 break-words"
                 >
                   {item.label}

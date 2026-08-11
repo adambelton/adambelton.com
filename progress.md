@@ -2,6 +2,23 @@
 
 ## Current status
 
+Autonomous, user-correctable Idea Map evolution is complete. The existing
+independent Idea Map analysis attempt may propose one bounded merge or split;
+product-owned validation remains authoritative and adds no hosted action.
+Temporary and durable workspaces now provide accessible direct merge, split,
+and one-step undo while preserving user-established substance, questions,
+interpretations, dispositions, stable identities, and potential-conflict
+references. Equivalent assistant proposals are suppressed after user
+correction until the source material changes. A generated migration persists
+bounded structural provenance, conflict references, and suppression state.
+Validation covers 345 ordinary tests, five explicitly configured Neon tests,
+five Playwright journeys, full typecheck/build, database and prompt validation,
+and mounted merge, reload, undo, reload, split, reload, and 390px inspection.
+The two-scenario hosted Langfuse experiment against development prompt version
+3 scored 1.0 for both expected structural operation and product validation in
+both the merge and split cases. Draft pull request 33 awaits Adam's review and
+must not merge without his explicit approval.
+
 Task 038 is complete. Every current hosted ThoughtForm model operation now uses
 one product-owned authorization/completion lifecycle backed by a host-owned,
 content-free Neon ledger. Conversation response and Idea Map analysis remain

@@ -1,6 +1,7 @@
 import type { Conversation } from "packages/products/src/thoughtform/shared";
 import { ConversationEditor } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditor";
 import { sendPersistentIdeaAction } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
+import { sendPersistentIdeaStructure } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-structure";
 import { sendPersistentConversationMessage } from "packages/products/src/thoughtform/client/workspace/actions/send-conversation-message";
 
 type ConversationPageStateProps = {
@@ -42,6 +43,7 @@ export function ConversationPageState({
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}
       sendIdeaAction={sendPersistentIdeaAction}
+      sendIdeaStructure={sendPersistentIdeaStructure}
       sendMessage={(request, callbacks) =>
         sendPersistentConversationMessage({
           ...request,

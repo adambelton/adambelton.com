@@ -38,13 +38,16 @@ export async function runLangfuseEvaluation<Input, Expected, Output>(config: {
       });
       return {
         name: evaluated.name,
-        value: typeof evaluated.score === "boolean"
-          ? evaluated.score ? 1 : 0
-          : evaluated.score,
+        value: numericScore(evaluated.score),
       };
     }),
     maxConcurrency: config.maxConcurrency,
   });
   console.log(await result.format({ includeItemResults: true }));
   return result;
+}
+
+function numericScore(score: number | boolean) {
+  if (typeof score === "number") return score;
+  return score ? 1 : 0;
 }

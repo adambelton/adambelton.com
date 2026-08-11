@@ -121,13 +121,16 @@ model ThoughtFormConversation {
 }
 
 model ThoughtFormIdeaMapRevision {
-  id             String   @id @default(uuid())
-  conversationId String   @map("conversation_id")
-  revision       Int
-  ideas          Json
-  sourceType     String   @map("source_type")
-  sourceId       String   @map("source_id")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id                                      String   @id @default(uuid())
+  conversationId                          String   @map("conversation_id")
+  revision                                Int
+  ideas                                   Json
+  potentialConflicts                      Json?    @map("potential_conflicts")
+  structuralChange                        Json?    @map("structural_change")
+  suppressedStructuralOperationSignatures Json?    @map("suppressed_structural_operation_signatures")
+  sourceType                              String   @map("source_type")
+  sourceId                                String   @map("source_id")
+  createdAt                               DateTime @default(now()) @map("created_at")
 
   conversation ThoughtFormConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 

@@ -1,6 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { IdeaMapTracker } from "packages/products/src/thoughtform/client/workspace/components/IdeaMapTracker";
+import {
+  IDEA_STRUCTURE_CHANGE_SOURCES,
+  IDEA_STRUCTURE_OPERATION_TYPES,
+} from "packages/products/src/thoughtform/shared";
 
 describe("IdeaMapTracker", () => {
   it("presents explored material and limited qualitative assessments without assistant hypotheses", () => {
@@ -26,6 +30,7 @@ describe("IdeaMapTracker", () => {
         }}
         isBusy={false}
         onAction={async () => true}
+        onStructure={async () => true}
       />,
     );
 
@@ -37,6 +42,42 @@ describe("IdeaMapTracker", () => {
     expect(markup).toContain("Developing");
     expect(markup).toContain("Appears to be central");
     expect(markup).toContain("Assessments are qualitative, not objective scores");
+  });
+
+  it("explains an automatic structural interpretation and offers immediate undo", () => {
+    const markup = renderToStaticMarkup(
+      <IdeaMapTracker
+        ideaMap={{
+          revision: 4,
+          ideas: [{
+            id: "idea-1",
+            title: "Combined idea",
+            synthesis: "A synthesis",
+            substance: "Substance",
+            unresolvedQuestions: [],
+            assistantAssessment: { exploration: "developing", importance: "central" },
+            userInterpretation: null,
+            disposition: "active",
+          }],
+          structuralChange: {
+            type: IDEA_STRUCTURE_OPERATION_TYPES.merge,
+            source: IDEA_STRUCTURE_CHANGE_SOURCES.assistant,
+            explanation: "These ideas described the same concern.",
+            signature: "signature",
+            insertionIndex: 0,
+            previousIdeas: [],
+            previousPotentialConflicts: [],
+            resultIdeaIds: ["idea-1"],
+          },
+        }}
+        isBusy={false}
+        onAction={async () => true}
+        onStructure={async () => true}
+      />,
+    );
+    expect(markup).toContain("Idea map reorganised");
+    expect(markup).toContain("These ideas described the same concern.");
+    expect(markup).toContain("Undo reorganisation");
   });
 
   it("disables mutating controls while the workspace is busy", () => {
@@ -62,6 +103,7 @@ describe("IdeaMapTracker", () => {
         }}
         isBusy
         onAction={async () => true}
+        onStructure={async () => true}
       />,
     );
     expect(markup).toContain('aria-busy="true"');

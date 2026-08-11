@@ -307,17 +307,19 @@ function createProgressiveFifaIdeaMap(completedTurnCount: number): IdeaMap {
       substance: priorUserMessages.join("\n\n"),
       unresolvedQuestions: [],
       assistantAssessment: {
-        exploration: completedTurnCount < 4
-          ? IDEA_EXPLORATION_ASSESSMENTS.emerging
-          : completedTurnCount < 8
-          ? IDEA_EXPLORATION_ASSESSMENTS.developing
-          : IDEA_EXPLORATION_ASSESSMENTS.wellExplored,
+        exploration: explorationAssessment(completedTurnCount),
         importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
       },
       userInterpretation: null,
       disposition: IDEA_DISPOSITIONS.focused,
     }],
   };
+}
+
+function explorationAssessment(completedTurnCount: number) {
+  if (completedTurnCount < 4) return IDEA_EXPLORATION_ASSESSMENTS.emerging;
+  if (completedTurnCount < 8) return IDEA_EXPLORATION_ASSESSMENTS.developing;
+  return IDEA_EXPLORATION_ASSESSMENTS.wellExplored;
 }
 
 async function judgeConversationQuality(turns: readonly EvaluatedTurn[]): Promise<Quality> {

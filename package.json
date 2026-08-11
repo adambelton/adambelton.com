@@ -15,6 +15,7 @@
     "evaluate:thoughtform-cold-warm": "pnpm --filter @adambelton/products evaluate:thoughtform-cold-warm",
     "evaluate:thoughtform-plain-text": "pnpm --filter @adambelton/products evaluate:thoughtform-plain-text",
     "evaluate:thoughtform-context-size": "pnpm --filter @adambelton/products evaluate:thoughtform-context-size",
+    "evaluate:thoughtform-idea-structure": "pnpm --filter @adambelton/products evaluate:thoughtform-idea-structure",
     "sync:thoughtform-prompts": "pnpm --filter @adambelton/api sync:thoughtform-prompts",
     "update:thoughtform-prompt-fallback": "pnpm --filter @adambelton/api update:thoughtform-prompt-fallback",
     "validate:thoughtform-prompts": "pnpm --filter @adambelton/api validate:thoughtform-prompts",
