@@ -18,7 +18,10 @@ import {
   type IdeaMap,
   type IdeaStructureOperationType,
 } from "packages/products/src/thoughtform/shared";
-import { THOUGHTFORM_AI_PROFILES } from "packages/products/src/thoughtform/server/capabilities/hosted-ai-profile";
+import {
+  projectThoughtFormOutputSchema,
+  THOUGHTFORM_AI_PROFILES,
+} from "packages/products/src/thoughtform/server/capabilities/hosted-ai-profile";
 import { createLangfuseEvaluationPromptProvider } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation-prompt-provider";
 import { runLangfuseEvaluation } from "packages/products/src/thoughtform/testing/evaluations/langfuse-evaluation";
 
@@ -48,7 +51,13 @@ const service = new IdeaMapAnalysisService({
       context: request.context,
       messages: request.messages,
       maxTokens: request.maxOutputTokens,
-      outputFormat: request.outputFormat,
+      outputFormat: {
+        ...request.outputFormat,
+        schema: projectThoughtFormOutputSchema(
+          THOUGHTFORM_AI_PROFILES.anthropic,
+          request.outputFormat.schema,
+        ),
+      },
     });
     return { content: response.content };
   },
