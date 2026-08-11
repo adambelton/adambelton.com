@@ -3,8 +3,11 @@ import {
   IDEA_DISPOSITIONS,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
+  IDEA_STRUCTURE_OPERATION_TYPES,
   type Idea,
   type IdeaActionRequest,
+  type MergeIdeasRequest,
+  type SplitIdeaRequest,
 } from "packages/products/src/thoughtform/shared";
 
 export type ProposedIdea = Omit<Idea, "id" | "userInterpretation"> & {
@@ -15,6 +18,56 @@ export interface ProposedIdeaAction {
   ideaId: string;
   action: IdeaActionRequest["action"];
   userInterpretation?: string;
+}
+
+export type ProposedIdeaStructure =
+  | Omit<MergeIdeasRequest, "expectedRevision">
+  | Omit<SplitIdeaRequest, "expectedRevision">;
+
+export function parseProposedIdeaStructure(value: unknown): ProposedIdeaStructure | null {
+  if (!isRecord(value) || !isConstantValue(IDEA_STRUCTURE_OPERATION_TYPES, value.type)) {
+    return null;
+  }
+  if (!isNonEmptyString(value.explanation)) return null;
+  if (value.type === IDEA_STRUCTURE_OPERATION_TYPES.merge) {
+    if (
+      !Array.isArray(value.ideaIds) || value.ideaIds.length < 2 ||
+      !value.ideaIds.every(isNonEmptyString) || !isRecord(value.result) ||
+      !isNonEmptyString(value.result.title) || !isNonEmptyString(value.result.synthesis) ||
+      !isAssessment(value.result.assistantAssessment)
+    ) return null;
+    return {
+      type: value.type,
+      ideaIds: value.ideaIds.map((id) => id.trim()),
+      result: {
+        title: value.result.title.trim(),
+        synthesis: value.result.synthesis.trim(),
+        assistantAssessment: parseAssessment(value.result.assistantAssessment),
+      },
+      explanation: value.explanation.trim(),
+    };
+  }
+  if (
+    !isNonEmptyString(value.ideaId) || !Array.isArray(value.results) ||
+    value.results.length < 2 || !value.results.every(isStructureResult)
+  ) return null;
+  return {
+    type: value.type,
+    ideaId: value.ideaId.trim(),
+    results: value.results.map((result) => ({
+      title: result.title.trim(),
+      synthesis: result.synthesis.trim(),
+      substance: result.substance.trim(),
+      unresolvedQuestions: result.unresolvedQuestions.map((question) => question.trim()),
+      assistantAssessment: parseAssessment(result.assistantAssessment),
+    })),
+    explanation: value.explanation.trim(),
+  };
+}
+
+export function getProposedIdeaStructureValidationIssues(value: unknown): string[] {
+  if (value === null) return [];
+  return parseProposedIdeaStructure(value) ? [] : ["proposedStructure is invalid"];
 }
 
 export function parseProposedIdeas(value: unknown): ProposedIdea[] | null {
@@ -98,6 +151,32 @@ export function getProposedIdeaActionsValidationIssues(value: unknown): string[]
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function isStructureResult(value: unknown): value is {
+  title: string;
+  synthesis: string;
+  substance: string;
+  unresolvedQuestions: string[];
+  assistantAssessment: Record<string, unknown>;
+} {
+  return isRecord(value) && isNonEmptyString(value.title) &&
+    isNonEmptyString(value.synthesis) && isNonEmptyString(value.substance) &&
+    Array.isArray(value.unresolvedQuestions) && value.unresolvedQuestions.every(isNonEmptyString) &&
+    isAssessment(value.assistantAssessment);
+}
+
+function isAssessment(value: unknown): value is Record<string, unknown> {
+  return isRecord(value) &&
+    isConstantValue(IDEA_EXPLORATION_ASSESSMENTS, value.exploration) &&
+    isConstantValue(IDEA_IMPORTANCE_ASSESSMENTS, value.importance);
+}
+
+function parseAssessment(value: Record<string, unknown>) {
+  return {
+    exploration: value.exploration as Idea["assistantAssessment"]["exploration"],
+    importance: value.importance as Idea["assistantAssessment"]["importance"],
+  };
 }
 
 function isNonEmptyString(value: unknown): value is string {

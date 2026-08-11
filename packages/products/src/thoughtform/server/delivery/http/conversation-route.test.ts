@@ -9,6 +9,7 @@ import type { ConversationResponder } from "packages/products/src/thoughtform/se
 import type {
   ConversationMessage,
   ConversationResponse,
+  Idea,
   IdeaMap,
 } from "packages/products/src/thoughtform/shared";
 import {
@@ -19,6 +20,11 @@ import {
 import type { ApiResponse } from "packages/shared/src";
 import { createDraftStore } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import { TestDraftPersistence } from "packages/products/src/thoughtform/testing/fakes/test-draft-persistence";
+import {
+  IDEA_STRUCTURE_CHANGE_SOURCES,
+  IDEA_STRUCTURE_COMMAND_TYPES,
+  IDEA_STRUCTURE_OPERATION_TYPES,
+} from "packages/products/src/thoughtform/shared";
 
 describe("ThoughtForm conversation route", () => {
   it("streams and retains a temporary assistant response before the Idea Map completes", async () => {
@@ -431,6 +437,63 @@ describe("ThoughtForm conversation route", () => {
     });
   });
 
+  it("applies and undoes a structural correction through the temporary route", async () => {
+    const conversationStore = createFakeConversationStore();
+    const conversationId = conversationStore.createConversationId();
+    await conversationStore.replaceIdeaMap({
+      conversationId,
+      operationId: "operation-1",
+      expectedRevision: 0,
+      ideaMap: {
+        revision: 1,
+        ideas: [
+          structuralIdea("idea-1", "First meaning."),
+          structuralIdea("idea-2", "Second meaning."),
+        ],
+      },
+    });
+    const route = createConversationRoute({ conversationStore });
+    const merge = await route.request(`/${conversationId}/idea-structure`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: IDEA_STRUCTURE_OPERATION_TYPES.merge,
+        expectedRevision: 1,
+        ideaIds: ["idea-1", "idea-2"],
+        result: {
+          title: "Together",
+          synthesis: "One concern.",
+          assistantAssessment: { exploration: "developing", importance: "central" },
+        },
+        explanation: "These ideas overlap.",
+      }),
+    });
+    expect(merge.status).toBe(200);
+    await expect(merge.json()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        ideaMap: {
+          revision: 2,
+          structuralChange: { source: IDEA_STRUCTURE_CHANGE_SOURCES.user },
+        },
+      },
+    });
+
+    const undo = await route.request(`/${conversationId}/idea-structure`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: IDEA_STRUCTURE_COMMAND_TYPES.undo,
+        expectedRevision: 2,
+      }),
+    });
+    expect(undo.status).toBe(200);
+    await expect(undo.json()).resolves.toMatchObject({
+      ok: true,
+      data: { ideaMap: { revision: 3, ideas: [{ id: "idea-1" }, { id: "idea-2" }] } },
+    });
+  });
+
   it("returns the stable unavailable result when an idea action targets a lost temporary workspace", async () => {
     const route = createConversationRoute({
       conversationStore: createFakeConversationStore(),
@@ -451,6 +514,19 @@ describe("ThoughtForm conversation route", () => {
     });
   });
 });
+
+function structuralIdea(id: string, substance: string): Idea {
+  return {
+    id,
+    title: id,
+    synthesis: `${id} synthesis`,
+    substance,
+    unresolvedQuestions: [],
+    assistantAssessment: { exploration: "developing", importance: "central" },
+    userInterpretation: null,
+    disposition: "active",
+  };
+}
 
 function createFakeConversationStore(): TemporaryConversationStore {
   const conversations = new Map<string, ConversationMessage[]>();

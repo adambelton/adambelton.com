@@ -10,6 +10,7 @@ import {
   type StreamingConversationResponder,
 } from "packages/products/src/thoughtform/server/application/workspace";
 import { handleIdeaActionRequest } from "packages/products/src/thoughtform/server/delivery/http/idea-action-handler";
+import { handleIdeaStructureRequest } from "packages/products/src/thoughtform/server/delivery/http/idea-structure-handler";
 import {
   handleConversationResponse,
   handleConversationStream,
@@ -112,6 +113,17 @@ export function createConversationsRoute({
       request: context.req.raw,
       conversationId: context.req.param("conversationId"),
       ideaId: context.req.param("ideaId"),
+      conversations: store,
+      persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
+    });
+  });
+
+  route.post("/:conversationId/idea-structure", async (context) => {
+    const store = await getPersistentConversationStore(context.req.raw);
+    if (!store) return notFound(context);
+    return handleIdeaStructureRequest({
+      request: context.req.raw,
+      conversationId: context.req.param("conversationId"),
       conversations: store,
       persistenceType: WORKSPACE_PERSISTENCE_TYPES.persistent,
     });

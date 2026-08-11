@@ -9,6 +9,8 @@ import type {
   IdeaActionRequest,
   IdeaActionResult,
   IdeaMap,
+  IdeaStructureCommandRequest,
+  IdeaStructureCommandResult,
   DraftSelection,
   DraftChange,
   DraftingState,
@@ -39,6 +41,10 @@ import {
   IdeaActionError,
   sendTemporaryIdeaAction,
 } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-action";
+import {
+  IdeaStructureError,
+  sendTemporaryIdeaStructure,
+} from "packages/products/src/thoughtform/client/workspace/actions/send-idea-structure";
 import { DraftPanel, type DraftPanelHandle } from "packages/products/src/thoughtform/client/workspace/components/DraftPanel";
 import {
   WORKSPACE_PERSISTENCE_TYPES,
@@ -63,6 +69,10 @@ interface ConversationEditorProps {
     ideaId: string,
     request: IdeaActionRequest,
   ) => Promise<IdeaActionResult>;
+  sendIdeaStructure?: (
+    conversationId: string,
+    request: IdeaStructureCommandRequest,
+  ) => Promise<IdeaStructureCommandResult>;
   draftPersistenceType?: WorkspacePersistenceType;
   initialDraftingState?: DraftingState | null;
 }
@@ -77,6 +87,7 @@ export function ConversationEditor({
   onUnavailable,
   sendMessage = sendConversationMessage,
   sendIdeaAction = sendTemporaryIdeaAction,
+  sendIdeaStructure = sendTemporaryIdeaStructure,
   draftPersistenceType = WORKSPACE_PERSISTENCE_TYPES.temporary,
   initialDraftingState = null,
 }: ConversationEditorProps) {
@@ -413,6 +424,36 @@ export function ConversationEditor({
                   ? actionError.message
                   : "The idea could not be updated.",
               );
+              return false;
+            } finally {
+              setStatus(CONVERSATION_STATUSES.idle);
+            }
+          }}
+          onStructure={async (request) => {
+            if (!conversationId || status === CONVERSATION_STATUSES.sending) return false;
+            setStatus(CONVERSATION_STATUSES.sending);
+            setError(null);
+            setIdeaStatus(null);
+            try {
+              const result = await sendIdeaStructure(conversationId, request);
+              setIdeaMap(result.ideaMap);
+              if (result.status === IDEA_ACTION_RESULT_STATUSES.conflict) {
+                setIdeaStatus("The idea map changed elsewhere, so it has been refreshed. Review it and try again.");
+                return false;
+              }
+              setIdeaStatus("Idea map reorganisation updated.");
+              return true;
+            } catch (structureError) {
+              if (
+                structureError instanceof IdeaStructureError &&
+                structureError.code === CONVERSATION_ERROR_CODES.unavailable
+              ) {
+                handleWorkspaceUnavailable();
+                return false;
+              }
+              setError(structureError instanceof Error
+                ? structureError.message
+                : "The idea map could not be reorganised.");
               return false;
             } finally {
               setStatus(CONVERSATION_STATUSES.idle);

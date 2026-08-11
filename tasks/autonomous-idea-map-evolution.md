@@ -156,5 +156,31 @@ evaluation is paid, outside ordinary CI, and requires explicit approval.
 
 ## Status
 
-Initial proposal based on the current Idea Map implementation and beta roadmap.
-Blocked on Task 038, the decisions above, and a fresh review. Not approved.
+Approved by Adam on 11 August 2026. Implementation in progress.
+
+## Approval record
+
+- **Approval date:** 11 August 2026.
+- **Intentional boundaries:** extend the existing asynchronous Idea Map analysis
+  attempt with bounded merge and split proposals; validate and apply them in
+  product-owned code; expose accessible direct correction and one-step undo;
+  preserve the distinct temporary and durable persistence lifetimes and the
+  Task 038 accounting boundary.
+- **Important deferrals:** general Idea Map history, arbitrary time travel,
+  conversation or Draft rewriting, cross-workspace identity, learned profiles,
+  broad visual redesign, and changes to hosted-attempt ledger semantics remain
+  outside this task.
+- **Implementation decisions:** assistant proposals apply automatically with an
+  immediate undo; merges retain the oldest source ID and remap absorbed IDs;
+  splits retain the original ID for the primary result and allocate new IDs for
+  the others; all established substance must be distributed; reversible
+  provenance is limited to the most recent structural change; dismissed ideas
+  cannot participate automatically; splits inherit disposition and merges
+  cannot silently become more active than their sources; user correction is
+  canonical and suppresses an equivalent proposal until materially new
+  user-established evidence exists.
+- **Do not reopen:** the model proposes but product code validates and applies;
+  conversation history remains canonical and unchanged; structural changes use
+  optimistic Idea Map revisions; temporary and durable workspaces receive the
+  same product behavior; temporary workspaces emit no Langfuse trace; and a new
+  hosted call or separate hosted action requires fresh scope review.

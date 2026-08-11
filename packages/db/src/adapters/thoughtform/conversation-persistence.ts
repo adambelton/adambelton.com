@@ -21,7 +21,13 @@ const CONVERSATION_SELECT = {
   ideaMapRevisions: {
     orderBy: { revision: "desc" },
     take: 1,
-    select: { revision: true, ideas: true },
+    select: {
+      revision: true,
+      ideas: true,
+      potentialConflicts: true,
+      structuralChange: true,
+      suppressedStructuralOperationSignatures: true,
+    },
   },
 } as const;
 
@@ -132,6 +138,16 @@ export function createPrismaConversationPersistence(
               conversationId: input.conversationId,
               revision: input.nextSnapshot.ideaMap.revision,
               ideas: input.nextSnapshot.ideaMap.ideas as unknown as Prisma.InputJsonValue,
+              potentialConflicts: input.nextSnapshot.ideaMap.potentialConflicts
+                ? input.nextSnapshot.ideaMap.potentialConflicts as unknown as Prisma.InputJsonValue
+                : Prisma.JsonNull,
+              structuralChange: input.nextSnapshot.ideaMap.structuralChange
+                ? input.nextSnapshot.ideaMap.structuralChange as unknown as Prisma.InputJsonValue
+                : Prisma.JsonNull,
+              suppressedStructuralOperationSignatures:
+                input.nextSnapshot.ideaMap.suppressedStructuralOperationSignatures
+                  ? input.nextSnapshot.ideaMap.suppressedStructuralOperationSignatures as unknown as Prisma.InputJsonValue
+                  : Prisma.JsonNull,
               sourceType: input.operationKind,
               sourceId: input.operationId,
             },
@@ -202,8 +218,30 @@ function toSnapshot(
       ? {
           revision: latestIdeaMap.revision,
           ideas: latestIdeaMap.ideas as unknown as IdeaMap["ideas"],
+          ...(Array.isArray(latestIdeaMap.potentialConflicts)
+            ? {
+                potentialConflicts:
+                  latestIdeaMap.potentialConflicts as unknown as NonNullable<IdeaMap["potentialConflicts"]>,
+              }
+            : {}),
+          ...(isJsonObject(latestIdeaMap.structuralChange)
+            ? {
+                structuralChange:
+                  latestIdeaMap.structuralChange as unknown as NonNullable<IdeaMap["structuralChange"]>,
+              }
+            : {}),
+          ...(Array.isArray(latestIdeaMap.suppressedStructuralOperationSignatures)
+            ? {
+                suppressedStructuralOperationSignatures:
+                  latestIdeaMap.suppressedStructuralOperationSignatures as string[],
+              }
+            : {}),
         }
       : { revision: row.ideaMapRevision, ideas: [] },
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+function isJsonObject(value: unknown) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

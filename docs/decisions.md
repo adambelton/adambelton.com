@@ -1241,3 +1241,31 @@ to export neither content nor content-free metadata to Langfuse. The ledger
 records attempts but does not yet reject usage, calculate billing, expose an
 admin surface, or establish calibrated allowances; Tasks 039, 040, and 044 own
 those later decisions.
+
+## 061 — Idea Map Structure Is Autonomous, Bounded, And Reversible
+
+ThoughtForm's existing asynchronous Idea Map analysis may propose one merge of
+overlapping established ideas or one split of an overloaded established idea.
+This remains part of the existing Idea Map analysis hosted attempt; it does not
+introduce another model call or accounting action. Product capability code, not
+the model or host, validates and applies the proposal atomically against the
+expected Idea Map revision.
+
+A merge retains the earliest source identity and all established source
+substance, unresolved questions, user interpretations, affected references, and
+a disposition no more active than its sources. A split retains the original ID
+for its primary result, assigns new IDs to the others, inherits the source
+disposition, and requires the exact established substance and unresolved
+questions to be distributed without omission. Dismissed ideas cannot
+participate automatically. Conversation history and Draft content remain
+unchanged.
+
+An applied structural interpretation is immediately visible with a concise
+explanation and one-step undo. The map stores only the affected prior ideas and
+conflicts, insertion position, result IDs, and a content-derived signature.
+Undo restores that state and suppresses an equivalent proposal against unchanged
+source material. Any intervening map mutation clears the undo record. Direct
+user merge, split, and undo commands use the same validation and optimistic
+persistence boundary and are canonical corrections. This bounded provenance is
+not a general history or time-travel facility and follows the workspace's
+existing privacy and retention lifetime.

@@ -120,6 +120,50 @@ app.post("/testing/draft-workspace", async (context) => {
   return context.json({ ok: true, conversationId });
 });
 
+app.post("/testing/structural-workspace", async (context) => {
+  const conversationId = "structural-browser-conversation";
+  await conversationStore.appendConversationTurn({
+    conversationId,
+    operationId: "seed-structural-browser-workspace",
+    expectedMessageCount: 0,
+    expectedIdeaMapRevision: 0,
+    userMessage: { role: "user", content: "These concerns may overlap." },
+    assistantMessage: { role: "assistant", content: "You can decide whether they belong together." },
+    ideaMap: {
+      revision: 1,
+      ideas: [
+        {
+          id: "idea-authority",
+          title: "Authority needs scrutiny",
+          synthesis: "Authority must remain answerable.",
+          substance: "I distrust authority that cannot be questioned.",
+          unresolvedQuestions: [],
+          disposition: IDEA_DISPOSITIONS.active,
+          assistantAssessment: {
+            exploration: IDEA_EXPLORATION_ASSESSMENTS.developing,
+            importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
+          },
+          userInterpretation: null,
+        },
+        {
+          id: "idea-legitimacy",
+          title: "Legitimacy depends on accountability",
+          synthesis: "Legitimacy is earned through accountability.",
+          substance: "I think legitimacy disappears when leaders avoid accountability.",
+          unresolvedQuestions: [],
+          disposition: IDEA_DISPOSITIONS.active,
+          assistantAssessment: {
+            exploration: IDEA_EXPLORATION_ASSESSMENTS.developing,
+            importance: IDEA_IMPORTANCE_ASSESSMENTS.central,
+          },
+          userInterpretation: null,
+        },
+      ],
+    },
+  });
+  return context.json({ ok: true, conversationId });
+});
+
 app.use("/products/thoughtform/conversation/respond-stream", async (_context, next) => {
   await new Promise((resolve) => setTimeout(resolve, 100));
   await next();

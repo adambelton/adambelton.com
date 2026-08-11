@@ -9,14 +9,18 @@ import {
   IDEA_DISPOSITIONS,
   IDEA_EXPLORATION_ASSESSMENTS,
   IDEA_IMPORTANCE_ASSESSMENTS,
+  IDEA_STRUCTURE_OPERATION_TYPES,
 } from "packages/products/src/thoughtform/shared";
 import type { IdeaMapAnalysisModel } from "packages/products/src/thoughtform/server/capabilities/idea-map/ports/idea-map-analysis-model";
 import {
   parseProposedIdeaActions,
+  parseProposedIdeaStructure,
   parseProposedIdeas,
   type ProposedIdea,
   type ProposedIdeaAction,
+  type ProposedIdeaStructure,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map/idea-map-model-output";
+import { MAX_SPLIT_RESULTS } from "packages/products/src/thoughtform/server/capabilities/idea-map/idea-structure";
 import {
   ConversationInputTooLargeError,
   MAX_CONVERSATION_INPUT_BYTES,
@@ -124,11 +128,67 @@ export const IDEA_MAP_ANALYSIS_OUTPUT_FORMAT = {
           { type: "null" },
         ],
       },
+      proposedStructure: {
+        anyOf: [
+          {
+            type: "object",
+            properties: {
+              type: { type: "string", enum: [IDEA_STRUCTURE_OPERATION_TYPES.merge] },
+              ideaIds: { type: "array", minItems: 2, items: { type: "string" } },
+              result: {
+                type: "object",
+                properties: {
+                  title: { type: "string", minLength: 1 },
+                  synthesis: { type: "string", minLength: 1 },
+                  assistantAssessment: assessmentSchema(),
+                },
+                required: ["title", "synthesis", "assistantAssessment"],
+                additionalProperties: false,
+              },
+              explanation: { type: "string", minLength: 1 },
+            },
+            required: ["type", "ideaIds", "result", "explanation"],
+            additionalProperties: false,
+          },
+          {
+            type: "object",
+            properties: {
+              type: { type: "string", enum: [IDEA_STRUCTURE_OPERATION_TYPES.split] },
+              ideaId: { type: "string" },
+              results: {
+                type: "array",
+                minItems: 2,
+                maxItems: MAX_SPLIT_RESULTS,
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", minLength: 1 },
+                    synthesis: { type: "string", minLength: 1 },
+                    substance: { type: "string", minLength: 1 },
+                    unresolvedQuestions: {
+                      type: "array",
+                      items: { type: "string", minLength: 1 },
+                    },
+                    assistantAssessment: assessmentSchema(),
+                  },
+                  required: ["title", "synthesis", "substance", "unresolvedQuestions", "assistantAssessment"],
+                  additionalProperties: false,
+                },
+              },
+              explanation: { type: "string", minLength: 1 },
+            },
+            required: ["type", "ideaId", "results", "explanation"],
+            additionalProperties: false,
+          },
+          { type: "null" },
+        ],
+      },
     },
     required: [
       "proposedIdeas",
       "ideaActions",
       "resolvedPotentialConflictIds",
+      "proposedStructure",
     ],
     additionalProperties: false,
   },
@@ -138,6 +198,7 @@ export interface IdeaMapAnalysis {
   proposedIdeas: ProposedIdea[] | null;
   proposedIdeaActions: ProposedIdeaAction[] | null;
   resolvedPotentialConflictIds: string[] | null;
+  proposedStructure?: ProposedIdeaStructure | null;
 }
 
 export class IdeaMapAnalysisService {
@@ -156,9 +217,14 @@ export class IdeaMapAnalysisService {
     const prompt = await this.promptProvider.getPrompt(
       IDEA_MAP_ANALYSIS_PROMPT_DEFINITION,
     );
+    const ideaMapContext = {
+      revision: input.ideaMap.revision,
+      ideas: input.ideaMap.ideas,
+      potentialConflicts: input.ideaMap.potentialConflicts ?? [],
+    };
     const context = `<workspace_context>
 <draft_change_attached>${input.draftChange ? "true" : "false"}</draft_change_attached>
-<idea_map_json>${escapeXmlText(JSON.stringify(input.ideaMap))}</idea_map_json>
+<idea_map_json>${escapeXmlText(JSON.stringify(ideaMapContext))}</idea_map_json>
 </workspace_context>`;
     const messages = selectBoundedAnalysisMessages({
       currentMessage: {
@@ -215,14 +281,28 @@ function parseIdeaMapAnalysis(
       resolvedPotentialConflictIds: parseStringArray(
         parsed.resolvedPotentialConflictIds,
       ),
+      proposedStructure: parseProposedIdeaStructure(parsed.proposedStructure),
     };
   } catch {
     return {
       proposedIdeas: null,
       proposedIdeaActions: null,
       resolvedPotentialConflictIds: null,
+      proposedStructure: null,
     };
   }
+}
+
+function assessmentSchema() {
+  return {
+    type: "object",
+    properties: {
+      exploration: { type: "string", enum: Object.values(IDEA_EXPLORATION_ASSESSMENTS) },
+      importance: { type: "string", enum: Object.values(IDEA_IMPORTANCE_ASSESSMENTS) },
+    },
+    required: ["exploration", "importance"],
+    additionalProperties: false,
+  } as const;
 }
 
 function parseGroundedIdeas(

@@ -3,9 +3,16 @@ import { createDatabaseClient, type DatabaseClient } from "packages/db/src/clien
 import { createPrismaConversationPersistence } from "packages/db/src/adapters/thoughtform/conversation-persistence";
 import {
   CONVERSATION_COMMIT_STATUSES,
+  CONVERSATION_OPERATION_KINDS,
   emptyConversationSnapshot,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import type { ConversationPersistenceSnapshot } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import {
+  IDEA_STRUCTURE_CHANGE_SOURCES,
+  IDEA_STRUCTURE_OPERATION_TYPES,
+  POTENTIAL_CONFLICT_SCOPES,
+  type Idea,
+} from "packages/products/src/thoughtform/shared";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -136,10 +143,74 @@ describe.skipIf(!databaseUrl)("Prisma conversation persistence integration", () 
     expect(await prisma.thoughtFormOperation.count({ where: { conversationId } })).toBe(0);
     expect(await prisma.thoughtFormDraft.count({ where: { conversationId } })).toBe(0);
   });
+
+  it("round-trips bounded structural provenance and conflict references", async () => {
+    const conversationId = globalThis.crypto.randomUUID();
+    const persistence = createPrismaConversationPersistence(prisma, userId);
+    const current = await persistence.initialize({ conversationId, createdAt: now() });
+    if (!current) throw new Error("Expected an initialized conversation.");
+    const previousIdeas = [idea("idea-1"), idea("idea-2")];
+    const merged = idea("idea-1");
+    const potentialConflicts = [{
+      id: "conflict-1",
+      scope: POTENTIAL_CONFLICT_SCOPES.withinIdea,
+      summary: "A retained tension",
+      explanation: "The tension now sits within the merged idea.",
+      ideaIds: ["idea-1"],
+      draftChange: null,
+    }];
+    const nextSnapshot = {
+      ...current,
+      ideaMap: {
+        revision: 1,
+        ideas: [merged],
+        potentialConflicts,
+        structuralChange: {
+          type: IDEA_STRUCTURE_OPERATION_TYPES.merge,
+          source: IDEA_STRUCTURE_CHANGE_SOURCES.user,
+          explanation: "These ideas overlap.",
+          signature: "signature",
+          insertionIndex: 0,
+          previousIdeas,
+          previousPotentialConflicts: potentialConflicts,
+          resultIdeaIds: ["idea-1"],
+        },
+        suppressedStructuralOperationSignatures: ["older-signature"],
+      },
+      updatedAt: now(),
+    };
+    const result = await persistence.commit({
+      conversationId,
+      operationId: "structural-operation",
+      operationKind: CONVERSATION_OPERATION_KINDS.ideaAction,
+      expectedIdeaMapRevision: 0,
+      nextSnapshot,
+    });
+    expect(result).toMatchObject({
+      status: CONVERSATION_COMMIT_STATUSES.committed,
+      snapshot: { ideaMap: nextSnapshot.ideaMap },
+    });
+    await expect(persistence.load(conversationId)).resolves.toMatchObject({
+      ideaMap: nextSnapshot.ideaMap,
+    });
+  });
 });
 
 function now() {
   return "2026-08-02T12:00:00.000Z";
+}
+
+function idea(id: string): Idea {
+  return {
+    id,
+    title: id,
+    synthesis: `${id} synthesis`,
+    substance: `${id} substance`,
+    unresolvedQuestions: [],
+    assistantAssessment: { exploration: "developing", importance: "central" },
+    userInterpretation: null,
+    disposition: "active",
+  };
 }
 
 function commitInput(

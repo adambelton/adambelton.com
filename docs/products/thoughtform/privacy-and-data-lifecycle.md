@@ -49,6 +49,11 @@ Shared authentication, contact, and platform-provider processing is documented i
   proposal versions, and retry-operation records are stored with the owner
   conversation. Owner-scoped repository operations prevent another user from
   loading them.
+- The Idea Map may temporarily contain one bounded structural-undo record with
+  copies of only the affected ideas and conflict references. It remains inside
+  the same private workspace record and follows the workspace's existing
+  temporary or durable lifetime; it is not copied into the hosted-attempt
+  ledger. A later map mutation replaces or clears that one-step undo state.
 - Deleting the owning conversation cascades to its draft, revisions, proposals,
   proposal versions, and operation records.
 - They are private thinking and articulation material. The product has no

@@ -14,6 +14,7 @@
     "evaluate:thoughtform-cold-warm": "tsx src/thoughtform/testing/evaluations/langfuse-cold-warm-latency.ts",
     "evaluate:thoughtform-plain-text": "tsx src/thoughtform/testing/evaluations/langfuse-plain-text-conversation-output.ts",
     "evaluate:thoughtform-context-size": "tsx src/thoughtform/testing/evaluations/langfuse-conversation-context-size.ts",
+    "evaluate:thoughtform-idea-structure": "tsx src/thoughtform/testing/evaluations/langfuse-idea-structure.ts",
     "test:hosted": "tsx src/thoughtform/testing/evaluations/hosted-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit"
