@@ -2,13 +2,16 @@
 
 ## Current status
 
-The approved ThoughtForm product-demo release implementation is in progress.
+The approved ThoughtForm product-demo release implementation is complete and
+awaiting merge and deployment.
 Locally, the old development-or-owner gate has been replaced by a public,
 server-derived availability capability; every authenticated account is admitted
 only when hosted AI is valid and enabled. Sign-in is always discoverable, direct
 workspace entry returns users to the requested route after authentication, and
-owner-only durable/operations boundaries remain unchanged. Production rollout,
-shutdown/restore evidence, and the real non-owner walkthrough are still pending.
+owner-only durable/operations boundaries remain unchanged. Production rollout
+belongs to this release task; the shutdown/restore evidence and real non-owner
+walkthrough are now a separate verification task Adam will perform before
+announcing the demo.
 
 The portfolio and ThoughtForm presentation have received a restrained design
 refinement pass. The product overview now promotes the working workspace near

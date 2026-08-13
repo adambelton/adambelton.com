@@ -211,8 +211,9 @@ Approved by Adam on 13 August 2026.
 
 ## Implementation evidence — 13 August 2026
 
-Local implementation is complete but the task is not complete until the
-production-only evidence below is recorded.
+Local implementation is complete. Adam explicitly moved the production-only
+verification below into the separate production-verification task so this task
+can finish at successful deployment.
 
 - **Access and capability:** `mount.ts` derives one
   `temporaryWorkspaceAvailable` capability from the valid enabled hosted-AI
@@ -242,7 +243,7 @@ production-only evidence below is recorded.
   content-observation policy, or owner authorization was changed. The obsolete
   duplicated development-feature helpers and their implementation-detail tests
   were removed.
-- **Still required in production:** inspect Railway variables and exactly-one-
+- **Deferred production verification:** inspect Railway variables and exactly-one-
   instance topology; deploy with current migrations; verify health, public auth,
   auth rate limiting/email delivery, provider disclosure, owner durable and
   operations paths; complete a synthetic non-owner walkthrough; confirm ledger
@@ -253,6 +254,6 @@ production-only evidence below is recorded.
 ## Status
 
 Approved on 13 August 2026 after Task 044 and the release-policy review.
-Implementation is in progress. Local capability delivery, access policy,
-discoverability, sign-in return routing, automated coverage, and documentation
-are implemented; production deployment and external verification remain.
+Implementation is complete and awaiting merge and deployment. Production
+walkthrough, operational inspection, and the shutdown/restore drill are tracked
+separately in `verify-thoughtform-product-demo-production.md`.
