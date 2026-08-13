@@ -4,6 +4,7 @@ import {
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import {
   classifyObviousDraftMaintenance,
+  requireDraftOperationInputWithinLimit,
   type DraftChangeInterpretationModel,
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import {
@@ -49,6 +50,12 @@ export async function interpretSavedDraftChange(input: {
       failureStage: DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES.workspace,
     };
   }
+  const modelInput = {
+    change: input.change,
+    currentIdeaMap: workspace.ideaMap,
+    previousMessages: workspace.messages,
+  };
+  requireDraftOperationInputWithinLimit(modelInput);
   const attempt = await (input.hostedAttempts ?? noOpHostedAttemptLifecycle).admit({
     action: HOSTED_ATTEMPT_ACTIONS.savedChangeInterpretation,
     operationId: input.operationId ?? `saved-edit-${input.change.toRevision}`,
@@ -57,11 +64,7 @@ export async function interpretSavedDraftChange(input: {
   let failureStage: DraftOperationInterpretationFailureStage =
     DRAFT_OPERATION_INTERPRETATION_FAILURE_STAGES.generation;
   try {
-    const interpreted = await attempt.run(() => input.model.interpret({
-      change: input.change,
-      currentIdeaMap: workspace.ideaMap,
-      previousMessages: workspace.messages,
-    }));
+    const interpreted = await attempt.run(() => input.model.interpret(modelInput));
     if (interpreted.type === DRAFT_CHANGE_INTERPRETATION_TYPES.textualMaintenance) {
       await attempt.complete(HOSTED_ATTEMPT_OUTCOMES.succeeded);
       return { status: DRAFT_OPERATION_INTERPRETATION_STATUSES.notNeeded };

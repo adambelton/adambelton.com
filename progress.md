@@ -2,6 +2,15 @@
 
 ## Current status
 
+Task 040 is complete. Temporary hosted
+operations now use atomic personal and global UTC-day operation/token budgets,
+reservation-first accounting, actual input-plus-output reconciliation, owner
+personal exemption, fail-closed production configuration, and bounded safe
+client disclosure. Conversation, Idea Map, and Draft output caps are calibrated
+to Task 039 measurements, and Draft model inputs now have a validated 16 KiB
+pre-admission bound. Configured Neon tests cover concurrent admission, actual
+usage replacement, missing-usage reservations, and owner/global behaviour.
+
 Autonomous, user-correctable Idea Map evolution is complete. The existing
 independent Idea Map analysis attempt may propose one bounded merge or split;
 product-owned validation remains authoritative and adds no hosted action.
@@ -51,8 +60,8 @@ content. A stricter targeted structure check then stopped after its first six
 successful hosted attempts because none of three Idea Map analyses proposed an
 autonomous merge or split; the second repetition did not run. That investigated
 failure is recorded without weakening the 72-attempt usage ranges or claiming
-that autonomous structure evolution occurred in the measurement. Task 040
-remains unapproved pending review of those policy values.
+that autonomous structure evolution occurred in the measurement. Task 040 used
+those measurements to set the now-implemented policy values.
 
 The first Idea Map reliability amendment run completed 24 calls for an estimated
 $0.1126. It produced 12/12 correct requested structural changes, no changes in
@@ -769,8 +778,8 @@ contract evaluation remains outside CI.
   client and API boundaries, but broader usage limits still need a later task.
 - Auth exists as a minimal foundation, but production cookie/domain settings may need a deployment-specific pass later.
 - Database and AI boundaries contain initial real implementation; usage and admin boundaries remain placeholders.
-- Daily usage limits are not implemented yet; the kill switch and per-request
-  bounds reduce immediate exposure but do not replace Tasks 038–040.
+- Calibrated daily usage limits are implemented; production enablement still
+  requires explicit budget environment values and the remaining launch tasks.
 - Autonomous, user-correctable idea merging and splitting remains required before
   the editor is considered fully functional.
 - Idea-count limits and idea-action acknowledgement UX should be reassessed after

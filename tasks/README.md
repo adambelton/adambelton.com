@@ -18,10 +18,7 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
-  039 plus explicit calibration-value approval
-- 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
-  and a fresh review
+- 044 — Minimum beta operations visibility; revised and ready for a fresh review
 - Release the authenticated ThoughtForm public beta; initial proposal recorded,
   blocked on Tasks 038–040, Task 044, the Idea Map beta decision, and a fresh
   release review
@@ -46,6 +43,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 040 — Calibrated atomic usage enforcement
 - 039 — Representative hosted-usage measurement, Idea Map reliability evidence,
   and Task 040 calibration inputs
 - Autonomous, user-correctable Idea Map evolution (unnumbered)

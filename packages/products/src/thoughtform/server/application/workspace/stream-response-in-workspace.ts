@@ -41,6 +41,7 @@ import {
   HOSTED_ATTEMPT_OUTCOMES,
   noOpHostedAttemptLifecycle,
   type HostedAttemptLifecycle,
+  HostedUsageLimitedError,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 export type StreamingConversationResponder = Pick<ConversationService, "respondStream">;
@@ -98,16 +99,31 @@ export async function* streamResponseInWorkspace(input: {
   yield { type: CONVERSATION_STREAM_EVENT_TYPES.accepted, conversationId };
 
   const operationId = input.operationId ?? globalThis.crypto.randomUUID();
-  const [conversationAttempt, ideaMapAttempt] = await Promise.all([
-    (input.hostedAttempts ?? noOpHostedAttemptLifecycle).admit({
+  const hostedAttempts = input.hostedAttempts ?? noOpHostedAttemptLifecycle;
+  let conversationAttempt;
+  let ideaMapAttempt;
+  try {
+    conversationAttempt = await hostedAttempts.admit({
       action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
       operationId,
-    }),
-    (input.hostedAttempts ?? noOpHostedAttemptLifecycle).admit({
+    });
+    ideaMapAttempt = await hostedAttempts.admit({
       action: HOSTED_ATTEMPT_ACTIONS.ideaMapAnalysis,
       operationId: `${operationId}:idea-map`,
-    }),
-  ]);
+    });
+  } catch (error) {
+    if (conversationAttempt) await conversationAttempt.discard();
+    if (error instanceof HostedUsageLimitedError) {
+      yield {
+        type: CONVERSATION_STREAM_EVENT_TYPES.failed,
+        code: CONVERSATION_ERROR_CODES.hostedUsageLimited,
+        message: "This workspace has reached its current hosted usage allowance.",
+        allowance: error.allowance,
+      };
+      return;
+    }
+    throw error;
+  }
 
   const ideaMapResult = ideaMapAttempt.run(() => input.ideaMapAnalysis.analyse({
     message: input.message,
@@ -393,6 +409,14 @@ function conversationFailure(error: unknown): ConversationStreamEvent {
   }
   if (error instanceof HostedAiUnavailableError) {
     return failure(CONVERSATION_ERROR_CODES.hostedAiUnavailable, "ThoughtForm could not respond. Try again shortly.");
+  }
+  if (error instanceof HostedUsageLimitedError) {
+    return {
+      type: CONVERSATION_STREAM_EVENT_TYPES.failed,
+      code: CONVERSATION_ERROR_CODES.hostedUsageLimited,
+      message: "This workspace has reached its current hosted usage allowance.",
+      allowance: error.allowance,
+    };
   }
   return failure(CONVERSATION_ERROR_CODES.hostedAiUnavailable, "ThoughtForm could not respond. Try again shortly.");
 }

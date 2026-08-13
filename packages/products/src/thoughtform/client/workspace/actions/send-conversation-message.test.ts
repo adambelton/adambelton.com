@@ -54,6 +54,30 @@ describe("sendConversationMessage", () => {
     expect(error).toMatchObject({ code: "invalid_conversation_request" });
   });
 
+  it("preserves the safe allowance from a streamed limit outcome", async () => {
+    const error = await sendConversationMessage(
+      { conversationId: null, message: "Continue" },
+      {},
+      async () => streamResponse([{
+        type: "failed",
+        code: "hosted_usage_limited",
+        message: "This workspace has reached its current hosted usage allowance.",
+        allowance: {
+          remainingOperations: 0,
+          resetsAt: "2026-08-14T00:00:00.000Z",
+        },
+      }]),
+    ).catch((requestError: unknown) => requestError);
+
+    expect(error).toMatchObject({
+      code: "hosted_usage_limited",
+      allowance: {
+        remainingOperations: 0,
+        resetsAt: "2026-08-14T00:00:00.000Z",
+      },
+    });
+  });
+
   it("preserves a retained response when the Idea Map reports a recoverable failure", async () => {
     const failures: string[] = [];
     await expect(sendConversationMessage(

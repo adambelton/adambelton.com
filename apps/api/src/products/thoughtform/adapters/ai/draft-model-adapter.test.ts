@@ -9,6 +9,7 @@ import {
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
 import { REVISION_PROPOSAL_SCOPES } from "packages/products/src/thoughtform/shared";
+import { MAX_DRAFT_OPERATION_OUTPUT_TOKENS } from "packages/products/src/thoughtform/server/capabilities/drafting";
 
 describe("draft model adapters", () => {
   it("maps composition requests and parses structured provider output", async () => {
@@ -26,7 +27,7 @@ describe("draft model adapters", () => {
       instruction: "Compose an early draft.",
     })).resolves.toEqual({ body: "Composed draft." });
     expect(requests[0]).toMatchObject({
-      maxTokens: 8_192,
+      maxTokens: MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
       outputFormat: { name: "thoughtform_composition" },
     });
     expect(requests[0]?.system).toContain("user's own voice and perspective");

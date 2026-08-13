@@ -255,6 +255,15 @@ function conversationFailureResponse(
       "ThoughtForm is currently disabled.",
     ), 503);
   }
+  if (result.status === CONVERSATION_ERROR_CODES.hostedUsageLimited) {
+    return context.json({
+      ...failure(
+        result.status,
+        "This workspace has reached its current hosted usage allowance.",
+      ),
+      allowance: result.allowance,
+    }, 429);
+  }
   return context.json(failure(
     CONVERSATION_ERROR_CODES.hostedAiUnavailable,
     "ThoughtForm could not respond. Try again shortly.",

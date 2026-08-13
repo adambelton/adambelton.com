@@ -1269,3 +1269,30 @@ user merge, split, and undo commands use the same validation and optimistic
 persistence boundary and are canonical corrections. This bounded provenance is
 not a general history or time-travel facility and follows the workspace's
 existing privacy and retention lifetime.
+
+## 062 — Hosted Usage Uses Atomic UTC-Day Reservations
+
+ThoughtForm admits non-owner hosted operations only when both the authenticated
+user's UTC-day budget and the platform-wide UTC-day budget can hold the full
+operation reservation. Personal budgets are 120 operations and 600,000
+completed tokens; global safeguards are 600 operations and 3,000,000 completed
+tokens. Conversation response, Idea Map analysis, Draft composition, revision
+proposal, and saved-change interpretation reserve 5,000, 7,000, 2,500, 1,500,
+and 2,500 tokens respectively. Admission is atomic and never deliberately
+overshoots either window. An admitted operation remains attributed to its
+original UTC day.
+
+Completion replaces the reservation only when both input and output usage are
+known, using their sum. Cache and reasoning fields remain diagnostic and are
+not charged again. Missing usage retains the full reservation. The owner is
+exempt from the personal budget but remains subject to the global safeguard.
+Production requires explicit positive-integer host configuration for all four
+budgets and fails closed when it is absent or invalid.
+
+Clients may receive only a stable limited outcome, the authenticated user's
+safe remaining hosted-operation allowance, and the UTC reset timestamp. They
+must not receive personal token usage, global capacity, reservations, internal
+cost, other-user activity, or provider-failure detail. Model bounds are 32 KiB
+input and 1,024 output tokens for conversation, 32 KiB input and 1,536 output
+tokens for Idea Map analysis, and 16 KiB serialized input and 512 output tokens
+for Draft model operations.

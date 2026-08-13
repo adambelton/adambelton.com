@@ -186,6 +186,30 @@ describe("ConversationEditor", () => {
     expect(screen.queryByText("Updating the Idea Map.")).toBeNull();
   });
 
+  it("preserves submitted input and presents the safe hosted limit allowance", async () => {
+    render(<ConversationEditor
+      sendMessage={async () => {
+        throw new ConversationRequestError(
+          "hosted_usage_limited",
+          "This workspace has reached its current hosted usage allowance.",
+          {
+            remainingOperations: 0,
+            resetsAt: "2026-08-14T00:00:00.000Z",
+          },
+        );
+      }}
+    />);
+    fireEvent.change(screen.getByLabelText("What are you thinking?"), {
+      target: { value: "Keep this thought for after the reset." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByDisplayValue("Keep this thought for after the reset."))
+      .toBeTruthy();
+    expect(await screen.findByText(/0 hosted operations remain/)).toBeTruthy();
+    expect(screen.getByText(/It resets at/)).toBeTruthy();
+  });
+
   it("clears stale canonical state when an Idea Map action finds a lost workspace", async () => {
     const unavailable = vi.fn();
     render(<ConversationEditor

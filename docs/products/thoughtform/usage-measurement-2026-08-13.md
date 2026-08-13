@@ -121,30 +121,32 @@ concurrent attempts for every conversation turn.
   proposal occurring, but future claims about the reliability of autonomous
   structure evolution require a separately approved evaluation.
 
-## Task 040 calibration recommendation
+## Task 040 calibration outcome
 
-These values are proposed for review; they do not implement enforcement.
+Adam agreed the daily operation and completed-token budgets below on 13 August
+2026, then agreed the reservation, hard-bound, owner, missing-usage, accounting,
+and disclosure recommendations. These decisions do not implement enforcement.
 
-### Requests
+### Operations
 
-- Temporary user: **30 admitted hosted attempts per UTC day**. This fits the
-  largest measured 13-attempt journey plus Draft revision and saved-edit work,
-  with headroom for continued Discovery or one failed/retried operation.
-- Global: **300 admitted hosted attempts per UTC day**, including owner usage.
-  This is an operational assumption equivalent to ten fully used temporary
-  allowances, not a fact derived from journey measurements.
-- Owner: exempt from the 30-attempt personal allowance, but included in the
+- Temporary user: **120 admitted hosted operations per UTC day**. Since a normal
+  conversation turn uses one conversation-response and one Idea Map operation,
+  this supports roughly 50 full turns plus Draft work and recovery headroom.
+- Global: **600 admitted hosted operations per UTC day**, including owner
+  usage. This supports roughly five fully used personal allowances and is a
+  chosen beta-risk posture, not a demand forecast derived from measurements.
+- Owner: exempt from the 120-operation personal allowance, but included in the
   global emergency safeguard. The hosted-AI kill switch remains independent.
 
 ### Tokens
 
-- Temporary user completed-usage allowance: **120,000 total tokens per UTC
+- Temporary user completed-usage allowance: **600,000 total tokens per UTC
   day**, where total means `inputTokens + outputTokens`. Cache tokens and
   reasoning remain recorded categories but are already included in those
   provider totals and must not be double-counted.
-- Global completed-usage allowance: **1,200,000 total tokens per UTC day**,
-  including owner usage. As with the global request count, this is a capacity
-  assumption requiring explicit approval rather than a measured user fact.
+- Global completed-usage allowance: **3,000,000 total tokens per UTC day**,
+  including owner usage. As with the global operation count, this is a capacity
+  choice rather than a measured user-demand fact.
 - Reservation by operation:
   - conversation response: **5,000 tokens**;
   - Idea Map analysis: **7,000 tokens**;
@@ -152,12 +154,17 @@ These values are proposed for review; they do not implement enforcement.
   - revision proposal: **1,500 tokens**;
   - saved-change interpretation: **2,500 tokens**.
 - Completion replaces the reservation with actual `inputTokens + outputTokens`.
-  Permit at most one operation to overshoot the remaining allowance, then deny
-  further admission until reset. The maximum planned reservation overshoot is
-  therefore **7,000 tokens**.
+  The original one-operation overshoot recommendation was rejected during Task
+  040 review because concurrent admitted operations make that bound inaccurate.
+  The revised proposal admits an operation only when its complete reservation
+  fits both budgets, deliberately admits no over-budget exception, and requires
+  Task 040 to calculate the possible aggregate excess from every concurrently
+  admitted operation under the approved hard bounds.
 - Missing complete input or output usage fails closed: retain the full
   reservation instead of refunding an unknown amount. Partial diagnostic
   categories do not make complete usage known.
+- Daily budget charging uses `inputTokens + outputTokens` only; cache and
+  reasoning categories are not added a second time.
 
 ### Per-operation bounds
 
@@ -175,13 +182,20 @@ These values are proposed for review; they do not implement enforcement.
   directly measured byte limit. Task 040 must measure the serialized request
   fixtures and validate the bound before adopting it; larger private content
   should then fail before provider invocation.
+- Task 040 measured product-shaped UTF-8 JSON fixtures at **565 bytes** for
+  composition, **8,138 bytes** for a deliberately substantial whole-Draft
+  revision that serializes its 4,000-character body twice, and **368 bytes** for
+  saved-change interpretation. All fit beneath 16 KiB, so the proposed bound
+  was adopted and is enforced before admission. Larger private content receives
+  a stable input-too-large result without creating a hosted attempt.
 
 ### Disclosure and reset
 
 - Reset all daily budgets at the next UTC midnight.
-- Disclose only the authenticated user's remaining request allowance and reset
-  time. Do not disclose token budgets, global remaining capacity, other users'
-  activity, model failures, or internal cost estimates.
+- Disclose only the authenticated user's safe remaining allowance and reset
+  time. Exact user-facing terminology and copy are deliberately deferred to
+  implementation. Do not disclose token budgets, global remaining
+  capacity, other users' activity, model failures, or internal cost estimates.
 
 ## Limitations
 

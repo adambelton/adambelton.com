@@ -5,6 +5,7 @@ import type {
   DraftOperationInterpretation,
   DraftingState,
   RevisionProposalScope,
+  HostedUsageAllowance,
 } from "packages/products/src/thoughtform/shared";
 import {
   WORKSPACE_PERSISTENCE_TYPES,
@@ -12,8 +13,19 @@ import {
 } from "packages/products/src/thoughtform/shared";
 
 export class DraftClientError extends Error {
-  constructor(readonly code: string, message: string) {
-    super(message);
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly allowance?: HostedUsageAllowance,
+  ) {
+    super(allowance
+      ? [
+          message,
+          `${allowance.remainingOperations} hosted operations remain.`,
+          `It resets at ${new Date(allowance.resetsAt).toLocaleString()}.`,
+        ].join(" ")
+      : message);
+    this.name = "DraftClientError";
   }
 }
 
@@ -127,13 +139,16 @@ async function request<T = DraftingState | null>(
     `/api/products/thoughtform/${collection}/${encodeURIComponent(conversationId)}${suffix}`,
     init,
   );
-  const payload = await response.json() as ApiResponse<T>;
+  const payload = await response.json() as ApiResponse<T> & {
+    allowance?: HostedUsageAllowance;
+  };
   if (!response.ok || !payload.ok) {
     throw new DraftClientError(
       payload.ok ? "draft_unavailable" : payload.error.code,
       payload.ok
         ? "The drafting state could not be updated."
         : payload.error.message,
+      payload.allowance,
     );
   }
   return payload.data;

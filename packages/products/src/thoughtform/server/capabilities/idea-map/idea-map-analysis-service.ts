@@ -34,7 +34,7 @@ import {
   type ThoughtFormPromptProvider,
 } from "packages/products/src/thoughtform/server/ports/thoughtform-prompt-provider";
 
-const MAX_IDEA_MAP_ANALYSIS_OUTPUT_TOKENS = 3_072;
+export const MAX_IDEA_MAP_ANALYSIS_OUTPUT_TOKENS = 1_536;
 const IDEA_ACTION_VALUES = Object.values(IDEA_ACTION_TYPES);
 
 export const IDEA_MAP_ANALYSIS_OUTPUT_FORMAT = {

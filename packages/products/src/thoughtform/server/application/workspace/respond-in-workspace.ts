@@ -45,6 +45,8 @@ import {
   HOSTED_ATTEMPT_OUTCOMES,
   noOpHostedAttemptLifecycle,
   type HostedAttemptLifecycle,
+  type HostedUsageAllowance,
+  HostedUsageLimitedError,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 import { CONVERSATION_OPERATION_KINDS } from "packages/products/src/thoughtform/server/capabilities/conversation/ports/conversation-persistence";
 
@@ -76,6 +78,10 @@ export type RespondInWorkspaceResult =
   | { status: typeof CONVERSATION_ERROR_CODES.inputTooLarge }
   | { status: typeof CONVERSATION_ERROR_CODES.hostedAiDisabled }
   | { status: typeof CONVERSATION_ERROR_CODES.hostedAiUnavailable }
+  | {
+      status: typeof CONVERSATION_ERROR_CODES.hostedUsageLimited;
+      allowance: HostedUsageAllowance;
+    }
   | { status: typeof CONVERSATION_ERROR_CODES.conflict };
 
 export async function respondInWorkspace(input: {
@@ -125,16 +131,29 @@ export async function respondInWorkspace(input: {
 
   const operationId = input.operationId ?? globalThis.crypto.randomUUID();
   const hostedAttempts = input.hostedAttempts ?? noOpHostedAttemptLifecycle;
-  const conversationAttempt = await hostedAttempts.admit({
+  let conversationAttempt;
+  let ideaMapAttempt;
+  try {
+    conversationAttempt = await hostedAttempts.admit({
       action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
       operationId,
     });
-  const ideaMapAttempt = input.ideaMapAnalysis
-    ? await hostedAttempts.admit({
+    ideaMapAttempt = input.ideaMapAnalysis
+      ? await hostedAttempts.admit({
       action: HOSTED_ATTEMPT_ACTIONS.ideaMapAnalysis,
       operationId: `${operationId}:idea-map`,
     })
-    : null;
+      : null;
+  } catch (error) {
+    if (conversationAttempt) await conversationAttempt.discard();
+    if (error instanceof HostedUsageLimitedError) {
+      return {
+        status: CONVERSATION_ERROR_CODES.hostedUsageLimited,
+        allowance: error.allowance,
+      };
+    }
+    throw error;
+  }
 
   const ideaMapAnalysisPromise = input.ideaMapAnalysis
     ? ideaMapAttempt!.run(() => input.ideaMapAnalysis!.analyse({

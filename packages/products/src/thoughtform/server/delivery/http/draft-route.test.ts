@@ -15,6 +15,7 @@ import {
 import type { ApiResponse } from "packages/shared/src";
 import {
   HOSTED_ATTEMPT_ACTIONS,
+  HostedUsageLimitedError,
   type HostedAttemptAction,
   type HostedAttemptLifecycle,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
@@ -34,9 +35,11 @@ describe("draft HTTP route", () => {
   let app: Hono;
   const conversationId = "conversation-1";
   let attemptedActions: HostedAttemptAction[];
+  let shouldLimitHostedUsage: boolean;
 
   beforeEach(async () => {
     attemptedActions = [];
+    shouldLimitHostedUsage = false;
     const conversationPersistence = new TestConversationPersistence();
     const conversations = createConversationStore(conversationPersistence, {
       shouldInitializeOnAppend: true,
@@ -70,7 +73,10 @@ describe("draft HTTP route", () => {
           intendedEffect: "Make authorship explicit.",
         }),
       },
-      getHostedAttemptLifecycle: async () => recordingLifecycle(attemptedActions),
+      getHostedAttemptLifecycle: async () => recordingLifecycle(
+        attemptedActions,
+        () => shouldLimitHostedUsage,
+      ),
     }));
   });
 
@@ -154,6 +160,37 @@ describe("draft HTTP route", () => {
     ]);
   });
 
+  it("returns only the safe allowance when hosted usage is limited", async () => {
+    shouldLimitHostedUsage = true;
+    const result = await jsonRequest(app, `/drafts/${conversationId}/compose`, {
+      method: "POST",
+      body: { selectedIdeaIds: [idea.id] },
+    });
+
+    expect(result.response.status).toBe(429);
+    expect(result.payload).toEqual({
+      ok: false,
+      error: {
+        code: "hosted_usage_limited",
+        message: "This workspace has reached its current hosted usage allowance.",
+      },
+      allowance: {
+        remainingOperations: 0,
+        resetsAt: "2026-08-14T00:00:00.000Z",
+      },
+    });
+  });
+
+  it("rejects oversized draft model input before admission", async () => {
+    const result = await jsonRequest(app, `/drafts/${conversationId}/compose`, {
+      method: "POST",
+      body: { selectedIdeaIds: [idea.id], instruction: "x".repeat(17 * 1_024) },
+    });
+
+    expect(result.response.status).toBe(413);
+    expect(attemptedActions).toEqual([]);
+  });
+
   it("returns one stable unavailable result across every temporary Draft operation after workspace loss", async () => {
     const conversations = createConversationStore(
       new TestConversationPersistence(),
@@ -230,9 +267,18 @@ async function jsonRequest<T = DraftingState>(
   };
 }
 
-function recordingLifecycle(actions: HostedAttemptAction[]): HostedAttemptLifecycle {
+function recordingLifecycle(
+  actions: HostedAttemptAction[],
+  shouldLimit: () => boolean = () => false,
+): HostedAttemptLifecycle {
   return {
     async admit(input) {
+      if (shouldLimit()) {
+        throw new HostedUsageLimitedError({
+          remainingOperations: 0,
+          resetsAt: "2026-08-14T00:00:00.000Z",
+        });
+      }
       actions.push(input.action);
       return {
         id: input.operationId,

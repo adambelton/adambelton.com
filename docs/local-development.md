@@ -78,12 +78,21 @@ AI_PROVIDER="anthropic"
 ANTHROPIC_API_KEY="replace-with-anthropic-api-key"
 ANTHROPIC_MODEL="claude-sonnet-5"
 ANTHROPIC_EFFORT="medium"
+THOUGHTFORM_PERSONAL_DAILY_OPERATION_LIMIT="120"
+THOUGHTFORM_PERSONAL_DAILY_TOKEN_LIMIT="600000"
+THOUGHTFORM_GLOBAL_DAILY_OPERATION_LIMIT="600"
+THOUGHTFORM_GLOBAL_DAILY_TOKEN_LIMIT="3000000"
 ```
 
 `ANTHROPIC_EFFORT` must be one of `low`, `medium`, `high`, `xhigh`, or `max`.
 The development and retained evaluation baseline is `medium`; the mounted host
 passes the value explicitly rather than relying on Claude Sonnet 5's `high`
 default. An unsupported value fails closed.
+
+The four usage-budget values are required in production and must be positive
+integers. Development and test use the shown approved defaults when they are
+omitted. Limits reset at midnight UTC; changing them is a host policy change,
+not a product-contract change.
 
 OpenAI remains an explicitly selectable alternative:
 

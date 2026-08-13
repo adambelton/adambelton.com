@@ -48,6 +48,7 @@ import { hasUserSession } from "apps/api/src/platform/access/has-user-session";
 import { isDevelopmentFeatureEnabled } from "apps/api/src/platform/access/is-development-feature-enabled";
 import { HostedAttemptUsageLlmClient } from "apps/api/src/products/thoughtform/adapters/usage/hosted-attempt-usage-llm-client";
 import { createHostedAttemptLifecycleResolver } from "apps/api/src/products/thoughtform/adapters/usage/hosted-attempt-lifecycle-resolver";
+import { resolveHostedUsagePolicy } from "apps/api/src/products/thoughtform/adapters/usage/hosted-usage-policy-configuration";
 
 const getThoughtFormDraftStore = createDraftStoreResolver({
   databaseUrl: process.env.DATABASE_URL,
@@ -203,6 +204,11 @@ const hostedLlmClient = createdHostedLlmClient
 const getHostedAttemptLifecycleForUser = createHostedAttemptLifecycleResolver({
   databaseUrl: process.env.DATABASE_URL,
   isHostedAiEnabled: hostedLlmClient !== null,
+  policy: resolveHostedUsagePolicy({
+    environment: process.env.NODE_ENV === "production" ? "production" :
+      process.env.NODE_ENV === "test" ? "test" : "development",
+    values: process.env,
+  }),
 });
 const langfuseEnvironment = process.env.NODE_ENV === "production"
   ? "production"
@@ -352,7 +358,9 @@ thoughtFormRoute.route(
       const session = await getCurrentAuthSession(request.headers);
       const access = getPersistentConversationAccess(session) ??
         getTemporaryConversationAccess(session);
-      return access ? getHostedAttemptLifecycleForUser(access.userId) : null;
+      return access
+        ? getHostedAttemptLifecycleForUser(access.userId, session?.user.isOwner ?? false)
+        : null;
     },
   }),
 );

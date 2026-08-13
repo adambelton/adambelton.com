@@ -8,6 +8,7 @@ import {
 import {
   DRAFT_WRITE_STATUSES,
   DraftService,
+  DraftOperationInputTooLargeError,
   InvalidDraftOperationError,
   type DraftCompositionModel,
   type DraftChangeInterpretationModel,
@@ -29,6 +30,7 @@ import {
 import { interpretSavedDraftChange } from "packages/products/src/thoughtform/server/application/workspace";
 import {
   noOpHostedAttemptLifecycle,
+  HostedUsageLimitedError,
   type HostedAttemptLifecycle,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 import { validateDraftChange } from "packages/products/src/thoughtform/server/delivery/http/draft-change-context";
@@ -143,14 +145,23 @@ export function createDraftRoute(dependencies: CreateDraftRouteDependencies) {
       drafts: resolved.drafts,
       change,
     })) return invalid(context, "The saved draft change is stale or invalid.");
-    const interpretation = await interpretSavedDraftChange({
-      conversationId,
-      change,
-      model: dependencies.interpretationModel,
-      conversations: resolved.conversations,
-      hostedAttempts: resolved.hostedAttempts,
-      operationId: operationId(context.req.raw, body),
-    });
+    let interpretation;
+    try {
+      interpretation = await interpretSavedDraftChange({
+        conversationId,
+        change,
+        model: dependencies.interpretationModel,
+        conversations: resolved.conversations,
+        hostedAttempts: resolved.hostedAttempts,
+        operationId: operationId(context.req.raw, body),
+      });
+    } catch (error) {
+      if (error instanceof DraftOperationInputTooLargeError) {
+        return context.json(failure(DRAFT_ERROR_CODES.inputTooLarge, error.message), 413);
+      }
+      if (error instanceof HostedUsageLimitedError) return usageLimited(context, error);
+      throw error;
+    }
     if (interpretation.status === DRAFT_OPERATION_INTERPRETATION_STATUSES.failed) {
       console.warn(`Saved-edit interpretation failed during ${interpretation.failureStage ?? "unknown"}.`);
     }
@@ -290,7 +301,11 @@ async function run(
     }
     return context.json(success(await responseData(result)), result.status === DRAFT_WRITE_STATUSES.changed ? successStatus : 200);
   } catch (error) {
+    if (error instanceof DraftOperationInputTooLargeError) {
+      return context.json(failure(DRAFT_ERROR_CODES.inputTooLarge, error.message), 413);
+    }
     if (error instanceof InvalidDraftOperationError) return invalid(context, error.message);
+    if (error instanceof HostedUsageLimitedError) return usageLimited(context, error);
     if (error instanceof HostedAiDisabledError) {
       return context.json(failure(
         CONVERSATION_ERROR_CODES.hostedAiDisabled,
@@ -305,6 +320,16 @@ async function run(
     }
     throw error;
   }
+}
+
+function usageLimited(context: Context, error: HostedUsageLimitedError) {
+  return context.json({
+    ...failure(
+      CONVERSATION_ERROR_CODES.hostedUsageLimited,
+      "This workspace has reached its current hosted usage allowance.",
+    ),
+    allowance: error.allowance,
+  }, 429);
 }
 
 function draftOperationResponse(

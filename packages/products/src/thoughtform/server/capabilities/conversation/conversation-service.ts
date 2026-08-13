@@ -40,7 +40,7 @@ import {
 
 const DEFAULT_CONVERSATION_ID = "draft-conversation";
 export const MAX_CONVERSATION_INPUT_BYTES = 32 * 1024;
-export const MAX_CONVERSATION_OUTPUT_TOKENS = 4_096;
+export const MAX_CONVERSATION_OUTPUT_TOKENS = 1_024;
 
 export interface ConversationServiceRequest {
   conversationId: string | null;

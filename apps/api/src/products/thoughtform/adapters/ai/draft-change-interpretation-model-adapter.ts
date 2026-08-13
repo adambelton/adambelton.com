@@ -3,9 +3,10 @@ import {
   HostedAiDisabledError,
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
-import type {
-  DraftChangeInterpretationModel,
-  DraftChangeInterpretationModelInput,
+import {
+  MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
+  type DraftChangeInterpretationModel,
+  type DraftChangeInterpretationModelInput,
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import {
   DRAFT_CHANGE_INTERPRETATION_TYPES,
@@ -44,7 +45,7 @@ export class LlmDraftChangeInterpretationModelAdapter
           this.observability.recordPrompt(prompt.reference);
           this.observability.recordContent({ input });
           const result = await this.llmClient.createMessage({
-        maxTokens: 1_024,
+        maxTokens: MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
         system: prompt.content,
         messages: [{ role: "user", content: JSON.stringify(input) }],
         outputFormat: {
