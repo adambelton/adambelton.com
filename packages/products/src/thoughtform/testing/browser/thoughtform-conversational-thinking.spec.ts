@@ -19,9 +19,9 @@ test("supports varied conversational thinking without requiring a Draft", async 
   await send(page, "I think convenience hides who bears a cost, although convenience itself is not bad.");
   await expect(page.getByText("costs made invisible", { exact: false })).toBeVisible();
 
-  await page.getByRole("button", { name: "Draft", exact: true }).click();
+  await page.getByRole("tab", { name: "Draft", exact: true }).click();
   await expect(page.getByLabel("Canonical draft")).not.toBeVisible();
-  await page.getByRole("button", { name: "Idea map", exact: true }).click();
+  await page.getByRole("tab", { name: "Idea map", exact: true }).click();
 
   await send(page, "I want to leave, and I feel guilty. Help me articulate this now without resolving it.");
   await expect(page.getByText("already enough to articulate", { exact: false })).toBeVisible();
@@ -31,10 +31,12 @@ test("supports varied conversational thinking without requiring a Draft", async 
   const correctedIdea = page.locator("section[aria-labelledby='idea-map-title'] details")
     .filter({ hasText: "The unnamed trade-off" })
     .first();
-  await correctedIdea.locator(":scope > summary").click();
+  if (!(await correctedIdea.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await correctedIdea.locator(":scope > summary").click();
+  }
   await expect(page.getByText("I am frustrated that nobody will name the trade-off", { exact: false })).toBeVisible();
 
-  await page.getByRole("button", { name: "Draft", exact: true }).click();
+  await page.getByRole("tab", { name: "Draft", exact: true }).click();
   await page.getByLabel("Wanting to leave", { exact: true }).check();
   await page.getByLabel("What should this expression preserve?").fill("Keep the guilt and uncertainty unresolved.");
   await page.getByRole("button", { name: "Accept offer and compose" }).click();
@@ -67,7 +69,9 @@ test("lets the user merge and immediately undo Idea Map structure", async ({ pag
 
   const authorityIdea = ideaMap.locator("details")
     .filter({ hasText: "Authority needs scrutiny" }).first();
-  await authorityIdea.locator(":scope > summary").click();
+  if (!(await authorityIdea.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await authorityIdea.locator(":scope > summary").click();
+  }
   await authorityIdea.getByRole("button", { name: "Split", exact: true }).click();
   await authorityIdea.getByLabel("First title").fill("Scrutiny of authority");
   await authorityIdea.getByLabel("First synthesis").fill("Authority must be open to scrutiny.");

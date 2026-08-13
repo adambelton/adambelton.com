@@ -221,7 +221,9 @@ function summary(ideaRow: Locator) {
 }
 
 async function openIdea(ideaRow: Locator) {
-  if (!(await ideaRow.getAttribute("open"))) await summary(ideaRow).click();
+  if (!(await ideaRow.evaluate((element) => (element as HTMLDetailsElement).open))) {
+    await summary(ideaRow).click();
+  }
 }
 
 async function act(page: Page, ideaRow: Locator, action: string, disposition: string) {

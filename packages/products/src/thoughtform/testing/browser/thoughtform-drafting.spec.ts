@@ -9,7 +9,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await page.getByRole("button", { name: "Open the editor" }).click();
   await expect(page.getByText("Accountability is the central argument.")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Workspace views" })).toBeHidden();
-  await expect(page.getByRole("group", { name: "Workspace" })).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "Workspace" })).toBeVisible();
   const workspaceColumns = await page.locator(".lg\\:grid-cols-2").evaluate(
     (element) => globalThis.getComputedStyle(element).gridTemplateColumns,
   );
@@ -39,7 +39,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   expect(Math.abs(workspaceLayout.columnBottom - workspaceLayout.composerBottom)).toBeLessThanOrEqual(1);
   expect(Math.abs(workspaceLayout.historyBottom - workspaceLayout.messagesBottom)).toBeLessThanOrEqual(1);
 
-  await page.getByRole("button", { name: "Draft", exact: true }).click();
+  await page.getByRole("tab", { name: "Draft", exact: true }).click();
   await expect(page.getByLabel("Optional format guidance")).not.toBeVisible();
   await expect(page.getByLabel("Canonical draft")).not.toBeVisible();
   await page.getByLabel("Accountability gives legitimacy").check();
@@ -68,7 +68,7 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await expect(page.getByText("Revision 2")).toBeVisible();
   await expect(page.getByText("It sounds as though this edit changes what matters to you. Is that right?")).toBeVisible();
   await expect(page.getByRole("button", { name: "Discuss this edit" })).not.toBeVisible();
-  await page.getByRole("button", { name: "Draft", exact: true }).click();
+  await page.getByRole("tab", { name: "Draft", exact: true }).click();
 
   await page.getByRole("button", { name: "History" }).click();
   await page.getByRole("button", { name: /Revision 1/ }).click();

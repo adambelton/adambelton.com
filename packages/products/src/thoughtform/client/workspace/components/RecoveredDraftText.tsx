@@ -18,7 +18,7 @@ export function RecoveredDraftText({
       </p>
       <label className="sr-only" htmlFor="recovered-draft-text">Recovered Draft text</label>
       <textarea
-        className="min-h-40 w-full resize-y border border-[var(--line)] bg-transparent p-4 leading-7"
+        className="field-control min-h-40 w-full resize-y p-4 leading-7"
         id="recovered-draft-text"
         onChange={(event) => onChange(event.target.value)}
         value={body}

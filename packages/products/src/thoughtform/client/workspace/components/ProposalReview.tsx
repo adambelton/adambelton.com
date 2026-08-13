@@ -43,7 +43,7 @@ export function ProposalReview({
         }}
       >
         <label className="font-medium" htmlFor="proposal-amendment">Request an amendment</label>
-        <textarea id="proposal-amendment" onChange={(event) => setInstruction(event.target.value)} rows={2} value={instruction} />
+        <textarea className="field-control p-3" id="proposal-amendment" onChange={(event) => setInstruction(event.target.value)} rows={2} value={instruction} />
         <button className="w-fit underline" disabled={isBusy || !instruction.trim()}>Amend proposal</button>
       </form>
     </section>

@@ -30,7 +30,7 @@ export function HomePage() {
 
       <section aria-labelledby="writing-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="writing-title"
         >
           Collection

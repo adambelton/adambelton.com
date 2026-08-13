@@ -32,7 +32,7 @@ describe("ThoughtForm overview page", () => {
     expect(markup).toContain("non-expiring usage credit");
     expect(markup).toContain("This is not yet how ThoughtForm is operated");
     expect(markup).toContain("Development snapshot");
-    expect(markup).toContain("Preparing the authenticated portfolio demo");
+    expect(markup).toContain("Preparing the product demo");
     expect(markup).toContain("complete reflective loop is working today");
     expect(markup).toContain("user-correctable Idea Map");
     expect(markup).toContain("privacy safeguards");

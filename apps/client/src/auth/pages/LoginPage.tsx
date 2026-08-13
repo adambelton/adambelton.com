@@ -96,7 +96,7 @@ export function LoginPage() {
         </label>
         <input
           autoComplete="email"
-          className="border border-[var(--line)] bg-transparent p-4 text-base leading-7 text-[var(--foreground)]"
+          className="field-control p-4 text-base leading-7"
           disabled={status === "sending" || status === "sent"}
           id="email"
           inputMode="email"

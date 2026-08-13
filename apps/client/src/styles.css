@@ -5,8 +5,9 @@
 :root {
   --background: #f7f4ed;
   --foreground: #151515;
-  --muted: #646661;
-  --line: #d8d0c3;
+  --muted: #585b56;
+  --line: #cec5b8;
+  --line-subtle: #ded8cd;
   --accent: #0f6b68;
   --selection: #d8ece8;
 }
@@ -65,6 +66,25 @@ svg {
   max-width: 100%;
 }
 
+.eyebrow {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.field-control {
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: var(--foreground);
+  transition: border-color 150ms ease;
+}
+
+.field-control:hover {
+  border-color: var(--foreground);
+}
+
 .markdown-content > :first-child {
   margin-top: 0;
 }
@@ -79,7 +99,12 @@ svg {
   color: var(--foreground);
   line-height: 1.2;
   margin-bottom: 0.75rem;
-  margin-top: 2rem;
+  margin-top: 3rem;
+}
+
+.markdown-content h3,
+.markdown-content h4 {
+  margin-top: 2.5rem;
 }
 
 .markdown-content p,

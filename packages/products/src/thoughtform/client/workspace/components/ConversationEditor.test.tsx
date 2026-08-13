@@ -133,7 +133,7 @@ describe("ConversationEditor", () => {
       initialIdeaMap={{ revision: 1, ideas: [idea] }}
       sendMessage={sendMessage}
     />);
-    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Draft$/ }));
     const editor = await screen.findByLabelText("Canonical draft");
     fireEvent.change(editor, { target: { value: "Unsaved canonical work." } });
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -167,7 +167,7 @@ describe("ConversationEditor", () => {
       target: { value: "Keep this submitted thought too." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Draft$/ }));
     fireEvent.change(screen.getByLabelText("Canonical draft"), {
       target: { value: "Unsaved text worth copying." },
     });
@@ -177,7 +177,7 @@ describe("ConversationEditor", () => {
     ));
 
     expect(await screen.findByDisplayValue("Keep this submitted thought too.")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Draft$/ }));
     expect(
       (screen.getByLabelText("Recovered Draft text") as HTMLTextAreaElement).value,
     ).toBe("Unsaved text worth copying.");
@@ -288,7 +288,7 @@ describe("ConversationEditor", () => {
       ]}
       onUnavailable={unavailable}
     />);
-    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Draft$/ }));
     fireEvent.change(screen.getByLabelText("Canonical draft"), {
       target: { value: "Unsaved Draft text." },
     });
@@ -317,7 +317,7 @@ describe("ConversationEditor", () => {
       initialConversationId="conversation-1"
       initialIdeaMap={{ revision: 1, ideas: [idea] }}
     />);
-    fireEvent.click(screen.getByRole("button", { name: /^Draft$/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Draft$/ }));
     fireEvent.change(await screen.findByLabelText("Canonical draft"), {
       target: { value: "Unsaved mounted Draft text." },
     });

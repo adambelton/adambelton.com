@@ -291,7 +291,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
       {detachedDraftRecovery}
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
       <textarea
-        className="h-full min-h-0 w-full resize-none overflow-y-auto border border-[var(--line)] bg-transparent p-4 leading-7"
+        className="field-control h-full min-h-0 w-full resize-none overflow-y-auto p-4 leading-7"
         id="canonical-draft"
         onBlur={() => void save()}
         onChange={(event) => setBody(event.target.value)}
@@ -366,7 +366,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
                 ? `Selected passage: “${selection.selectedText}”`
                 : "Select a passage for a bounded proposal, or leave nothing selected for a whole-draft proposal."}
             </p>
-            <textarea onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
+            <textarea className="field-control p-3" onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
             <button
               className="w-fit border border-[var(--foreground)] px-4 py-2"
               disabled={isBusy || !proposalInstruction.trim() || body !== draft.body}

@@ -40,7 +40,7 @@ export function ConversationComposer({
         What are you thinking?
       </label>
       <textarea
-        className="min-h-36 resize-y border border-[var(--line)] bg-transparent p-4 text-base leading-7 text-[var(--foreground)]"
+        className="field-control min-h-36 resize-y p-4 text-base leading-7"
         disabled={status !== CONVERSATION_STATUSES.idle}
         id={messageInputId}
         onChange={(event) => onMessageChange(event.target.value)}
