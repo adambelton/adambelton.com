@@ -18,14 +18,12 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 044 — Minimum beta operations visibility; revised and ready for a fresh review
-- Release the authenticated ThoughtForm public beta; initial proposal recorded,
-  blocked on Tasks 038–040, Task 044, the Idea Map beta decision, and a fresh
-  release review
+- Release the authenticated ThoughtForm portfolio demo; initial proposal needs
+  revision after Task 044 to reflect the settled portfolio-demo audience
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
 Task 039, Task 038, the unnumbered correction tasks, Task 036, and Langfuse
-prompt automation are complete. Every later beta
+prompt automation are complete. Every later portfolio-demo
 task remains unapproved and must be re-reviewed after its dependencies establish
 new evidence. Preference learning is not a prerequisite.
 
@@ -43,6 +41,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 044 — Minimum authenticated portfolio-demo operations visibility
 - 040 — Calibrated atomic usage enforcement
 - 039 — Representative hosted-usage measurement, Idea Map reliability evidence,
   and Task 040 calibration inputs

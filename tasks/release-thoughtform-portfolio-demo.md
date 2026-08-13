@@ -1,25 +1,27 @@
-# Release the authenticated ThoughtForm public beta
+# Release the authenticated ThoughtForm portfolio demo
 
 ## Goal
 
-Open the production ThoughtForm temporary workspace to the explicitly approved
-class of authenticated non-owner users, with cost controls, operational
-visibility, privacy boundaries, rollback, and production evidence in place.
+Open the portfolio website's production ThoughtForm temporary workspace to a
+small, explicitly approved class of authenticated non-owner users, with cost
+controls, operational visibility, privacy boundaries, rollback, and production
+evidence in place. A future public beta or commercial release is a separate
+project and is not delivered through the portfolio website.
 
 ## Why this task is next
 
 Task 036 deliberately left production non-owner access closed behind a host-owned
 release gate. Tasks 038–040 and 044 establish the accounting, measured limits,
 enforcement, and owner visibility required to operate that access. This final
-task changes release policy and proves the complete deployed beta; it does not
+task changes release policy and proves the complete deployed demo; it does not
 build missing product capabilities or weaken their safety boundaries.
 
 ## Depends on
 
 - Completed Tasks 038–040.
-- Completed minimum Task 044 beta operations visibility.
-- Completion, or an explicit approved beta deferral, of autonomous
-  user-correctable Idea Map merge/split behavior.
+- Completed minimum Task 044 portfolio-demo operations visibility.
+- Completed autonomous user-correctable Idea Map merge/split behavior and the
+  explicit decision to include it in the portfolio demo.
 - Current production deployment, database migrations, auth email delivery,
   provider configuration, privacy copy, and rollback readiness.
 - A fresh release review immediately before changing production access.
@@ -27,7 +29,7 @@ build missing product capabilities or weaken their safety boundaries.
 ## Scope
 
 - Replace the current development-or-owner temporary-workspace gate with an
-  explicit host-owned beta release policy that:
+  explicit host-owned portfolio-demo release policy that:
   - defaults closed in production;
   - remains enabled for development verification;
   - can grant the approved authenticated non-owner audience temporary-workspace
@@ -37,7 +39,7 @@ build missing product capabilities or weaken their safety boundaries.
   capability state needed for the client to present matching discoverability.
   Do not duplicate release policy in product code or a build-time-only client
   constant.
-- Make production login and the ThoughtForm beta entry point discoverable to the
+- Make production login and the ThoughtForm demo entry point discoverable to the
   approved logged-out audience while continuing to require an authenticated
   session before workspace access.
 - Preserve one isolated application-memory temporary workspace per admitted
@@ -81,7 +83,7 @@ build missing product capabilities or weaken their safety boundaries.
 
 ## Settled constraints
 
-- Authentication remains mandatory; the beta does not expose an anonymous model
+- Authentication remains mandatory; the demo does not expose an anonymous model
   endpoint.
 - Production remains closed unless the explicit server-controlled release policy
   is valid and enabled.
@@ -105,12 +107,12 @@ build missing product capabilities or weaken their safety boundaries.
   client capability-delivery mechanism.
 - Whether disabling the gate immediately denies existing temporary workspaces or
   permits a bounded read/copy/clear grace period without further model use.
-- Initial beta concurrency/topology assumption and whether Railway must remain a
+- Initial demo concurrency/topology assumption and whether Railway must remain a
   single application instance for process-local workspace consistency.
 - Operational alert thresholds and who/what triggers rollback.
 - Exact production walkthrough account, evidence redaction, launch window, and
   post-release observation period.
-- User-facing beta language explaining restart loss, 24-hour expiry, model
+- User-facing demo language explaining restart loss, 24-hour expiry, model
   processing, limits, and how to clear work.
 
 ## Definition of done
@@ -165,6 +167,7 @@ be identified separately rather than conflated.
 
 ## Status
 
-Initial proposal based on the completed Task 036 release boundary and current
-beta roadmap. Blocked on Tasks 038–040, Task 044, the Idea Map beta decision, and
+Initial proposal based on the completed Task 036 release boundary. The audience
+was reframed on 13 August 2026 as a small authenticated portfolio demo; a future
+public beta or commercial release is a separate project. Blocked on Task 044 and
 a fresh release review. Not approved.

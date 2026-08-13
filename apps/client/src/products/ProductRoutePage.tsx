@@ -33,6 +33,9 @@ export function ProductRoutePage() {
           "editor",
           isDevelopmentFeatureEnabled,
         ),
+      ownerOperationsHref: session.data?.user.isOwner
+        ? "/products/thoughtform/operations"
+        : undefined,
     },
     path: productPath,
     productSlug,

@@ -33,7 +33,7 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
           that understanding together into a coherent expression.
         </p>
         <p className="mt-5 text-sm font-semibold text-[var(--accent)]">
-          Preparing for public beta
+          Preparing the authenticated portfolio demo
         </p>
       </section>
 
@@ -182,9 +182,9 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
               revision.
             </p>
             <p className="mt-4">
-              I am now preparing the temporary workspace for responsible public
-              use, including usage controls, privacy safeguards, safety behaviour
-              and operational visibility.
+              I am now preparing the temporary workspace for a small
+              authenticated portfolio demo, including usage controls, privacy
+              safeguards, safety behaviour and operational visibility.
             </p>
             <p className="mt-4 text-sm">Updated August 2026</p>
           </div>
@@ -200,14 +200,20 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
                   </TextLink>
                 </p>
                 {accessLevel === ACCESS_LEVELS.owner ? (
-                  <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                    <TextLink
-                      Link={components.Link}
-                      href="/products/thoughtform/conversations"
-                    >
-                      Saved conversations
-                    </TextLink>
-                  </p>
+                  <>
+                    <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+                      <TextLink Link={components.Link} href="/products/thoughtform/conversations">
+                        Saved conversations
+                      </TextLink>
+                    </p>
+                    {components.ownerOperationsHref && (
+                      <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+                        <TextLink Link={components.Link} href={components.ownerOperationsHref}>
+                          Operations
+                        </TextLink>
+                      </p>
+                    )}
+                  </>
                 ) : null}
               </>
             )}

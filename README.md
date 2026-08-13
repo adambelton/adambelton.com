@@ -139,6 +139,7 @@ responsibility in the path and filename.
 | Public website page, navigation, or shell | `apps/client/src/website` or `apps/client/src/ui` |
 | Login or browser session experience | `apps/client/src/auth` |
 | API startup or global route mounting | `apps/api/src/bootstrap` |
+| Owner operations visibility | `apps/api/src/platform/admin`, `apps/client/src/platform/admin`, then the DB ThoughtForm operations reader |
 | Product access or host dependency assembly | `apps/api/src/products/thoughtform/mount.ts` |
 | Demo storage behaves incorrectly | API ThoughtForm persistence adapters |
 | Owner data behaves incorrectly | DB ThoughtForm adapters |

@@ -1296,3 +1296,21 @@ cost, other-user activity, or provider-failure detail. Model bounds are 32 KiB
 input and 1,024 output tokens for conversation, 32 KiB input and 1,536 output
 tokens for Idea Map analysis, and 16 KiB serialized input and 512 output tokens
 for Draft model operations.
+
+## 063 — Portfolio Demo Operations Visibility Is Content-Free And Owner-Only
+
+The portfolio website provides the owner a concise operational view derived
+only from authentication accounts and the retained ThoughtForm hosted-attempt
+ledger. It shows full account email, latest admitted operation, current UTC-day
+personal allowance and global totals, retained 90-day operation/token/model and
+outcome totals, and no monetary estimate. Latest operation is not described as
+login or page access, and retained data is not described as lifetime usage.
+
+The API is the authoritative owner-only boundary and conceals the route from
+logged-out and non-owner callers. The explicit response allowlist prohibits
+messages, prompts, Idea Map state, Drafts, proposals, generated content,
+credentials, IP addresses, user agents, behavioural analytics, and global
+budget configuration. Rejected admissions are not persisted or counted.
+Deleted accounts and their cascaded attempt records do not appear. This surface
+supports a small authenticated portfolio demo; a future public beta or
+commercial release is a separate project with its own operational review.

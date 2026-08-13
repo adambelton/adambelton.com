@@ -53,16 +53,17 @@ Current implementation status:
   latency work requires new evidence.
 - Draft Format has been removed from product, client, temporary persistence,
   durable persistence, and database state.
-- Complete temporary-workspace lifecycle hardening and Langfuse prompt
-  automation are complete. Hosted-attempt accounting is approved but not
-  implemented. Calibrated usage limits, autonomous user-correctable Idea Map
-  evolution, minimum operations visibility, and the explicit beta release gate
-  remain planned and have current proposals.
+- Temporary-workspace lifecycle hardening, Langfuse prompt automation,
+  hosted-attempt accounting, calibrated usage limits, and autonomous
+  user-correctable Idea Map evolution are complete. Minimum portfolio-demo
+  operations visibility and the explicit authenticated portfolio-demo release
+  gate remain planned. A future public beta or commercial release is a separate
+  project rather than a portfolio-site release phase.
 - Preference learning, product-owned export, and product publishing are not in
   the ThoughtForm roadmap.
-- Autonomous, user-correctable Idea Map merge/split behaviour remains required
-  before the editor is fully functional; its initial bounded proposal must be
-  re-reviewed after hosted-attempt accounting and the beta-scope decision.
+- Autonomous, user-correctable Idea Map merge/split behaviour is included in the
+  authenticated portfolio demo with bounded validation, direct correction, and
+  one-step undo.
 
 Current product and business status:
 
