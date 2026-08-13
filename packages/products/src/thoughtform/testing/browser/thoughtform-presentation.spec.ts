@@ -88,7 +88,7 @@ test("keeps restored conversation and controls inside the fixed-height workspace
 async function expectFixedWorkspace(
   page: import("@playwright/test").Page,
 ) {
-  await expect.poll(async () => page.getByTestId("workspace").evaluate(
+  const readLayout = () => page.getByTestId("workspace").evaluate(
     (workspace) => {
       const history = workspace.querySelector<HTMLElement>(
         '[data-testid="conversation-history"]',
@@ -100,18 +100,36 @@ async function expectFixedWorkspace(
       const controls = workspace.querySelector<HTMLElement>(
         '[data-testid="conversation-controls"]',
       );
-      if (!history || !column || !send || !controls) return false;
+      if (!history || !column || !send || !controls) return null;
 
       const workspaceRect = workspace.getBoundingClientRect();
       const columnRect = column.getBoundingClientRect();
       const sendRect = send.getBoundingClientRect();
-      return workspaceRect.height > 0 &&
-        workspaceRect.bottom <= globalThis.innerHeight + 1 &&
-        history.getBoundingClientRect().height > 0 &&
-        getComputedStyle(history).overflowY === "auto" &&
-        sendRect.bottom <= columnRect.bottom + 1;
-    })
-  ).toBe(true);
+      return {
+        historyHeight: history.getBoundingClientRect().height,
+        historyOverflow: getComputedStyle(history).overflowY,
+        sendBottom: sendRect.bottom,
+        columnBottom: columnRect.bottom,
+        workspaceHeight: workspaceRect.height,
+        workspaceBottom: workspaceRect.bottom,
+        viewportBottom: globalThis.innerHeight,
+      };
+    });
+
+  await expect.poll(async () => (await readLayout())?.workspaceHeight ?? 0)
+    .toBeGreaterThan(0);
+  await expect.poll(async () => {
+    const layout = await readLayout();
+    return layout ? layout.workspaceBottom - layout.viewportBottom : Number.POSITIVE_INFINITY;
+  }).toBeLessThanOrEqual(1);
+  await expect.poll(async () => (await readLayout())?.historyHeight ?? 0)
+    .toBeGreaterThan(0);
+  await expect.poll(async () => (await readLayout())?.historyOverflow)
+    .toBe("auto");
+  await expect.poll(async () => {
+    const layout = await readLayout();
+    return layout ? layout.sendBottom - layout.columnBottom : Number.POSITIVE_INFINITY;
+  }).toBeLessThanOrEqual(1);
 
   await expect(page.getByRole("list", { name: "Conversation" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Send" })).toBeVisible();

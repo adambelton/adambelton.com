@@ -857,6 +857,10 @@ ceiling for separate explicit approval.
   suite passed: 368 unit/integration tests, typecheck, production build, and all
   six Chromium product journeys covering desktop, short viewport, mobile,
   restored content, Draft editing, and 200% text.
+- The first GitHub Actions run exposed tighter Linux font metrics at 200% text.
+  The heading/action region is now viewport-bounded with internal overflow, and
+  the containment test reports each layout invariant independently. Five
+  repeated focused runs and the full local suite passed before republishing.
 
 ## 2026-08-13 — Care Calendar learning-project foundation
 

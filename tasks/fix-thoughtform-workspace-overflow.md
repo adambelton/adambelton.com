@@ -131,7 +131,9 @@ production accessibility and primary-flow failure.
   covered layouts.
 - Space allocation: viewport-capped shell gaps, notification spacing, heading
   treatment, and composer dimensions preserve conversation space at 200% text
-  without reducing the text size itself.
+  without reducing the text size itself. The heading/action region is itself
+  bounded and scrollable when platform font metrics make its enlarged content
+  exceed 40% of the viewport.
 - Control consistency: product-owned primary and secondary button variants
   provide button affordance, hover feedback, and pointer/disabled cursors;
   navigation remains link-styled and view selectors remain tabs.
@@ -139,7 +141,8 @@ production accessibility and primary-flow failure.
   navigation gap with no one-off margin.
 - Automated validation: `pnpm test` passed 368 tests (16 skipped), `pnpm
   typecheck` passed, `pnpm build` passed, and `pnpm test:e2e` passed all six
-  Chromium scenarios.
+  Chromium scenarios. The 200%-text containment test also passed five
+  consecutive focused runs after the Linux CI font-metric correction.
 - Browser inspection: the real mounted client was inspected live at the user's
   active desktop viewport; Adam approved the resulting presentation. Automated
   responsive inspection is not represented as human assistive-technology
