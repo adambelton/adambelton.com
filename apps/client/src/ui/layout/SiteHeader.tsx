@@ -16,7 +16,7 @@ export function SiteHeader() {
         <TextLink href="/">Home</TextLink>
         <TextLink href="/products">Products</TextLink>
         <TextLink href="/about">About</TextLink>
-        {accountLink ? <span className="ml-3">{accountLink}</span> : null}
+        {accountLink}
       </nav>
     </header>
   );

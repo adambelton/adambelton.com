@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 
 export const CONVERSATION_STATUSES = {
   disabled: "disabled",
@@ -33,14 +34,14 @@ export function ConversationComposer({
   return (
     <form
       aria-describedby={error ? errorId : undefined}
-      className="grid gap-4 border-t border-[var(--line)] pt-6"
+      className="grid gap-[min(0.75rem,1.5vh)] border-t border-[var(--line)] pt-[min(1rem,2vh)]"
       onSubmit={onSubmit}
     >
       <label className="text-sm font-semibold" htmlFor={messageInputId}>
         What are you thinking?
       </label>
       <textarea
-        className="field-control min-h-36 resize-y p-4 text-base leading-7"
+        className="field-control min-h-[min(6rem,12vh)] resize-y p-3 text-base leading-[min(1.75rem,4vh)]"
         disabled={status !== CONVERSATION_STATUSES.idle}
         id={messageInputId}
         onChange={(event) => onMessageChange(event.target.value)}
@@ -55,15 +56,15 @@ export function ConversationComposer({
           {error}
         </p>
       ) : null}
-      <button
-        className="w-fit border border-[var(--foreground)] px-5 py-3 text-sm font-semibold transition-colors hover:bg-[var(--foreground)] hover:text-[var(--background)] disabled:cursor-not-allowed disabled:border-[var(--line)] disabled:text-[var(--muted)] disabled:hover:bg-transparent disabled:hover:text-[var(--muted)]"
+      <WorkspaceButton
+        className="text-sm"
         disabled={!canSubmit}
         type="submit"
       >
         {status === CONVERSATION_STATUSES.disabled
             ? "Unavailable"
             : "Send"}
-      </button>
+      </WorkspaceButton>
     </form>
   );
 }

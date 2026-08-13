@@ -36,11 +36,13 @@ export function App() {
   return (
     <>
       <SkipLink />
-      <Container className="min-h-screen">
-        <SiteHeader />
+      <Container className={isWorkspaceRoute ? "h-dvh overflow-hidden" : "min-h-screen"}>
+        {isWorkspaceRoute ? null : <SiteHeader />}
         <main
-          className={`grid gap-14 pb-24 sm:gap-20 sm:pb-32 ${
-            isWorkspaceRoute ? "pt-6 sm:pt-8" : "pt-14 sm:pt-20"
+          className={`grid gap-14 sm:gap-20 ${
+            isWorkspaceRoute
+              ? "h-full py-[min(1.5rem,2vh)]"
+              : "pb-24 pt-14 sm:pb-32 sm:pt-20"
           }`}
           id="main-content"
         >
@@ -65,7 +67,7 @@ export function App() {
             <Route element={<NotFoundPage />} path="*" />
           </Routes>
         </main>
-        <SiteFooter />
+        {isWorkspaceRoute ? null : <SiteFooter />}
       </Container>
     </>
   );

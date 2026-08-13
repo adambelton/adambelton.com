@@ -258,7 +258,7 @@ describe("ConversationEditor", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Park" }));
     await screen.findByText("Idea map updated.");
-    fireEvent.click(screen.getByRole("button", { name: "Clear this workspace" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear workspace" }));
 
     await waitFor(() => {
       expect(screen.queryByText("Idea map updated.")).toBeNull();

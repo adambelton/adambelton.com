@@ -11,7 +11,14 @@
 
 body {
   background: var(--background);
+  box-sizing: border-box;
   color: var(--foreground);
+  height: 100dvh;
   margin: 0;
   padding: 2rem;
+}
+
+html,
+#root {
+  height: 100%;
 }

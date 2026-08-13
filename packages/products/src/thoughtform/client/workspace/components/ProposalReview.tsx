@@ -3,6 +3,7 @@ import {
   REVISION_PROPOSAL_STATES,
   type RevisionProposal,
 } from "packages/products/src/thoughtform/shared";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 
 export function ProposalReview({
   proposal,
@@ -32,8 +33,8 @@ export function ProposalReview({
         <section><h4 className="font-medium">Proposed content</h4><pre className="mt-2 whitespace-pre-wrap font-sans">{version.proposedContent}</pre></section>
       </div>
       <div className="flex flex-wrap gap-3">
-        <button className="border border-[var(--foreground)] px-4 py-2" disabled={isBusy} onClick={onAccept} type="button">Accept proposal</button>
-        <button className="underline" disabled={isBusy} onClick={onReject} type="button">Reject</button>
+        <WorkspaceButton disabled={isBusy} onClick={onAccept} type="button">Accept proposal</WorkspaceButton>
+        <WorkspaceButton disabled={isBusy} onClick={onReject} type="button" variant="secondary">Reject</WorkspaceButton>
       </div>
       <form
         className="grid gap-2"
@@ -44,7 +45,7 @@ export function ProposalReview({
       >
         <label className="font-medium" htmlFor="proposal-amendment">Request an amendment</label>
         <textarea className="field-control p-3" id="proposal-amendment" onChange={(event) => setInstruction(event.target.value)} rows={2} value={instruction} />
-        <button className="w-fit underline" disabled={isBusy || !instruction.trim()}>Amend proposal</button>
+        <WorkspaceButton disabled={isBusy || !instruction.trim()} variant="secondary">Amend proposal</WorkspaceButton>
       </form>
     </section>
   );

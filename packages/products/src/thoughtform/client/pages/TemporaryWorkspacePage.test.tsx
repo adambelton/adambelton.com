@@ -164,7 +164,7 @@ describe("TemporaryWorkspacePage", () => {
     render(<TemporaryWorkspacePage components={components} />);
     await screen.findByText("Restored thought");
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear this workspace" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear workspace" }));
 
     await waitFor(() => {
       expect(screen.queryByText("Restored thought")).toBeNull();

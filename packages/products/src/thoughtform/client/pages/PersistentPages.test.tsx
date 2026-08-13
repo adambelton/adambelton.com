@@ -56,13 +56,13 @@ describe("persistent conversation pages", () => {
     );
 
     const { rerender } = render(
-      <EditorPage conversationId="missing-conversation" />,
+      <EditorPage components={createComponents(() => undefined)} conversationId="missing-conversation" />,
     );
     expect(
       await screen.findByText("The requested conversation was not found."),
     ).toBeTruthy();
 
-    rerender(<EditorPage conversationId="conversation-2" />);
+    rerender(<EditorPage components={createComponents(() => undefined)} conversationId="conversation-2" />);
 
     expect(await screen.findByText("A valid saved thought")).toBeTruthy();
     expect(
@@ -85,7 +85,7 @@ describe("persistent conversation pages", () => {
       ),
     );
 
-    render(<EditorPage conversationId="conversation-1" />);
+    render(<EditorPage components={createComponents(() => undefined)} conversationId="conversation-1" />);
     await screen.findByText("A retained saved thought");
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {
@@ -110,7 +110,7 @@ describe("persistent conversation pages", () => {
       success(null, 204),
     );
 
-    render(<EditorPage conversationId="conversation-1" />);
+    render(<EditorPage components={createComponents(() => undefined)} conversationId="conversation-1" />);
     await screen.findByText("No messages yet.");
 
     fireEvent.change(screen.getByLabelText("What are you thinking?"), {

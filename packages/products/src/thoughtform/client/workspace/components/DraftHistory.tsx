@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dialog, Modal, ModalOverlay } from "react-aria-components";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 import type {
   Draft,
   DraftRevision,
@@ -38,15 +39,16 @@ export function DraftHistory({
         <Dialog aria-label="Draft revision history" className="outline-none">
       <header className="flex items-center justify-between gap-4">
         <h3 className="text-lg font-semibold">Revision history</h3>
-        <button onClick={onClose} type="button">Close</button>
+        <WorkspaceButton onClick={onClose} type="button" variant="secondary">Close</WorkspaceButton>
       </header>
       <ol className="mt-5 grid gap-3">
         {[...revisions].reverse().map((revision) => (
           <li key={revision.revision}>
-            <button
-              className="w-full rounded border border-[var(--line)] p-3 text-left"
+            <WorkspaceButton
+              className="w-full text-left"
               onClick={() => setPreviewRevision(revision.revision)}
               type="button"
+              variant="secondary"
             >
               <strong>Revision {revision.revision}</strong>
               {revision.revision === draft.currentRevision ? " — Current" : ""}
@@ -57,7 +59,7 @@ export function DraftHistory({
               </span>
               {revision.proposalId ? <><br /><span className="text-sm">Accepted proposal {revision.proposalId}</span></> : null}
               {revision.restoredFromRevision !== null ? <><br /><span className="text-sm">Restored from revision {revision.restoredFromRevision}</span></> : null}
-            </button>
+            </WorkspaceButton>
           </li>
         ))}
       </ol>
@@ -65,20 +67,22 @@ export function DraftHistory({
         <section className="mt-6 grid gap-3" aria-label={`Preview revision ${preview.revision}`}>
           <h4 className="font-semibold">Preview revision {preview.revision}</h4>
           <nav aria-label="Revision preview navigation" className="flex gap-3">
-            <button
+            <WorkspaceButton
               disabled={previewIndex <= 0}
               onClick={() => setPreviewRevision(ordered[previewIndex - 1]!.revision)}
               type="button"
+              variant="secondary"
             >
               Previous revision
-            </button>
-            <button
+            </WorkspaceButton>
+            <WorkspaceButton
               disabled={previewIndex < 0 || previewIndex >= ordered.length - 1}
               onClick={() => setPreviewRevision(ordered[previewIndex + 1]!.revision)}
               type="button"
+              variant="secondary"
             >
               Next revision
-            </button>
+            </WorkspaceButton>
           </nav>
           <pre className="whitespace-pre-wrap font-sans">{preview.body}</pre>
           {preview.revision !== draft.currentRevision ? (
@@ -93,13 +97,12 @@ export function DraftHistory({
               <p className="text-sm">
                 Restoring creates a new revision and retains all later history.
               </p>
-              <button
-                className="w-fit border border-[var(--foreground)] px-4 py-2"
+              <WorkspaceButton
                 onClick={() => onRestore(preview.revision)}
                 type="button"
               >
                 Restore this version
-              </button>
+              </WorkspaceButton>
             </>
           ) : null}
         </section>
