@@ -209,7 +209,50 @@ Approved by Adam on 13 August 2026.
   privacy boundary, and product-demo wording must not be reopened without a
   cited authoritative conflict or genuinely new evidence.
 
+## Implementation evidence — 13 August 2026
+
+Local implementation is complete but the task is not complete until the
+production-only evidence below is recorded.
+
+- **Access and capability:** `mount.ts` derives one
+  `temporaryWorkspaceAvailable` capability from the valid enabled hosted-AI
+  client and uses that same value for authenticated temporary-store admission.
+  Logged-out access still returns the product-owned unauthorized result; durable
+  stores, observations, operations, and admin routes retain their owner checks.
+- **Discoverability and recovery:** the public capability endpoint exposes only
+  the boolean. The header always presents sign-in or sign-out. The overview link
+  follows the capability, protected entry records the requested internal route,
+  and unavailable direct entry fails closed with a stable product message.
+  Existing operation-level disabled handling preserves visible and unsent local
+  text while preventing further composition.
+- **Automated checks:** `pnpm test` passed 368 tests with 16 configured skips;
+  `pnpm test:e2e` passed all five product browser journeys; `pnpm typecheck`,
+  `pnpm build`, `pnpm db:validate`, `pnpm db:generate`, and `git diff --check`
+  passed. The configured development database reports all three migrations up
+  to date.
+- **Mounted browser inspection:** the real client/API composition returned the
+  same enabled capability through the Vite proxy. The signed-in overview showed
+  “Try the demo,” the header showed the account action, and following the link
+  reached the real privacy acknowledgement and runtime provider disclosure.
+  This was browser inspection, not human assistive-technology verification.
+- **Branch audit:** the diff keeps product capability vocabulary in the product
+  shared boundary, host runtime policy and HTTP delivery in the API host,
+  product unavailable presentation in the product client, and host navigation
+  integration in the client host. No persistence schema, migration, budget,
+  content-observation policy, or owner authorization was changed. The obsolete
+  duplicated development-feature helpers and their implementation-detail tests
+  were removed.
+- **Still required in production:** inspect Railway variables and exactly-one-
+  instance topology; deploy with current migrations; verify health, public auth,
+  auth rate limiting/email delivery, provider disclosure, owner durable and
+  operations paths; complete a synthetic non-owner walkthrough; confirm ledger
+  records and absence of temporary-user Langfuse data; perform and restore the
+  hosted-AI shutdown drill; inspect logs; and record redacted evidence. Human
+  assistive-technology verification is not claimed.
+
 ## Status
 
 Approved on 13 August 2026 after Task 044 and the release-policy review.
-Implementation has not started.
+Implementation is in progress. Local capability delivery, access policy,
+discoverability, sign-in return routing, automated coverage, and documentation
+are implemented; production deployment and external verification remain.

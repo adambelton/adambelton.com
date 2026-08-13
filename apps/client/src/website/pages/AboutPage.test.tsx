@@ -12,7 +12,7 @@ describe("AboutPage", () => {
     );
 
     expect(markup).toContain(
-      "Senior software engineer building complex products around the way people actually work.",
+      "Senior product engineer combining systems thinking, product judgement and frontend depth.",
     );
     expect(markup).toContain(
       'class="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"',
@@ -24,10 +24,11 @@ describe("AboutPage", () => {
       'class="max-w-3xl text-lg leading-8 text-[var(--muted)] mt-6"',
     );
     expect(markup).toContain(
-      "I’m Adam, a senior software engineer who builds complex products around the way people actually work.",
+      "I’m Adam, a senior product engineer with eight years of experience building complex SaaS products.",
     );
     expect(markup).toContain("Over the past eight years");
-    expect(markup).toContain("without displacing their judgement—both");
+    expect(markup).toContain("At INDY, I joined as the third engineer");
+    expect(markup).toContain("not as a substitute for human responsibility");
     expect(markup).toContain('href="mailto:hello@adambelton.com"');
     expect(markup).toContain(
       'href="https://www.linkedin.com/in/adam-b-7505693ab"',

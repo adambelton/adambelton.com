@@ -2,6 +2,14 @@
 
 ## Current status
 
+The approved ThoughtForm product-demo release implementation is in progress.
+Locally, the old development-or-owner gate has been replaced by a public,
+server-derived availability capability; every authenticated account is admitted
+only when hosted AI is valid and enabled. Sign-in is always discoverable, direct
+workspace entry returns users to the requested route after authentication, and
+owner-only durable/operations boundaries remain unchanged. Production rollout,
+shutdown/restore evidence, and the real non-owner walkthrough are still pending.
+
 The portfolio and ThoughtForm presentation have received a restrained design
 refinement pass. The product overview now promotes the working workspace near
 the introduction and places the hypothetical open model after the development
@@ -319,7 +327,7 @@ evidence.
 
 The monorepo has been scaffolded with the intended app/package structure. The first minimal ThoughtForm product-domain service, workspace orchestration boundary, API conversation endpoint, product-owned editor UI loop, inspectable idea-map baseline, owner-scoped Prisma persistence and saved-conversation flow, authenticated temporary-workspace lifecycle, hosted-AI immediate safety boundary, Neon dev database setup, host-mounted product app boundary, auth foundation, and LLM-backed product flow exist.
 
-The repo currently has a Vite and React Router client host with the shared public website shell, repository-backed Markdown pages and posts, auth UX, public product information, a development-enabled authenticated temporary workspace, owner-only durable ThoughtForm workspaces, and a public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, and a pre-editor privacy acknowledgement. Production non-owner ThoughtForm access remains disabled. Anthropic Sonnet 5 is the current owner-development baseline. A post-migration codebase audit has been completed and accepted fixes have been applied.
+The repo currently has a Vite and React Router client host with the shared public website shell, repository-backed Markdown pages and posts, auth UX, public product information, a server-capability-gated authenticated temporary workspace, owner-only durable ThoughtForm workspaces, and a public privacy page, a minimal Tailwind styling foundation, static public routes, a basic Hono API shell, a working health route, shared platform contracts, an initial product registry, an extractable ThoughtForm product package shape, host-owned in-memory and Prisma-backed conversation adapters, product-owned ThoughtForm client and API route entrypoints, Better Auth magic-link auth with Prisma tables, a Neon `dev` database branch with committed migrations applied, explicitly selected Anthropic and OpenAI LLM clients supplied by the API host, and a pre-editor privacy acknowledgement. Production activation and non-owner verification remain pending. Anthropic Sonnet 5 is the current baseline. A post-migration codebase audit has been completed and accepted fixes have been applied.
 
 The completed pre-036 corrective task makes Anthropic Sonnet 5 and OpenAI GPT-5
 Mini explicit ThoughtForm-supported profiles rather than arbitrary generic LLM
@@ -695,9 +703,9 @@ contract evaluation remains outside CI.
 
 - Browser-held temporary-workspace persistence; current temporary work is
   ephemeral in API-process memory with best-effort restoration.
-- Minimum authenticated portfolio-demo operations visibility and the explicit
-  production portfolio-demo release policy/verification task. A future public
-  beta or commercial release is a separate project.
+- Production deployment and verification of the implemented product-demo access
+  policy, including the real non-owner walkthrough and hosted-AI shutdown and
+  restore drill. A future public beta or commercial release is a separate project.
 
 ## Known gaps / risks
 

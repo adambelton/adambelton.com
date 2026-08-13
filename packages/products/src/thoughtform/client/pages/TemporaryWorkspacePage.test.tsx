@@ -23,6 +23,22 @@ describe("TemporaryWorkspacePage", () => {
     vi.restoreAllMocks();
   });
 
+  it("fails closed without requesting workspace state when hosted AI is unavailable", () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+
+    render(
+      <TemporaryWorkspacePage
+        components={{ ...components, isTemporaryWorkspaceAvailable: false }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Product demo unavailable" }))
+      .toBeTruthy();
+    expect(screen.getByText(/no model operation can continue/i)).toBeTruthy();
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it("presents the empty temporary lifecycle without treating absence as an error", async () => {
     stubFetch(success(null));
 

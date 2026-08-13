@@ -77,10 +77,11 @@ request; the host-owned automation ledger records immutable versions and SHA-256
 fingerprints so post-merge promotion fails closed on drift.
 
 The temporary workspace is an authenticated product capability. The API host
-owns its release policy: development enables isolated non-owner workspaces,
-while production currently admits only the owner. Saved conversations and owner
-observations remain owner-only. The client host mirrors the API decision for
-navigation and route presentation but is not the security boundary.
+admits every authenticated account when its hosted-AI runtime is valid and
+enabled. It publishes only this availability capability for client navigation
+and route presentation; the API remains the security boundary. Saved
+conversations, operations, admin routes, and owner observations remain
+owner-only.
 
 ## How the pieces interact
 
@@ -140,7 +141,7 @@ The current website supplies these implementations outside the product:
 ```txt
 apps/api/src/products/thoughtform/
 ├── mount.ts                                   Assembles the hosted product
-├── delivery/                                  Host-owned disclosure and observations
+├── delivery/                                  Host-owned capability, disclosure, and observation HTTP
 ├── adapters/ai/                               Connects product requests to packages/ai
 ├── adapters/persistence/                      Selects temporary or durable storage
 ├── adapters/usage/                            Accounts for hosted attempts and model usage

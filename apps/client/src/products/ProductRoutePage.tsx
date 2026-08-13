@@ -11,14 +11,19 @@ import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
 import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
+import { useThoughtFormRuntimeCapabilities } from "apps/client/src/products/thoughtform/useThoughtFormRuntimeCapabilities";
+import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
 import type { ReactNode } from "react";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
-  const isDevelopmentFeatureEnabled = useIsDevelopmentFeatureEnabled();
-  const navigate = useNavigate();
   const { productSlug = "", "*": productPath = "" } = useParams();
+  const thoughtFormCapabilities = useThoughtFormRuntimeCapabilities(
+    productSlug === "thoughtform",
+  );
+  const isTemporaryWorkspaceAvailable =
+    thoughtFormCapabilities.data?.temporaryWorkspaceAvailable ?? false;
+  const navigate = useNavigate();
   const route = resolveProductRoute({
     accessLevel: session.data?.user.isOwner
       ? ACCESS_LEVELS.owner
@@ -27,12 +32,7 @@ export function ProductRoutePage() {
       Link: NavigationLink,
       navigate,
       isTemporaryWorkspaceAvailable:
-        Boolean(session.data?.user.isOwner) ||
-        isNonOwnerTemporaryWorkspaceEnabled(
-          productSlug,
-          "editor",
-          isDevelopmentFeatureEnabled,
-        ),
+        productSlug === "thoughtform" && isTemporaryWorkspaceAvailable,
       ownerOperationsHref: session.data?.user.isOwner
         ? "/products/thoughtform/operations"
         : undefined,
@@ -43,6 +43,14 @@ export function ProductRoutePage() {
 
   if (route.status === PRODUCT_ROUTE_STATUSES.notFound) {
     return <NotFoundPage />;
+  }
+
+  if (
+    productSlug === "thoughtform" &&
+    route.requiredAccess === PRODUCT_ROUTE_ACCESSES.authenticated &&
+    thoughtFormCapabilities.isPending
+  ) {
+    return <ProductRouteLoading />;
   }
 
   const metadata = getProductRouteMetadata(productSlug, productPath);
@@ -60,13 +68,7 @@ export function ProductRoutePage() {
 
   return (
     <ProtectedRoute>
-      {(route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner ||
-        (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.authenticated &&
-          !isNonOwnerTemporaryWorkspaceEnabled(
-            productSlug,
-            productPath,
-            isDevelopmentFeatureEnabled,
-          ))) &&
+      {route.requiredAccess === PRODUCT_ROUTE_ACCESSES.owner &&
       !session.data?.user.isOwner ? (
         <NotFoundPage />
       ) : (
@@ -94,16 +96,6 @@ function ProductRouteLayout({
       <div>{children}</div>
     </div>
   );
-}
-
-function isNonOwnerTemporaryWorkspaceEnabled(
-  productSlug: string,
-  productPath: string,
-  isDevelopmentFeatureEnabled: boolean,
-) {
-  return isDevelopmentFeatureEnabled &&
-    productSlug === "thoughtform" &&
-    productPath === "editor";
 }
 
 function getProductRouteMetadata(productSlug: string, productPath: string) {

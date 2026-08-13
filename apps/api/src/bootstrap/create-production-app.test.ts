@@ -31,13 +31,16 @@ describe("production application", () => {
   });
 
   it("serves static files without applying the SPA fallback", async () => {
-    const found = await app.request("/public/favicon.png");
+    const primaryFavicon = await app.request("/public/favicon.svg");
+    const fallbackFavicon = await app.request("/public/favicon.png");
     const missing = await app.request("/assets/missing.js");
     const missingRootAsset = await app.request("/missing.png");
 
-    expect(found.status).toBe(200);
-    expect(found.headers.get("content-type")).toContain("image/png");
-    expect(found.headers.get("cache-control")).toBe("public, max-age=3600");
+    expect(primaryFavicon.status).toBe(200);
+    expect(primaryFavicon.headers.get("content-type")).toContain("image/svg+xml");
+    expect(primaryFavicon.headers.get("cache-control")).toBe("public, max-age=3600");
+    expect(fallbackFavicon.status).toBe(200);
+    expect(fallbackFavicon.headers.get("content-type")).toContain("image/png");
     expect(missing.status).toBe(404);
     expect(await missing.text()).not.toContain('<div id="root"></div>');
     expect(missingRootAsset.status).toBe(404);

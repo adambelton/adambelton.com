@@ -39,7 +39,7 @@ AUTH_EMAIL_FROM=Adam Belton <verified-sender@example.com>
 AUTH_CLIENT_IP_HEADERS=x-real-ip
 ```
 
-ThoughtForm owner AI variables:
+ThoughtForm hosted-AI variables:
 
 ```txt
 HOSTED_AI_ENABLED=true
@@ -48,6 +48,23 @@ ANTHROPIC_API_KEY=<production Anthropic key>
 ANTHROPIC_MODEL=claude-sonnet-5
 ANTHROPIC_EFFORT=medium
 ```
+
+`HOSTED_AI_ENABLED` is the site-wide hosted-AI shutdown control. Only the exact
+value `true`, together with a valid supported provider and credential, makes the
+ThoughtForm temporary workspace discoverable and available. Every authenticated
+account may then use the temporary workspace; anonymous model access remains
+denied. Setting the value to `false` (or removing it) hides the entry point and
+denies temporary-workspace access after Railway applies the configuration. It
+also disables owner hosted-model operations. There is no separate product-demo
+toggle or allowlist.
+
+Production must remain exactly one API application instance because temporary
+workspaces live in process memory. Disable hosted AI if accounting or access
+enforcement fails, topology drifts beyond one instance, provider failures repeat,
+or usage approaches the global safeguard abnormally. After applying the change,
+verify the public capability, direct workspace route, hosted operations, health,
+and logs. Restore only after the cause is understood, then repeat the non-owner
+smoke path with synthetic content.
 
 Langfuse Prompt Management and owner-only observation are enabled by configuring
 the three credentials together:
@@ -85,10 +102,14 @@ reach the origin directly or does not replace the incoming header.
 4. Confirm Serverless is disabled.
 5. Confirm the pre-deploy migration succeeds and `/health` returns HTTP 200.
 6. Verify the homepage, article, About, Products, ThoughtForm overview and
-   privacy pages, direct deep links, static assets, owner sign-in, restored
-   owner conversations, and a streamed ThoughtForm response.
-7. Inspect Railway logs and Langfuse for unexpected errors or duplicate
-   observations.
+   privacy pages, direct deep links, static assets, public sign-in, a dedicated
+   non-owner temporary workspace, restored owner conversations, and streamed
+   ThoughtForm responses.
+7. Confirm the non-owner walkthrough creates only content-free hosted-attempt
+   records and no Langfuse trace or event; use synthetic text and redact the
+   account address and magic link from evidence.
+8. Inspect Railway logs and owner operations visibility for unexpected errors,
+   duplicate observations, or abnormal safeguard use.
 
 Do not attach `adambelton.com` during this verification. Custom-domain DNS,
 canonical metadata, origin changes, and final production checks belong to the

@@ -18,7 +18,7 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- Release the ThoughtForm product demo; approved and next to implement
+- Release the ThoughtForm product demo; approved and in progress
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
 Task 039, Task 038, the unnumbered correction tasks, Task 036, and Langfuse

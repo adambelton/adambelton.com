@@ -8,9 +8,7 @@ type OverviewPageProps = {
 };
 
 export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
-  const isWorkspaceAvailable =
-    accessLevel === ACCESS_LEVELS.owner ||
-    components.isTemporaryWorkspaceAvailable;
+  const isWorkspaceAvailable = components.isTemporaryWorkspaceAvailable;
 
   return (
     <div className="grid gap-14 sm:gap-20">
@@ -31,9 +29,6 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
           feel. Instead of giving you a blank page or rushing to an answer, it
           helps you inspect what is going on, organise what emerges, and bring
           that understanding together into a coherent expression.
-        </p>
-        <p className="mt-5 text-sm font-semibold text-[var(--accent)]">
-          Preparing the product demo
         </p>
         {isWorkspaceAvailable ? (
           <div className="mt-8">
@@ -146,14 +141,13 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
         <div className="grid max-w-4xl gap-6 border-t border-[var(--line)] pt-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="text-base leading-7 text-[var(--muted)]">
             <p className="m-0">
-              The complete reflective loop is working today: streamed
-              conversation, a user-correctable Idea Map, articulation and
-              revision.
+              The product demo includes the complete reflective loop: streamed
+              conversation, a user-correctable Idea Map, articulation and revision.
             </p>
             <p className="mt-4">
-              I am now preparing the temporary workspace as a product demo,
-              including usage controls, privacy
-              safeguards, safety behaviour and operational visibility.
+              It runs in a private, temporary workspace with authentication,
+              24-hour expiry, usage controls, privacy and safety safeguards,
+              and owner-only operational monitoring.
             </p>
             <p className="mt-4 text-sm">Updated August 2026</p>
           </div>

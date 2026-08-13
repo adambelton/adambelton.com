@@ -59,8 +59,9 @@ ThoughtForm is the first product inside Adam's personal website and
 product-demo platform. It is:
 
 1. a real private tool designed first for Adam's own use; and
-2. a portfolio demo with an implemented temporary-workspace capability whose
-   non-owner production release remains gated.
+2. a portfolio product demo with an authenticated temporary-workspace
+   capability; production activation and verification are recorded separately
+   from the product definition.
 
 Its current operating intent is a portfolio project and product experiment, not
 a launched commercial service. Its primary validation is whether sustained

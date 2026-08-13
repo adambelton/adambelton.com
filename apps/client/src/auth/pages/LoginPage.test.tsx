@@ -1,7 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LoginPage } from "apps/client/src/auth/pages/LoginPage";
+import {
+  getLoginCallbackUrl,
+  LoginPage,
+} from "apps/client/src/auth/pages/LoginPage";
 
 const authSession = vi.hoisted(() => ({
   data: null as null | { user: { id: string; email: string; name: string } },
@@ -48,5 +51,14 @@ describe("LoginPage", () => {
 
     expect(markup).not.toContain("Send sign-in link");
     expect(markup).not.toContain("Owner sign in");
+  });
+
+  it("returns to a protected internal route after authentication", () => {
+    expect(getLoginCallbackUrl({ from: "/products/thoughtform/editor" })).toBe(
+      "/products/thoughtform/editor",
+    );
+    expect(getLoginCallbackUrl({ from: "//malicious.example" })).toBe(
+      "/products",
+    );
   });
 });
