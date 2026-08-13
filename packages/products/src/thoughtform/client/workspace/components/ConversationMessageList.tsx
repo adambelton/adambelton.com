@@ -60,7 +60,7 @@ export function ConversationMessageList({
       }}
       ref={historyRef}
     >
-    <ol className="m-0 flex min-h-full list-none flex-col justify-end gap-5 p-0" aria-label="Conversation">
+    <ol className="m-0 flex min-h-full list-none flex-col justify-end gap-7 p-0" aria-label="Conversation">
       {messages.length === 0 ? (
         <li className="border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
           No messages yet.
@@ -102,7 +102,7 @@ function ConversationMessageItem({ shouldAnimate, message }: ConversationMessage
 
   return (
     <li className="border-t border-[var(--line)] pt-5">
-      <p className="m-0 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
+      <p className="eyebrow m-0 text-[var(--accent)]">
         {message.role === CONVERSATION_MESSAGE_ROLES.user ? "You" : "Assistant"}
       </p>
       <p className="mt-3 max-w-3xl text-base leading-7">

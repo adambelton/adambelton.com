@@ -33,13 +33,24 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
           that understanding together into a coherent expression.
         </p>
         <p className="mt-5 text-sm font-semibold text-[var(--accent)]">
-          Preparing the authenticated portfolio demo
+          Preparing the product demo
         </p>
+        {isWorkspaceAvailable ? (
+          <div className="mt-8">
+            <TextLink
+              Link={components.Link}
+              href="/products/thoughtform/editor"
+              className="text-base font-semibold"
+            >
+              Try the demo →
+            </TextLink>
+          </div>
+        ) : null}
       </section>
 
       <section aria-labelledby="useful-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="useful-title"
         >
           When it helps
@@ -64,7 +75,7 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
 
       <section aria-labelledby="works-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="works-title"
         >
           How it works
@@ -102,7 +113,7 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
 
       <section aria-labelledby="agency-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="agency-title"
         >
           Designed around your agency
@@ -125,51 +136,9 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
         </div>
       </section>
 
-      <section aria-labelledby="model-title">
-        <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
-          id="model-title"
-        >
-          A possible open model
-        </h2>
-        <div className="grid max-w-3xl gap-4 border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
-          <p className="m-0">
-            ThoughtForm is currently a portfolio project and product experiment
-            rather than a commercial service.
-          </p>
-          <p className="m-0">
-            If I chose to commercialise it, I would want the business model to
-            reinforce the same principle as the product: help people become more
-            capable without making them dependent on the platform.
-          </p>
-          <p className="m-0">
-            The model I am exploring would make the core project open source,
-            allowing developers to inspect, fork and self-host it with their own
-            model credentials. I would also make the underlying conversational
-            approach available as a prompt for people who prefer to use an AI
-            assistant they already have.
-          </p>
-          <p className="m-0">
-            A hosted ThoughtForm service would then have to earn its value through
-            the quality of the complete experience: the Idea Map, refined
-            assistant behaviour, privacy and safety safeguards, continuity, and
-            the care put into the interaction itself.
-          </p>
-          <p className="m-0">
-            Rather than requiring a subscription, I would favour non-expiring
-            usage credit priced to support sustainable development.
-          </p>
-          <p className="m-0">
-            This is not yet how ThoughtForm is operated. It is an example of how
-            I would align the product&apos;s mission, distribution and business model
-            if I decided to take it further.
-          </p>
-        </div>
-      </section>
-
       <section aria-labelledby="development-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="development-title"
         >
           Development snapshot
@@ -182,8 +151,8 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
               revision.
             </p>
             <p className="mt-4">
-              I am now preparing the temporary workspace for a small
-              authenticated portfolio demo, including usage controls, privacy
+              I am now preparing the temporary workspace as a product demo,
+              including usage controls, privacy
               safeguards, safety behaviour and operational visibility.
             </p>
             <p className="mt-4 text-sm">Updated August 2026</p>
@@ -228,6 +197,20 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
               </TextLink>
             </p>
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="model-title">
+        <h2 className="eyebrow mb-5" id="model-title">
+          A possible open model
+        </h2>
+        <div className="grid max-w-3xl gap-4 border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
+          <p className="m-0">ThoughtForm is currently a portfolio project and product experiment rather than a commercial service.</p>
+          <p className="m-0">If I chose to commercialise it, I would want the business model to reinforce the same principle as the product: help people become more capable without making them dependent on the platform.</p>
+          <p className="m-0">The model I am exploring would make the core project open source, allowing developers to inspect, fork and self-host it with their own model credentials. I would also make the underlying conversational approach available as a prompt for people who prefer to use an AI assistant they already have.</p>
+          <p className="m-0">A hosted ThoughtForm service would then have to earn its value through the quality of the complete experience: the Idea Map, refined assistant behaviour, privacy and safety safeguards, continuity, and the care put into the interaction itself.</p>
+          <p className="m-0">Rather than requiring a subscription, I would favour non-expiring usage credit priced to support sustainable development.</p>
+          <p className="m-0">This is not yet how ThoughtForm is operated. It is an example of how I would align the product&apos;s mission, distribution and business model if I decided to take it further.</p>
         </div>
       </section>
     </div>

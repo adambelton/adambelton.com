@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 
 export function Breadcrumbs({ items }: { items: readonly BreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="mb-5 text-sm font-semibold uppercase tracking-normal text-[var(--accent)]">
+    <nav aria-label="Breadcrumb" className="eyebrow mb-5 text-[var(--accent)]">
       <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
         {items.map((item, index) => {
           const isCurrent = index === items.length - 1;

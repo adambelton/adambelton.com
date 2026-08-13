@@ -30,7 +30,7 @@ export function ThoughtFormOperationsPage() {
     <section aria-labelledby="operations-title">
       <Breadcrumbs items={[{ label: "ThoughtForm operations" }]} />
       <h1 className="m-0 text-5xl font-semibold" id="operations-title">ThoughtForm operations</h1>
-      <Prose className="mt-5">Content-free operational metadata for the authenticated portfolio demo.</Prose>
+      <Prose className="mt-5">Content-free operational metadata for the product demo.</Prose>
       {isLoading && <p aria-live="polite">Loading operations…</p>}
       {error && <p role="alert">{error}</p>}
       {overview && !isLoading && <>

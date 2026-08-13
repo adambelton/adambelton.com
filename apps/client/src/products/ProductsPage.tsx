@@ -28,7 +28,7 @@ export function ProductsPage() {
 
       <section aria-labelledby="products-list-title">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="products-list-title"
         >
           Current
@@ -40,7 +40,7 @@ export function ProductsPage() {
                 <TextLink href={product.publicPath}>{product.name}</TextLink>
               </h3>
               <p className="mt-2 text-sm font-semibold text-[var(--accent)]">
-                Preparing the authenticated portfolio demo
+                Preparing the product demo
               </p>
               <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">
                 {product.summary}

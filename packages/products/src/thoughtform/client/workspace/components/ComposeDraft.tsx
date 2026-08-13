@@ -48,6 +48,7 @@ export function ComposeDraft({
       <label className="grid gap-2">
         <span className="font-medium">What should this expression preserve?</span>
         <textarea
+          className="field-control p-3"
           onChange={(event) => setInstruction(event.target.value)}
           placeholder="For example: keep my mixed feelings and open question visible."
           rows={3}

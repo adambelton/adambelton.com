@@ -315,11 +315,11 @@ export function ConversationEditor({
   return (
     <section aria-labelledby="editor-title">
       <ConversationEditorIntro />
-      <nav aria-label="Workspace views" className="mt-6 flex gap-3 lg:hidden">
+      <nav aria-label="Workspace views" className="mt-6 flex border-b border-[var(--line)] lg:hidden">
         {(["conversation", "idea-map", "draft"] as const).map((surface) => (
           <button
             aria-current={mobileSurface === surface ? "page" : undefined}
-            className="border border-[var(--line)] px-3 py-2 capitalize aria-[current=page]:border-[var(--foreground)] aria-[current=page]:bg-[var(--selection)]"
+            className="-mb-px border-b-2 border-transparent px-4 py-2 capitalize text-[var(--muted)] aria-[current=page]:border-[var(--accent)] aria-[current=page]:font-semibold aria-[current=page]:text-[var(--foreground)]"
             key={surface}
             onClick={() => revealSurface(surface)}
             type="button"
@@ -375,10 +375,10 @@ export function ConversationEditor({
           />
           </div>
         </div>
-        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line)] lg:pl-6`} data-testid="workspace-column">
-          <div className="mb-6 hidden gap-3 lg:flex" role="group" aria-label="Workspace">
-            <button aria-pressed={workspaceView === "idea-map"} className="border border-[var(--line)] px-3 py-2 aria-pressed:border-[var(--foreground)] aria-pressed:bg-[var(--selection)]" onClick={() => setWorkspaceView("idea-map")} type="button">Idea map</button>
-            <button aria-pressed={workspaceView === "draft"} className="border border-[var(--line)] px-3 py-2 aria-pressed:border-[var(--foreground)] aria-pressed:bg-[var(--selection)]" onClick={() => setWorkspaceView("draft")} type="button">Draft</button>
+        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line-subtle)] lg:pl-6`} data-testid="workspace-column">
+          <div className="mb-6 hidden border-b border-[var(--line)] lg:flex" role="tablist" aria-label="Workspace">
+            <button aria-selected={workspaceView === "idea-map"} className="-mb-px border-b-2 border-transparent px-4 py-2 text-[var(--muted)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("idea-map")} role="tab" type="button">Idea map</button>
+            <button aria-selected={workspaceView === "draft"} className="-mb-px border-b-2 border-transparent px-4 py-2 text-[var(--muted)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("draft")} role="tab" type="button">Draft</button>
           </div>
           <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"} min-h-0 overflow-y-auto`}>
             <IdeaMapTracker

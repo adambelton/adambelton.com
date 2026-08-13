@@ -29,7 +29,7 @@ export function AboutPage() {
 
       <section aria-labelledby="contact-title" id="contact">
         <h2
-          className="mb-5 text-sm font-semibold uppercase tracking-normal"
+          className="eyebrow mb-5"
           id="contact-title"
         >
           Contact

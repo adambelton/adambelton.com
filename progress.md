@@ -2,7 +2,17 @@
 
 ## Current status
 
-Task 044 is complete pending commit and publication. The owner now has a
+The portfolio and ThoughtForm presentation have received a restrained design
+refinement pass. The product overview now promotes the working workspace near
+the introduction and places the hypothetical open model after the development
+snapshot. Shared eyebrow and field-control styling improves small-label and
+form affordance consistency; secondary text contrast, long-form heading rhythm,
+account-navigation separation, workspace tabs, divider strength, conversation
+spacing, and default Idea Map visibility have also been refined without changing
+the established visual direction. User-facing portfolio-release language now
+calls the experience a product demo.
+
+Task 044 is complete, merged, and deployed. The owner now has a
 content-free ThoughtForm operations page showing account identity, latest
 admitted operation, current UTC-day personal allowances and global totals, and
 retained 90-day token/model/outcome totals. The API conceals the route from

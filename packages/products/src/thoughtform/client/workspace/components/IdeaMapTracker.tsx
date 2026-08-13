@@ -186,6 +186,7 @@ function IdeaRow({
   onStructure,
 }: IdeaRowProps) {
   const [isCorrecting, setIsCorrecting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [correction, setCorrection] = useState(idea.userInterpretation ?? "");
   const [isSplitting, setIsSplitting] = useState(false);
   const [split, setSplit] = useState(() => initialSplit(idea));
@@ -193,7 +194,11 @@ function IdeaRow({
     onAction(idea.id, { action: nextAction, expectedRevision: ideaMapRevision });
 
   return (
-    <details className="rounded border border-[var(--line)] bg-white/30 px-4 py-3">
+    <details
+      className="rounded border border-[var(--line)] bg-white/30 px-4 py-3"
+      onToggle={(event) => setIsExpanded(event.currentTarget.open)}
+      open={isExpanded}
+    >
       <summary className="cursor-pointer">
         <span className="font-medium">{idea.title}</span>
         <span className="ml-2 text-sm text-[var(--muted)]">{idea.disposition}</span>
@@ -248,7 +253,7 @@ function IdeaRow({
             }}
           >
             <label className="font-medium" htmlFor={`idea-correction-${idea.id}`}>{IDEA_MAP_COPY.idea.userInterpretation}</label>
-            <textarea id={`idea-correction-${idea.id}`} onChange={(event) => setCorrection(event.target.value)} rows={3} value={correction} />
+            <textarea className="field-control p-3" id={`idea-correction-${idea.id}`} onChange={(event) => setCorrection(event.target.value)} rows={3} value={correction} />
             <button className="w-fit underline" disabled={isBusy || correction.trim().length === 0} type="submit">{IDEA_MAP_COPY.idea.actions.saveCorrection}</button>
           </form>
         ) : null}
@@ -390,8 +395,8 @@ function StructureField(input: {
     <label className="grid gap-1" htmlFor={id}>
       <span className="font-medium">{input.label}</span>
       {input.multiline
-        ? <textarea id={id} onChange={(event) => input.onChange(event.target.value)} rows={3} value={input.value} />
-        : <input id={id} onChange={(event) => input.onChange(event.target.value)} value={input.value} />}
+        ? <textarea className="field-control p-3" id={id} onChange={(event) => input.onChange(event.target.value)} rows={3} value={input.value} />
+        : <input className="field-control p-3" id={id} onChange={(event) => input.onChange(event.target.value)} value={input.value} />}
     </label>
   );
 }
