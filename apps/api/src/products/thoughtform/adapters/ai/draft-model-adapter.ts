@@ -3,11 +3,12 @@ import {
   HostedAiDisabledError,
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
-import type {
-  DraftCompositionModel,
-  DraftCompositionModelInput,
-  RevisionProposalModel,
-  RevisionProposalModelInput,
+import {
+  MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
+  type DraftCompositionModel,
+  type DraftCompositionModelInput,
+  type RevisionProposalModel,
+  type RevisionProposalModelInput,
 } from "packages/products/src/thoughtform/server/capabilities/drafting";
 import {
   DRAFT_COMPOSITION_PROMPT_DEFINITION,
@@ -39,7 +40,7 @@ export class LlmDraftModelAdapter
       DRAFT_COMPOSITION_PROMPT_DEFINITION,
     );
     const response = await createDraftMessage(this.llmClient, {
-      maxTokens: 8_192,
+      maxTokens: MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
       system: prompt.content,
       messages: [{ role: "user", content: JSON.stringify(input) }],
       outputFormat: {
@@ -64,7 +65,7 @@ export class LlmDraftModelAdapter
       REVISION_PROPOSAL_PROMPT_DEFINITION,
     );
     const response = await createDraftMessage(this.llmClient, {
-      maxTokens: 8_192,
+      maxTokens: MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
       system: prompt.content,
       messages: [{ role: "user", content: JSON.stringify(input) }],
       outputFormat: {

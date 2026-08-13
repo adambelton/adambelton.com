@@ -81,6 +81,23 @@ describe("HostedAttemptLifecycleAdapter", () => {
     expect(completed[0]?.usage.inputTokens).toBeNull();
     expect(completed[0]?.usage.outputTokens).toBe(4);
   });
+
+  it("does not discard an idempotently reused reservation", async () => {
+    let discarded = 0;
+    const records: HostedAttemptRecordStore = {
+      ...fakeRecords([]),
+      async admit() { return { id: "existing-attempt", isNew: false }; },
+      async discard() { discarded += 1; },
+    };
+    const attempt = await new HostedAttemptLifecycleAdapter(records).admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "existing-operation",
+    });
+
+    await attempt.discard();
+
+    expect(discarded).toBe(0);
+  });
 });
 
 function fakeRecords(

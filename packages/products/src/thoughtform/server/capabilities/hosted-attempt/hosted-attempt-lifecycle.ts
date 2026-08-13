@@ -19,19 +19,34 @@ export const HOSTED_ATTEMPT_OUTCOMES = {
 export type HostedAttemptOutcome =
   typeof HOSTED_ATTEMPT_OUTCOMES[keyof typeof HOSTED_ATTEMPT_OUTCOMES];
 
-export type HostedAttemptUsage = {
+export interface HostedAttemptUsage {
   model: string | null;
   inputTokens: number | null;
   outputTokens: number | null;
   reasoningTokens: number | null;
   cacheReadTokens: number | null;
   cacheWriteTokens: number | null;
-};
+}
 
-export type HostedAttemptAdmission = {
+export interface HostedAttemptAdmission {
   action: HostedAttemptAction;
   operationId: string;
-};
+}
+
+export class HostedUsageLimitedError extends Error {
+  constructor(readonly allowance: HostedUsageAllowance) {
+    super("The hosted usage allowance has been reached.");
+    this.name = "HostedUsageLimitedError";
+  }
+}
+
+export interface HostedAttemptBudgetPolicy {
+  personalOperationLimit: number;
+  personalTokenLimit: number;
+  globalOperationLimit: number;
+  globalTokenLimit: number;
+  reservationTokens: Record<HostedAttemptAction, number>;
+}
 
 export interface HostedAttempt {
   readonly id: string;
@@ -46,7 +61,11 @@ export interface HostedAttemptLifecycle {
 }
 
 export interface HostedAttemptRecordStore {
-  admit(input: HostedAttemptAdmission): Promise<{ id: string }>;
+  admit(input: HostedAttemptAdmission): Promise<{
+    id: string;
+    isNew?: boolean;
+    allowance?: HostedUsageAllowance;
+  }>;
   complete(input: {
     attemptId: string;
     outcome: HostedAttemptOutcome;
@@ -69,3 +88,5 @@ export const noOpHostedAttemptLifecycle: HostedAttemptLifecycle = {
     };
   },
 };
+import type { HostedUsageAllowance } from "packages/products/src/thoughtform/shared";
+export type { HostedUsageAllowance } from "packages/products/src/thoughtform/shared";

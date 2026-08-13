@@ -262,11 +262,7 @@ export function ConversationEditor({
       ) {
         shouldDisableAfterRequest = true;
       }
-      setError(
-        sendError instanceof Error
-          ? sendError.message
-          : "The conversation could not continue.",
-      );
+      setError(conversationErrorMessage(sendError));
     } finally {
       setStatus(
         shouldDisableAfterRequest
@@ -512,4 +508,16 @@ export function ConversationEditor({
       </div>
     </section>
   );
+}
+
+function conversationErrorMessage(error: unknown) {
+  if (
+    error instanceof ConversationRequestError &&
+    error.code === CONVERSATION_ERROR_CODES.hostedUsageLimited &&
+    error.allowance
+  ) {
+    const reset = new Date(error.allowance.resetsAt).toLocaleString();
+    return `${error.message} ${error.allowance.remainingOperations} hosted operations remain. It resets at ${reset}.`;
+  }
+  return error instanceof Error ? error.message : "The conversation could not continue.";
 }

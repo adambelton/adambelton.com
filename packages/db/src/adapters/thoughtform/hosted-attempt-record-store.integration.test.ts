@@ -8,6 +8,8 @@ import {
 import {
   HOSTED_ATTEMPT_ACTIONS,
   HOSTED_ATTEMPT_OUTCOMES,
+  HostedUsageLimitedError,
+  type HostedAttemptBudgetPolicy,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -16,11 +18,14 @@ describe.skipIf(!databaseUrl)("Prisma hosted-attempt record store integration", 
   let database: DatabaseClient;
   const userId = `attempt-integration-${globalThis.crypto.randomUUID()}`;
   const otherUserId = `attempt-integration-${globalThis.crypto.randomUUID()}`;
+  const limitedUserId = `attempt-integration-${globalThis.crypto.randomUUID()}`;
+  const tokenUserId = `attempt-integration-${globalThis.crypto.randomUUID()}`;
+  const ownerUserId = `attempt-integration-${globalThis.crypto.randomUUID()}`;
 
   beforeAll(async () => {
     database = createDatabaseClient(databaseUrl!);
     await database.user.createMany({
-      data: [userId, otherUserId].map((id) => ({
+      data: [userId, otherUserId, limitedUserId, tokenUserId, ownerUserId].map((id) => ({
         id,
         name: "Hosted attempt integration test",
         email: `${id}@example.invalid`,
@@ -29,7 +34,7 @@ describe.skipIf(!databaseUrl)("Prisma hosted-attempt record store integration", 
   });
 
   afterAll(async () => {
-    await database.user.deleteMany({ where: { id: { in: [userId, otherUserId] } } });
+    await database.user.deleteMany({ where: { id: { in: [userId, otherUserId, limitedUserId, tokenUserId, ownerUserId] } } });
     await database.$disconnect();
   });
 
@@ -170,7 +175,131 @@ describe.skipIf(!databaseUrl)("Prisma hosted-attempt record store integration", 
     })]);
     expect(JSON.stringify(attempts)).not.toContain("Hosted attempt integration test");
   });
+
+  it("atomically admits only one of two concurrent operations at the limit", async () => {
+    const policy = limitedPolicy({ personalOperationLimit: 1 });
+    const now = () => new Date("2026-08-13T12:00:00.000Z");
+    const first = new PrismaThoughtFormHostedAttemptRecordStore(
+      database, limitedUserId, () => globalThis.crypto.randomUUID(), policy, false, now,
+    );
+    const second = new PrismaThoughtFormHostedAttemptRecordStore(
+      database, limitedUserId, () => globalThis.crypto.randomUUID(), policy, false, now,
+    );
+    const results = await Promise.allSettled([
+      first.admit({ action: HOSTED_ATTEMPT_ACTIONS.conversationResponse, operationId: "limited-one" }),
+      second.admit({ action: HOSTED_ATTEMPT_ACTIONS.conversationResponse, operationId: "limited-two" }),
+    ]);
+
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    const rejection = results.find((result) => result.status === "rejected");
+    expect(rejection).toMatchObject({ reason: expect.any(HostedUsageLimitedError) });
+    expect(await database.thoughtFormHostedAttempt.count({ where: { userId: limitedUserId } })).toBe(1);
+  });
+
+  it("replaces a reservation with completed input and output tokens", async () => {
+    const policy = limitedPolicy({ personalTokenLimit: 10 });
+    const now = () => new Date("2026-08-13T12:00:00.000Z");
+    const store = new PrismaThoughtFormHostedAttemptRecordStore(
+      database, tokenUserId, () => globalThis.crypto.randomUUID(), policy, false, now,
+    );
+    const admitted = await store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "token-one",
+    });
+    await store.complete({
+      attemptId: admitted.id,
+      outcome: HOSTED_ATTEMPT_OUTCOMES.succeeded,
+      usage: usage(8),
+      completedAt: "2026-08-13T12:00:01.000Z",
+    });
+
+    await expect(store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "token-two",
+    })).rejects.toBeInstanceOf(HostedUsageLimitedError);
+  });
+
+  it("exempts the owner from the personal window while retaining global accounting", async () => {
+    const policy = limitedPolicy({ personalOperationLimit: 1 });
+    const store = new PrismaThoughtFormHostedAttemptRecordStore(
+      database,
+      ownerUserId,
+      () => globalThis.crypto.randomUUID(),
+      policy,
+      true,
+      () => new Date("2035-08-13T12:00:00.000Z"),
+    );
+
+    await expect(store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "owner-one",
+    })).resolves.toBeDefined();
+    await expect(store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "owner-two",
+    })).resolves.toBeDefined();
+
+    const globallyLimited = new PrismaThoughtFormHostedAttemptRecordStore(
+      database,
+      ownerUserId,
+      () => globalThis.crypto.randomUUID(),
+      limitedPolicy({ personalOperationLimit: 1, globalOperationLimit: 1 }),
+      true,
+      () => new Date("2036-08-13T12:00:00.000Z"),
+    );
+    await globallyLimited.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "global-one",
+    });
+    await expect(globallyLimited.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "global-two",
+    })).rejects.toBeInstanceOf(HostedUsageLimitedError);
+  });
+
+  it("retains the full reservation when completed usage is missing", async () => {
+    const store = new PrismaThoughtFormHostedAttemptRecordStore(
+      database,
+      tokenUserId,
+      () => globalThis.crypto.randomUUID(),
+      limitedPolicy({ personalTokenLimit: 9 }),
+      false,
+      () => new Date("2037-08-13T12:00:00.000Z"),
+    );
+    const first = await store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "missing-usage-one",
+    });
+    await store.complete({
+      attemptId: first.id,
+      outcome: HOSTED_ATTEMPT_OUTCOMES.providerFailed,
+      usage: { ...usage(1), outputTokens: null },
+      completedAt: "2037-08-13T12:00:01.000Z",
+    });
+
+    await expect(store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "missing-usage-two",
+    })).rejects.toBeInstanceOf(HostedUsageLimitedError);
+  });
 });
+
+function limitedPolicy(overrides: Partial<HostedAttemptBudgetPolicy>): HostedAttemptBudgetPolicy {
+  return {
+    personalOperationLimit: 120,
+    personalTokenLimit: 600_000,
+    globalOperationLimit: 600,
+    globalTokenLimit: 3_000_000,
+    reservationTokens: {
+      conversation_response: 5,
+      idea_map_analysis: 7,
+      draft_composition: 3,
+      revision_proposal: 2,
+      saved_change_interpretation: 3,
+    },
+    ...overrides,
+  };
+}
 
 function usage(inputTokens: number) {
   return {

@@ -308,6 +308,7 @@ export const CONVERSATION_ERROR_CODES = {
   unavailable: "conversation_unavailable",
   hostedAiDisabled: "hosted_ai_disabled",
   hostedAiUnavailable: "hosted_ai_unavailable",
+  hostedUsageLimited: "hosted_usage_limited",
 } as const;
 
 export type ConversationErrorCode =
@@ -345,6 +346,11 @@ export const CONVERSATION_STREAM_EVENT_TYPES = {
   completed: "completed",
 } as const;
 
+export interface HostedUsageAllowance {
+  remainingOperations: number;
+  resetsAt: string;
+}
+
 export type ConversationStreamEvent =
   | {
       type: typeof CONVERSATION_STREAM_EVENT_TYPES.accepted;
@@ -374,6 +380,7 @@ export type ConversationStreamEvent =
       type: typeof CONVERSATION_STREAM_EVENT_TYPES.failed;
       code: ConversationErrorCode;
       message: string;
+      allowance?: HostedUsageAllowance;
     }
   | { type: typeof CONVERSATION_STREAM_EVENT_TYPES.completed };
 
@@ -555,6 +562,7 @@ export const DRAFT_ERROR_CODES = {
   conflict: "draft_conflict",
   draftAlreadyExists: "draft_already_exists",
   invalidRequest: "invalid_draft_request",
+  inputTooLarge: "draft_input_too_large",
   notFound: "draft_not_found",
   proposalNotActive: "revision_proposal_not_active",
   unavailable: "draft_unavailable",

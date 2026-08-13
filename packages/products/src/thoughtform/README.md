@@ -159,7 +159,19 @@ response and Idea Map analysis are independent attempts. The API host captures
 provider-neutral usage inside each admitted async context and completes the
 record only after the relevant product persistence succeeds or fails. Durable
 records contain quantitative operational metadata only and remain separate
-from both workspace content and Langfuse observation.
+from both workspace content and Langfuse observation. The host atomically
+reserves each operation against personal and global UTC-day operation and token
+budgets, then replaces the reservation with complete input-plus-output usage.
+Incomplete usage keeps its reservation. The owner is exempt from the personal
+window but remains inside the global safeguard. Product clients receive only a
+stable limited outcome, a safe remaining-operation allowance, and the UTC reset
+time; token and global state remain private.
+
+Conversation, Idea Map, and Draft model input/output bounds are product-owned
+preconditions around this admission boundary. Draft model input is limited to
+16 KiB of serialized product input before admission. Output caps are 1,024
+tokens for conversation, 1,536 for Idea Map analysis, and 512 for each Draft
+model operation.
 
 ## Where to look when something goes wrong
 

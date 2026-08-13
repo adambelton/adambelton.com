@@ -41,7 +41,7 @@ describe("draft change interpretation model adapter", () => {
     });
     await expect(adapter.interpret(input)).resolves.toMatchObject({ type: "conceptual_change" });
     expect(requests[0]).toMatchObject({
-      maxTokens: 1_024,
+      maxTokens: 512,
       outputFormat: { name: "thoughtform_saved_edit_interpretation" },
     });
     expect(requests[0]?.system).toContain("provisional");

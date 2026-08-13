@@ -3,6 +3,7 @@ import type {
   ConversationRequest,
   ConversationStreamEvent,
   IdeaMap,
+  HostedUsageAllowance,
 } from "packages/products/src/thoughtform/shared";
 import { CONVERSATION_STREAM_EVENT_TYPES } from "packages/products/src/thoughtform/shared";
 import type { ApiResponse } from "packages/shared/src";
@@ -10,7 +11,11 @@ import type { ApiResponse } from "packages/shared/src";
 const temporaryEndpoint = "/api/products/thoughtform/conversation/respond-stream";
 
 export class ConversationRequestError extends Error {
-  constructor(readonly code: string, message: string) {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly allowance?: HostedUsageAllowance,
+  ) {
     super(message);
     this.name = "ConversationRequestError";
   }
@@ -113,7 +118,7 @@ async function sendRequest(
             event.type === CONVERSATION_STREAM_EVENT_TYPES.failed &&
             !isResponseSettled
           ) {
-            reject(new ConversationRequestError(event.code, event.message));
+            reject(new ConversationRequestError(event.code, event.message, event.allowance));
             return;
           }
         }

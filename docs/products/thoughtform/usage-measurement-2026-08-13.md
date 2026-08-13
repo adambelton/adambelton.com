@@ -182,6 +182,12 @@ and disclosure recommendations. These decisions do not implement enforcement.
   directly measured byte limit. Task 040 must measure the serialized request
   fixtures and validate the bound before adopting it; larger private content
   should then fail before provider invocation.
+- Task 040 measured product-shaped UTF-8 JSON fixtures at **565 bytes** for
+  composition, **8,138 bytes** for a deliberately substantial whole-Draft
+  revision that serializes its 4,000-character body twice, and **368 bytes** for
+  saved-change interpretation. All fit beneath 16 KiB, so the proposed bound
+  was adopted and is enforced before admission. Larger private content receives
+  a stable input-too-large result without creating a hosted attempt.
 
 ### Disclosure and reset
 

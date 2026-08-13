@@ -198,7 +198,9 @@ generated migration SQL.
 
 Revised from the completed lifecycle, accounting architecture, and Task 039
 measurements. All required policy values were agreed on 13 August 2026, and Adam
-approved implementation on 13 August 2026. Implementation is in progress.
+approved implementation on 13 August 2026. Implementation and local validation
+completed on 13 August 2026; commit and pull-request publication remain pending
+Adam's request.
 
 ## Approval record
 
@@ -245,3 +247,47 @@ approved implementation on 13 August 2026. Implementation is in progress.
   within global safeguards. Disclose only the limited outcome, safe remaining
   hosted-operation allowance, and UTC reset timestamp; presentation copy is
   deferred.
+
+## Completion audit — 13 August 2026
+
+- **Atomic personal/global enforcement:** complete. The concrete Neon adapter
+  admits inside a serializable transaction, retries both Prisma and driver-level
+  write conflicts, and calculates personal and global operation/token use from
+  the existing content-free ledger. A configured Neon race admitted exactly one
+  of two simultaneous operations at a one-operation limit and returned the
+  stable limited outcome for the other.
+- **Accounting policy:** complete. Admission uses the approved action
+  reservations. Completion replaces a reservation only when both input and
+  output are known; otherwise the reservation remains. Cache and reasoning
+  subdivisions are excluded. Tests cover actual-over-reservation denial,
+  missing usage, owner personal exemption, and
+  owner inclusion in the global safeguard.
+- **Bounds:** complete. Conversation, Idea Map, and Draft output caps are 1,024,
+  1,536, and 512 tokens. Product-shaped Draft JSON fixtures measured 565 bytes
+  for composition, 8,138 bytes for a substantial whole-Draft revision, and 368
+  bytes for saved-change interpretation. The adopted 16 KiB bound rejects
+  larger requests before admission or provider invocation.
+- **Aggregate actual-usage risk:** calculated and retained as a known safeguard
+  limitation rather than a deliberate admission overshoot. With the conservative
+  byte-to-token upper bound, 120 simultaneously admitted maximum-size
+  conversation operations could reconcile to 4,055,040 tokens against 600,000
+  reserved (3,455,040 excess). The 600-operation global equivalent could reach
+  20,275,200 against 3,000,000 reserved (17,275,200 excess). Normal sequential
+  completion denies subsequent work after an excess; eliminating this extreme
+  concurrent-completion exposure would require a separately approved
+  concurrency cap or substantially larger reservations.
+- **Configuration and disclosure:** complete. Production requires explicit
+  positive-integer values for all four budgets and fails closed. Temporary
+  conversation and Draft clients present the server's limited decision,
+  remaining hosted operations, and localized reset time while preserving input.
+  API responses disclose no tokens, global state, other-user activity, cost, or
+  provider details.
+- **Privacy and boundaries:** complete. No schema or migration was needed; the
+  Task 038 ledger remains authoritative and content-free. Product policy and
+  errors remain in `packages/products`, durable enforcement remains in the
+  ThoughtForm database adapter, configuration/wiring remain in the API host,
+  and temporary traffic remains outside Langfuse.
+- **Validation:** 364 ordinary tests passed with only configured suites skipped;
+  eight configured Neon tests passed; five mounted Playwright journeys passed;
+  typecheck, build, Prisma schema validation, and diff checks passed. Browser
+  validation is automated inspection, not human assistive-technology testing.

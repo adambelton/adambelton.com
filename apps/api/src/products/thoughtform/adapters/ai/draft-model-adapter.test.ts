@@ -26,7 +26,7 @@ describe("draft model adapters", () => {
       instruction: "Compose an early draft.",
     })).resolves.toEqual({ body: "Composed draft." });
     expect(requests[0]).toMatchObject({
-      maxTokens: 8_192,
+      maxTokens: 512,
       outputFormat: { name: "thoughtform_composition" },
     });
     expect(requests[0]?.system).toContain("user's own voice and perspective");

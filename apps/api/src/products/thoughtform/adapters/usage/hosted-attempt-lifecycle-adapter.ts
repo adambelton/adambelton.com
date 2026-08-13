@@ -7,7 +7,6 @@ import { createHostedAttemptUsageContext } from "apps/api/src/products/thoughtfo
 
 const INTERRUPTED_AFTER_MS = 60 * 60 * 1_000;
 const RETAIN_COMPLETED_FOR_MS = 90 * 24 * 60 * 60 * 1_000;
-
 export class HostedAttemptLifecycleAdapter implements HostedAttemptLifecycle {
   constructor(
     private readonly records: HostedAttemptRecordStore,
@@ -45,7 +44,7 @@ export class HostedAttemptLifecycleAdapter implements HostedAttemptLifecycle {
       discard: async () => {
         if (isComplete) return;
         isComplete = true;
-        await this.records.discard(record.id);
+        if (record.isNew !== false) await this.records.discard(record.id);
       },
     };
   }

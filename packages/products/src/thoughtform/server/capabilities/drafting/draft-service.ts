@@ -24,6 +24,7 @@ import {
   noOpHostedAttemptLifecycle,
   type HostedAttemptLifecycle,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
+import { requireDraftOperationInputWithinLimit } from "packages/products/src/thoughtform/server/capabilities/drafting/draft-model-input-limit";
 
 export class InvalidDraftOperationError extends Error {}
 
@@ -63,16 +64,18 @@ export class DraftService {
     if (selected.length === 0) {
       throw new InvalidDraftOperationError("Select at least one idea to compose.");
     }
+    const modelInput = {
+      selectedIdeas: createDraftCompositionIdeaMaterial(selected),
+      relevantConversationLanguage: input.relevantConversationLanguage,
+      instruction: input.instruction,
+    };
+    requireDraftOperationInputWithinLimit(modelInput);
     return performHostedAttempt({
       action: HOSTED_ATTEMPT_ACTIONS.draftComposition,
       operationId: input.operationId,
       lifecycle: this.hostedAttempts,
       operation: async () => {
-        const generated = await this.compositionModel.compose({
-          selectedIdeas: createDraftCompositionIdeaMaterial(selected),
-          relevantConversationLanguage: input.relevantConversationLanguage,
-          instruction: input.instruction,
-        });
+        const generated = await this.compositionModel.compose(modelInput);
         const body = requireBody(generated.body);
         return this.store.createDraft({
           conversationId: input.conversationId,
@@ -154,17 +157,19 @@ export class DraftService {
       input.scope,
       input.selection,
     );
+    const modelInput = {
+      draftBody: draft.body,
+      scope: input.scope,
+      originalContent: range.originalContent,
+      userInstruction: input.userInstruction,
+    };
+    requireDraftOperationInputWithinLimit(modelInput);
     return performHostedAttempt({
       action: HOSTED_ATTEMPT_ACTIONS.revisionProposal,
       operationId: input.operationId,
       lifecycle: this.hostedAttempts,
       operation: async () => {
-        const generated = await this.proposalModel.propose({
-          draftBody: draft.body,
-          scope: input.scope,
-          originalContent: range.originalContent,
-          userInstruction: input.userInstruction,
-        });
+        const generated = await this.proposalModel.propose(modelInput);
         return this.store.createRevisionProposal({
           conversationId: input.conversationId,
           proposalId: globalThis.crypto.randomUUID(),
@@ -208,17 +213,19 @@ export class DraftService {
       return { status: DRAFT_WRITE_STATUSES.proposalNotActive, workspace } as const;
     }
     const draft = workspace.draft;
+    const modelInput = {
+      draftBody: draft.body,
+      scope: proposal.scope,
+      originalContent: proposal.originalContent,
+      userInstruction: input.userInstruction,
+    };
+    requireDraftOperationInputWithinLimit(modelInput);
     return performHostedAttempt({
       action: HOSTED_ATTEMPT_ACTIONS.revisionProposal,
       operationId: input.operationId,
       lifecycle: this.hostedAttempts,
       operation: async () => {
-        const generated = await this.proposalModel.propose({
-          draftBody: draft.body,
-          scope: proposal.scope,
-          originalContent: proposal.originalContent,
-          userInstruction: input.userInstruction,
-        });
+        const generated = await this.proposalModel.propose(modelInput);
         return this.store.amendRevisionProposal({
           conversationId: input.conversationId,
           proposalId: input.proposalId,

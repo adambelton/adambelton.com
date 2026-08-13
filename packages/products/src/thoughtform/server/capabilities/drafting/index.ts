@@ -5,3 +5,4 @@ export * from "packages/products/src/thoughtform/server/capabilities/drafting/dr
 export * from "packages/products/src/thoughtform/server/capabilities/drafting/draft-store";
 export * from "packages/products/src/thoughtform/server/capabilities/drafting/draft-change";
 export * from "packages/products/src/thoughtform/server/capabilities/drafting/draft-change-classification";
+export * from "packages/products/src/thoughtform/server/capabilities/drafting/draft-model-input-limit";
