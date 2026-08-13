@@ -18,8 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
-  039 plus explicit calibration-value approval
+- 040 — Calibrated atomic usage enforcement; policy values agreed, awaiting
+  explicit implementation approval
 - 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
   and a fresh review
 - Release the authenticated ThoughtForm public beta; initial proposal recorded,
