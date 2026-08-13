@@ -3,7 +3,7 @@ import {
   type HostedAttemptBudgetPolicy,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
 
-const defaults: HostedAttemptBudgetPolicy = {
+export const DEFAULT_HOSTED_USAGE_POLICY: HostedAttemptBudgetPolicy = {
   personalOperationLimit: 120,
   personalTokenLimit: 600_000,
   globalOperationLimit: 600,
@@ -38,7 +38,7 @@ export function resolveHostedUsagePolicy(
       if (input.environment === "production") {
         throw new Error(`${names[key]} is required in production.`);
       }
-      return defaults[key];
+      return DEFAULT_HOSTED_USAGE_POLICY[key];
     }
     const parsed = Number(raw);
     if (!Number.isSafeInteger(parsed) || parsed < 1) {
@@ -51,6 +51,6 @@ export function resolveHostedUsagePolicy(
     personalTokenLimit: resolve("personalTokenLimit"),
     globalOperationLimit: resolve("globalOperationLimit"),
     globalTokenLimit: resolve("globalTokenLimit"),
-    reservationTokens: { ...defaults.reservationTokens },
+    reservationTokens: { ...DEFAULT_HOSTED_USAGE_POLICY.reservationTokens },
   };
 }

@@ -286,10 +286,10 @@ describe.skipIf(!databaseUrl)("Prisma hosted-attempt record store integration", 
 
 function limitedPolicy(overrides: Partial<HostedAttemptBudgetPolicy>): HostedAttemptBudgetPolicy {
   return {
-    personalOperationLimit: 120,
-    personalTokenLimit: 600_000,
-    globalOperationLimit: 600,
-    globalTokenLimit: 3_000_000,
+    personalOperationLimit: Number.MAX_SAFE_INTEGER,
+    personalTokenLimit: Number.MAX_SAFE_INTEGER,
+    globalOperationLimit: Number.MAX_SAFE_INTEGER,
+    globalTokenLimit: Number.MAX_SAFE_INTEGER,
     reservationTokens: {
       conversation_response: 5,
       idea_map_analysis: 7,

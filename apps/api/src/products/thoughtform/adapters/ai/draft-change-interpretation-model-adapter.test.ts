@@ -8,6 +8,7 @@ import {
   HostedAiDisabledError,
   HostedAiUnavailableError,
 } from "packages/products/src/thoughtform/server/capabilities/conversation";
+import { MAX_DRAFT_OPERATION_OUTPUT_TOKENS } from "packages/products/src/thoughtform/server/capabilities/drafting";
 
 const input = {
   change: {
@@ -41,7 +42,7 @@ describe("draft change interpretation model adapter", () => {
     });
     await expect(adapter.interpret(input)).resolves.toMatchObject({ type: "conceptual_change" });
     expect(requests[0]).toMatchObject({
-      maxTokens: 512,
+      maxTokens: MAX_DRAFT_OPERATION_OUTPUT_TOKENS,
       outputFormat: { name: "thoughtform_saved_edit_interpretation" },
     });
     expect(requests[0]?.system).toContain("provisional");
