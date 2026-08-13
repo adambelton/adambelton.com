@@ -748,10 +748,19 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Freshly review the autonomous, user-correctable Idea Map evolution proposal
-against the current beta scope and the completed Task 038 ledger. That decision
-settles the final beta capability set required before Task 039 usage measurement
-can be reviewed and approved.
+Implement the approved deterministic first stage of Task 039: representative
+product-owned scenarios, mounted host composition, content-free Task 038 ledger
+aggregation, and privacy checks. Before any paid Sonnet 5 measurement calls,
+present the exact scenario matrix, repetitions, hosted-operation count, and cost
+ceiling for separate explicit approval.
+
+## 2026-08-13 — Care Calendar learning-project foundation
+
+- Added the initial Care Calendar learning, product-definition, safety,
+  stakeholder, and care-journey documents under the product-owned boundary.
+- Added a [Care Calendar product guide](packages/products/src/care-calendar/README.md)
+  as a high-level status and navigation entry point. The linked documents remain
+  the sources of truth, and no product implementation has started.
 
 ## Historical semantic-editor investigation
 
