@@ -12,4 +12,5 @@ export type ProductAppComponents = {
   Link: ProductNavigationLink;
   navigate: (href: string) => void;
   isTemporaryWorkspaceAvailable?: boolean;
+  ownerOperationsHref?: string;
 };

@@ -156,6 +156,8 @@ must follow the schema-first generated-migration workflow.
 
 Revised on 13 August 2026 as a minimum authenticated portfolio-demo operations
 surface after Tasks 038–040. Adam approved implementation on 13 August 2026.
+Implementation and local validation completed on 13 August 2026; commit and
+publication remain pending Adam's request.
 
 ## Approval record
 
@@ -178,3 +180,31 @@ surface after Tasks 038–040. Adam approved implementation on 13 August 2026.
   global totals; retained 90-day operation/token/model/outcome totals; the three
   existing failure outcomes; 25-account cursor pages; no cost conversion; and
   deleted-account absence through the existing cascade.
+
+## Completion audit — 13 August 2026
+
+- **Owner operations surface:** complete. `/products/thoughtform/operations` and
+  `/api/admin/thoughtform/operations` present the approved current UTC-day and
+  retained 90-day metadata through the mounted host.
+- **Authorization:** complete. The server returns the same 404 response to
+  logged-out and non-owner callers. The client route mirrors owner access and
+  exposes navigation only to the owner.
+- **Field allowlist and privacy:** complete. Shared contracts contain only email,
+  timestamps, operation/token/model/outcome aggregates, allowance limits and
+  reset, and pagination. Route and configured-database privacy-shape tests reject
+  private product fields. The DB reader queries only `users` and
+  `thoughtform_hosted_attempts`.
+- **States and pagination:** complete. Accounts order by latest admitted
+  operation with stable user-ID tie-breaking, 25-account opaque cursor pages,
+  explicit no-account/no-operation/model-empty states, loading/error states,
+  partial usage reservation semantics, and deleted-account absence through the
+  existing cascade.
+- **Database and architecture:** complete. No schema or migration was needed.
+  Two configured Neon reader tests passed. The architecture test confirmed that
+  the DB package remains independent of shared response contracts.
+- **Validation:** 369 ordinary tests passed with configured suites skipped; two
+  configured Neon reader tests passed; typecheck, build, Prisma validation,
+  five mounted ThoughtForm browser regressions, and diff checks passed. A
+  deterministic owner-shaped browser inspection verified the complete page and
+  390 px layout without horizontal overflow. This was browser inspection, not
+  human assistive-technology testing.

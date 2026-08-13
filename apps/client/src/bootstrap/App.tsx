@@ -21,6 +21,7 @@ import {
 import { ProductsPage } from "apps/client/src/products/ProductsPage";
 import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
 import { productRoutePath } from "apps/client/src/products/productRoutePath";
+import { ThoughtFormOperationsPage } from "apps/client/src/platform/admin/ThoughtFormOperationsPage";
 
 const ProductRoutePage = lazy(() =>
   import("apps/client/src/products/ProductRoutePage").then((module) => ({
@@ -60,6 +61,7 @@ export function App() {
             <Route element={<LoginPage />} path="/login" />
             <Route element={<LoginVerifyPage />} path="/login/verify" />
             <Route element={<LogoutPage />} path="/logout" />
+            <Route element={<ThoughtFormOperationsPage />} path="/products/thoughtform/operations" />
             <Route element={<NotFoundPage />} path="*" />
           </Routes>
         </main>

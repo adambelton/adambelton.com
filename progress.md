@@ -2,6 +2,13 @@
 
 ## Current status
 
+Task 044 is complete pending commit and publication. The owner now has a
+content-free ThoughtForm operations page showing account identity, latest
+admitted operation, current UTC-day personal allowances and global totals, and
+retained 90-day token/model/outcome totals. The API conceals the route from
+logged-out and non-owner callers; the reader joins only authentication accounts
+and the existing hosted-attempt ledger. No schema change was needed.
+
 Task 040 is complete. Temporary hosted
 operations now use atomic personal and global UTC-day operation/token budgets,
 reservation-first accounting, actual input-plus-output reconciliation, owner

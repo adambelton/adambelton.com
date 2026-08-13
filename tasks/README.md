@@ -18,8 +18,6 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 044 — Minimum authenticated portfolio-demo operations visibility; revised and
-  awaiting explicit implementation approval
 - Release the authenticated ThoughtForm portfolio demo; initial proposal needs
   revision after Task 044 to reflect the settled portfolio-demo audience
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
@@ -43,6 +41,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 044 — Minimum authenticated portfolio-demo operations visibility
 - 040 — Calibrated atomic usage enforcement
 - 039 — Representative hosted-usage measurement, Idea Map reliability evidence,
   and Task 040 calibration inputs
