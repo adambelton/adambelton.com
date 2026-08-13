@@ -18,8 +18,6 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 039 — Representative hosted-usage measurement; approved with deterministic
-  harness work authorized and paid hosted runs separately gated
 - 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
   039 plus explicit calibration-value approval
 - 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
@@ -29,11 +27,10 @@ change the proposal or grant approval for a later task.
   release review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-Task 039 is approved but not yet implemented. Task 038, the unnumbered correction
-tasks, Task 036, and Langfuse prompt
-automation are complete. Every later beta task remains unapproved and must be
-re-reviewed after its dependencies establish new evidence. Preference learning
-is not a prerequisite.
+Task 039, Task 038, the unnumbered correction tasks, Task 036, and Langfuse
+prompt automation are complete. Every later beta
+task remains unapproved and must be re-reviewed after its dependencies establish
+new evidence. Preference learning is not a prerequisite.
 
 Tasks 035 and 041 are retired from the active roadmap. Potentially useful ideas
 from them—explicit current guidance, user correction, inspectability, narrow
@@ -49,6 +46,8 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- 039 — Representative hosted-usage measurement, Idea Map reliability evidence,
+  and Task 040 calibration inputs
 - Autonomous, user-correctable Idea Map evolution (unnumbered)
 - 038 — Content-free hosted-attempt lifecycle and accounting
 - Update ThoughtForm product-page copy (unnumbered)

@@ -130,8 +130,68 @@ checks. Paid hosted runs remain outside normal CI and require explicit approval.
 
 ## Status
 
-Approved by Adam on 11 August 2026. Implementation has not started. Paid hosted
-measurement calls remain separately gated by the staged workflow above.
+The implementation and hosted evaluations completed on 13 August 2026. The
+executable matrix, mounted runner, content-free ledger reader, privacy-safe report, and
+Task 040 calibration inputs and the approved autonomous Idea Map reliability
+amendment are implemented, validated, and recorded. Adam authorized the reviewed
+work for commit on 13 August 2026. The final usage report-capture run completed all six
+scenarios twice with 72 successful hosted attempts. Its originally displayed monetary estimate
+was withdrawn after an audit found duplicate pricing of cache and reasoning
+categories; the provider token measurements are unaffected. Earlier runs and
+their investigated harness or product-level failures are recorded in the dated
+[measurement report](../docs/products/thoughtform/usage-measurement-2026-08-13.md).
+The final targeted structure verification stopped after six successful hosted
+attempts because the first journey produced no autonomous merge or split; this
+documents the approved scenario's investigated product-behaviour failure rather
+than claiming that the non-deterministic behaviour occurred. Its second
+repetition did not run.
+Any future hosted remeasurement remains separately gated by the staged workflow
+above.
+
+## Completion record
+
+- **Hosted profile and date:** Anthropic `claude-sonnet-5`, medium effort, on
+  13 August 2026.
+- **Report run:**
+  `RUN_HOSTED_USAGE_MEASUREMENT=true USAGE_MEASUREMENT_RUN_ID=task-039-2026-08-13-report USAGE_MEASUREMENT_REPETITIONS=2 pnpm measure:thoughtform-usage`.
+  It admitted and completed 72 operations across six scenarios and two
+  repetitions. A subsequent zero-call resume read reproduced the report from
+  the ledger before the exact synthetic user was deleted.
+- **Targeted structure run:**
+  `RUN_HOSTED_USAGE_MEASUREMENT=true USAGE_MEASUREMENT_RUN_ID=task-039-2026-08-13-structure USAGE_MEASUREMENT_SCENARIO=idea-structure-correction USAGE_MEASUREMENT_REPETITIONS=2 pnpm measure:thoughtform-usage`.
+  The separately approved plan allowed at most 12 operations and $0.30 USD. It
+  stopped after the first six successful operations when the journey produced
+  no autonomous merge or split; no second repetition or retry ran.
+- **Ledger query:** `PrismaThoughtFormUsageMeasurementReader.readRun` selected
+  only the synthetic user's content-free operation-ID prefix and quantitative
+  Task 038 fields. Unit and configured Neon integration coverage verified run
+  and user isolation.
+- **Privacy check:** the report artifact contains aggregate identifiers,
+  counts, outcomes, model names, timestamps, and token measurements only; tests
+  verify that fixture content is absent from report output.
+- **Repository validation:** `pnpm test` (354 passed, 10 skipped),
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` passed. The configured
+  Neon checks previously passed with `pnpm db:validate`,
+  `pnpm db:migrate:status`, and the hosted-attempt integration suite unskipped.
+- **Cost correction:** a post-run audit found that the original estimator
+  double-priced cache and reasoning categories. The displayed monetary totals
+  were withdrawn, the estimator was corrected and regression-tested, and the
+  provider token measurements were unaffected.
+- **Prompted-structure reliability run:**
+  `RUN_HOSTED_IDEA_STRUCTURE_RELIABILITY=true IDEA_STRUCTURE_RELIABILITY_COST_LIMIT_USD=0.25 IDEA_STRUCTURE_RELIABILITY_REPETITIONS=3 pnpm evaluate:thoughtform-idea-structure-reliability`.
+  It completed 24 calls at an estimated $0.1126 USD. All 12 requested changes
+  were correct and valid, all nine controls avoided inappropriate changes, and
+  all three correction cases respected the previous correction. The completion
+  audit found that positive messages explicitly requested restructuring, so the
+  run is recorded as prompted reliability rather than autonomous detection.
+- **Autonomous-detection reliability run:**
+  `RUN_HOSTED_IDEA_STRUCTURE_RELIABILITY=true IDEA_STRUCTURE_RELIABILITY_SCOPE=expected-changes IDEA_STRUCTURE_RELIABILITY_COST_LIMIT_USD=0.15 IDEA_STRUCTURE_RELIABILITY_REPETITIONS=3 pnpm evaluate:thoughtform-idea-structure-reliability`.
+  It completed 12 calls at an estimated $0.0905 USD. All 12 clear synthetic
+  opportunities produced the expected operation and references; 11 passed
+  product validation and one split was safely rejected. Combined with the
+  first run, nine controls produced no inappropriate change and all three
+  corrections were respected. The result exceeds the pre-run directional
+  threshold but does not establish a production-wide probability.
 
 ## Approval record
 
@@ -155,3 +215,18 @@ measurement calls remain separately gated by the staged workflow above.
   Task 038 ledger; temporary users receive no Langfuse tracing; measured journey
   usage must remain distinct from global-policy assumptions; the task does not
   change model behavior merely to improve cost measurements.
+
+### Reliability-evaluation amendment
+
+- **Approval date:** 13 August 2026.
+- **Goal:** measure how consistently the current hosted profile proposes correct
+  merges and splits, avoids structural changes in controls, and respects a
+  previous user correction.
+- **Intentional boundaries:** product-owned synthetic scenarios and scoring;
+  host-composed current Anthropic adapter and fallback prompt; content-free
+  aggregate output; no prompt or behavior changes made to improve results.
+- **Important deferrals:** production monitoring, enforcement, and statistical
+  certainty from a small sample remain outside Task 039.
+- **Paid-run gate:** deterministic implementation approval does not authorize
+  hosted calls. The exact matrix, repetitions, call count, model profile, and
+  estimated-cost limit require separate explicit approval.
