@@ -295,7 +295,7 @@ export function ConversationEditor({
 
   return (
     <section aria-labelledby="editor-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-[min(1.5rem,2vh)]">
-      <div className="grid max-h-[40dvh] gap-[min(1.5rem,2vh)] overflow-y-auto">
+      <div className="grid max-h-[40dvh] gap-[min(1.5rem,2vh)] overflow-y-auto lg:max-h-[25dvh]">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
           <ConversationEditorIntro />
           <div className="flex flex-wrap items-center justify-end gap-4 text-sm" data-testid="workspace-actions">
