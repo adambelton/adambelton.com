@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Idea } from "packages/products/src/thoughtform/shared";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 
 export function ComposeDraft({
   ideas,
@@ -55,14 +56,13 @@ export function ComposeDraft({
           value={instruction}
         />
       </label>
-      <button
-        className="w-fit border border-[var(--foreground)] px-4 py-2"
+      <WorkspaceButton
         disabled={isBusy || selectedIdeaIds.length === 0}
         onClick={() => onCompose({ selectedIdeaIds, instruction })}
         type="button"
       >
         {isBusy ? "Composing…" : submitLabel}
-      </button>
+      </WorkspaceButton>
     </section>
   );
 }

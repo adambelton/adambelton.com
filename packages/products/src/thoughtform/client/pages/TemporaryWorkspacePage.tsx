@@ -105,18 +105,22 @@ export function TemporaryWorkspacePage({
   }
 
   return (
-    <>
-      <p className="mb-6 max-w-4xl border-l-4 border-[var(--accent)] bg-[var(--selection)] px-4 py-3 text-sm leading-6" role="status">
-        {expiresAt
-          ? `This temporary workspace is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
-          : "This workspace is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}
-      </p>
-      {loadError ? <p role="status">{loadError}</p> : null}
+    <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-[min(1rem,2vh)]">
+      <div>
+        <p className="w-full border-l-4 border-[var(--accent)] bg-[var(--selection)] px-4 py-[min(0.75rem,1.5vh)] text-sm leading-[min(1.5rem,3vh)]" role="status">
+          {expiresAt
+            ? `This temporary workspace is scheduled to expire ${new Date(expiresAt).toLocaleString()}. A restart or deployment may remove it sooner.`
+            : "This workspace is temporary. Its 24-hour lifetime begins with your first submission, and a restart or deployment may remove it sooner."}
+        </p>
+        {loadError ? <p role="status">{loadError}</p> : null}
+      </div>
       <ConversationEditor
+        Link={components.Link}
         canClear
         initialConversationId={temporaryConversation?.conversation.id}
         initialMessages={temporaryConversation?.conversation.messages}
         initialIdeaMap={temporaryConversation?.conversation.ideaMap}
+        leaveHref="/products/thoughtform"
         onResponse={(response) => {
           const expiresAt = response.expiresAt;
 
@@ -134,7 +138,7 @@ export function TemporaryWorkspacePage({
           setExpiresAt(null);
         }}
       />
-    </>
+    </div>
   );
 }
 

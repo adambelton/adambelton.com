@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type {
   ConversationMessage,
@@ -51,12 +51,19 @@ import {
   type WorkspacePersistenceType,
 } from "packages/products/src/thoughtform/shared";
 import { ResponseFormingIndicator } from "packages/products/src/thoughtform/client/workspace/components/ResponseFormingIndicator";
+import type {
+  ProductNavigationLink,
+  ProductNavigationLinkProps,
+} from "packages/products/src/thoughtform/client/product-app-components";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 
 interface ConversationEditorProps {
+  Link?: ProductNavigationLink;
   canClear?: boolean;
   initialConversationId?: string | null;
   initialMessages?: ConversationMessage[];
   initialIdeaMap?: IdeaMap;
+  leaveHref?: string;
   onClear?: () => Promise<void>;
   onResponse?: (response: ConversationStreamResult) => void;
   onUnavailable?: () => void;
@@ -78,10 +85,12 @@ interface ConversationEditorProps {
 }
 
 export function ConversationEditor({
+  Link = DefaultWorkspaceLink,
   canClear = false,
   initialConversationId = null,
   initialMessages = [],
   initialIdeaMap = EMPTY_IDEA_MAP,
+  leaveHref = "/products/thoughtform",
   onClear,
   onResponse,
   onUnavailable,
@@ -92,7 +101,6 @@ export function ConversationEditor({
   initialDraftingState = null,
 }: ConversationEditorProps) {
   const draftRef = useRef<DraftPanelHandle>(null);
-  const workspaceRef = useRef<HTMLDivElement>(null);
   const messageInputId = useId();
   const errorId = useId();
   const [conversationId, setConversationId] = useState<string | null>(
@@ -121,33 +129,6 @@ export function ConversationEditor({
   );
   const [surfaceStatus, setSurfaceStatus] = useState<string | null>(null);
   const [hasDraftOffer, setHasDraftOffer] = useState(false);
-
-  useLayoutEffect(() => {
-    const workspace = workspaceRef.current;
-    if (!workspace) return;
-    const fitWorkspaceToViewport = () => {
-      const workspaceRect = workspace.getBoundingClientRect();
-      const documentTop = workspaceRect.top + globalThis.scrollY;
-      const documentBottom = workspaceRect.bottom + globalThis.scrollY;
-      const footer = document.querySelector("footer");
-      const pageContentBoundary = footer ?? document.querySelector("main");
-      const trailingPageHeight = pageContentBoundary
-        ? Math.max(
-            0,
-            pageContentBoundary.getBoundingClientRect().bottom + globalThis.scrollY -
-              documentBottom,
-          )
-        : 0;
-      const availableHeight = Math.max(
-        320,
-        globalThis.innerHeight - documentTop - trailingPageHeight,
-      );
-      workspace.style.setProperty("--workspace-height", `${availableHeight}px`);
-    };
-    fitWorkspaceToViewport();
-    globalThis.addEventListener("resize", fitWorkspaceToViewport);
-    return () => globalThis.removeEventListener("resize", fitWorkspaceToViewport);
-  }, []);
 
   function revealSurface(surface: "conversation" | "idea-map" | "draft") {
     setMobileSurface(surface);
@@ -313,24 +294,44 @@ export function ConversationEditor({
   }
 
   return (
-    <section aria-labelledby="editor-title">
-      <ConversationEditorIntro />
-      <nav aria-label="Workspace views" className="mt-6 flex border-b border-[var(--line)] lg:hidden">
-        {(["conversation", "idea-map", "draft"] as const).map((surface) => (
-          <button
-            aria-current={mobileSurface === surface ? "page" : undefined}
-            className="-mb-px border-b-2 border-transparent px-4 py-2 capitalize text-[var(--muted)] aria-[current=page]:border-[var(--accent)] aria-[current=page]:font-semibold aria-[current=page]:text-[var(--foreground)]"
-            key={surface}
-            onClick={() => revealSurface(surface)}
-            type="button"
-          >
-            {surface.replace("-", " ")}
-          </button>
-        ))}
-      </nav>
-      {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
-      <div className="mt-6 grid h-[var(--workspace-height)] min-h-0 gap-8 lg:grid-cols-2" data-testid="workspace" ref={workspaceRef}>
-        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-8 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
+    <section aria-labelledby="editor-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-[min(1.5rem,2vh)]">
+      <div className="grid gap-[min(1.5rem,2vh)]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <ConversationEditorIntro />
+          <div className="flex flex-wrap items-center justify-end gap-4 text-sm" data-testid="workspace-actions">
+            {canClear && messages.length > 0 ? (
+              <WorkspaceButton className="inline-flex items-center gap-2 text-sm" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">
+                <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" />
+                </svg>
+                Clear workspace
+              </WorkspaceButton>
+            ) : null}
+            <Link className="inline-flex cursor-pointer items-center gap-2 underline decoration-[var(--line)] underline-offset-4 transition-colors hover:text-[var(--accent)] hover:no-underline" href={leaveHref}>
+              Leave workspace
+              <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <path d="M14 5h5v14h-5M10 8l4 4-4 4M14 12H3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+        <nav aria-label="Workspace views" className="flex border-b border-[var(--line)] lg:hidden">
+          {(["conversation", "idea-map", "draft"] as const).map((surface) => (
+            <button
+              aria-current={mobileSurface === surface ? "page" : undefined}
+              className="-mb-px cursor-pointer border-b-2 border-transparent px-4 py-2 capitalize text-[var(--muted)] transition-colors hover:text-[var(--foreground)] aria-[current=page]:border-[var(--accent)] aria-[current=page]:font-semibold aria-[current=page]:text-[var(--foreground)]"
+              key={surface}
+              onClick={() => revealSurface(surface)}
+              type="button"
+            >
+              {surface.replace("-", " ")}
+            </button>
+          ))}
+        </nav>
+        {surfaceStatus ? <p className="sr-only" role="status">{surfaceStatus}</p> : null}
+      </div>
+      <div className="grid h-full min-h-0 gap-8 lg:grid-cols-2" data-testid="workspace">
+        <div className={`${mobileSurface === "conversation" ? "grid" : "hidden"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-4 overflow-hidden lg:grid lg:pr-4`} data-testid="conversation-column">
           <ConversationMessageList
             followLatestRequest={followLatestRequest}
             shouldAnimateLatestAssistant={shouldAnimateLatestAssistant}
@@ -338,27 +339,24 @@ export function ConversationEditor({
               ? [...messages, partialAssistantMessage]
               : messages}
           />
-          <div className="grid gap-4">
+          <div className="grid gap-4" data-testid="conversation-controls">
           {hasDraftOffer ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Draft offer">
               <p className="text-sm">The assistant has offered to compose a draft from material you select.</p>
-              <button className="mt-2 underline" onClick={() => revealSurface("draft")} type="button">Choose ideas for this draft</button>
+              <WorkspaceButton className="mt-2" onClick={() => revealSurface("draft")} type="button" variant="secondary">Choose ideas for this draft</WorkspaceButton>
             </aside>
           ) : null}
           {draftSelection ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Attached draft passage">
               <p className="text-sm"><strong>Draft passage attached:</strong> “{draftSelection.selectedText}”</p>
-              <button className="mt-2 text-sm underline" onClick={() => setDraftSelection(null)} type="button">Remove attachment</button>
+              <WorkspaceButton className="mt-2 text-sm" onClick={() => setDraftSelection(null)} type="button" variant="secondary">Remove attachment</WorkspaceButton>
             </aside>
           ) : null}
           {draftChange ? (
             <aside className="border border-[var(--line)] p-3" aria-label="Attached draft change">
               <p className="text-sm"><strong>Saved edit attached:</strong> revision {draftChange.fromRevision} to {draftChange.toRevision}</p>
-              <button className="mt-2 text-sm underline" onClick={() => setDraftChange(null)} type="button">Remove attachment</button>
+              <WorkspaceButton className="mt-2 text-sm" onClick={() => setDraftChange(null)} type="button" variant="secondary">Remove attachment</WorkspaceButton>
             </aside>
-          ) : null}
-          {canClear && messages.length > 0 ? (
-            <button className="w-fit text-sm underline decoration-[var(--line)] underline-offset-4" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">Clear this workspace</button>
           ) : null}
           {status === CONVERSATION_STATUSES.sending ? (
             <ResponseFormingIndicator />
@@ -377,8 +375,8 @@ export function ConversationEditor({
         </div>
         <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line-subtle)] lg:pl-6`} data-testid="workspace-column">
           <div className="mb-6 hidden border-b border-[var(--line)] lg:flex" role="tablist" aria-label="Workspace">
-            <button aria-selected={workspaceView === "idea-map"} className="-mb-px border-b-2 border-transparent px-4 py-2 text-[var(--muted)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("idea-map")} role="tab" type="button">Idea map</button>
-            <button aria-selected={workspaceView === "draft"} className="-mb-px border-b-2 border-transparent px-4 py-2 text-[var(--muted)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("draft")} role="tab" type="button">Draft</button>
+            <button aria-selected={workspaceView === "idea-map"} className="-mb-px cursor-pointer border-b-2 border-transparent px-4 py-2 text-[var(--muted)] transition-colors hover:text-[var(--foreground)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("idea-map")} role="tab" type="button">Idea map</button>
+            <button aria-selected={workspaceView === "draft"} className="-mb-px cursor-pointer border-b-2 border-transparent px-4 py-2 text-[var(--muted)] transition-colors hover:text-[var(--foreground)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("draft")} role="tab" type="button">Draft</button>
           </div>
           <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"} min-h-0 overflow-y-auto`}>
             <IdeaMapTracker
@@ -508,6 +506,14 @@ export function ConversationEditor({
       </div>
     </section>
   );
+}
+
+function DefaultWorkspaceLink({
+  children,
+  className,
+  href,
+}: ProductNavigationLinkProps) {
+  return <a className={className} href={href}>{children}</a>;
 }
 
 function conversationErrorMessage(error: unknown) {

@@ -24,6 +24,7 @@ describe("SiteHeader", () => {
 
     expect(markup).toContain("Log in");
     expect(markup).toContain('href="/login"');
+    expect(markup).not.toContain('class="ml-3"');
   });
 
   it("keeps sign-out discoverable to an authenticated user", () => {
@@ -39,5 +40,6 @@ describe("SiteHeader", () => {
 
     expect(markup).toContain('href="/logout"');
     expect(markup).toContain("Log out");
+    expect(markup).not.toContain('class="ml-3"');
   });
 });

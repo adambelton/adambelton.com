@@ -1,3 +1,5 @@
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
+
 type RecoveredDraftTextProps = {
   body: string;
   onChange(body: string): void;
@@ -23,9 +25,9 @@ export function RecoveredDraftText({
         onChange={(event) => onChange(event.target.value)}
         value={body}
       />
-      <button className="w-fit underline" onClick={onClear} type="button">
+      <WorkspaceButton onClick={onClear} type="button" variant="secondary">
         Clear recovered text
-      </button>
+      </WorkspaceButton>
     </aside>
   );
 }

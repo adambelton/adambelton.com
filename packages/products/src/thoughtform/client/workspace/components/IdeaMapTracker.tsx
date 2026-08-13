@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 import {
   IDEA_ACTION_TYPES,
   IDEA_DISPOSITIONS,
@@ -114,14 +115,15 @@ export function IdeaMapTracker({ ideaMap, isBusy, onAction, onStructure }: IdeaM
               ? IDEA_MAP_COPY.structure.mergeOutcome
               : IDEA_MAP_COPY.structure.splitOutcome} {IDEA_MAP_COPY.structure.undoGuidance}
           </p>
-          <button
-            className="mt-3 underline decoration-[var(--line)] underline-offset-4"
+          <WorkspaceButton
+            className="mt-3"
             disabled={isBusy}
             onClick={() => onStructure({ type: IDEA_STRUCTURE_COMMAND_TYPES.undo, expectedRevision: ideaMap.revision })}
             type="button"
+            variant="secondary"
           >
             {IDEA_MAP_COPY.structure.undoAction}
-          </button>
+          </WorkspaceButton>
         </aside>
       )}
       {(ideaMap.potentialConflicts ?? []).length > 0 && (
@@ -254,7 +256,7 @@ function IdeaRow({
           >
             <label className="font-medium" htmlFor={`idea-correction-${idea.id}`}>{IDEA_MAP_COPY.idea.userInterpretation}</label>
             <textarea className="field-control p-3" id={`idea-correction-${idea.id}`} onChange={(event) => setCorrection(event.target.value)} rows={3} value={correction} />
-            <button className="w-fit underline" disabled={isBusy || correction.trim().length === 0} type="submit">{IDEA_MAP_COPY.idea.actions.saveCorrection}</button>
+            <WorkspaceButton disabled={isBusy || correction.trim().length === 0} type="submit">{IDEA_MAP_COPY.idea.actions.saveCorrection}</WorkspaceButton>
           </form>
         ) : null}
         {isSplitting ? (
@@ -296,7 +298,7 @@ function IdeaRow({
             <StructureField label={IDEA_MAP_COPY.split.secondSynthesis} onChange={(value) => setSplit((current) => ({ ...current, secondSynthesis: value }))} value={split.secondSynthesis} />
             <StructureField label={IDEA_MAP_COPY.split.secondSubstance} multiline onChange={(value) => setSplit((current) => ({ ...current, secondSubstance: value }))} value={split.secondSubstance} />
             <StructureField label={IDEA_MAP_COPY.split.explanation} onChange={(value) => setSplit((current) => ({ ...current, explanation: value }))} value={split.explanation} />
-            <button className="w-fit underline" disabled={isBusy || !completeSplit(split)} type="submit">{IDEA_MAP_COPY.split.saveAction}</button>
+            <WorkspaceButton disabled={isBusy || !completeSplit(split)} type="submit">{IDEA_MAP_COPY.split.saveAction}</WorkspaceButton>
           </form>
         ) : null}
       </div>
@@ -317,7 +319,7 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ children, isDisabled, onClick }: ActionButtonProps) {
-  return <button className="underline decoration-[var(--line)] underline-offset-4" disabled={isDisabled} onClick={onClick} type="button">{children}</button>;
+  return <WorkspaceButton disabled={isDisabled} onClick={onClick} type="button" variant="secondary">{children}</WorkspaceButton>;
 }
 
 function MergeIdeasControl(input: {
@@ -378,7 +380,7 @@ function MergeIdeasControl(input: {
         <StructureField label={IDEA_MAP_COPY.merge.resultTitle} onChange={setTitle} value={title} />
         <StructureField label={IDEA_MAP_COPY.merge.resultSynthesis} onChange={setSynthesis} value={synthesis} />
         <StructureField label={IDEA_MAP_COPY.merge.explanation} onChange={setExplanation} value={explanation} />
-        <button className="w-fit underline" disabled={input.isBusy || selectedIds.length < 2 || !title.trim() || !synthesis.trim() || !explanation.trim()} type="submit">{IDEA_MAP_COPY.merge.saveAction}</button>
+        <WorkspaceButton disabled={input.isBusy || selectedIds.length < 2 || !title.trim() || !synthesis.trim() || !explanation.trim()} type="submit">{IDEA_MAP_COPY.merge.saveAction}</WorkspaceButton>
       </form>
     </details>
   );

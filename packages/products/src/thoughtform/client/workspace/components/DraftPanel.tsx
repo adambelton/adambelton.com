@@ -20,6 +20,7 @@ import { ComposeDraft } from "packages/products/src/thoughtform/client/workspace
 import { DraftHistory } from "packages/products/src/thoughtform/client/workspace/components/DraftHistory";
 import { ProposalReview } from "packages/products/src/thoughtform/client/workspace/components/ProposalReview";
 import { RecoveredDraftText } from "packages/products/src/thoughtform/client/workspace/components/RecoveredDraftText";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 import {
   amendDraftProposal,
   composeDraft,
@@ -286,7 +287,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
     >
       <header className="flex items-center justify-between gap-4">
         <div><h2 className="text-lg font-semibold" id="draft-title">Draft</h2><p className="text-sm text-[var(--muted)]">Revision {draft.currentRevision}</p></div>
-        <button className="underline" onClick={() => setIsHistoryOpen(true)} ref={historyButtonRef} type="button">History</button>
+        <WorkspaceButton onClick={() => setIsHistoryOpen(true)} ref={historyButtonRef} type="button" variant="secondary">History</WorkspaceButton>
       </header>
       {detachedDraftRecovery}
       <label className="sr-only" htmlFor="canonical-draft">Canonical draft</label>
@@ -302,15 +303,15 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         value={body}
       />
       <div className="flex items-center gap-3">
-        <button className="border border-[var(--foreground)] px-4 py-2" disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</button>
-        <button
-          className="underline"
+        <WorkspaceButton disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</WorkspaceButton>
+        <WorkspaceButton
           disabled={isBusy || body !== draft.body}
           onClick={attachCurrentSelection}
           type="button"
+          variant="secondary"
         >
           Discuss selection
-        </button>
+        </WorkspaceButton>
         {status ? <p role="status">{status}</p> : null}
       </div>
       <section aria-labelledby="revision-proposal-title" className="grid gap-3 border-t border-[var(--line)] pt-5">
@@ -342,8 +343,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
               The draft changed after this proposal was prepared. It cannot be
               applied to the newer draft.
             </p>
-            <button
-              className="w-fit underline"
+            <WorkspaceButton
               disabled={isBusy}
               onClick={() => void run(
                 () => resolveDraftProposal(
@@ -355,9 +355,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
                 "Stale proposal dismissed; the draft is unchanged.",
               )}
               type="button"
+              variant="secondary"
             >
               Dismiss stale proposal
-            </button>
+            </WorkspaceButton>
           </section>
         ) : (
           <>
@@ -367,8 +368,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
                 : "Select a passage for a bounded proposal, or leave nothing selected for a whole-draft proposal."}
             </p>
             <textarea className="field-control p-3" onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
-            <button
-              className="w-fit border border-[var(--foreground)] px-4 py-2"
+            <WorkspaceButton
               disabled={isBusy || !proposalInstruction.trim() || body !== draft.body}
               onClick={() => {
                 const currentSelection = readCurrentSelection();
@@ -388,7 +388,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
               type="button"
             >
               Prepare proposal
-            </button>
+            </WorkspaceButton>
           </>
         )}
       </section>

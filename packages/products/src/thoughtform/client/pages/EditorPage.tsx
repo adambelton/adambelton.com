@@ -10,12 +10,15 @@ import { sendPersistentIdeaAction } from "packages/products/src/thoughtform/clie
 import { sendPersistentIdeaStructure } from "packages/products/src/thoughtform/client/workspace/actions/send-idea-structure";
 import { loadConversation } from "packages/products/src/thoughtform/client/conversations/actions/load-conversations";
 import { loadDraft } from "packages/products/src/thoughtform/client/workspace/actions/draft-client";
+import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 
 type EditorPageProps = {
+  components: ProductAppComponents;
   conversationId: string;
 };
 
 export function EditorPage({
+  components,
   conversationId,
 }: EditorPageProps) {
   const [conversation, setConversation] = useState<Conversation | null>(null);
@@ -63,11 +66,13 @@ export function EditorPage({
 
   return (
     <ConversationEditor
+      Link={components.Link}
       draftPersistenceType={WORKSPACE_PERSISTENCE_TYPES.persistent}
       initialConversationId={conversation.id}
       initialMessages={conversation.messages}
       initialIdeaMap={conversation.ideaMap}
       initialDraftingState={draftingState}
+      leaveHref="/products/thoughtform/conversations"
       sendIdeaAction={sendPersistentIdeaAction}
       sendIdeaStructure={sendPersistentIdeaStructure}
       sendMessage={(request, callbacks) =>

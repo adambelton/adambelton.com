@@ -50,11 +50,7 @@ export function renderProductRoute({
         />
       ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
-      breadcrumbs: [
-        { label: "Products", href: "/products" },
-        { label: "ThoughtForm", href: "/products/thoughtform" },
-        { label: "Editor" },
-      ],
+      breadcrumbs: [],
     };
   }
 
@@ -96,17 +92,13 @@ export function renderProductRoute({
       status: PRODUCT_ROUTE_STATUSES.found,
       element: (
         <EditorPage
+          components={components}
           key={conversationId}
           conversationId={conversationId}
         />
       ),
       requiredAccess: PRODUCT_ROUTE_ACCESSES.owner,
-      breadcrumbs: [
-        { label: "Products", href: "/products" },
-        { label: "ThoughtForm", href: "/products/thoughtform" },
-        { label: "Conversations", href: "/products/thoughtform/conversations" },
-        { label: "Editor" },
-      ],
+      breadcrumbs: [],
     };
   }
 

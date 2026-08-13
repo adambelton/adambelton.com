@@ -41,6 +41,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Fix ThoughtForm workspace overflow and editor control presentation
 - 044 — Minimum authenticated portfolio-demo operations visibility
 - 040 — Calibrated atomic usage enforcement
 - 039 — Representative hosted-usage measurement, Idea Map reliability evidence,

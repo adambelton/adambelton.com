@@ -54,12 +54,13 @@ export function ProductRoutePage() {
   }
 
   const metadata = getProductRouteMetadata(productSlug, productPath);
+  const showBreadcrumbs = !isThoughtFormEditorPath(productSlug, productPath);
 
   if (route.requiredAccess === PRODUCT_ROUTE_ACCESSES.public) {
     return (
       <>
         {metadata}
-        <ProductRouteLayout breadcrumbs={route.breadcrumbs}>
+        <ProductRouteLayout breadcrumbs={showBreadcrumbs ? route.breadcrumbs : []}>
           {route.element}
         </ProductRouteLayout>
       </>
@@ -74,7 +75,7 @@ export function ProductRoutePage() {
       ) : (
         <>
           {metadata}
-          <ProductRouteLayout breadcrumbs={route.breadcrumbs}>
+          <ProductRouteLayout breadcrumbs={showBreadcrumbs ? route.breadcrumbs : []}>
             {route.element}
           </ProductRouteLayout>
         </>
@@ -91,10 +92,17 @@ function ProductRouteLayout({
   children: ReactNode;
 }) {
   return (
-    <div>
-      <Breadcrumbs items={breadcrumbs} />
-      <div>{children}</div>
+    <div className={breadcrumbs.length > 0 ? undefined : "h-full min-h-0"}>
+      {breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} /> : null}
+      <div className={breadcrumbs.length > 0 ? undefined : "h-full min-h-0"}>{children}</div>
     </div>
+  );
+}
+
+function isThoughtFormEditorPath(productSlug: string, productPath: string) {
+  return productSlug === "thoughtform" && (
+    productPath === "editor" ||
+    /^conversations\/[^/]+\/editor$/.test(productPath)
   );
 }
 

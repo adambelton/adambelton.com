@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 import { TextLink } from "packages/products/src/thoughtform/client/ui/TextLink";
 import { AiProcessingDisclosureLoader } from "packages/products/src/thoughtform/client/workspace/components/AiProcessingDisclosureLoader";
+import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
 
 type PrivacyAcknowledgementProps = {
   components: ProductAppComponents;
@@ -68,13 +69,13 @@ export function PrivacyAcknowledgement({
           </span>
         </label>
         <div className="flex flex-wrap items-center gap-5">
-          <button
-            className="w-fit border border-[var(--foreground)] px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-[var(--line)] disabled:text-[var(--muted)]"
+          <WorkspaceButton
+            className="px-5 py-3 text-sm"
             disabled={!isChecked}
             type="submit"
           >
             Open the editor
-          </button>
+          </WorkspaceButton>
           <TextLink href="/products/thoughtform" Link={Link}>
             Leave the editor
           </TextLink>

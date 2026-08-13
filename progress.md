@@ -838,6 +838,26 @@ ceiling for separate explicit approval.
   second repetition or retry ran, and the investigated failure is recorded in
   the report.
 
+## 2026-08-13 — ThoughtForm workspace overflow correction
+
+- Replaced the normal site chrome on temporary and owner editor routes with a
+  dedicated fixed-height viewport shell, removing header, footer, and
+  breadcrumbs from the workspace while retaining them elsewhere.
+- Reworked the editor layout so conversation history, composition controls,
+  Idea Map, and Draft consume the available viewport without page scrolling;
+  viewport-capped spacing preserves a usable internal conversation region on
+  short screens and at 200% text size.
+- Added stable top-right Clear workspace and Leave workspace controls with
+  appropriate button/link semantics and icons. Introduced product-owned primary
+  and secondary workspace button styling with consistent hover and cursor
+  feedback across conversation, idea-map, and Draft actions.
+- Removed the one-off margin around the global Log in / Log out link so all
+  header links use the same navigation spacing.
+- Adam approved the mounted presentation after live desktop review. The full
+  suite passed: 368 unit/integration tests, typecheck, production build, and all
+  six Chromium product journeys covering desktop, short viewport, mobile,
+  restored content, Draft editing, and 200% text.
+
 ## 2026-08-13 — Care Calendar learning-project foundation
 
 - Added the initial Care Calendar learning, product-definition, safety,

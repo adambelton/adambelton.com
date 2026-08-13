@@ -39,11 +39,7 @@ describe("renderProductRoute", () => {
     ).toMatchObject({
       status: PRODUCT_ROUTE_STATUSES.found,
       requiredAccess: PRODUCT_ROUTE_ACCESSES.authenticated,
-      breadcrumbs: [
-        { label: "Products", href: "/products" },
-        { label: "ThoughtForm", href: "/products/thoughtform" },
-        { label: "Editor" },
-      ],
+      breadcrumbs: [],
     });
   });
 
