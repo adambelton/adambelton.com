@@ -678,11 +678,9 @@ contract evaluation remains outside CI.
 
 - Browser-held temporary-workspace persistence; current temporary work is
   ephemeral in API-process memory with best-effort restoration.
-- Hosted-attempt accounting, representative measurement, usage enforcement, and
-  cost protection.
-- Autonomous, user-correctable Idea Map evolution.
-- Minimum beta operations visibility and the explicit production beta release
-  policy/verification task.
+- Minimum authenticated portfolio-demo operations visibility and the explicit
+  production portfolio-demo release policy/verification task. A future public
+  beta or commercial release is a separate project.
 
 ## Known gaps / risks
 
