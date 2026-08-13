@@ -34,6 +34,38 @@ cleared the synthetic workspace. Automated validation covers 333 ordinary
 tests, eight unskipped Neon integration tests, four browser journeys, full
 typecheck/build, schema validation, current migration status, and diff checks.
 
+Task 039 is complete. Its usage measurement and approved autonomous Idea Map
+reliability amendment are implemented, validated, recorded, and approved for
+commit.
+Six privacy-safe representative journeys now
+run through the mounted temporary ThoughtForm composition while usage is read
+exclusively from the content-free Task 038 ledger. The final report-capture run
+completed 72 of 72 attempts successfully across two repetitions. Its originally displayed
+monetary estimate was withdrawn after an audit found duplicate pricing of cache
+and reasoning categories; the provider token measurements are unaffected.
+Conversation responses used 2,186–3,408 input and 227–541 output tokens; Idea
+Map analyses used 3,583–4,803 input and 151–990 output tokens. The dated report
+records all operation and scenario ranges, missing reasoning metadata,
+limitations, and concrete Task 040 review inputs without fixture or generated
+content. A stricter targeted structure check then stopped after its first six
+successful hosted attempts because none of three Idea Map analyses proposed an
+autonomous merge or split; the second repetition did not run. That investigated
+failure is recorded without weakening the 72-attempt usage ranges or claiming
+that autonomous structure evolution occurred in the measurement. Task 040
+remains unapproved pending review of those policy values.
+
+The first Idea Map reliability amendment run completed 24 calls for an estimated
+$0.1126. It produced 12/12 correct requested structural changes, no changes in
+nine controls, and 3/3 respected corrections. Its positive messages explicitly
+requested restructuring, so it demonstrates prompted reliability rather than
+autonomous detection. Revised implicit positive scenarios are implemented but
+were then run in a separately approved 12-call check for an estimated $0.0905.
+All 12 proposed the expected operation against the correct ideas; 11 passed
+product validation and one split was safely rejected. Taken together, the
+small matrix provides directional evidence of reliable clear-cue behavior with
+no observed control false positives, while the earlier natural journey remains
+evidence that autonomous restructuring will not occur in every conversation.
+
 The ThoughtForm product overview now uses the approved AI-assisted cathartic-
 journaling copy. It introduces the gateway use case, presents Explore, Inspect,
 and Articulate as the complete reflective loop, makes user agency and the non-
@@ -753,6 +785,23 @@ product-owned scenarios, mounted host composition, content-free Task 038 ledger
 aggregation, and privacy checks. Before any paid Sonnet 5 measurement calls,
 present the exact scenario matrix, repetitions, hosted-operation count, and cost
 ceiling for separate explicit approval.
+
+## 2026-08-13 — Task 039 hosted-usage measurement
+
+- Defined six product-owned representative ThoughtForm journeys covering the
+  approved Discovery, Draft, revision, saved-edit, short/long, and Idea Map
+  structure cases. Three repetitions produce 108 expected hosted operations.
+- Added a paid-run-gated mounted-host runner and a content-free database reader
+  over the existing Task 038 attempt ledger. The default command prints the
+  plan and cannot call the provider.
+- Completed the separately approved hosted runs and prepared the content-free
+  [measurement report](docs/products/thoughtform/usage-measurement-2026-08-13.md)
+  with Task 040 calibration recommendations.
+- Added a strict autonomous-structure precondition and ran the separately
+  approved 12-operation targeted check. It stopped after the first journey's
+  six successful attempts because the model proposed no merge or split; no
+  second repetition or retry ran, and the investigated failure is recorded in
+  the report.
 
 ## 2026-08-13 — Care Calendar learning-project foundation
 

@@ -2,6 +2,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDatabaseClient, type DatabaseClient } from "packages/db/src/client/database-client";
 import { PrismaThoughtFormHostedAttemptRecordStore } from "packages/db/src/adapters/thoughtform/hosted-attempt-record-store";
 import {
+  measurementOperationId,
+  PrismaThoughtFormUsageMeasurementReader,
+} from "packages/db/src/adapters/thoughtform/usage-measurement-reader";
+import {
   HOSTED_ATTEMPT_ACTIONS,
   HOSTED_ATTEMPT_OUTCOMES,
 } from "packages/products/src/thoughtform/server/capabilities/hosted-attempt";
@@ -126,6 +130,45 @@ describe.skipIf(!databaseUrl)("Prisma hosted-attempt record store integration", 
       where: { id: current.id },
     });
     expect(Object.keys(row).sort()).toEqual(allowedKeys.sort());
+  });
+
+  it("reads one measurement run without content or unrelated attempts", async () => {
+    const store = new PrismaThoughtFormHostedAttemptRecordStore(database, userId);
+    const operationId = measurementOperationId({
+      runId: "integration-run",
+      scenarioId: "guided-vague-discovery",
+      repetition: 1,
+      sequence: 1,
+    });
+    const measured = await store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId,
+    });
+    await store.complete({
+      attemptId: measured.id,
+      outcome: HOSTED_ATTEMPT_OUTCOMES.succeeded,
+      usage: usage(17),
+      completedAt: "2026-08-13T12:00:01.000Z",
+    });
+    await store.admit({
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      operationId: "unrelated-operation",
+    });
+
+    const attempts = await new PrismaThoughtFormUsageMeasurementReader(
+      database,
+      userId,
+    ).readRun("integration-run");
+
+    expect(attempts).toEqual([expect.objectContaining({
+      scenarioId: "guided-vague-discovery",
+      repetition: 1,
+      operationId,
+      action: HOSTED_ATTEMPT_ACTIONS.conversationResponse,
+      outcome: HOSTED_ATTEMPT_OUTCOMES.succeeded,
+      inputTokens: 17,
+    })]);
+    expect(JSON.stringify(attempts)).not.toContain("Hosted attempt integration test");
   });
 });
 

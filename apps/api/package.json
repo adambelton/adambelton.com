@@ -7,6 +7,8 @@
     "dev": "tsx src/bootstrap/prepare-development.ts && tsx watch src/bootstrap/start-server.ts",
     "start": "node --import tsx src/bootstrap/start-production-server.ts",
     "evaluate:thoughtform-composition": "tsx src/products/thoughtform/testing/hosted-draft-evaluation.ts",
+    "measure:thoughtform-usage": "tsx src/products/thoughtform/testing/usage-measurement-runner.ts",
+    "evaluate:thoughtform-idea-structure-reliability": "tsx src/products/thoughtform/testing/idea-structure-reliability-runner.ts",
     "update:thoughtform-prompt-fallback": "tsx src/products/thoughtform/adapters/prompts/automation/update-thoughtform-prompt-fallback.ts",
     "validate:thoughtform-prompts": "tsx src/products/thoughtform/adapters/prompts/automation/validate-thoughtform-prompt-fallbacks.ts",
     "promote:thoughtform-prompt": "tsx src/products/thoughtform/adapters/prompts/automation/promote-thoughtform-prompt-fallbacks.ts",

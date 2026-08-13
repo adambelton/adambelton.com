@@ -22,6 +22,8 @@
     "validate:langfuse-workflows": "node .github/scripts/validate-langfuse-workflows.mjs",
     "promote:thoughtform-prompt": "pnpm --filter @adambelton/api promote:thoughtform-prompt",
     "evaluate:thoughtform-composition": "pnpm --filter @adambelton/api evaluate:thoughtform-composition",
+    "measure:thoughtform-usage": "pnpm --filter @adambelton/api measure:thoughtform-usage",
+    "evaluate:thoughtform-idea-structure-reliability": "pnpm --filter @adambelton/api evaluate:thoughtform-idea-structure-reliability",
     "test:hosted": "pnpm --filter @adambelton/products test:hosted",
     "db:generate": "pnpm --filter @adambelton/db prisma:generate",
     "db:validate": "pnpm --filter @adambelton/db prisma:validate",

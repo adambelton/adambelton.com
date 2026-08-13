@@ -55,7 +55,7 @@ packages/products/src/thoughtform/
     ├── fakes/                                  Deterministic external substitutes
     ├── fixtures/                               Reusable example product states
     ├── browser/                                Complete user journeys
-    └── evaluations/                            Real-model behavioural checks
+    └── evaluations/                            Real-model behaviour and usage scenarios
 ```
 
 Owner-only Langfuse observations use the runtime-neutral contracts in
@@ -209,6 +209,15 @@ audience, publishing, or document-type state.
 - `testing/evaluations` checks those conversational shapes with a hosted model;
   invalid structured idea material fails the evaluation rather than being only
   reported.
+- `testing/evaluations/usage-measurement-scenarios.ts` owns the privacy-safe
+  Task 039 journey matrix, while `usage-measurement-report.ts` owns its
+  provider-neutral, content-free reporting contract. The API host executes that
+  matrix through the mounted temporary workspace and the database adapter reads
+  only the existing hosted-attempt ledger.
+- `testing/evaluations/idea-structure-reliability.ts` owns the synthetic merge,
+  split, no-change, and correction-respect matrix plus content-free scoring. The
+  API host supplies the current provider adapter and prints a dry plan unless a
+  separately approved hosted run is explicitly enabled.
 - Host and database integration tests live beside the adapters they verify.
 
 From the repository root:
@@ -217,7 +226,14 @@ From the repository root:
 pnpm exec vitest run packages/products/src/thoughtform
 pnpm --filter @adambelton/products typecheck
 pnpm test:e2e
+pnpm measure:thoughtform-usage # dry plan; execution also requires an explicit per-run USD limit
+pnpm evaluate:thoughtform-idea-structure-reliability # dry plan by default
 ```
+
+Hosted execution remains separately approved and requires both
+`RUN_HOSTED_USAGE_MEASUREMENT=true` and a positive
+`USAGE_MEASUREMENT_COST_CEILING_USD` value. The latter is a post-operation
+estimated-cost stop, not a provider billing cap.
 
 For deeper product decisions, read
 [`docs/products/thoughtform/`](../../../../docs/products/thoughtform/).

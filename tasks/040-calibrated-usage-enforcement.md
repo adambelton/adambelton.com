@@ -72,6 +72,25 @@ guessing at legitimate use.
 - configuration names, development defaults, production requirements, and
   invalid-value behavior.
 
+## Task 039 calibration inputs awaiting review
+
+The dated [Task 039 measurement report](../docs/products/thoughtform/usage-measurement-2026-08-13.md)
+proposes the following values. They are evidence-backed review inputs, not
+approved Task 040 policy:
+
+- 30 temporary-user and 300 global admitted attempts per UTC day;
+- 120,000 temporary-user and 1,200,000 global completed tokens per UTC day;
+- owner exemption from the personal allowance but inclusion in global limits;
+- reservations of 5,000 conversation, 7,000 Idea Map, 2,500 Draft composition,
+  1,500 revision-proposal, and 2,500 saved-change-interpretation tokens;
+- one-operation overshoot capped by the 7,000-token maximum reservation;
+- full-reservation retention when complete input/output metadata is missing;
+- output caps of 1,024 conversation, 1,536 Idea Map, and 512 for each Draft
+  operation;
+- a proposed 16 KiB serialized Draft-operation input bound that Task 040 must
+  validate against measured request bytes before adoption;
+- safe disclosure of personal requests remaining and UTC reset time only.
+
 ## Settled constraints
 
 - Admission is atomic across processes and occurs immediately before the hosted
@@ -136,6 +155,6 @@ generated migration SQL.
 
 ## Status
 
-Revised from the completed lifecycle and current accounting architecture.
-Blocked on Tasks 038 and 039 and the explicit calibration-value review. Not
-approved.
+Revised from the completed lifecycle, accounting architecture, and Task 039
+measurements. Blocked on explicit review and approval of the proposed policy
+values. Not approved.
