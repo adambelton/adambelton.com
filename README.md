@@ -102,6 +102,15 @@ gate. Its self-contained
 internal structure, interaction flow, integration points, testing strategy, and
 where to begin investigating product behaviour.
 
+## Care Calendar
+
+Care Calendar is the repository's next product and the focus of a structured
+healthcare and social-care product-engineering learning project. It currently
+consists of research, learning, and product-definition documentation rather
+than implemented software. Its [product guide](packages/products/src/care-calendar/README.md)
+summarises the project's status and points to the authoritative Care Calendar
+documents without duplicating them.
+
 ## Architecture vocabulary
 
 | Term | Meaning in this repository |

@@ -754,6 +754,14 @@ aggregation, and privacy checks. Before any paid Sonnet 5 measurement calls,
 present the exact scenario matrix, repetitions, hosted-operation count, and cost
 ceiling for separate explicit approval.
 
+## 2026-08-13 — Care Calendar learning-project foundation
+
+- Added the initial Care Calendar learning, product-definition, safety,
+  stakeholder, and care-journey documents under the product-owned boundary.
+- Added a [Care Calendar product guide](packages/products/src/care-calendar/README.md)
+  as a high-level status and navigation entry point. The linked documents remain
+  the sources of truth, and no product implementation has started.
+
 ## Historical semantic-editor investigation
 
 A constrained semantic Markdown editor was investigated and prototyped, then
