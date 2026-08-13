@@ -748,10 +748,11 @@ contract evaluation remains outside CI.
 
 ## Next recommended task
 
-Freshly review the autonomous, user-correctable Idea Map evolution proposal
-against the current beta scope and the completed Task 038 ledger. That decision
-settles the final beta capability set required before Task 039 usage measurement
-can be reviewed and approved.
+Implement the approved deterministic first stage of Task 039: representative
+product-owned scenarios, mounted host composition, content-free Task 038 ledger
+aggregation, and privacy checks. Before any paid Sonnet 5 measurement calls,
+present the exact scenario matrix, repetitions, hosted-operation count, and cost
+ceiling for separate explicit approval.
 
 ## Historical semantic-editor investigation
 

@@ -18,8 +18,8 @@ change the proposal or grant approval for a later task.
 
 ## Planned
 
-- 039 — Representative hosted-usage measurement; revised, blocked on a fresh
-  review against the now-settled beta capability set
+- 039 — Representative hosted-usage measurement; approved with deterministic
+  harness work authorized and paid hosted runs separately gated
 - 040 — Calibrated atomic usage enforcement; revised, blocked on Tasks 038 and
   039 plus explicit calibration-value approval
 - 044 — Minimum beta operations visibility; revised, blocked on Tasks 038–040
@@ -29,7 +29,8 @@ change the proposal or grant approval for a later task.
   release review
 - 045 — Dedicated Neon test-database workflow; low priority and awaiting approval
 
-Task 038, the unnumbered correction tasks, Task 036, and Langfuse prompt
+Task 039 is approved but not yet implemented. Task 038, the unnumbered correction
+tasks, Task 036, and Langfuse prompt
 automation are complete. Every later beta task remains unapproved and must be
 re-reviewed after its dependencies establish new evidence. Preference learning
 is not a prerequisite.
