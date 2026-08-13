@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Navigate, useSearchParams } from "react-router";
+import { Navigate, useLocation, useSearchParams } from "react-router";
 import { magicLinkSignInPath } from "packages/auth/src/server/routes";
 import { Breadcrumbs, Button, Prose } from "apps/client/src/ui/components";
 import { useAuthSession } from "apps/client/src/auth/session";
@@ -17,6 +17,7 @@ const unknownLoginError =
 
 export function LoginPage() {
   const session = useAuthSession();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<SignInStatus>("idle");
@@ -26,13 +27,14 @@ export function LoginPage() {
     ? (loginErrors[loginError] ?? unknownLoginError)
     : null;
   const canSubmit = email.trim().length > 0 && status !== "sending";
+  const callbackUrl = getLoginCallbackUrl(location.state);
 
   if (session.isPending) {
     return <p role="status">Checking your session.</p>;
   }
 
   if (session.data) {
-    return <Navigate replace to={defaultCallbackUrl} />;
+    return <Navigate replace to={callbackUrl} />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -53,7 +55,7 @@ export function LoginPage() {
       },
       body: JSON.stringify({
         email: email.trim(),
-        callbackURL: defaultCallbackUrl,
+        callbackURL: callbackUrl,
         errorCallbackURL: "/login",
       }),
     });
@@ -121,4 +123,19 @@ export function LoginPage() {
       </form>
     </section>
   );
+}
+
+export function getLoginCallbackUrl(state: unknown): string {
+  if (
+    typeof state === "object" &&
+    state !== null &&
+    "from" in state &&
+    typeof state.from === "string" &&
+    state.from.startsWith("/") &&
+    !state.from.startsWith("//")
+  ) {
+    return state.from;
+  }
+
+  return defaultCallbackUrl;
 }

@@ -570,3 +570,7 @@ export const DRAFT_ERROR_CODES = {
 
 export type DraftErrorCode =
   (typeof DRAFT_ERROR_CODES)[keyof typeof DRAFT_ERROR_CODES];
+
+export interface ThoughtFormRuntimeCapabilities {
+  temporaryWorkspaceAvailable: boolean;
+}

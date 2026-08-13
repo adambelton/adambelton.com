@@ -3,13 +3,9 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteHeader } from "apps/client/src/ui/layout/SiteHeader";
 import { useAuthSession } from "apps/client/src/auth";
-import { useIsDevelopmentFeatureEnabled } from "apps/client/src/platform/access/useIsDevelopmentFeatureEnabled";
 
 vi.mock("apps/client/src/auth", () => ({
   useAuthSession: vi.fn(),
-}));
-vi.mock("apps/client/src/platform/access/useIsDevelopmentFeatureEnabled", () => ({
-  useIsDevelopmentFeatureEnabled: vi.fn(),
 }));
 
 describe("SiteHeader", () => {
@@ -17,22 +13,9 @@ describe("SiteHeader", () => {
     vi.mocked(useAuthSession).mockReturnValue({ data: null } as ReturnType<
       typeof useAuthSession
     >);
-    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(false);
   });
 
-  it("does not advertise the private login route to anonymous visitors", () => {
-    const markup = renderToStaticMarkup(
-      <MemoryRouter>
-        <SiteHeader />
-      </MemoryRouter>,
-    );
-
-    expect(markup).not.toContain("Log in");
-    expect(markup).not.toContain('href="/login"');
-  });
-
-  it("makes authentication discoverable when the development host enables it", () => {
-    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(true);
+  it("keeps sign-in discoverable to anonymous visitors", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter>
         <SiteHeader />
@@ -43,27 +26,11 @@ describe("SiteHeader", () => {
     expect(markup).toContain('href="/login"');
   });
 
-  it("keeps authentication navigation hidden in production for an authenticated owner", () => {
+  it("keeps sign-out discoverable to an authenticated user", () => {
     vi.mocked(useAuthSession).mockReturnValue({
       data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
     } as ReturnType<typeof useAuthSession>);
 
-    const markup = renderToStaticMarkup(
-      <MemoryRouter>
-        <SiteHeader />
-      </MemoryRouter>,
-    );
-
-    expect(markup).not.toContain('href="/logout"');
-    expect(markup).not.toContain("Log out");
-  });
-
-  it("shows logout for an authenticated development session", () => {
-    vi.mocked(useAuthSession).mockReturnValue({
-      data: { user: { email: "owner@example.com", id: "owner", name: "Adam" } },
-    } as ReturnType<typeof useAuthSession>);
-
-    vi.mocked(useIsDevelopmentFeatureEnabled).mockReturnValue(true);
     const markup = renderToStaticMarkup(
       <MemoryRouter>
         <SiteHeader />

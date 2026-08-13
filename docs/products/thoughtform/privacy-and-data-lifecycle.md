@@ -1,6 +1,6 @@
 # ThoughtForm privacy and data lifecycle
 
-Last reviewed: 10 August 2026.
+Last reviewed: 13 August 2026.
 
 This note records the product-specific privacy boundary for ThoughtForm.
 Shared authentication, contact, and platform-provider processing is documented in
@@ -35,9 +35,10 @@ Shared authentication, contact, and platform-provider processing is documented i
   reconciled as interrupted. Deleting the authentication user cascades all of
   that user's hosted-attempt records. Clearing or expiring temporary workspace
   content does not delete this separate operational metadata early.
-- The host currently enables authenticated non-owner access in development only.
-  Production remains owner-only until a separately approved demo release; this
-  release gate does not change the temporary data lifecycle.
+- The host admits every authenticated account when hosted AI is valid and
+  enabled. The public availability signal contains only that boolean; API
+  authentication remains authoritative. This access policy does not change the
+  temporary data lifecycle.
 
 ## Owner workspace
 

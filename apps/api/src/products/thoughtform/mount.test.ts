@@ -151,12 +151,11 @@ describe("products API route mount", () => {
     })).toBeInstanceOf(DisabledConversationModelAdapter);
   });
 
-  it("gates temporary non-owner access while keeping durable work owner-only", () => {
-    vi.stubEnv("NODE_ENV", "production");
+  it("admits every authenticated account only when the temporary workspace is available", () => {
     const ownerSession = { user: { id: "owner-1", isOwner: true } };
     const demoSession = { user: { id: "demo-1", isOwner: false } };
 
-    expect(getTemporaryConversationAccess(ownerSession)).toEqual({
+    expect(getTemporaryConversationAccess(ownerSession, true)).toEqual({
       isSignedIn: true,
       isOwner: false,
       userId: "owner-1",
@@ -166,13 +165,14 @@ describe("products API route mount", () => {
       isOwner: true,
       userId: "owner-1",
     });
-    expect(getTemporaryConversationAccess(demoSession)).toBeNull();
-    vi.stubEnv("NODE_ENV", "development");
-    expect(getTemporaryConversationAccess(demoSession)).toEqual({
+    expect(getTemporaryConversationAccess(demoSession, true)).toEqual({
       isSignedIn: true,
       isOwner: false,
       userId: "demo-1",
     });
+    expect(getTemporaryConversationAccess(ownerSession, false)).toBeNull();
+    expect(getTemporaryConversationAccess(demoSession, false)).toBeNull();
+    expect(getTemporaryConversationAccess(null, true)).toBeNull();
     expect(getPersistentConversationAccess(demoSession)).toBeNull();
   });
 
@@ -210,6 +210,18 @@ describe("products API route mount", () => {
     expect(JSON.stringify(body)).toContain("Anthropic");
     expect(JSON.stringify(body)).toContain("OpenAI");
     expect(JSON.stringify(body)).not.toContain("apiKey");
+  });
+
+  it("exposes only the server-derived temporary-workspace capability", async () => {
+    const response = await app.request(
+      "/products/thoughtform/runtime-capabilities",
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      data: { temporaryWorkspaceAvailable: false },
+    });
   });
 
   it("does not expose persistent conversations without owner access", async () => {

@@ -1314,3 +1314,30 @@ budget configuration. Rejected admissions are not persisted or counted.
 Deleted accounts and their cascaded attempt records do not appear. This surface
 supports a small authenticated portfolio demo; a future public beta or
 commercial release is a separate project with its own operational review.
+
+## 064 — The Product Demo Uses Hosted-AI Availability As Its Release Boundary
+
+Decision 057's development-or-owner release gate is superseded. The portfolio
+site admits every authenticated account to one isolated temporary ThoughtForm
+workspace when the API host has a valid enabled hosted-AI client. Anonymous
+workspace and model access remain denied. ID-addressed durable conversations,
+operations, admin routes, and Langfuse observation remain owner-only.
+
+The host publishes one content-free runtime capability,
+`temporaryWorkspaceAvailable`, for client discoverability. It is derived from
+the same server configuration used to assemble hosted AI and is not an
+authorization substitute. The client keeps sign-in public, shows the workspace
+entry only when that capability is true, redirects logged-out entry attempts to
+sign-in, and fails closed if capability delivery fails.
+
+A direct authenticated visit while unavailable presents a stable product-demo
+unavailable state. If hosted AI is disabled after a workspace has loaded, the
+existing operation-level disabled outcome stops further composition while
+preserving visible conversation and unsent local text for copying.
+
+`HOSTED_AI_ENABLED` remains the only operational shutdown control; there is no
+allowlist, separate release toggle, or general feature-flag system. A disabled
+or invalid hosted-AI configuration removes temporary-workspace access and stops
+owner and non-owner model operations. Production remains exactly one API
+application instance while temporary state is process-local. The portfolio
+product demo is distinct from any future public beta or commercial release.

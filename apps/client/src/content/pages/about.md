@@ -1,12 +1,12 @@
 ---
 title: About
-description: Senior software engineer building complex products around the way people actually work.
+description: Senior product engineer combining systems thinking, product judgement and frontend depth.
 ---
 
-I’m Adam, a senior software engineer who builds complex products around the way people actually work. My strongest work sits at the intersection of engineering, product thinking and user experience: understanding a difficult problem, questioning the assumptions behind it, and shaping software that makes the underlying complexity easier to manage.
+I’m Adam, a senior product engineer with eight years of experience building complex SaaS products. The work I care about most sits at the intersection of engineering and product thinking: understanding complex domains, sitting close to users, working through ambiguity, questioning assumptions, identifying the underlying problem and turning difficult workflows into clear, reliable products.
 
-I work across the stack, with particular depth in frontend architecture, performance and user experience. I’m at my best when a problem is messy, the requirements are still taking shape, and good engineering depends on understanding the product and its users rather than simply implementing a specification.
+I work across the stack, with particular depth in frontend architecture, performance and user experience. My strongest work combines systems thinking with product judgement: domain modelling, APIs, relational data, event-driven workflows, application architecture and interface design. I care about clear boundaries, low cognitive load and abstractions that earn their place, so systems remain understandable and safe to change as they grow.
 
-Over the past eight years, I’ve built web applications with React, Vue and TypeScript, including more than four years developing operational software used by hundreds of cinemas around the world. My work has ranged from large frontend migrations and information architecture redesigns to inventory systems, booking products and internal design systems.
+Over the past eight years, I’ve built products with React, Vue, TypeScript, Node.js and Ruby on Rails. At INDY, I joined as the third engineer and helped develop a platform that grew to serve hundreds of cinemas and millions of end customers. My work has included full-stack inventory and booking systems, large frontend migrations, design systems, information architecture redesigns, testing strategy and increasing responsibility for frontend technical leadership as the product and engineering team matured.
 
-I care about clear interfaces, sound technical boundaries and software that remains understandable as it grows. I’m especially interested in product engineering, accessibility, healthcare and social care, and in how AI can make people more capable without displacing their judgement—both in the way we build software and in the products we create.
+I’m especially interested in healthcare, social care and accessibility: high-trust domains where good software can improve access, continuity, clarity and the amount of time professionals can spend with the people they support. I also use AI extensively in both engineering and product work, but with deliberate boundaries: as leverage for better exploration, implementation and judgement, not as a substitute for human responsibility. Those are the kinds of products and engineering problems I want to keep building my career around.

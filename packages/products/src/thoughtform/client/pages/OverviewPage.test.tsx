@@ -32,10 +32,10 @@ describe("ThoughtForm overview page", () => {
     expect(markup).toContain("non-expiring usage credit");
     expect(markup).toContain("This is not yet how ThoughtForm is operated");
     expect(markup).toContain("Development snapshot");
-    expect(markup).toContain("Preparing the product demo");
-    expect(markup).toContain("complete reflective loop is working today");
+    expect(markup).not.toContain("Preparing the product demo");
+    expect(markup).toContain("product demo includes the complete reflective loop");
     expect(markup).toContain("user-correctable Idea Map");
-    expect(markup).toContain("privacy safeguards");
+    expect(markup).toContain("owner-only operational monitoring");
     expect(markup).not.toContain("audience");
     expect(markup).not.toContain("word count");
     expect(markup).not.toContain("when it is useful");
@@ -54,7 +54,10 @@ describe("ThoughtForm overview page", () => {
 
   it("links owners to saved conversations without exposing the link to demos", () => {
     const ownerMarkup = renderToStaticMarkup(
-      <OverviewPage accessLevel={ACCESS_LEVELS.owner} components={components} />,
+      <OverviewPage
+        accessLevel={ACCESS_LEVELS.owner}
+        components={{ ...components, isTemporaryWorkspaceAvailable: true }}
+      />,
     );
     const demoMarkup = renderToStaticMarkup(
       <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
@@ -71,7 +74,11 @@ describe("ThoughtForm overview page", () => {
     const ownerMarkup = renderToStaticMarkup(
       <OverviewPage
         accessLevel={ACCESS_LEVELS.owner}
-        components={{ ...components, ownerOperationsHref: "/products/thoughtform/operations" }}
+        components={{
+          ...components,
+          isTemporaryWorkspaceAvailable: true,
+          ownerOperationsHref: "/products/thoughtform/operations",
+        }}
       />,
     );
     const demoMarkup = renderToStaticMarkup(

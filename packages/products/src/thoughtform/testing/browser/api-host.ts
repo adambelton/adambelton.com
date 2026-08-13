@@ -89,6 +89,13 @@ app.get("/products/thoughtform/ai-disclosure", (context) => context.json({
   },
 }));
 
+app.get("/products/thoughtform/runtime-capabilities", (context) =>
+  context.json({
+    ok: true,
+    data: { temporaryWorkspaceAvailable: true },
+  })
+);
+
 app.post("/testing/reset", (context) => {
   conversationStore = createTestConversationStore();
   draftStore = createDraftStore(new TestDraftPersistence());

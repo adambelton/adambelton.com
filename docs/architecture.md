@@ -22,9 +22,10 @@ Client-side route gates are UX affordances only. API/server authorization is
 the authoritative security boundary for sensitive operations. Product
 catalogue, overview, and privacy information may be public. ThoughtForm's
 temporary workspace is an authenticated capability whose non-owner availability
-is controlled by a host release gate: development enables it and production
-currently remains owner-only. Durable conversations and owner observations are
-owner-only in every environment.
+is derived from the host's valid enabled hosted-AI runtime. The server publishes
+only that boolean capability for client discoverability and remains authoritative
+for workspace access. Durable conversations, operations, admin routes, and owner
+observations are owner-only in every environment.
 
 Shared package boundaries are created early to keep later implementation small and deliberate.
 

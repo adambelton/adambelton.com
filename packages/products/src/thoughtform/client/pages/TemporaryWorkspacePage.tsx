@@ -29,6 +29,11 @@ export function TemporaryWorkspacePage({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (components.isTemporaryWorkspaceAvailable === false) {
+      setIsLoading(false);
+      return;
+    }
+
     if (!hasAcknowledged) {
       setIsLoading(false);
       return;
@@ -62,7 +67,25 @@ export function TemporaryWorkspacePage({
     return () => {
       isCurrent = false;
     };
-  }, [hasAcknowledged]);
+  }, [components.isTemporaryWorkspaceAvailable, hasAcknowledged]);
+
+  if (components.isTemporaryWorkspaceAvailable === false) {
+    return (
+      <section aria-labelledby="workspace-unavailable-title">
+        <h1
+          className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
+          id="workspace-unavailable-title"
+        >
+          Product demo unavailable
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]" role="status">
+          Hosted AI is currently unavailable, so the temporary workspace cannot
+          be opened. If an existing tab still contains unsent text, you can copy
+          it locally, but no model operation can continue.
+        </p>
+      </section>
+    );
+  }
 
   if (!hasAcknowledged) {
     return (

@@ -45,7 +45,7 @@ import {
   createThoughtFormOwnerObservationRoute,
 } from "apps/api/src/products/thoughtform/delivery/owner-observation-route";
 import { hasUserSession } from "apps/api/src/platform/access/has-user-session";
-import { isDevelopmentFeatureEnabled } from "apps/api/src/platform/access/is-development-feature-enabled";
+import { createThoughtFormRuntimeCapabilitiesRoute } from "apps/api/src/products/thoughtform/delivery/runtime-capabilities-route";
 import { HostedAttemptUsageLlmClient } from "apps/api/src/products/thoughtform/adapters/usage/hosted-attempt-usage-llm-client";
 import { createHostedAttemptLifecycleResolver } from "apps/api/src/products/thoughtform/adapters/usage/hosted-attempt-lifecycle-resolver";
 import { hostedUsagePolicy } from "apps/api/src/products/thoughtform/adapters/usage/hosted-usage-policy";
@@ -113,8 +113,9 @@ type ProductConversationSession = {
 
 export function getTemporaryConversationAccess(
   session: ProductConversationSession | null,
+  isTemporaryWorkspaceAvailable: boolean,
 ) {
-  return hasUserSession(session) && isDevelopmentFeatureEnabled(session)
+  return hasUserSession(session) && isTemporaryWorkspaceAvailable
     ? {
         isSignedIn: true as const,
         isOwner: false as const,
@@ -201,6 +202,9 @@ const createdHostedLlmClient = createLlmClient(hostedAiConfiguration);
 const hostedLlmClient = createdHostedLlmClient
   ? new HostedAttemptUsageLlmClient(createdHostedLlmClient)
   : null;
+const runtimeCapabilities = {
+  temporaryWorkspaceAvailable: hostedLlmClient !== null,
+};
 const getHostedAttemptLifecycleForUser = createHostedAttemptLifecycleResolver({
   databaseUrl: process.env.DATABASE_URL,
   isHostedAiEnabled: hostedLlmClient !== null,
@@ -299,6 +303,10 @@ thoughtFormRoute.route("/ai-disclosure", createThoughtFormAiDisclosureRoute({
       : null,
 }));
 thoughtFormRoute.route(
+  "/runtime-capabilities",
+  createThoughtFormRuntimeCapabilitiesRoute(runtimeCapabilities),
+);
+thoughtFormRoute.route(
   "/owner-observations",
   createThoughtFormOwnerObservationRoute({
     getSession: getCurrentAuthSession,
@@ -324,7 +332,10 @@ thoughtFormRoute.route(
     persistentProposalModel: ownerDraftModel,
     getConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(session);
+      const access = getTemporaryConversationAccess(
+        session,
+        runtimeCapabilities.temporaryWorkspaceAvailable,
+      );
 
       return access ? getThoughtFormConversationStore(access) : null;
     },
@@ -336,7 +347,10 @@ thoughtFormRoute.route(
     },
     getTemporaryConversationStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(session);
+      const access = getTemporaryConversationAccess(
+        session,
+        runtimeCapabilities.temporaryWorkspaceAvailable,
+      );
 
       return access ? getThoughtFormConversationStore(access) : null;
     },
@@ -347,13 +361,19 @@ thoughtFormRoute.route(
     },
     getTemporaryDraftStore: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
-      const access = getTemporaryConversationAccess(session);
+      const access = getTemporaryConversationAccess(
+        session,
+        runtimeCapabilities.temporaryWorkspaceAvailable,
+      );
       return access ? getThoughtFormDraftStore(access) : null;
     },
     getHostedAttemptLifecycle: async (request) => {
       const session = await getCurrentAuthSession(request.headers);
       const access = getPersistentConversationAccess(session) ??
-        getTemporaryConversationAccess(session);
+        getTemporaryConversationAccess(
+          session,
+          runtimeCapabilities.temporaryWorkspaceAvailable,
+        );
       return access
         ? getHostedAttemptLifecycleForUser(access.userId, session?.user.isOwner ?? false)
         : null;

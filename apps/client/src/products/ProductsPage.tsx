@@ -40,7 +40,7 @@ export function ProductsPage() {
                 <TextLink href={product.publicPath}>{product.name}</TextLink>
               </h3>
               <p className="mt-2 text-sm font-semibold text-[var(--accent)]">
-                Preparing the product demo
+                Demo available
               </p>
               <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">
                 {product.summary}
