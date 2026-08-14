@@ -16,6 +16,11 @@ describe("privacy page", () => {
     expect(markup).not.toContain("mailto:");
 
     expect(markup).toContain("How this site handles your data");
+    expect(markup).toContain("text-5xl");
+    expect(markup).not.toContain("text-6xl");
+    expect(markup).toContain("mt-6");
+    expect(markup).toContain('class="eyebrow mb-5"');
+    expect(markup).toContain("border-t border-[var(--line)] pt-5 text-base leading-7");
     expect(markup).toContain("Review the applicable product privacy page");
     expect(markup).toContain(
       'href="/products/thoughtform/privacy"',

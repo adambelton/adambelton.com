@@ -18,6 +18,9 @@ describe("ThoughtForm privacy acknowledgement", () => {
     );
 
     expect(markup).toContain("Before you begin");
+    expect(markup).toContain('data-testid="privacy-acknowledgement"');
+    expect(markup).toContain("h-full overflow-y-auto");
+    expect(markup).toContain("mx-auto grid min-h-full w-full max-w-4xl content-center");
     expect(markup).toContain("Temporary storage");
     expect(markup).toContain("no more than 24 hours");
     expect(markup).toContain("Use appropriate information");

@@ -7,6 +7,16 @@ documents why ThoughtForm moved from an AI-writing-tool premise to a
 conversational thinking workspace. Repository-backed metadata gives it the
 August 14 publication date and its permanent writing URL.
 
+The site-wide and ThoughtForm privacy pages now use the established public-page
+title scale, introductory spacing, long-form body measure, and regular text
+rhythm. Their opening summaries retain the larger introductory treatment used
+elsewhere. Document sections use the established eyebrow-and-divider pattern,
+and explicit section layouts keep embedded privacy notices isolated from page
+typography.
+The headerless temporary-editor privacy gate now uses a centred, full-height,
+scroll-safe layout that remains top-accessible when its content exceeds a short
+or mobile viewport.
+
 The approved ThoughtForm product-demo release implementation is complete and
 awaiting merge and deployment.
 Locally, the old development-or-owner gate has been replaced by a public,

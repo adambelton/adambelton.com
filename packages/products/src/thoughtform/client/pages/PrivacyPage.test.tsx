@@ -15,6 +15,11 @@ describe("ThoughtForm privacy page", () => {
     );
 
     expect(markup).toContain("How this product handles your thinking");
+    expect(markup).toContain("text-5xl");
+    expect(markup).not.toContain("text-6xl");
+    expect(markup).toContain("mt-6");
+    expect(markup).toContain('class="eyebrow mb-5"');
+    expect(markup).toContain("border-t border-[var(--line)] pt-5 text-base leading-7");
     expect(markup).toContain("24 hours");
     expect(markup).toContain("currently configured supported AI provider");
     expect(markup).toContain("Current AI processing information is loading");
