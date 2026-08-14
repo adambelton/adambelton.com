@@ -20,7 +20,7 @@ export function PrivacyPage({
       </h1>
       <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
         This page describes ThoughtForm as implemented on 7 August 2026. Read it
-        before using the editor alongside the site-wide{" "}
+        before using the workspace alongside the site-wide{" "}
         <TextLink href="/privacy" Link={Link}>
           privacy information
         </TextLink>
@@ -30,7 +30,7 @@ export function PrivacyPage({
       <div className="mt-12 grid gap-14 sm:mt-16 sm:gap-20">
         <PrivacySection id="conversation-processing-title" title="Conversation processing">
           <p className="m-0">
-            Messages submitted in the editor are sent through the site&apos;s
+            Messages submitted in the workspace are sent through the site&apos;s
             application server to the currently configured supported AI provider
             to generate the assistant&apos;s reply. Changing models within that
             provider does not change this processing relationship.
@@ -40,7 +40,7 @@ export function PrivacyPage({
 
         <PrivacySection id="temporary-workspace-title" title="Temporary workspace">
           <p className="m-0">
-            An authenticated user with access to the editor can use one current
+            An authenticated user with access to ThoughtForm can use one current
             temporary workspace. Its conversation, Idea Map, and Draft state are
             held in application memory, are not written to the site&apos;s database,
             and expire 24 hours after creation. Continuing the work does not extend
@@ -50,7 +50,7 @@ export function PrivacyPage({
             The workspace can be restored after a reload or navigation while that
             application memory remains available. A restart, deployment, or request
             to another application instance may remove it sooner. You can clear it
-            immediately in the editor to delete it from application memory and start
+            immediately from the workspace to delete it from application memory and start
             over.
           </p>
         </PrivacySection>
@@ -84,7 +84,7 @@ export function PrivacyPage({
 
         <PrivacySection id="choices-title" title="Your choices">
           <p className="m-0">
-            You can leave without opening the editor, clear the temporary workspace
+            You can leave without opening the workspace, clear the temporary workspace
             from inside it, or stop using ThoughtForm. Privacy and deletion requests
             are handled through the contact route on the site-wide{" "}
             <TextLink href="/privacy" Link={Link}>

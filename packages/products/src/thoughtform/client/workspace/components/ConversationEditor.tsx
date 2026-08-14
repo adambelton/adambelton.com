@@ -56,6 +56,7 @@ import type {
   ProductNavigationLinkProps,
 } from "packages/products/src/thoughtform/client/product-app-components";
 import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
+import { LeaveWorkspaceLink } from "packages/products/src/thoughtform/client/workspace/components/LeaveWorkspaceLink";
 
 interface ConversationEditorProps {
   Link?: ProductNavigationLink;
@@ -307,12 +308,7 @@ export function ConversationEditor({
                 Clear workspace
               </WorkspaceButton>
             ) : null}
-            <Link className="inline-flex cursor-pointer items-center gap-2 underline decoration-[var(--line)] underline-offset-4 transition-colors hover:text-[var(--accent)] hover:no-underline" href={leaveHref}>
-              Leave workspace
-              <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <path d="M14 5h5v14h-5M10 8l4 4-4 4M14 12H3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" />
-              </svg>
-            </Link>
+            <LeaveWorkspaceLink href={leaveHref} Link={Link} />
           </div>
         </div>
         <nav aria-label="Workspace views" className="flex border-b border-[var(--line)] lg:hidden">

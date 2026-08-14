@@ -4,6 +4,7 @@ import type { ProductAppComponents } from "packages/products/src/thoughtform/cli
 import { TextLink } from "packages/products/src/thoughtform/client/ui/TextLink";
 import { AiProcessingDisclosureLoader } from "packages/products/src/thoughtform/client/workspace/components/AiProcessingDisclosureLoader";
 import { WorkspaceButton } from "packages/products/src/thoughtform/client/workspace/components/WorkspaceButton";
+import { LeaveWorkspaceLink } from "packages/products/src/thoughtform/client/workspace/components/LeaveWorkspaceLink";
 
 type PrivacyAcknowledgementProps = {
   components: ProductAppComponents;
@@ -73,7 +74,7 @@ export function PrivacyAcknowledgement({
           />
           <span className="text-sm leading-6">
             I understand how my messages will be processed and want to open the
-            editor.
+            workspace.
           </span>
         </label>
         <div className="flex flex-wrap items-center gap-5">
@@ -82,11 +83,9 @@ export function PrivacyAcknowledgement({
             disabled={!isChecked}
             type="submit"
           >
-            Open the editor
+            Open workspace
           </WorkspaceButton>
-          <TextLink href="/products/thoughtform" Link={Link}>
-            Leave the editor
-          </TextLink>
+          <LeaveWorkspaceLink href="/products/thoughtform" Link={Link} />
         </div>
       </form>
       </div>

@@ -7,9 +7,9 @@ test("develops and negotiates a complete discovery conversation", async ({ page 
     expect(reset.ok()).toBe(true);
     await page.goto("/products/thoughtform/editor");
     await expect(page.getByRole("heading", { name: "Before you begin" })).toBeVisible();
-    await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
+    await page.getByLabel("I understand how my messages will be processed and want to open the workspace.").check();
     const restored = page.waitForResponse((response) => response.url().includes("/temporary-conversation/current"));
-    await page.getByRole("button", { name: "Open the editor" }).click();
+    await page.getByRole("button", { name: "Open workspace" }).click();
     await restored;
     await expect(page.getByText("This workspace is temporary.", { exact: false })).toBeVisible();
     await expect(page.getByRole("list", { name: "Conversation" })).toContainText("No messages yet.");

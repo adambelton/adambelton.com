@@ -5,8 +5,8 @@ test("composes, revises, reviews, restores, and clears a private draft", async (
   await page.request.post("/api/testing/reset");
   await page.request.post("/api/testing/draft-workspace");
   await page.goto("/products/thoughtform/editor");
-  await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
-  await page.getByRole("button", { name: "Open the editor" }).click();
+  await page.getByLabel("I understand how my messages will be processed and want to open the workspace.").check();
+  await page.getByRole("button", { name: "Open workspace" }).click();
   await expect(page.getByText("Accountability is the central argument.")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Workspace views" })).toBeHidden();
   await expect(page.getByRole("tablist", { name: "Workspace" })).toBeVisible();

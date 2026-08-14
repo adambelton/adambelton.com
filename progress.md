@@ -15,7 +15,8 @@ and explicit section layouts keep embedded privacy notices isolated from page
 typography.
 The headerless temporary-editor privacy gate now uses a centred, full-height,
 scroll-safe layout that remains top-accessible when its content exceeds a short
-or mobile viewport.
+or mobile viewport. Its actions and privacy copy consistently use workspace
+language, and the gate reuses the active workspace’s icon-bearing exit control.
 
 The approved ThoughtForm product-demo release implementation is complete and
 awaiting merge and deployment.
