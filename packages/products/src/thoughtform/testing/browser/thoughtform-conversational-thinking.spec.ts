@@ -3,8 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 test("supports varied conversational thinking without requiring a Draft", async ({ page }) => {
   await page.request.post("/api/testing/conversational-thinking");
   await page.goto("/products/thoughtform/editor");
-  await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
-  await page.getByRole("button", { name: "Open the editor" }).click();
+  await page.getByLabel("I understand how my messages will be processed and want to open the workspace.").check();
+  await page.getByRole("button", { name: "Open workspace" }).click();
 
   await expect(page.getByRole("heading", { name: "What would you like to think through?" })).toBeVisible();
   await send(page, "A long friendship ended, and I felt relief because I had stopped feeling safe enough to be honest.");
@@ -48,8 +48,8 @@ test("lets the user merge and immediately undo Idea Map structure", async ({ pag
   await page.request.post("/api/testing/reset");
   await page.request.post("/api/testing/structural-workspace");
   await page.goto("/products/thoughtform/editor");
-  await page.getByLabel("I understand how my messages will be processed and want to open the editor.").check();
-  await page.getByRole("button", { name: "Open the editor" }).click();
+  await page.getByLabel("I understand how my messages will be processed and want to open the workspace.").check();
+  await page.getByRole("button", { name: "Open workspace" }).click();
 
   await page.getByText("Merge overlapping ideas").click();
   await page.getByLabel("Merge Authority needs scrutiny").check();

@@ -20,7 +20,7 @@ test("keeps the temporary consent and workspace usable at a mobile width", async
   );
 
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Open the editor" }).click();
+  await page.getByRole("button", { name: "Open workspace" }).click();
 
   await expect(
     page.getByRole("heading", { name: "What would you like to think through?" }),
@@ -41,7 +41,7 @@ test("keeps restored conversation and controls inside the fixed-height workspace
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.goto("/products/thoughtform/editor");
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Open the editor" }).click();
+  await page.getByRole("button", { name: "Open workspace" }).click();
   await page.getByRole("textbox", { name: "What are you thinking?" }).fill(
     "I need to think through a difficult decision.",
   );
