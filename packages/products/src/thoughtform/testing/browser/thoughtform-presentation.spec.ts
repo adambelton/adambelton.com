@@ -24,7 +24,11 @@ test("keeps the temporary consent and workspace usable at a mobile width", async
 
   await expect(
     page.getByRole("heading", { name: "What would you like to think through?" }),
-  ).toBeVisible();
+  ).toBeHidden();
+  await expect(page.getByTestId("conversation-history").getByText(
+    "Explore a question, experience, decision, or idea.",
+    { exact: false },
+  )).toBeVisible();
   await expect(page.getByRole("button", { name: "Conversation" })).toHaveAttribute(
     "aria-current",
     "page",
@@ -33,6 +37,12 @@ test("keeps the temporary consent and workspace usable at a mobile width", async
     "scrollWidth",
     await page.locator("html").evaluate((element) => element.clientWidth),
   );
+
+  await expectMobileWorkspace(page, false);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await expectMobileWorkspace(page, false);
+  await page.setViewportSize({ width: 667, height: 375 });
+  await expectMobileWorkspace(page, false);
 });
 
 test("keeps restored conversation and controls inside the fixed-height workspace", async ({
@@ -79,11 +89,121 @@ test("keeps restored conversation and controls inside the fixed-height workspace
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => globalThis.dispatchEvent(new Event("resize")));
   await expectFixedWorkspace(page);
+  await expectMobileWorkspace(page, true);
   await page.getByRole("button", { name: "Idea map" }).click();
   await expect(page.getByTestId("workspace-column")).toBeVisible();
   await page.getByRole("button", { name: "Draft" }).click();
   await expect(page.getByTestId("workspace-column")).toBeVisible();
+  await page.getByRole("group", { name: "Ideas to include" })
+    .getByRole("checkbox")
+    .first()
+    .check();
+  await page.getByRole("button", { name: "Compose draft" }).click();
+  const draftEditor = page.getByRole("textbox", { name: "Canonical draft" });
+  await expect(draftEditor).toBeVisible();
+  const draftLayout = await draftEditor.evaluate((editor) => {
+    const panel = editor.closest<HTMLElement>('section[aria-labelledby="draft-title"]')!;
+    const surface = panel.parentElement!;
+    const workspaceColumn = surface.parentElement!;
+    const proposal = panel.querySelector<HTMLElement>(
+      'section[aria-labelledby="revision-proposal-title"]',
+    )!;
+    const buttons = [...panel.querySelectorAll<HTMLButtonElement>('button')];
+    const save = buttons
+      .find((button) => button.textContent?.includes("Save draft"))!;
+    const discuss = buttons
+      .find((button) => button.textContent?.includes("Discuss selection"))!;
+    const prepare = buttons
+      .find((button) => button.textContent?.includes("Prepare proposal"))!;
+    return {
+      discussRight: discuss.getBoundingClientRect().right,
+      editorLeft: editor.getBoundingClientRect().left,
+      editorRight: editor.getBoundingClientRect().right,
+      editorHeight: editor.getBoundingClientRect().height,
+      panelHeight: panel.getBoundingClientRect().height,
+      prepareLeft: prepare.getBoundingClientRect().left,
+      prepareRight: prepare.getBoundingClientRect().right,
+      proposalBottom: proposal.getBoundingClientRect().bottom,
+      saveLeft: save.getBoundingClientRect().left,
+      surfaceHeight: surface.getBoundingClientRect().height,
+      surfaceBottom: surface.getBoundingClientRect().bottom,
+      surfaceClientHeight: surface.clientHeight,
+      surfaceScrollHeight: surface.scrollHeight,
+      workspaceColumnHeight: workspaceColumn.getBoundingClientRect().height,
+    };
+  });
+  expect(Math.abs(draftLayout.panelHeight - draftLayout.surfaceHeight))
+    .toBeLessThanOrEqual(1);
+  expect(Math.abs(draftLayout.surfaceHeight - draftLayout.workspaceColumnHeight))
+    .toBeLessThanOrEqual(1);
+  expect(draftLayout.editorHeight).toBeGreaterThan(24);
+  expect(Math.abs(draftLayout.saveLeft - draftLayout.editorLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(draftLayout.discussRight - draftLayout.editorRight)).toBeLessThanOrEqual(1);
+  expect(Math.abs(draftLayout.prepareLeft - draftLayout.editorLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(draftLayout.prepareRight - draftLayout.editorRight)).toBeLessThanOrEqual(1);
+  expect(draftLayout.proposalBottom).toBeLessThanOrEqual(draftLayout.surfaceBottom);
+  expect(draftLayout.surfaceScrollHeight).toBe(draftLayout.surfaceClientHeight);
 });
+
+async function expectMobileWorkspace(
+  page: import("@playwright/test").Page,
+  expectsClear: boolean,
+) {
+  const layout = await page.getByTestId("workspace-actions").evaluate((actions) => {
+    const section = actions.closest("section")!;
+    const leave = actions.querySelector("a")!;
+    const clear = actions.querySelector("button");
+    const history = section.querySelector<HTMLElement>(
+      '[data-testid="conversation-history"]',
+    )!;
+    const send = section.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const composer = send.closest("form")!;
+    const tabs = section.querySelector<HTMLElement>(
+      'nav[aria-label="Workspace views"]',
+    )!;
+    const actionsRect = actions.getBoundingClientRect();
+    const actionsStyle = getComputedStyle(actions);
+    const workspaceRect = section.querySelector<HTMLElement>(
+      '[data-testid="workspace"]',
+    )!.getBoundingClientRect();
+    return {
+      actionsLeft: actionsRect.left,
+      actionsRight: actionsRect.right,
+      workspaceLeft: workspaceRect.left,
+      workspaceRight: workspaceRect.right,
+      clearLeft: clear?.getBoundingClientRect().left ?? null,
+      leaveCenter: leave.getBoundingClientRect().left +
+        leave.getBoundingClientRect().width / 2,
+      actionColumnGap: Number.parseFloat(actionsStyle.columnGap),
+      historyHeight: history.getBoundingClientRect().height,
+      composerLeft: composer.getBoundingClientRect().left,
+      composerRight: composer.getBoundingClientRect().right,
+      sendLeft: send.getBoundingClientRect().left,
+      sendRight: send.getBoundingClientRect().right,
+      sendBottom: send.getBoundingClientRect().bottom,
+      tabsBottom: tabs.getBoundingClientRect().bottom,
+      viewportBottom: globalThis.innerHeight,
+      pageOverflow: document.documentElement.scrollHeight - globalThis.innerHeight,
+    };
+  });
+
+  expect(Math.abs(layout.actionsLeft - layout.workspaceLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(layout.actionsRight - layout.workspaceRight)).toBeLessThanOrEqual(1);
+  const actionWidth = layout.actionsRight - layout.actionsLeft;
+  const expectedLeaveCenter = layout.actionsLeft +
+    (3 * actionWidth + layout.actionColumnGap) / 4;
+  expect(Math.abs(layout.leaveCenter - expectedLeaveCenter)).toBeLessThanOrEqual(1);
+  expect(layout.clearLeft === null).toBe(!expectsClear);
+  if (layout.clearLeft !== null) {
+    expect(Math.abs(layout.clearLeft - layout.workspaceLeft)).toBeLessThanOrEqual(1);
+  }
+  expect(layout.historyHeight).toBeGreaterThan(24);
+  expect(Math.abs(layout.sendLeft - layout.composerLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(layout.sendRight - layout.composerRight)).toBeLessThanOrEqual(1);
+  expect(layout.tabsBottom).toBeLessThanOrEqual(layout.viewportBottom);
+  expect(layout.sendBottom).toBeLessThanOrEqual(layout.viewportBottom);
+  expect(layout.pageOverflow).toBe(0);
+}
 
 async function expectFixedWorkspace(
   page: import("@playwright/test").Page,

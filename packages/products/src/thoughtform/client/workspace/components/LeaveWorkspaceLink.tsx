@@ -1,15 +1,17 @@
 import type { ProductNavigationLink } from "packages/products/src/thoughtform/client/product-app-components";
 
 export function LeaveWorkspaceLink({
+  className = "",
   href,
   Link,
 }: {
+  className?: string;
   href: string;
   Link: ProductNavigationLink;
 }) {
   return (
     <Link
-      className="inline-flex cursor-pointer items-center gap-2 underline decoration-[var(--line)] underline-offset-4 transition-colors hover:text-[var(--accent)] hover:no-underline"
+      className={`inline-flex cursor-pointer items-center gap-2 underline decoration-[var(--line)] underline-offset-4 transition-colors hover:text-[var(--accent)] hover:no-underline ${className}`}
       href={href}
     >
       Leave workspace

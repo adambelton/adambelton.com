@@ -16,6 +16,16 @@ describe("ConversationMessageList", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders mobile guidance as presentation rather than a conversation turn", () => {
+    render(<ConversationMessageList messages={[]} />);
+
+    expect(screen.getByText("ThoughtForm")).toBeTruthy();
+    expect(screen.getByText(/Explore a question, experience, decision, or idea/))
+      .toBeTruthy();
+    expect(screen.getByText("No messages yet.").classList.contains("hidden"))
+      .toBe(true);
+  });
+
   it("follows the latest message until the user deliberately scrolls upward", () => {
     const { rerender } = render(<ConversationMessageList messages={messages.slice(0, 1)} />);
     const history = screen.getByTestId("conversation-history");
