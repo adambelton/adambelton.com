@@ -879,6 +879,22 @@ ceiling for separate explicit approval.
   the containment test reports each layout invariant independently. Ten
   repeated focused runs and the full local suite passed before republishing.
 
+## 2026-08-14 — ThoughtForm mobile workspace correction
+
+- Removed the redundant visible editor title and subtitle on mobile while
+  retaining its accessible heading, and placed the non-persisted guidance at
+  the start of mobile conversation history.
+- Reallocated the fixed workspace so conversation history, full-width Send,
+  stable Clear/Leave actions, Idea Map, and Draft remain usable in short mobile
+  viewports without page scrolling.
+- Corrected the single-tab Draft grid so the canonical editor expands into the
+  available height while Save, Discuss selection, and the complete assistant
+  proposal remain visible. Draft actions now provide full-width mobile touch
+  targets without changing tablet or desktop sizing.
+- Adam approved the mounted persistent-conversation presentation after live
+  inspection. All six Chromium journeys, 369 tests, typecheck, and production
+  build passed before publication.
+
 ## 2026-08-13 — Care Calendar learning-project foundation
 
 - Added the initial Care Calendar learning, product-definition, safety,

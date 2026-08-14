@@ -9,6 +9,7 @@ import {
   decodeConversationText,
   type ConversationMessage,
 } from "packages/products/src/thoughtform/shared";
+import { CONVERSATION_GUIDANCE } from "packages/products/src/thoughtform/client/workspace/components/ConversationEditorIntro";
 
 type ConversationMessageListProps = {
   messages: ConversationMessage[];
@@ -61,8 +62,14 @@ export function ConversationMessageList({
       ref={historyRef}
     >
     <ol className="m-0 flex min-h-full list-none flex-col justify-end gap-7 p-0" aria-label="Conversation">
+      <li className="border-t border-[var(--line)] pt-5 md:hidden">
+        <p className="eyebrow m-0 text-[var(--accent)]">ThoughtForm</p>
+        <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+          {CONVERSATION_GUIDANCE}
+        </p>
+      </li>
       {messages.length === 0 ? (
-        <li className="border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)]">
+        <li className="hidden border-t border-[var(--line)] pt-5 text-base leading-7 text-[var(--muted)] md:list-item">
           No messages yet.
         </li>
       ) : (

@@ -57,7 +57,7 @@ export function ConversationComposer({
         </p>
       ) : null}
       <WorkspaceButton
-        className="text-sm"
+        className="w-full text-sm md:w-fit"
         disabled={!canSubmit}
         type="submit"
       >

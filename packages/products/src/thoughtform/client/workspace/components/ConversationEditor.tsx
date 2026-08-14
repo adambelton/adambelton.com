@@ -296,19 +296,19 @@ export function ConversationEditor({
 
   return (
     <section aria-labelledby="editor-title" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-[min(1.5rem,2vh)]">
-      <div className="grid max-h-[40dvh] gap-[min(1.5rem,2vh)] overflow-y-auto lg:max-h-[25dvh]">
+      <div className="grid gap-[min(1.5rem,2vh)] md:max-h-[40dvh] md:overflow-y-auto lg:max-h-[25dvh]">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
           <ConversationEditorIntro />
-          <div className="flex flex-wrap items-center justify-end gap-4 text-sm" data-testid="workspace-actions">
+          <div className="grid w-full grid-cols-2 items-center gap-4 text-sm md:flex md:flex-wrap md:justify-end" data-testid="workspace-actions">
             {canClear && messages.length > 0 ? (
-              <WorkspaceButton className="inline-flex items-center gap-2 text-sm" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">
+              <WorkspaceButton className="col-start-1 row-start-1 inline-flex items-center gap-2 text-sm" disabled={status === CONVERSATION_STATUSES.sending} onClick={handleClear} type="button">
                 <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
                   <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" />
                 </svg>
                 Clear workspace
               </WorkspaceButton>
             ) : null}
-            <LeaveWorkspaceLink href={leaveHref} Link={Link} />
+            <LeaveWorkspaceLink className="col-start-2 justify-self-center md:col-auto" href={leaveHref} Link={Link} />
           </div>
         </div>
         <nav aria-label="Workspace views" className="flex border-b border-[var(--line)] lg:hidden">
@@ -369,12 +369,12 @@ export function ConversationEditor({
           />
           </div>
         </div>
-        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:border-l lg:border-[var(--line-subtle)] lg:pl-6`} data-testid="workspace-column">
+        <div className={`${mobileSurface === "conversation" ? "hidden lg:grid" : "grid"} h-full max-h-full min-h-0 grid-rows-[minmax(0,1fr)] overflow-hidden lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-[var(--line-subtle)] lg:pl-6`} data-testid="workspace-column">
           <div className="mb-6 hidden border-b border-[var(--line)] lg:flex" role="tablist" aria-label="Workspace">
             <button aria-selected={workspaceView === "idea-map"} className="-mb-px cursor-pointer border-b-2 border-transparent px-4 py-2 text-[var(--muted)] transition-colors hover:text-[var(--foreground)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("idea-map")} role="tab" type="button">Idea map</button>
             <button aria-selected={workspaceView === "draft"} className="-mb-px cursor-pointer border-b-2 border-transparent px-4 py-2 text-[var(--muted)] transition-colors hover:text-[var(--foreground)] aria-selected:border-[var(--accent)] aria-selected:font-semibold aria-selected:text-[var(--foreground)]" onClick={() => setWorkspaceView("draft")} role="tab" type="button">Draft</button>
           </div>
-          <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"} min-h-0 overflow-y-auto`}>
+          <div className={`${mobileSurface === "idea-map" ? "block" : "hidden"} ${workspaceView === "idea-map" ? "lg:block" : "lg:hidden"} h-full min-h-0 overflow-y-auto`}>
             <IdeaMapTracker
           ideaMap={ideaMap}
           isBusy={status === CONVERSATION_STATUSES.sending}
@@ -452,7 +452,7 @@ export function ConversationEditor({
             />
             {ideaStatus ? <p className="text-sm text-[var(--muted)]" role="status">{ideaStatus}</p> : null}
           </div>
-          <div className={`${mobileSurface === "draft" ? "block" : "hidden"} ${workspaceView === "draft" ? "lg:block" : "lg:hidden"} min-h-0`}>
+          <div className={`${mobileSurface === "draft" ? "block" : "hidden"} ${workspaceView === "draft" ? "lg:block" : "lg:hidden"} h-full min-h-0 overflow-y-auto`}>
             <DraftPanel
               conversationId={conversationId}
               ideas={ideaMap.ideas}

@@ -302,9 +302,10 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         ref={editorRef}
         value={body}
       />
-      <div className="flex items-center gap-3">
-        <WorkspaceButton disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</WorkspaceButton>
+      <div className="grid grid-cols-2 items-center gap-3 md:flex">
+        <WorkspaceButton className="w-full md:w-fit" disabled={isBusy || body === draft.body} onClick={() => void save()} type="button">Save draft</WorkspaceButton>
         <WorkspaceButton
+          className="w-full md:w-fit"
           disabled={isBusy || body !== draft.body}
           onClick={attachCurrentSelection}
           type="button"
@@ -312,7 +313,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
         >
           Discuss selection
         </WorkspaceButton>
-        {status ? <p role="status">{status}</p> : null}
+        {status ? <p className="col-span-2 md:col-auto" role="status">{status}</p> : null}
       </div>
       <section aria-labelledby="revision-proposal-title" className="grid gap-3 border-t border-[var(--line)] pt-5">
         <h3 className="font-semibold" id="revision-proposal-title">Assistant revision proposal</h3>
@@ -369,6 +370,7 @@ export const DraftPanel = forwardRef<DraftPanelHandle, {
             </p>
             <textarea className="field-control p-3" onChange={(event) => setProposalInstruction(event.target.value)} placeholder="Describe the change you want to review." rows={3} value={proposalInstruction} />
             <WorkspaceButton
+              className="w-full md:w-fit"
               disabled={isBusy || !proposalInstruction.trim() || body !== draft.body}
               onClick={() => {
                 const currentSelection = readCurrentSelection();
