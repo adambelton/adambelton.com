@@ -2,6 +2,11 @@
 
 ## Current status
 
+The new public post “The Writing Problem That Wasn’t Really a Writing Problem”
+documents why ThoughtForm moved from an AI-writing-tool premise to a
+conversational thinking workspace. Repository-backed metadata gives it the
+August 14 publication date and its permanent writing URL.
+
 The approved ThoughtForm product-demo release implementation is complete and
 awaiting merge and deployment.
 Locally, the old development-or-owner gate has been replaced by a public,
