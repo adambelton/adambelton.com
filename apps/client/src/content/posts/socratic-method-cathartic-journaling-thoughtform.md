@@ -1,8 +1,14 @@
 ---
-title: The Writing Problem That Wasn’t Really a Writing Problem
+title: How the Socratic method and cathartic journaling helped me see ThoughtForm’s real purpose as a conversational thinking workspace
+shortTitle: Finding ThoughtForm’s real purpose
 description: "How the Socratic method and cathartic journaling revealed ThoughtForm’s real purpose: helping people understand and articulate what they think and feel."
 createdAt: 2026-08-14
-slug: the-writing-problem-that-wasnt-really-a-writing-problem
+slug: finding-thoughtforms-real-purpose
+legacySlugs:
+  - the-writing-problem-that-wasnt-really-a-writing-problem
+  - socratic-method-cathartic-journaling-thoughtform
+coverImage: /images/writing/finding-thoughtforms-real-purpose/cover-2000x840.jpg
+coverImageSmall: /images/writing/finding-thoughtforms-real-purpose/cover-1000x420.jpg
 internalTags:
   - thoughtform
 externalTags:

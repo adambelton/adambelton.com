@@ -8,9 +8,12 @@ import { products } from "packages/products/src/registry";
 
 const post = (slug: string, createdAt: string, extra = "") => `---
 title: ${slug}
+shortTitle: Short ${slug}
 description: A description
 createdAt: ${createdAt}
 slug: ${slug}
+coverImage: /images/writing/${slug}/cover-2000x840.jpg
+coverImageSmall: /images/writing/${slug}/cover-1000x420.jpg
 internalTags: []
 externalTags:
   - webdev
@@ -114,13 +117,25 @@ describe("repository Markdown content", () => {
         "one.md": post("same", "2026-08-06"),
         "two.md": post("same", "2026-08-05"),
       }),
-    ).toThrow('Duplicate writing post slug: "same"');
+    ).toThrow('Duplicate writing post slug or legacy slug: "same"');
     expect(() => compileContentDocument(post("bad", "06/08/2026"), "bad.md", "post")).toThrow(
       '"createdAt" must be a valid YYYY-MM-DD date',
     );
     expect(() => compileContentDocument(post("bad", "2026-02-31"), "bad.md", "post")).toThrow(
       '"createdAt" must be a valid YYYY-MM-DD date',
     );
+  });
+
+  it("rejects legacy slugs that collide with current or legacy routes", () => {
+    expect(() =>
+      compileContentCollection({}, {
+        "one.md": post("one", "2026-08-06").replace(
+          "internalTags: []",
+          "legacySlugs:\n  - old-route\ninternalTags: []",
+        ),
+        "two.md": post("old-route", "2026-08-05"),
+      }),
+    ).toThrow('Duplicate writing post slug or legacy slug: "old-route"');
   });
 
   it.each([

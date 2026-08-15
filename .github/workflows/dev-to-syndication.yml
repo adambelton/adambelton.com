@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "apps/client/src/content/posts/**"
+      - "apps/client/public/images/writing/**"
       - "apps/client/src/website/content/**"
       - "apps/client/package.json"
       - "pnpm-lock.yaml"

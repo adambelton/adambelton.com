@@ -1363,3 +1363,24 @@ enables it. The DEV API key remains a GitHub secret. Dry runs require neither a
 credential nor a network mutation. Website tag filtering, DEV analytics or
 comments, reverse synchronization, profile management, and tag creation remain
 outside this boundary.
+
+## 066 — Public Writing Uses Repository Images And Build-Time Prerendering
+
+Each writing post owns one cover composition at 50:21. The optimized 2000 x 840
+rendition is used by the website hero, DEV, LinkedIn, and Open Graph metadata;
+the 1000 x 420 rendition serves website cards. Original illustration sources
+and optimized JPEG renditions are
+versioned with the Markdown. Images communicate the article concept visually
+without semantic text; website, DEV, and social metadata always pair
+the image with the semantic title.
+
+The writing collection and every repository-backed article are prerendered at
+build time. Their initial HTTP responses contain complete semantic content,
+canonical metadata, Open Graph and Twitter fields, and BlogPosting structured
+data. The client hydrates this output; runtime SSR is not introduced. The
+production host serves route documents before its SPA fallback.
+
+DEV receives the absolute 2000 x 840 cover as `main_image`, separately from the
+Markdown body. Live syndication verifies that the canonical page and exact
+repository image have reached production before mutation. LinkedIn may crop the
+50:21 image; posting and live preview inspection remain a separate task.

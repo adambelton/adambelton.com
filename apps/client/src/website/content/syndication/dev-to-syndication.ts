@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -11,6 +11,7 @@ const devApiOrigin = "https://dev.to/api";
 const postsDirectory = fileURLToPath(
   new URL("../../../content/posts", import.meta.url),
 );
+const publicDirectory = fileURLToPath(new URL("../../../../public", import.meta.url));
 
 type Fetch = typeof fetch;
 
@@ -21,6 +22,7 @@ export type DevArticle = {
   canonical_url: string;
   description: string;
   id: number;
+  main_image: string;
   published: boolean;
   tag_list: string[];
   title: string;
@@ -34,6 +36,11 @@ export function loadWritingPosts(directory = postsDirectory) {
       const source = join(directory, entry.name);
       const sourceText = readFileSync(source, "utf8");
       const compiled = compileContentDocument(sourceText, source, "post");
+      for (const image of [compiled.coverImage, compiled.coverImageSmall]) {
+        if (!existsSync(join(publicDirectory, image))) {
+          throw new Error(`${source}: referenced writing image does not exist: ${image}`);
+        }
+      }
       const { body } = parseContentDocument(sourceText, source);
       return { ...compiled, bodyMarkdown: body };
     });
@@ -43,12 +50,17 @@ export function canonicalUrlFor(slug: string) {
   return new URL(`/writing/${slug}`, productionOrigin).toString();
 }
 
+export function absoluteAssetUrl(path: string) {
+  return new URL(path, productionOrigin).toString();
+}
+
 export function devArticlePayload(post: SyndicationPost) {
   return {
     article: {
       body_markdown: post.bodyMarkdown,
       canonical_url: canonicalUrlFor(post.slug),
       description: post.description,
+      main_image: absoluteAssetUrl(post.coverImage),
       published: true,
       tags: post.externalTags,
       title: post.title,
@@ -74,11 +86,29 @@ export function findArticleByCanonicalUrl(articles: DevArticle[], canonicalUrl: 
   return matches[0];
 }
 
+export function findArticleForPost(articles: DevArticle[], post: SyndicationPost) {
+  const canonicalUrls = [post.slug, ...post.legacySlugs].map(canonicalUrlFor);
+  const matches = articles.filter(
+    (article) =>
+      article.canonical_url &&
+      canonicalUrls.some(
+        (canonicalUrl) => normalizedUrl(article.canonical_url) === normalizedUrl(canonicalUrl),
+      ),
+  );
+  if (matches.length > 1) {
+    throw new Error(
+      `DEV contains multiple articles for current or legacy canonical URLs: ${canonicalUrls.join(", ")}.`,
+    );
+  }
+  return matches[0];
+}
+
 export function articleNeedsUpdate(article: DevArticle, post: SyndicationPost) {
   const payload = devArticlePayload(post).article;
   return (
     article.title !== payload.title ||
     article.description !== payload.description ||
+    article.main_image !== payload.main_image ||
     article.body_markdown.trim() !== payload.body_markdown.trim() ||
     normalizedUrl(article.canonical_url) !== normalizedUrl(payload.canonical_url) ||
     !article.published ||
@@ -144,16 +174,42 @@ export async function waitForCanonicalPage(
   throw new Error(`Canonical page did not become reachable: ${canonicalUrl}`);
 }
 
+export async function waitForDeployedCover(
+  post: SyndicationPost,
+  fetchImpl: Fetch = fetch,
+  attempts = 30,
+  delayMilliseconds = 10_000,
+) {
+  const localPath = join(publicDirectory, post.coverImage);
+  if (!existsSync(localPath)) throw new Error(`Writing cover does not exist: ${localPath}`);
+  const expected = readFileSync(localPath);
+  const url = absoluteAssetUrl(post.coverImage);
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetchImpl(`${url}?syndication-check=${expected.byteLength}`, {
+        headers: { "Cache-Control": "no-cache", "User-Agent": "adambelton.com writing syndication" },
+      });
+      if (response.ok && Buffer.from(await response.arrayBuffer()).equals(expected)) return;
+    } catch {
+      // Deployment and CDN propagation can temporarily leave an older image available.
+    }
+    if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, delayMilliseconds));
+  }
+  throw new Error(`Deployed cover did not match the repository image: ${url}`);
+}
+
 export async function syndicateWriting({
   apiKey,
   dryRun = false,
   fetchImpl = fetch,
   posts = loadWritingPosts(),
+  verifyDeployedCover = true,
 }: {
   apiKey?: string;
   dryRun?: boolean;
   fetchImpl?: Fetch;
   posts?: SyndicationPost[];
+  verifyDeployedCover?: boolean;
 }) {
   if (dryRun) {
     return posts.map((post) => ({
@@ -170,7 +226,8 @@ export async function syndicateWriting({
   for (const post of posts) {
     const canonicalUrl = canonicalUrlFor(post.slug);
     await waitForCanonicalPage(canonicalUrl, fetchImpl);
-    const existing = findArticleByCanonicalUrl(articles, canonicalUrl);
+    if (verifyDeployedCover) await waitForDeployedCover(post, fetchImpl);
+    const existing = findArticleForPost(articles, post);
     if (existing && !articleNeedsUpdate(existing, post)) {
       results.push({ action: "unchanged" as const, canonicalUrl, slug: post.slug });
       continue;

@@ -142,6 +142,9 @@ export function compileContentDocument(
 
   const createdAt = requiredString(metadata, "createdAt", source);
   const slug = requiredString(metadata, "slug", source);
+  const shortTitle = requiredString(metadata, "shortTitle", source);
+  const coverImage = requiredString(metadata, "coverImage", source);
+  const coverImageSmall = requiredString(metadata, "coverImageSmall", source);
   const parsedCreatedAt = new Date(`${createdAt}T00:00:00Z`);
   if (
     !ISO_DATE.test(createdAt) ||
@@ -153,12 +156,31 @@ export function compileContentDocument(
   if (!SLUG.test(slug)) {
     throw new Error(`${source}: "slug" must contain lowercase words separated by hyphens.`);
   }
+  const imageRoot = `/images/writing/${slug}/`;
+  for (const [field, value, suffix] of [
+    ["coverImage", coverImage, "cover-2000x840.jpg"],
+    ["coverImageSmall", coverImageSmall, "cover-1000x420.jpg"],
+  ] as const) {
+    if (value !== `${imageRoot}${suffix}`) {
+      throw new Error(`${source}: "${field}" must be ${imageRoot}${suffix}.`);
+    }
+  }
   const internalTags = stringList(metadata, "internalTags", source, { optional: true });
   const unknownProduct = internalTags.find((tag) => !isApprovedInternalProductTag(tag));
   if (unknownProduct) {
     throw new Error(`${source}: internal tag "${unknownProduct}" is not a registered product slug.`);
   }
   const externalTags = stringList(metadata, "externalTags", source);
+  const legacySlugs = stringList(metadata, "legacySlugs", source, { optional: true });
+  const invalidLegacySlug = legacySlugs.find((legacySlug) => !SLUG.test(legacySlug));
+  if (invalidLegacySlug) {
+    throw new Error(
+      `${source}: legacy slug "${invalidLegacySlug}" must contain lowercase words separated by hyphens.`,
+    );
+  }
+  if (legacySlugs.includes(slug)) {
+    throw new Error(`${source}: "legacySlugs" must not contain the current slug.`);
+  }
   if (externalTags.length < 1 || externalTags.length > 4) {
     throw new Error(`${source}: "externalTags" must contain between one and four DEV tags.`);
   }
@@ -170,9 +192,13 @@ export function compileContentDocument(
   }
   return {
     ...shared,
+    coverImage,
+    coverImageSmall,
     createdAt,
     externalTags,
     internalTags,
+    legacySlugs,
+    shortTitle,
     slug,
     tags: [...new Set([...internalTags, ...externalTags])],
   };
@@ -190,8 +216,10 @@ export function compileContentCollection(
   );
   const slugs = new Set<string>();
   for (const post of compiledPosts) {
-    if (slugs.has(post.slug)) throw new Error(`Duplicate writing post slug: "${post.slug}".`);
-    slugs.add(post.slug);
+    for (const slug of [post.slug, ...post.legacySlugs]) {
+      if (slugs.has(slug)) throw new Error(`Duplicate writing post slug or legacy slug: "${slug}".`);
+      slugs.add(slug);
+    }
   }
   compiledPosts.sort(
     (left, right) =>
