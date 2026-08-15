@@ -1341,3 +1341,25 @@ or invalid hosted-AI configuration removes temporary-workspace access and stops
 owner and non-owner model operations. Production remains exactly one API
 application instance while temporary state is process-local. The portfolio
 product demo is distinct from any future public beta or commercial release.
+
+## 065 — Public Writing Is Syndicated From The Repository To DEV
+
+Repository-backed Markdown remains the sole source of truth for public writing.
+Every writing post declares optional product-only `internalTags` and one to four
+reviewed `externalTags`. The website receives their stable union; outbound DEV
+delivery receives only the external tags. This separates portfolio navigation
+meaning from distribution metadata without introducing a second content model.
+
+The host-owned syndication adapter sends each complete Markdown body to DEV and
+sets its production website URL as canonical. It loads the authenticated
+author's articles and matches by normalized canonical URL. A missing match is
+created, changed content is updated, identical content is left untouched, and
+multiple matches fail for manual resolution. A live operation first requires
+the canonical page to be reachable.
+
+GitHub Actions invokes this operation after relevant changes reach `main`, but
+automatic live delivery remains disabled until a repository variable explicitly
+enables it. The DEV API key remains a GitHub secret. Dry runs require neither a
+credential nor a network mutation. Website tag filtering, DEV analytics or
+comments, reverse synchronization, profile management, and tag creation remain
+outside this boundary.

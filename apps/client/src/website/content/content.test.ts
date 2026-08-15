@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
+  approvedInternalProductTags,
   compileContentCollection,
   compileContentDocument,
 } from "apps/client/src/website/content/build/compile-content";
+import { products } from "packages/products/src/registry";
 
 const post = (slug: string, createdAt: string, extra = "") => `---
 title: ${slug}
 description: A description
 createdAt: ${createdAt}
 slug: ${slug}
+internalTags: []
+externalTags:
+  - webdev
 aliases:
   - An allowed Obsidian property
 ---
@@ -20,6 +25,9 @@ Body text.
 ${extra}`;
 
 describe("repository Markdown content", () => {
+  it("keeps the host internal-tag policy aligned with registered products", () => {
+    expect(approvedInternalProductTags).toEqual(products.map(({ slug }) => slug));
+  });
   it("accepts Obsidian YAML properties and CRLF documents", () => {
     const page = compileContentDocument(
       "---\r\ntitle: About\r\ndescription: About Adam\r\ncssclasses:\r\n  - wide\r\n---\r\n\r\nAbout body.",
@@ -42,6 +50,62 @@ describe("repository Markdown content", () => {
         "a.md": post("a-post", "2026-08-06"),
       }).posts.map(({ slug }) => slug),
     ).toEqual(["a-post", "b-post", "z-post"]);
+  });
+
+  it("combines product-only internal tags with reviewed external DEV tags", () => {
+    const compiled = compileContentDocument(
+      post("tagged", "2026-08-06").replace(
+        "internalTags: []",
+        "internalTags:\n  - thoughtform",
+      ),
+      "tagged.md",
+      "post",
+    );
+    expect(compiled).toMatchObject({
+      externalTags: ["webdev"],
+      internalTags: ["thoughtform"],
+      tags: ["thoughtform", "webdev"],
+    });
+  });
+
+  it("allows posts without a product-specific internal tag", () => {
+    const compiled = compileContentDocument(
+      post("external-only", "2026-08-06").replace("internalTags: []\n", ""),
+      "external-only.md",
+      "post",
+    );
+    expect(compiled.internalTags).toEqual([]);
+    expect(compiled.tags).toEqual(["webdev"]);
+  });
+
+  it("rejects unknown product tags and unreviewed or excessive DEV tags", () => {
+    expect(() =>
+      compileContentDocument(
+        post("unknown-product", "2026-08-06").replace(
+          "internalTags: []",
+          "internalTags:\n  - portfolio",
+        ),
+        "unknown-product.md",
+        "post",
+      ),
+    ).toThrow('internal tag "portfolio" is not a registered product slug');
+    expect(() =>
+      compileContentDocument(
+        post("unknown-dev", "2026-08-06").replace("  - webdev", "  - invented"),
+        "unknown-dev.md",
+        "post",
+      ),
+    ).toThrow('external tag "invented" has not been reviewed and approved for DEV');
+    expect(() =>
+      compileContentDocument(
+        post("too-many", "2026-08-06").replace(
+          "  - webdev",
+          "  - webdev\n  - architecture\n  - softwareengineering\n  - product\n  - ai",
+        ),
+        "too-many.md",
+        "post",
+      ),
+    ).toThrow('"externalTags" must contain between one and four DEV tags');
   });
 
   it("rejects duplicate slugs and invalid creation metadata", () => {

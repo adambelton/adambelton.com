@@ -3,9 +3,16 @@ title: The Writing Problem That Wasn’t Really a Writing Problem
 description: "How the Socratic method and cathartic journaling revealed ThoughtForm’s real purpose: helping people understand and articulate what they think and feel."
 createdAt: 2026-08-14
 slug: the-writing-problem-that-wasnt-really-a-writing-problem
+internalTags:
+  - thoughtform
+externalTags:
+  - productengineering
+  - product
+  - ai
+  - writing
 ---
 
-ThoughtForm started out as a writing tool.
+[ThoughtForm](https://adambelton.com/products/thoughtform) started out as a writing tool.
 
 I'm the type of person who struggles to get my ideas out onto a blank page. I know what I want to write about, I know what I want to say, I've built 99% of the argument in my head. But I stare at the computer screen and nothing comes out. I don't seem to have this problem talking about my ideas, so why is writing about them so hard?
 

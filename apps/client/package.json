@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "syndicate:dev-to": "node --import tsx src/website/content/syndication/dev-to-syndication.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json --noEmit && vite build"
   },
@@ -30,6 +31,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "tailwindcss": "^4.3.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "unified": "^11.0.5",
     "vite": "^7.0.6",
