@@ -158,7 +158,7 @@ Approved by Adam on 15 August 2026.
 
 ## Status
 
-Follow-up in progress on `codex/writing-alt-and-dev-idempotency`.
+Complete on `main` via PRs #46 and #47.
 
 Implemented and locally validated: responsive cards, hero-before-title layout,
 build-time prerendering for `/` and article routes, social/structured metadata,
@@ -176,8 +176,39 @@ post-deployment audit found that DEV returns `main_image` as a transformed
 that comparison and the article-hero alternative text before the final
 unchanged synchronization audit.
 
-Local follow-up validation is complete: 384 tests pass with 16 skipped,
-typecheck and build pass, prerendered HTML contains descriptive hero alt text
-and empty linked-thumbnail alt text, and a live DEV run reports both existing
-articles unchanged. Publication, CI, deployed-markup verification, and the
-post-deployment unchanged audit remain.
+Follow-up validation is complete: 384 tests pass with 16 skipped, typecheck and
+build pass, and CI passes. Local and deployed prerendered HTML contain
+descriptive hero alt text and empty linked-thumbnail alt text. The
+merge-triggered workflow and a separate post-deployment live audit both report
+the two existing DEV articles unchanged.
+
+## Completion audit
+
+- **Repository-owned imagery:** both posts retain source PNGs and optimized
+  2000 x 840 and 1000 x 420 JPEGs under their slug-owned public directories.
+- **Collection and hero presentation:** mounted browser review approved the
+  responsive one/two/three-column collection, bordered images, hero-before-title
+  order, and final spacing. Production raw HTML exposes the same structure.
+- **Accessibility:** `coverImageAlt` is a required compiled field. Each
+  standalone hero exposes its authored description; linked thumbnails use empty
+  alt text alongside their visible semantic titles. Unit tests and raw built and
+  production HTML inspections verify both contexts.
+- **Prerendering and metadata:** production builds emit complete Writing index
+  and article documents with canonical, Open Graph, Twitter, and BlogPosting
+  metadata; the API host serves route documents and permanent legacy redirects.
+- **DEV payload and identity:** payload tests verify external-only tags,
+  canonical website URLs, `main_image`, and image-free Markdown. Existing
+  articles were found through their legacy canonicals and updated in place;
+  DEV-generated slugs intentionally remain unchanged.
+- **Deployment and idempotency:** canonical pages and byte-identical covers were
+  verified before the initial live updates. DEV's returned CDN `cover_image` is
+  normalized back to the submitted source URL. The merge-triggered workflow and
+  a later post-deployment run each reported both articles `unchanged`.
+- **Validation:** `pnpm test` (384 passed, 16 skipped), `pnpm typecheck`,
+  `pnpm build`, `pnpm syndicate:dev-to --dry-run`, `git diff --check`, PR #47
+  `validate` CI, responsive browser inspection, prerendered-HTML inspection,
+  production raw-HTML inspection, and live DEV audits pass.
+- **Branch-diff audit:** the complete changes remain inside the client-owned
+  public-Writing content, presentation, prerendering, host delivery, and
+  syndication boundaries. No product logic, persistence, migration, prompt,
+  authentication, AI-provider, or unrelated user changes were introduced.
