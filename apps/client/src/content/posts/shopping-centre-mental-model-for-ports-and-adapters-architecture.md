@@ -8,6 +8,7 @@ legacySlugs:
   - portfolio-website-architecture-for-dummies
   - shopping-centre-mental-model-for-ports-and-adapters-architecture
 coverImage: /images/writing/shopping-centre-website-architecture/cover-2000x840.jpg
+coverImageAlt: A man reclining with his eyes closed, imagining the interior of a circular shopping centre.
 coverImageSmall: /images/writing/shopping-centre-website-architecture/cover-1000x420.jpg
 internalTags:
   - thoughtform

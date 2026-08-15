@@ -13,6 +13,7 @@ description: A description
 createdAt: ${createdAt}
 slug: ${slug}
 coverImage: /images/writing/${slug}/cover-2000x840.jpg
+coverImageAlt: An illustration for ${slug}.
 coverImageSmall: /images/writing/${slug}/cover-1000x420.jpg
 internalTags: []
 externalTags:

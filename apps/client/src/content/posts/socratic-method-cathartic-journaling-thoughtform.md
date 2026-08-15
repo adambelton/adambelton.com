@@ -8,6 +8,7 @@ legacySlugs:
   - the-writing-problem-that-wasnt-really-a-writing-problem
   - socratic-method-cathartic-journaling-thoughtform
 coverImage: /images/writing/finding-thoughtforms-real-purpose/cover-2000x840.jpg
+coverImageAlt: Socrates poses questions as layered thoughts flow into a wave and an open journal.
 coverImageSmall: /images/writing/finding-thoughtforms-real-purpose/cover-1000x420.jpg
 internalTags:
   - thoughtform
