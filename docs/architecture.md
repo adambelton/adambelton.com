@@ -15,6 +15,9 @@ generated module during development and production builds. Files are authored
 through Obsidian-compatible standard Markdown and YAML properties; authoring
 parsers remain build-only, and this content pipeline remains independent of
 ThoughtForm. The authoring contract lives in `docs/content-authoring.md`.
+Production builds also prerender the writing collection and each article into
+route-specific HTML. The production host serves those documents before the SPA
+fallback, then the client hydrates them for ordinary React Router navigation.
 The same host-owned writing boundary validates product-only internal tags and
 reviewed external DEV tags. Its outbound syndication adapter publishes complete
 Markdown to DEV after the canonical website page is live; GitHub Actions only

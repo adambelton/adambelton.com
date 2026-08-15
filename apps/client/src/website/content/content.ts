@@ -13,5 +13,7 @@ export const aboutPageContent = pageNamed("about.md");
 export const writingPosts = posts;
 
 export function getWritingPost(slug: string) {
-  return writingPosts.find((post) => post.slug === slug);
+  return writingPosts.find(
+    (post) => post.slug === slug || post.legacySlugs?.includes(slug),
+  );
 }

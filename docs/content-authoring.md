@@ -18,8 +18,9 @@ during development and production builds. Markdown, YAML, and syntax-tree
 parsers are build-only tools and are not delivered to site visitors. A content
 error names its source file and prevents a successful build.
 
-Pages require `title` and `description`. Posts also require a `createdAt` value
-in `YYYY-MM-DD` form, a lowercase hyphenated `slug`, and an `externalTags` list.
+Pages require `title` and `description`. Posts also require a navigation-length
+`shortTitle`, a `createdAt` value in `YYYY-MM-DD` form, a lowercase hyphenated `slug`, `coverImage`,
+`coverImageSmall`, and an `externalTags` list.
 The optional `internalTags` list may contain only slugs
 from the product registry. `externalTags` must contain one to four tags from the
 reviewed DEV tag policy. The website receives the stable union of both lists;
@@ -29,7 +30,22 @@ reviewing its live DEV tag page and adding it to the repository policy.
 The homepage orders posts newest-first by `createdAt`; posts with the same date
 use slug order so builds do
 not depend on filesystem timestamps or discovery order. The slug defines the
-public `/writing/:slug` route, independently of the filename.
+public `/writing/:slug` route, independently of the filename. `shortTitle` is
+used in breadcrumbs while cards, metadata, DEV, and the article heading retain
+the full `title`. Optional `legacySlugs` generate permanent redirects and let
+DEV identify an existing article when its canonical URL changes.
+
+Writing images are repository-owned. Each post has a 2000 x 840 DEV/website,
+Open Graph, and LinkedIn cover plus a 1000 x 420 card rendition beneath
+`/images/writing/:slug`. The bitmap communicates the article's
+idea visually without embedding semantic text; every consuming
+surface must render the semantic title alongside it. The original PNG source is
+retained as `illustration.png`; optimized JPEG renditions are regenerated from
+that source without adding typography to the image.
+
+Production builds prerender the writing collection and every post. Raw article
+responses therefore contain their complete semantic content plus canonical,
+Open Graph, Twitter Card, and BlogPosting metadata before JavaScript runs.
 
 Raw HTML is removed by the build-time sanitizer. Obsidian wikilinks and embeds, callouts, tags, and block
 references are currently unsupported and fail with a source-specific build
@@ -45,7 +61,7 @@ They must be replaced with final content before production deployment.
 Writing is syndicated through the DEV article API as complete Markdown. Each
 DEV article uses `https://adambelton.com/writing/:slug` as its canonical URL.
 The syndicator loads all of the authenticated author's DEV articles, matches by
-normalized canonical URL, creates a missing article, updates a changed article,
+the current or a declared legacy normalized canonical URL, creates a missing article, updates a changed article,
 and leaves identical articles untouched. More than one DEV article claiming the
 same canonical URL is an error requiring manual resolution.
 
@@ -64,6 +80,8 @@ articles have been reviewed under DEV's current submission rules, and any
 material generative-AI assistance has been disclosed in the article as DEV
 requires.
 
-A live run waits for every canonical website page to return successfully before
-calling DEV. If the workflow fails, correct the configuration or content and
+A live run waits for every canonical website page and the byte-identical
+repository cover to be live before calling DEV. The cover is sent as
+`main_image` and is never inserted into article Markdown. If the workflow
+fails, correct the configuration or content and
 rerun it manually; canonical matching makes recovery idempotent.

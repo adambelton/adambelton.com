@@ -1,8 +1,14 @@
 ---
-title: Portfolio Website Architecture for Dummies
+title: How a shopping-centre mental model lets me see my personal website's ports-and-adapters architecture with my eyes closed
+shortTitle: A shopping-centre model for my website architecture
 description: The shopping-centre mental model that lets me see my website's architecture with my eyes closed.
 createdAt: 2026-08-06
-slug: portfolio-website-architecture-for-dummies
+slug: shopping-centre-website-architecture
+legacySlugs:
+  - portfolio-website-architecture-for-dummies
+  - shopping-centre-mental-model-for-ports-and-adapters-architecture
+coverImage: /images/writing/shopping-centre-website-architecture/cover-2000x840.jpg
+coverImageSmall: /images/writing/shopping-centre-website-architecture/cover-1000x420.jpg
 internalTags:
   - thoughtform
 externalTags:

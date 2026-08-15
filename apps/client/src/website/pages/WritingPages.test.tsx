@@ -16,9 +16,14 @@ describe("public writing pages", () => {
       "Notes on products, technology, and the slow work of making ideas clearer.",
     );
     expect(markup).not.toContain("Notes, essays, and work in progress.");
-    expect(markup).toContain("Portfolio Website Architecture for Dummies");
+    expect(markup).toContain("How a shopping-centre mental model lets me see my personal website");
+    expect(markup).toContain("md:grid-cols-2 xl:grid-cols-3");
+    expect(markup).toContain("border-[var(--line-subtle)]");
     expect(markup).toContain(
-      'href="/writing/portfolio-website-architecture-for-dummies"',
+      'src="/images/writing/shopping-centre-website-architecture/cover-1000x420.jpg"',
+    );
+    expect(markup).toContain(
+      'href="/writing/shopping-centre-website-architecture"',
     );
     expect(markup).toContain('dateTime="2026-08-06"');
     expect(markup).toContain("6 August 2026");
@@ -34,7 +39,7 @@ describe("public writing pages", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter
         initialEntries={[
-          "/writing/portfolio-website-architecture-for-dummies",
+          "/writing/shopping-centre-website-architecture",
         ]}
       >
         <Routes>
@@ -42,8 +47,9 @@ describe("public writing pages", () => {
         </Routes>
       </MemoryRouter>,
     );
-    expect(markup).toContain("Portfolio Website Architecture for Dummies");
+    expect(markup).toContain("How a shopping-centre mental model lets me see my personal website");
     expect(markup).toContain("This website serves two purposes:");
+    expect(markup).toContain("A shopping-centre model for my website architecture");
     expect(markup).toContain(
       '<article aria-labelledby="post-title" class="min-w-0">',
     );
@@ -51,14 +57,24 @@ describe("public writing pages", () => {
       'class="markdown-content max-w-2xl text-base leading-7 text-[var(--muted)]"',
     );
     expect(markup).toContain(
-      "<title>Portfolio Website Architecture for Dummies — Adam Belton</title>",
+      "<title>How a shopping-centre mental model lets me see my personal website&#x27;s ports-and-adapters architecture with my eyes closed — Adam Belton</title>",
     );
     expect(markup).toContain(
       '<meta content="The shopping-centre mental model that lets me see my website&#x27;s architecture with my eyes closed." name="description"/>',
     );
     expect(markup).toContain(
-      '<link href="https://adambelton.com/writing/portfolio-website-architecture-for-dummies" rel="canonical"/>',
+      '<link href="https://adambelton.com/writing/shopping-centre-website-architecture" rel="canonical"/>',
     );
+    expect(markup).toContain(
+      '<meta content="https://adambelton.com/images/writing/shopping-centre-website-architecture/cover-2000x840.jpg" property="og:image"/>',
+    );
+    expect(markup).toContain('property="og:type"');
+    expect(markup).toContain('type="application/ld+json"');
+    expect(markup).toContain(
+      'src="/images/writing/shopping-centre-website-architecture/cover-2000x840.jpg"',
+    );
+    expect(markup.indexOf("cover-2000x840.jpg")).toBeLessThan(markup.indexOf('id="post-title"'));
+    expect(markup).toContain('<header class="mt-12">');
     expect(markup).toContain("6 August 2026");
   });
 

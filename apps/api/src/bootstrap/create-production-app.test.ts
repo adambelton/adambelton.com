@@ -4,6 +4,20 @@ import { createProductionApp } from "apps/api/src/bootstrap/create-production-ap
 const app = createProductionApp({ staticRoot: "apps/client" });
 
 describe("production application", () => {
+  it("permanently redirects legacy writing canonicals", async () => {
+    const redirectingApp = createProductionApp({
+      staticRoot: "apps/client",
+      writingRedirects: {
+        "/writing/old-title": "/writing/new-title",
+      },
+    });
+
+    const response = await redirectingApp.request("/writing/old-title");
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("/writing/new-title");
+  });
+
   it("exposes deployment health outside the API prefix", async () => {
     const response = await app.request("/health");
 

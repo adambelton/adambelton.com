@@ -975,3 +975,22 @@ any implementation task can be reported complete.
 - Full tests, typecheck, build, diff checks, and mounted desktop/mobile route
   inspection passed. Public routes showed no horizontal overflow or browser
   warnings; the independently edited ThoughtForm registry summary was preserved.
+
+## 2026-08-15 — Writing covers, prerendering, and canonical migration
+
+- Added repository-owned source, hero, and card images for both writing posts,
+  with responsive three-column wide, two-column intermediate, and single-column
+  mobile presentation plus consistent bordered article heroes above the titles.
+- Replaced the original ambiguous article titles and canonical slugs with the
+  approved expressive titles, compact breadcrumb titles, and concise URLs.
+  Generated permanent redirects and legacy-aware DEV matching preserve both
+  former canonical generations without creating duplicate DEV articles.
+- Added build-time prerendering for the Writing index and article routes with
+  complete canonical, Open Graph, Twitter, and BlogPosting metadata in initial
+  HTML. Social metadata and DEV use the normal 2000 x 840 cover; dedicated
+  padded LinkedIn renditions were evaluated and rejected.
+- Extended DEV syndication with `main_image`, deployed-page and byte-identical
+  cover checks, and current-or-legacy canonical matching. Live publication and
+  the final unchanged idempotency run follow deployment.
+- Adam approved the final mounted desktop presentation after iterative image,
+  title, grid, border, hero-order, and spacing review.

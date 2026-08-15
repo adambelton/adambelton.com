@@ -7,7 +7,7 @@
     "dev": "vite",
     "syndicate:dev-to": "node --import tsx src/website/content/syndication/dev-to-syndication.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build": "tsc -p tsconfig.json --noEmit && vite build"
+    "build": "tsc -p tsconfig.json --noEmit && vite build && vite build --ssr src/website/prerender/prerender.tsx --outDir .prerender --emptyOutDir && node .prerender/prerender.js"
   },
   "dependencies": {
     "@adambelton/auth": "workspace:*",

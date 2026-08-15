@@ -10,9 +10,13 @@ export type CompiledContentPage = {
 };
 
 export type CompiledWritingPost = CompiledContentPage & {
+  coverImage: string;
+  coverImageSmall: string;
   createdAt: string;
   externalTags: string[];
   internalTags: string[];
+  legacySlugs: string[];
+  shortTitle: string;
   slug: string;
   tags: string[];
 };

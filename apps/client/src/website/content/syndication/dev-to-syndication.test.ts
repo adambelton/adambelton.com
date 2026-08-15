@@ -5,6 +5,7 @@ import {
   canonicalUrlFor,
   devArticlePayload,
   findArticleByCanonicalUrl,
+  findArticleForPost,
   syndicateWriting,
   waitForCanonicalPage,
   type DevArticle,
@@ -14,10 +15,14 @@ import {
 const post: SyndicationPost = {
   bodyHtml: "<p>Body</p>" as CompiledWritingPost["bodyHtml"],
   bodyMarkdown: "Body",
+  coverImage: "/images/writing/a-post/cover-2000x840.jpg",
+  coverImageSmall: "/images/writing/a-post/cover-1000x420.jpg",
   createdAt: "2026-08-15",
   description: "Description",
   externalTags: ["productengineering", "ai"],
   internalTags: ["thoughtform"],
+  legacySlugs: [],
+  shortTitle: "A post",
   slug: "a-post",
   source: "a-post.md",
   tags: ["thoughtform", "productengineering", "ai"],
@@ -29,6 +34,7 @@ const article = (overrides: Partial<DevArticle> = {}): DevArticle => ({
   canonical_url: canonicalUrlFor(post.slug),
   description: "Description",
   id: 42,
+  main_image: "https://adambelton.com/images/writing/a-post/cover-2000x840.jpg",
   published: true,
   tag_list: ["productengineering", "ai"],
   title: "A post",
@@ -42,11 +48,13 @@ describe("DEV writing syndication", () => {
         body_markdown: "Body",
         canonical_url: "https://adambelton.com/writing/a-post",
         description: "Description",
+        main_image: "https://adambelton.com/images/writing/a-post/cover-2000x840.jpg",
         published: true,
         tags: ["productengineering", "ai"],
         title: "A post",
       },
     });
+    expect(devArticlePayload(post).article.body_markdown).not.toContain(post.coverImage);
   });
 
   it("matches by normalized canonical URL and rejects duplicate ownership", () => {
@@ -55,6 +63,22 @@ describe("DEV writing syndication", () => {
     ).toBe(42);
     expect(() =>
       findArticleByCanonicalUrl([article(), article({ id: 43 })], canonicalUrlFor(post.slug)),
+    ).toThrow("multiple articles");
+  });
+
+  it("finds an existing DEV article through a legacy canonical URL", () => {
+    const migratedPost = { ...post, legacySlugs: ["the-old-post"] };
+    expect(
+      findArticleForPost(
+        [article({ canonical_url: canonicalUrlFor("the-old-post") })],
+        migratedPost,
+      )?.id,
+    ).toBe(42);
+    expect(() =>
+      findArticleForPost(
+        [article(), article({ id: 43, canonical_url: canonicalUrlFor("the-old-post") })],
+        migratedPost,
+      ),
     ).toThrow("multiple articles");
   });
 
@@ -84,7 +108,7 @@ describe("DEV writing syndication", () => {
       return new Response("unexpected", { status: 500 });
     }) as typeof fetch;
 
-    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post] })).resolves.toEqual([
+    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedCover: false })).resolves.toEqual([
       expect.objectContaining({ action: "created" }),
     ]);
     await expect(
@@ -92,6 +116,7 @@ describe("DEV writing syndication", () => {
         apiKey: "secret",
         fetchImpl,
         posts: [{ ...post, bodyMarkdown: "Changed" }],
+        verifyDeployedCover: false,
       }),
     ).resolves.toEqual([expect.objectContaining({ action: "updated" })]);
     expect(requests).toEqual(expect.arrayContaining([
@@ -121,7 +146,7 @@ describe("DEV writing syndication", () => {
       return new Response("unexpected", { status: 500 });
     }) as typeof fetch;
 
-    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post] })).resolves.toEqual([
+    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedCover: false })).resolves.toEqual([
       expect.objectContaining({ action: "unchanged" }),
     ]);
     expect(fetchImpl).toHaveBeenCalledTimes(2);
@@ -131,7 +156,7 @@ describe("DEV writing syndication", () => {
     await expect(syndicateWriting({ posts: [post] })).rejects.toThrow("DEV_TO_API_KEY is required");
     const rejectedApi = vi.fn(async () => new Response("unauthorized", { status: 401 })) as typeof fetch;
     await expect(
-      syndicateWriting({ apiKey: "secret", fetchImpl: rejectedApi, posts: [post] }),
+      syndicateWriting({ apiKey: "secret", fetchImpl: rejectedApi, posts: [post], verifyDeployedCover: false }),
     ).rejects.toThrow("DEV API GET /articles/me/all");
     const unavailable = vi.fn(async () => new Response("missing", { status: 404 })) as typeof fetch;
     await expect(waitForCanonicalPage(canonicalUrlFor(post.slug), unavailable, 1, 0)).rejects.toThrow(
