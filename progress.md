@@ -2,12 +2,12 @@
 
 ## Current status
 
-The Writing cover-image follow-up is implemented on
-`codex/writing-alt-and-dev-idempotency`. Article heroes now expose required,
+The Writing cover-image follow-up is deployed from `main`. Article heroes now expose required,
 repository-authored descriptions while linked collection thumbnails remain
 decorative alongside their visible titles. DEV cover comparison recognizes the
 original asset URL inside DEV's transformed CDN response; a live validation run
-reported both existing articles unchanged. Full tests, typecheck, build,
+and the merge-triggered workflow both reported the two existing articles
+unchanged. Full tests, typecheck, build, CI, local and production
 prerendered-markup inspection, dry-run syndication, and diff checks pass.
 
 The approved writing-link follow-up is complete on
