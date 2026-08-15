@@ -1,0 +1,58 @@
+name: Syndicate writing to DEV
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/client/src/content/posts/**"
+      - "apps/client/src/website/content/**"
+      - "apps/client/package.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish changes to DEV instead of running a dry run
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-to-syndication
+  cancel-in-progress: false
+
+jobs:
+  syndicate:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      vars.DEV_TO_SYNDICATION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate syndication payloads
+        if: github.event_name == 'workflow_dispatch' && inputs.publish != true
+        run: pnpm syndicate:dev-to --dry-run
+
+      - name: Publish writing to DEV
+        if: github.event_name == 'push' || inputs.publish == true
+        env:
+          DEV_TO_API_KEY: ${{ secrets.DEV_TO_API_KEY }}
+        run: pnpm syndicate:dev-to

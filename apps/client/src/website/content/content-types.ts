@@ -11,5 +11,8 @@ export type CompiledContentPage = {
 
 export type CompiledWritingPost = CompiledContentPage & {
   createdAt: string;
+  externalTags: string[];
+  internalTags: string[];
   slug: string;
+  tags: string[];
 };

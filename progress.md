@@ -2,6 +2,26 @@
 
 ## Current status
 
+The approved writing-link follow-up is complete on
+`codex/dev-to-syndication`. The first body-text ThoughtForm mention in each
+existing article now links to the absolute product page in the shared Markdown.
+Both live DEV articles contain exactly one such link while retaining their
+approved canonical URLs and tags, and a final live synchronization left both
+unchanged.
+
+The approved DEV syndication implementation, local validation, and initial live
+publication are complete on `codex/dev-to-syndication`. Both repository-backed
+posts now carry product-only
+internal tags and reviewed external DEV tags. The host adapter and gated GitHub
+workflow create, update, or leave DEV articles unchanged by canonical URL while
+keeping the website authoritative. Live activation remains intentionally
+gated by the workflow reaching `main`. Adam confirmed that neither existing
+article requires AI-assistance disclosure, explicitly authorized copying the
+ignored local key to GitHub Actions, and the repository secret plus enabled
+activation variable were verified without exposing the credential. Both live
+articles have the exact approved tags and canonical URLs; a final real rerun
+left both unchanged.
+
 The new public post “The Writing Problem That Wasn’t Really a Writing Problem”
 documents why ThoughtForm moved from an AI-writing-tool premise to a
 conversational thinking workspace. Repository-backed metadata gives it the

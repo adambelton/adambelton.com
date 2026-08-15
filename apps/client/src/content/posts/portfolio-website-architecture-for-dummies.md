@@ -3,13 +3,20 @@ title: Portfolio Website Architecture for Dummies
 description: The shopping-centre mental model that lets me see my website's architecture with my eyes closed.
 createdAt: 2026-08-06
 slug: portfolio-website-architecture-for-dummies
+internalTags:
+  - thoughtform
+externalTags:
+  - productengineering
+  - architecture
+  - softwareengineering
+  - webdev
 ---
 This website serves two purposes:
 
 1. It's where I write about how I think.
 2. It's where I showcase what I build.
 
-Soon, I'll be releasing my first demo product: ThoughtForm.
+Soon, I'll be releasing my first demo product: [ThoughtForm](https://adambelton.com/products/thoughtform).
 
 ThoughtForm is a conversational thinking workspace where an AI assistant helps you explore, organise and articulate what you think or feel. Through focused questions, examples, clarification, challenge and alternative perspectives, it helps you develop an evolving idea map you can inspect and correct. If it would be useful, it can then bring that understanding together into a coherent expression, in your own words. It is useful when something is bothering you, but you cannot quite put your finger on why.
 

@@ -15,6 +15,10 @@ generated module during development and production builds. Files are authored
 through Obsidian-compatible standard Markdown and YAML properties; authoring
 parsers remain build-only, and this content pipeline remains independent of
 ThoughtForm. The authoring contract lives in `docs/content-authoring.md`.
+The same host-owned writing boundary validates product-only internal tags and
+reviewed external DEV tags. Its outbound syndication adapter publishes complete
+Markdown to DEV after the canonical website page is live; GitHub Actions only
+supplies credentials and invokes that host operation.
 
 The API owns authentication, owner/demo access decisions, product access, usage limits, persistence, AI provider calls, and response streaming.
 

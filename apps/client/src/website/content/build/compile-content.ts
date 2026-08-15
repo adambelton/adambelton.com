@@ -16,6 +16,25 @@ type ContentKind = "page" | "post";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const TAG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const approvedInternalProductTags = ["thoughtform"] as const;
+export const approvedDevTags = [
+  "ai",
+  "architecture",
+  "product",
+  "productengineering",
+  "softwareengineering",
+  "webdev",
+  "writing",
+] as const;
+
+function isApprovedInternalProductTag(tag: string) {
+  return (approvedInternalProductTags as readonly string[]).includes(tag);
+}
+
+function isApprovedDevTag(tag: string) {
+  return (approvedDevTags as readonly string[]).includes(tag);
+}
 
 function withoutCode(markdown: string) {
   return markdown
@@ -49,7 +68,7 @@ function requiredString(metadata: ContentMetadata, field: string, source: string
   return value.trim();
 }
 
-function parseDocument(sourceText: string, source: string) {
+export function parseContentDocument(sourceText: string, source: string) {
   const normalized = sourceText.replace(/\r\n?/g, "\n");
   const match = normalized.match(/^---\n([\s\S]*?)\n---(?:\n|$)([\s\S]*)$/);
   if (!match) throw new Error(`${source}: expected YAML frontmatter enclosed by --- lines.`);
@@ -61,6 +80,28 @@ function parseDocument(sourceText: string, source: string) {
   if (!body) throw new Error(`${source}: Markdown body must not be empty.`);
   assertSupportedObsidianMarkdown(body, source);
   return { metadata: metadata as ContentMetadata, body };
+}
+
+function stringList(
+  metadata: ContentMetadata,
+  field: string,
+  source: string,
+  { optional = false }: { optional?: boolean } = {},
+) {
+  const value = metadata[field];
+  if (value === undefined && optional) return [];
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || !item.trim())) {
+    throw new Error(`${source}: frontmatter field "${field}" must be a list of non-empty strings.`);
+  }
+  const tags = value.map((item) => (item as string).trim());
+  if (new Set(tags).size !== tags.length) {
+    throw new Error(`${source}: frontmatter field "${field}" must not contain duplicates.`);
+  }
+  const invalid = tags.find((tag) => !TAG.test(tag));
+  if (invalid) {
+    throw new Error(`${source}: tag "${invalid}" must contain lowercase words separated by hyphens.`);
+  }
+  return tags;
 }
 
 function renderSanitizedMarkdown(markdown: string) {
@@ -90,7 +131,7 @@ export function compileContentDocument(
   source: string,
   kind: ContentKind,
 ): CompiledContentPage | CompiledWritingPost {
-  const { body, metadata } = parseDocument(sourceText, source);
+  const { body, metadata } = parseContentDocument(sourceText, source);
   const shared = {
     bodyHtml: renderSanitizedMarkdown(body),
     description: requiredString(metadata, "description", source),
@@ -112,7 +153,29 @@ export function compileContentDocument(
   if (!SLUG.test(slug)) {
     throw new Error(`${source}: "slug" must contain lowercase words separated by hyphens.`);
   }
-  return { ...shared, createdAt, slug };
+  const internalTags = stringList(metadata, "internalTags", source, { optional: true });
+  const unknownProduct = internalTags.find((tag) => !isApprovedInternalProductTag(tag));
+  if (unknownProduct) {
+    throw new Error(`${source}: internal tag "${unknownProduct}" is not a registered product slug.`);
+  }
+  const externalTags = stringList(metadata, "externalTags", source);
+  if (externalTags.length < 1 || externalTags.length > 4) {
+    throw new Error(`${source}: "externalTags" must contain between one and four DEV tags.`);
+  }
+  const unapprovedDevTag = externalTags.find((tag) => !isApprovedDevTag(tag));
+  if (unapprovedDevTag) {
+    throw new Error(
+      `${source}: external tag "${unapprovedDevTag}" has not been reviewed and approved for DEV.`,
+    );
+  }
+  return {
+    ...shared,
+    createdAt,
+    externalTags,
+    internalTags,
+    slug,
+    tags: [...new Set([...internalTags, ...externalTags])],
+  };
 }
 
 export function compileContentCollection(
