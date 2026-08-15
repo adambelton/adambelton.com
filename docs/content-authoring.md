@@ -20,7 +20,7 @@ error names its source file and prevents a successful build.
 
 Pages require `title` and `description`. Posts also require a navigation-length
 `shortTitle`, a `createdAt` value in `YYYY-MM-DD` form, a lowercase hyphenated `slug`, `coverImage`,
-`coverImageSmall`, and an `externalTags` list.
+`coverImageAlt`, `coverImageSmall`, and an `externalTags` list.
 The optional `internalTags` list may contain only slugs
 from the product registry. `externalTags` must contain one to four tags from the
 reviewed DEV tag policy. The website receives the stable union of both lists;
@@ -41,7 +41,10 @@ Open Graph, and LinkedIn cover plus a 1000 x 420 card rendition beneath
 idea visually without embedding semantic text; every consuming
 surface must render the semantic title alongside it. The original PNG source is
 retained as `illustration.png`; optimized JPEG renditions are regenerated from
-that source without adding typography to the image.
+that source without adding typography to the image. `coverImageAlt` describes
+the illustration on the standalone article hero. Card thumbnails use empty alt
+text because the image and visible article title share one link; repeating the
+description would make the link's accessible name unnecessarily verbose.
 
 Production builds prerender the writing collection and every post. Raw article
 responses therefore contain their complete semantic content plus canonical,
@@ -64,6 +67,8 @@ The syndicator loads all of the authenticated author's DEV articles, matches by
 the current or a declared legacy normalized canonical URL, creates a missing article, updates a changed article,
 and leaves identical articles untouched. More than one DEV article claiming the
 same canonical URL is an error requiring manual resolution.
+DEV-generated article slugs are not mutable through the article API and remain
+independent of the authoritative website canonical URL.
 
 Run a local payload check without credentials or network mutations:
 

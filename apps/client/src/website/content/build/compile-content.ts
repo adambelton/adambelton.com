@@ -144,6 +144,7 @@ export function compileContentDocument(
   const slug = requiredString(metadata, "slug", source);
   const shortTitle = requiredString(metadata, "shortTitle", source);
   const coverImage = requiredString(metadata, "coverImage", source);
+  const coverImageAlt = requiredString(metadata, "coverImageAlt", source);
   const coverImageSmall = requiredString(metadata, "coverImageSmall", source);
   const parsedCreatedAt = new Date(`${createdAt}T00:00:00Z`);
   if (
@@ -193,6 +194,7 @@ export function compileContentDocument(
   return {
     ...shared,
     coverImage,
+    coverImageAlt,
     coverImageSmall,
     createdAt,
     externalTags,

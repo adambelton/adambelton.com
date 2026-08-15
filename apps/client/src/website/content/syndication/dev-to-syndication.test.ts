@@ -16,6 +16,7 @@ const post: SyndicationPost = {
   bodyHtml: "<p>Body</p>" as CompiledWritingPost["bodyHtml"],
   bodyMarkdown: "Body",
   coverImage: "/images/writing/a-post/cover-2000x840.jpg",
+  coverImageAlt: "An illustration for the post.",
   coverImageSmall: "/images/writing/a-post/cover-1000x420.jpg",
   createdAt: "2026-08-15",
   description: "Description",
@@ -34,7 +35,7 @@ const article = (overrides: Partial<DevArticle> = {}): DevArticle => ({
   canonical_url: canonicalUrlFor(post.slug),
   description: "Description",
   id: 42,
-  main_image: "https://adambelton.com/images/writing/a-post/cover-2000x840.jpg",
+  cover_image: "https://adambelton.com/images/writing/a-post/cover-2000x840.jpg",
   published: true,
   tag_list: ["productengineering", "ai"],
   title: "A post",
@@ -86,6 +87,19 @@ describe("DEV writing syndication", () => {
     expect(articleNeedsUpdate(article(), post)).toBe(false);
     expect(articleNeedsUpdate(article({ body_markdown: "Old body" }), post)).toBe(true);
     expect(articleNeedsUpdate(article({ tag_list: ["ai"] }), post)).toBe(true);
+  });
+
+  it("accepts DEV's transformed cover URL as the submitted source image", () => {
+    expect(
+      articleNeedsUpdate(
+        article({
+          cover_image:
+            "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fadambelton.com%2Fimages%2Fwriting%2Fa-post%2Fcover-2000x840.jpg",
+        }),
+        post,
+      ),
+    ).toBe(false);
+    expect(articleNeedsUpdate(article({ cover_image: "https://example.com/other.jpg" }), post)).toBe(true);
   });
 
   it("creates a missing article and updates it on a later changed run", async () => {

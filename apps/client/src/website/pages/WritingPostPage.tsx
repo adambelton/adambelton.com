@@ -31,7 +31,7 @@ export function WritingPostPage() {
             { label: post.shortTitle ?? post.title },
           ]}
         />
-        <WritingCoverImage coverImage={post.coverImage} />
+        <WritingCoverImage alt={post.coverImageAlt} coverImage={post.coverImage} />
         <header className="mt-12">
           <h1
             className="m-0 max-w-4xl text-5xl font-semibold leading-[1] tracking-normal sm:text-7xl"

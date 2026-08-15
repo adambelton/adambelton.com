@@ -23,6 +23,9 @@ describe("public writing pages", () => {
       'src="/images/writing/shopping-centre-website-architecture/cover-1000x420.jpg"',
     );
     expect(markup).toContain(
+      'alt="" class="aspect-[50/21]',
+    );
+    expect(markup).toContain(
       'href="/writing/shopping-centre-website-architecture"',
     );
     expect(markup).toContain('dateTime="2026-08-06"');
@@ -72,6 +75,9 @@ describe("public writing pages", () => {
     expect(markup).toContain('type="application/ld+json"');
     expect(markup).toContain(
       'src="/images/writing/shopping-centre-website-architecture/cover-2000x840.jpg"',
+    );
+    expect(markup).toContain(
+      'alt="A man reclining with his eyes closed, imagining the interior of a circular shopping centre."',
     );
     expect(markup.indexOf("cover-2000x840.jpg")).toBeLessThan(markup.indexOf('id="post-title"'));
     expect(markup).toContain('<header class="mt-12">');

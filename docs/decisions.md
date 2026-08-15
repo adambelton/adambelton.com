@@ -1384,3 +1384,9 @@ DEV receives the absolute 2000 x 840 cover as `main_image`, separately from the
 Markdown body. Live syndication verifies that the canonical page and exact
 repository image have reached production before mutation. LinkedIn may crop the
 50:21 image; posting and live preview inspection remain a separate task.
+
+The standalone website hero exposes repository-authored descriptive alternative
+text. A collection thumbnail remains decorative because it shares a single link
+with the visible semantic article title. DEV-generated slugs are retained when
+titles or canonical website routes change; the canonical URL, not the DEV path,
+identifies the authoritative publication.

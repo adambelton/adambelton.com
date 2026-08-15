@@ -142,9 +142,23 @@ Approved by Adam on 15 August 2026.
   at the wide breakpoint and two at intermediate widths—and every other Writing
   presentation choice.
 
+### Idempotency and alternative-text approval record
+
+Approved by Adam on 15 August 2026.
+
+- **Scope:** normalize DEV's returned cover CDN URL for idempotency and add
+  required descriptive alternative text to article heroes.
+- **Intentional boundaries:** keep thumbnail image alt text empty because each
+  thumbnail shares a link with its visible article title; preserve the existing
+  DEV article identities and generated slugs.
+- **Important deferral:** DEV slug changes are not pursued. The website URLs in
+  `canonical_url` remain authoritative.
+- **Definition of done:** local validation passes and a live post-deployment
+  synchronization reports both existing DEV articles unchanged.
+
 ## Status
 
-In progress on `codex/writing-cover-images`.
+Follow-up in progress on `codex/writing-alt-and-dev-idempotency`.
 
 Implemented and locally validated: responsive cards, hero-before-title layout,
 build-time prerendering for `/` and article routes, social/structured metadata,
@@ -156,5 +170,14 @@ and exported as 2000 x 840 heroes, 1000 x 420 cards, and uncropped 1200 x 627
 social compositions. Desktop browser inspection confirms that the sources remain
 legible on cards and heroes without edge loss.
 
-Pending: deploy, update the two existing DEV articles, and confirm a second live
-synchronization is unchanged.
+The site and both existing DEV articles are deployed without duplication. A
+post-deployment audit found that DEV returns `main_image` as a transformed
+`cover_image` CDN URL, causing redundant updates. The approved follow-up fixes
+that comparison and the article-hero alternative text before the final
+unchanged synchronization audit.
+
+Local follow-up validation is complete: 384 tests pass with 16 skipped,
+typecheck and build pass, prerendered HTML contains descriptive hero alt text
+and empty linked-thumbnail alt text, and a live DEV run reports both existing
+articles unchanged. Publication, CI, deployed-markup verification, and the
+post-deployment unchanged audit remain.

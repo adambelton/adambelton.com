@@ -22,7 +22,8 @@ export type DevArticle = {
   canonical_url: string;
   description: string;
   id: number;
-  main_image: string;
+  cover_image?: string | null;
+  main_image?: string | null;
   published: boolean;
   tag_list: string[];
   title: string;
@@ -75,6 +76,24 @@ function normalizedUrl(value: string) {
   return url.toString().replace(/\/$/, "");
 }
 
+function originalCoverImageUrl(value: string) {
+  const encodedSource = value.match(/\/https%3A%2F%2F.+$/i)?.[0].slice(1);
+  if (!encodedSource) return value;
+  try {
+    return decodeURIComponent(encodedSource);
+  } catch {
+    return value;
+  }
+}
+
+function devCoverMatches(article: DevArticle, expected: string) {
+  const returnedCover = article.cover_image ?? article.main_image;
+  return Boolean(
+    returnedCover &&
+      normalizedUrl(originalCoverImageUrl(returnedCover)) === normalizedUrl(expected),
+  );
+}
+
 export function findArticleByCanonicalUrl(articles: DevArticle[], canonicalUrl: string) {
   const matches = articles.filter(
     (article) =>
@@ -108,7 +127,7 @@ export function articleNeedsUpdate(article: DevArticle, post: SyndicationPost) {
   return (
     article.title !== payload.title ||
     article.description !== payload.description ||
-    article.main_image !== payload.main_image ||
+    !devCoverMatches(article, payload.main_image) ||
     article.body_markdown.trim() !== payload.body_markdown.trim() ||
     normalizedUrl(article.canonical_url) !== normalizedUrl(payload.canonical_url) ||
     !article.published ||

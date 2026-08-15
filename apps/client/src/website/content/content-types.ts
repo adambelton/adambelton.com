@@ -11,6 +11,7 @@ export type CompiledContentPage = {
 
 export type CompiledWritingPost = CompiledContentPage & {
   coverImage: string;
+  coverImageAlt: string;
   coverImageSmall: string;
   createdAt: string;
   externalTags: string[];
