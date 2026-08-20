@@ -12,7 +12,7 @@ describe("AboutPage", () => {
     );
 
     expect(markup).toContain(
-      "Senior product engineer combining systems thinking, product judgement and frontend depth.",
+      "Senior product engineer turning complex domains into clear, reliable software.",
     );
     expect(markup).toContain(
       'class="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"',

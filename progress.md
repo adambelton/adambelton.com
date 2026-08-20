@@ -2,6 +2,15 @@
 
 ## Current status
 
+The approved Idea Map headroom correction is complete on
+`codex/restore-thoughtform-idea-map-headroom`. Production diagnosis reproduced
+an implicit second-turn split stopping at `max_tokens` in three of three
+1,536-token calls and completing at 3,072 with 1,265 output tokens, including
+755 reasoning tokens. The affected owner conversation received a reviewed
+Idea Map-only recovery revision without changing its 16 messages. This task
+restores the 3,072-token Idea Map ceiling, corrects the Task 040 calibration
+record, and carries the existing About-page copy edit unchanged.
+
 The Writing cover-image follow-up is deployed from `main`. Article heroes now expose required,
 repository-authored descriptions while linked collection thumbnails remain
 decorative alongside their visible titles. DEV cover comparison recognizes the

@@ -1390,3 +1390,23 @@ text. A collection thumbnail remains decorative because it shares a single link
 with the visible semantic article title. DEV-generated slugs are retained when
 titles or canonical website routes change; the canonical URL, not the DEV path,
 identifies the authoritative publication.
+
+## 067 — Idea Map Analysis Retains Structural Output Headroom
+
+ThoughtForm's Idea Map analysis output ceiling is 3,072 tokens. This supersedes
+only the 1,536-token Idea Map bound recorded by Decision 062; conversation and
+Draft bounds, the 7,000-token Idea Map reservation, daily budgets, and
+input-plus-output accounting remain unchanged.
+
+Task 039 observed successful Idea Map output between 151 and 990 tokens while
+the provider ceiling remained 3,072. Task 040 inferred the smaller bound but did
+not rerun the mounted matrix under it, and its targeted autonomous-structure
+journey produced no autonomous structural proposal. Production later supplied
+the missing path: an implicit split stopped at `max_tokens` in three of three
+exact-state 1,536-token repetitions and completed at 3,072 with 1,265 output
+tokens, including 755 reasoning tokens.
+
+Provider-compatible schema projection remains unchanged. Product-owned
+collection limits and structural validation remain authoritative; restoring
+output headroom does not add retry, provider fallback, automatic catch-up, or a
+new persistence operation.
