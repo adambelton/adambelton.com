@@ -41,6 +41,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Restore ThoughtForm Idea Map output headroom
 - Fix ThoughtForm mobile workspace allocation
 - Fix ThoughtForm workspace overflow and editor control presentation
 - 044 — Minimum authenticated portfolio-demo operations visibility

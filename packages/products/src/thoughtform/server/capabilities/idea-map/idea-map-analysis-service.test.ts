@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   IDEA_MAP_ANALYSIS_OUTPUT_FORMAT,
   IdeaMapAnalysisService,
+  MAX_IDEA_MAP_ANALYSIS_OUTPUT_TOKENS,
 } from "packages/products/src/thoughtform/server/capabilities/idea-map/idea-map-analysis-service";
 import type { IdeaMapAnalysisModelRequest } from "packages/products/src/thoughtform/server/capabilities/idea-map/ports/idea-map-analysis-model";
 import {
@@ -102,6 +103,10 @@ describe("IdeaMapAnalysisService", () => {
     expect(requests[0]?.system).toContain(
       "assistant's concurrently generated response is not input",
     );
+    expect(requests[0]?.maxOutputTokens).toBe(
+      MAX_IDEA_MAP_ANALYSIS_OUTPUT_TOKENS,
+    );
+    expect(MAX_IDEA_MAP_ANALYSIS_OUTPUT_TOKENS).toBe(3_072);
     expect(result.proposedIdeas?.[0]).toMatchObject({
       title: "Leadership without accountability",
       assistantAssessment: { exploration: "developing" },

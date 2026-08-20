@@ -209,6 +209,29 @@ and disclosure recommendations. These decisions do not implement enforcement.
   cases, not a production-wide probability or a guarantee that every ordinary
   conversation will expose a structural opportunity clearly enough.
 
+## Production correction — 20 August 2026
+
+Task 039 measured Idea Map output while the provider ceiling remained 3,072
+tokens. Task 040 inferred a 1,536-token ceiling from the observed 151–990-token
+successful range, but did not rerun the mounted matrix under that new bound.
+The targeted autonomous-structure journey also produced no autonomous merge or
+split, so the measured range did not contain a successful implicit structural
+proposal.
+
+Production conversation `1610d945-2647-43ad-a48c-bb78c9442292` supplied the
+missing evidence. Its second user message expressed two separate concerns and
+triggered an autonomous split. Three non-persisted exact-state repetitions at
+1,536 tokens stopped at `max_tokens`; one 3,072-token control completed with
+1,265 output tokens, including 755 reasoning tokens. Sequential recovery at
+3,072 completed all seven missed user messages. The 1,536-token Idea Map bound
+is therefore superseded by a restored 3,072-token ceiling. Conversation and
+Draft bounds, daily budgets, reservations, and accounting rules are unchanged.
+The largest historical measured input (4,803) plus the restored hard output
+ceiling can reach 7,875 tokens, 875 above the 7,000-token reservation. Task
+040's existing reconciliation rule already permits an admitted operation to
+complete above its reservation and denies later work when necessary; the
+reservation is not represented as a per-operation hard maximum.
+
 ## Idea Map structure reliability amendment
 
 The first approved reliability run used eight scenarios with three repetitions

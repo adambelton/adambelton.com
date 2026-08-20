@@ -248,6 +248,27 @@ Adam's request.
   hosted-operation allowance, and UTC reset timestamp; presentation copy is
   deferred.
 
+## Post-completion production correction — 20 August 2026
+
+The 1,536-token Idea Map ceiling is superseded by 3,072 tokens. Task 039
+measured successful Idea Map calls while the ceiling was still 3,072, then Task
+040 inferred and implemented 1,536 without rerunning the mounted matrix under
+that smaller bound. The targeted autonomous-structure journey did not produce
+an autonomous merge or split, so the calibration did not exercise the largest
+successful structured-output shape.
+
+A production-derived second-turn state that implicitly required a split stopped
+at `max_tokens` in three of three non-persisted 1,536-token repetitions and
+completed in a 3,072-token control. Its 1,265 output tokens included 755
+reasoning tokens. The existing 7,000-token Idea Map reservation, daily budgets,
+input bound, accounting rules, and every non-Idea-Map output cap remain
+unchanged. The largest historical measured input plus the restored output cap
+can reach 7,875 tokens, 875 above the reservation; the existing actual-usage
+reconciliation and subsequent-admission denial rules already cover that
+permitted over-reservation completion. This correction preserves the original
+policy record while updating the current operational bound in response to new
+production evidence.
+
 ## Completion audit — 13 August 2026
 
 - **Atomic personal/global enforcement:** complete. The concrete Neon adapter
