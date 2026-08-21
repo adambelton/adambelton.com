@@ -18,13 +18,13 @@ import {
   LoginVerifyPage,
   LogoutPage,
 } from "apps/client/src/auth/pages";
-import { ProductsPage } from "apps/client/src/products/ProductsPage";
-import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
-import { productRoutePath } from "apps/client/src/products/productRoutePath";
+import { ProductsPage } from "apps/client/src/products/pages/ProductsPage";
+import { ProductRouteLoading } from "apps/client/src/products/components/ProductRouteLoading";
+import { productRoutePath } from "apps/client/src/products/routing/product-route-path";
 import { ThoughtFormOperationsPage } from "apps/client/src/platform/admin/ThoughtFormOperationsPage";
 
 const ProductRoutePage = lazy(() =>
-  import("apps/client/src/products/ProductRoutePage").then((module) => ({
+  import("apps/client/src/products/pages/ProductRoutePage").then((module) => ({
     default: module.ProductRoutePage,
   })),
 );

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { OverviewPage } from "packages/products/src/thoughtform/client/pages/OverviewPage";
+import { ThoughtFormOverviewPage } from "apps/client/src/products/pages/ThoughtFormOverviewPage";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client";
 import { ACCESS_LEVELS } from "packages/shared/src";
 
@@ -12,7 +12,7 @@ const components: ProductAppComponents = {
 describe("ThoughtForm overview page", () => {
   it("presents cathartic journaling and the complete reflective loop", () => {
     const markup = renderToStaticMarkup(
-      <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
+      <ThoughtFormOverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
     );
 
     expect(markup).toContain("AI-assisted cathartic journaling");
@@ -24,6 +24,7 @@ describe("ThoughtForm overview page", () => {
     expect(markup).toContain("Explore");
     expect(markup).toContain("Inspect");
     expect(markup).toContain("Articulate");
+    expect(markup.match(/<h3 class="text-xl font-semibold">/g)).toHaveLength(3);
     expect(markup).toContain("Designed around your agency");
     expect(markup).toContain("make you more capable, not replace your judgement");
     expect(markup).toContain("not a therapist, diagnostic tool");
@@ -43,7 +44,7 @@ describe("ThoughtForm overview page", () => {
 
   it("links to the product privacy information", () => {
     const markup = renderToStaticMarkup(
-      <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
+      <ThoughtFormOverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
     );
 
     expect(markup).toContain(
@@ -54,13 +55,13 @@ describe("ThoughtForm overview page", () => {
 
   it("links owners to saved conversations without exposing the link to demos", () => {
     const ownerMarkup = renderToStaticMarkup(
-      <OverviewPage
+      <ThoughtFormOverviewPage
         accessLevel={ACCESS_LEVELS.owner}
         components={{ ...components, isTemporaryWorkspaceAvailable: true }}
       />,
     );
     const demoMarkup = renderToStaticMarkup(
-      <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
+      <ThoughtFormOverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
     );
 
     expect(ownerMarkup).toContain('href="/products/thoughtform/conversations"');
@@ -72,7 +73,7 @@ describe("ThoughtForm overview page", () => {
 
   it("shows the host-supplied operations link only in the owner presentation", () => {
     const ownerMarkup = renderToStaticMarkup(
-      <OverviewPage
+      <ThoughtFormOverviewPage
         accessLevel={ACCESS_LEVELS.owner}
         components={{
           ...components,
@@ -82,7 +83,7 @@ describe("ThoughtForm overview page", () => {
       />,
     );
     const demoMarkup = renderToStaticMarkup(
-      <OverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
+      <ThoughtFormOverviewPage accessLevel={ACCESS_LEVELS.demo} components={components} />,
     );
 
     expect(ownerMarkup).toContain('href="/products/thoughtform/operations"');
@@ -91,7 +92,7 @@ describe("ThoughtForm overview page", () => {
 
   it("makes the temporary workspace discoverable when the host enables it", () => {
     const markup = renderToStaticMarkup(
-      <OverviewPage
+      <ThoughtFormOverviewPage
         accessLevel={ACCESS_LEVELS.demo}
         components={{ ...components, isTemporaryWorkspaceAvailable: true }}
       />,
@@ -99,5 +100,20 @@ describe("ThoughtForm overview page", () => {
 
     expect(markup).toContain('href="/products/thoughtform/editor"');
     expect(markup).not.toContain('href="/products/thoughtform/conversations"');
+  });
+
+  it("reserves demo-link space until availability is confirmed", () => {
+    const markup = renderToStaticMarkup(
+      <ThoughtFormOverviewPage
+        accessLevel={ACCESS_LEVELS.demo}
+        components={components}
+      />,
+    );
+
+    expect(markup.match(/aria-hidden="true"/g)).toHaveLength(2);
+    expect(markup).toContain("invisible text-base font-semibold");
+    expect(markup).toContain("Try the demo →");
+    expect(markup).toContain("Open the workspace");
+    expect(markup).not.toContain('href="/products/thoughtform/editor"');
   });
 });

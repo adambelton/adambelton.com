@@ -1,3 +1,5 @@
+import { ProductOverviewSubsection } from "apps/client/src/products/components/ProductOverviewSubsection";
+import { ProductOverviewTitleSection } from "apps/client/src/products/components/ProductOverviewTitleSection";
 import { TextLink } from "packages/products/src/thoughtform/client/ui/TextLink";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client/product-app-components";
 import { ACCESS_LEVELS, type AccessLevel } from "packages/shared/src";
@@ -7,31 +9,31 @@ type OverviewPageProps = {
   components: ProductAppComponents;
 };
 
-export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
+export function ThoughtFormOverviewPage({ accessLevel, components }: OverviewPageProps) {
   const isWorkspaceAvailable = components.isTemporaryWorkspaceAvailable;
 
   return (
     <div className="grid gap-14 sm:gap-20">
-      <section aria-labelledby="product-title">
-        <h1
-          className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
-          id="product-title"
-        >
-          ThoughtForm
-        </h1>
-        <p className="mt-6 max-w-3xl text-xl font-semibold leading-8">
+      <ProductOverviewTitleSection
+        description={
+          <>
+            ThoughtForm is a conversational thinking workspace where an AI
+            assistant helps you explore, organise and articulate what you think or
+            feel. Instead of giving you a blank page or rushing to an answer, it
+            helps you inspect what is going on, organise what emerges, and bring
+            that understanding together into a coherent expression.
+          </>
+        }
+        tagline={
+          <>
           AI-assisted cathartic journaling for talking through what is on your
           mind.
-        </p>
-        <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-          ThoughtForm is a conversational thinking workspace where an AI
-          assistant helps you explore, organise and articulate what you think or
-          feel. Instead of giving you a blank page or rushing to an answer, it
-          helps you inspect what is going on, organise what emerges, and bring
-          that understanding together into a coherent expression.
-        </p>
-        {isWorkspaceAvailable ? (
-          <div className="mt-8">
+          </>
+        }
+        title="ThoughtForm"
+      >
+        <div className="mt-8">
+          {isWorkspaceAvailable ? (
             <TextLink
               Link={components.Link}
               href="/products/thoughtform/editor"
@@ -39,9 +41,16 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
             >
               Try the demo →
             </TextLink>
-          </div>
-        ) : null}
-      </section>
+          ) : (
+            <span
+              aria-hidden="true"
+              className="invisible text-base font-semibold"
+            >
+              Try the demo →
+            </span>
+          )}
+        </div>
+      </ProductOverviewTitleSection>
 
       <section aria-labelledby="useful-title">
         <h2
@@ -77,31 +86,34 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
         </h2>
         <ol className="m-0 grid max-w-4xl list-none gap-6 border-t border-[var(--line)] p-0 pt-5 sm:grid-cols-3">
           <li>
-            <p className="m-0 text-xl font-semibold">Explore</p>
-            <p className="mt-2 text-base leading-7 text-[var(--muted)]">
+            <ProductOverviewSubsection title="Explore">
+              <p>
               Talk through what is on your mind. The assistant uses focused
               questions, examples, clarification, challenge and alternative
               perspectives to help you examine what is there without deciding
               the answer for you.
-            </p>
+              </p>
+            </ProductOverviewSubsection>
           </li>
           <li>
-            <p className="m-0 text-xl font-semibold">Inspect</p>
-            <p className="mt-2 text-base leading-7 text-[var(--muted)]">
+            <ProductOverviewSubsection title="Inspect">
+              <p>
               As the conversation develops, ThoughtForm helps you build an
               evolving Idea Map of the thoughts, feelings, tensions and questions
               that emerge. You can inspect it, correct it, dismiss what does not
               fit, and choose what deserves more attention.
-            </p>
+              </p>
+            </ProductOverviewSubsection>
           </li>
           <li>
-            <p className="m-0 text-xl font-semibold">Articulate</p>
-            <p className="mt-2 text-base leading-7 text-[var(--muted)]">
+            <ProductOverviewSubsection title="Articulate">
+              <p>
               ThoughtForm brings that developing understanding together into a
               coherent first-person expression. You can read it back, correct
               it and continue exploring until it accurately reflects where you
               stand.
-            </p>
+              </p>
+            </ProductOverviewSubsection>
           </li>
         </ol>
       </section>
@@ -152,37 +164,43 @@ export function OverviewPage({ accessLevel, components }: OverviewPageProps) {
             <p className="mt-4 text-sm">Updated August 2026</p>
           </div>
           <div>
-            {isWorkspaceAvailable && (
+            <p className="m-0 text-base leading-7 text-[var(--muted)]">
+              {isWorkspaceAvailable ? (
+                <TextLink
+                  Link={components.Link}
+                  href="/products/thoughtform/editor"
+                >
+                  Open the workspace
+                </TextLink>
+              ) : (
+                <span aria-hidden="true" className="invisible">
+                  Open the workspace
+                </span>
+              )}
+            </p>
+            {isWorkspaceAvailable && accessLevel === ACCESS_LEVELS.owner ? (
               <>
-                <p className="m-0 text-base leading-7 text-[var(--muted)]">
+                <p className="mt-3 text-base leading-7 text-[var(--muted)]">
                   <TextLink
                     Link={components.Link}
-                    href="/products/thoughtform/editor"
+                    href="/products/thoughtform/conversations"
                   >
-                    Open the workspace
+                    Saved conversations
                   </TextLink>
                 </p>
-                {accessLevel === ACCESS_LEVELS.owner ? (
-                  <>
-                    <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                      <TextLink Link={components.Link} href="/products/thoughtform/conversations">
-                        Saved conversations
-                      </TextLink>
-                    </p>
-                    {components.ownerOperationsHref && (
-                      <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                        <TextLink Link={components.Link} href={components.ownerOperationsHref}>
-                          Operations
-                        </TextLink>
-                      </p>
-                    )}
-                  </>
-                ) : null}
+                {components.ownerOperationsHref && (
+                  <p className="mt-3 text-base leading-7 text-[var(--muted)]">
+                    <TextLink
+                      Link={components.Link}
+                      href={components.ownerOperationsHref}
+                    >
+                      Operations
+                    </TextLink>
+                  </p>
+                )}
               </>
-            )}
-            <p
-              className={`${isWorkspaceAvailable ? "mt-3" : "m-0"} text-base leading-7 text-[var(--muted)]`}
-            >
+            ) : null}
+            <p className="mt-3 text-base leading-7 text-[var(--muted)]">
               <TextLink
                 Link={components.Link}
                 href="/products/thoughtform/privacy"

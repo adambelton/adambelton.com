@@ -111,6 +111,35 @@ than implemented software. Its [product guide](packages/products/src/care-calend
 summarises the project's status and points to the authoritative Care Calendar
 documents without duplicating them.
 
+## The Blackout
+
+The Blackout is a completed concept prototype for a writer-led live literary
+football experience. Its public overview is mounted by this website, while the
+authoritative implementation, prototype evidence, architecture, and detailed
+documentation remain in the separate public
+[`adambelton/the-blackout`](https://github.com/adambelton/the-blackout)
+repository. Active development is paused.
+
+## Shared product presentation
+
+Public product overview pages describe the products as part of the personal
+website and live under `apps/client/src/products/pages`. Their shared overview
+presentation lives beside them under `apps/client/src/products/components`.
+The host-owned overview catalogue includes current, future, and externally
+implemented work; it is deliberately separate from the platform product
+registry, which lists only products integrated into this system.
+Reusable product interfaces and behaviour remain under `packages/products`;
+being mounted at a product URL does not make website presentation product-owned.
+
+```txt
+apps/client/src/products/
+├── catalogue/      Host-owned overview definitions and grouping
+├── components/     Shared title, section, subsection, and loading presentation
+├── pages/          Catalogue, route host, and public overview pages
+├── routing/        Host route matching and product dispatch
+└── thoughtform/    ThoughtForm-specific host integration
+```
+
 ## Architecture vocabulary
 
 | Term | Meaning in this repository |

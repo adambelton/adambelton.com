@@ -17,7 +17,11 @@ type ContentKind = "page" | "post";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const TAG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-export const approvedInternalProductTags = ["thoughtform"] as const;
+export const approvedInternalProductTags = [
+  "care-calendar",
+  "thoughtform",
+  "the-blackout",
+] as const;
 export const approvedDevTags = [
   "ai",
   "architecture",

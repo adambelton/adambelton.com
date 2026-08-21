@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
+import { ProductRouteLoading } from "apps/client/src/products/components/ProductRouteLoading";
 
 describe("product route loading state", () => {
   it("announces that the product interface is loading", () => {

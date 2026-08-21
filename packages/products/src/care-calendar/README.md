@@ -6,10 +6,23 @@ patient-and-authorised-carer coordination concept to develop and demonstrate
 care-domain understanding, trustworthy product reasoning, and appropriate
 assurance boundaries.
 
-The product is currently in its learning and definition phase. No Care Calendar
-runtime, user interface, integration, or deployable product has been
+The product is currently in its learning and definition phase. A host-owned
+public overview page presents that work through the website, but no Care Calendar runtime,
+interactive user interface, integration, or deployable product has been
 implemented. The documents in [`docs/`](docs/) are the sources of truth; this
 README provides only a high-level entry point and progress summary.
+
+## Implemented structure
+
+```txt
+care-calendar/
+├── docs/                          Authoritative learning and definition records
+└── README.md                      Product guide and status
+```
+
+The website description is owned by
+`apps/client/src/products/pages/CareCalendarOverviewPage.tsx`; it is not Care
+Calendar product implementation.
 
 ## Current progress
 

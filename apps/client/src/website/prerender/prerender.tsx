@@ -4,11 +4,17 @@ import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { App } from "apps/client/src/bootstrap/App";
 import { writingPosts } from "apps/client/src/website/content/content";
+import { productOverviewCatalogue } from "apps/client/src/products/catalogue/product-overview-catalogue";
 
 const clientRoot = process.cwd();
 const distRoot = join(clientRoot, "dist");
 const template = readFileSync(join(distRoot, "index.html"), "utf8");
-const routes = ["/", ...writingPosts.map(({ slug }) => `/writing/${slug}`)];
+const routes = [
+  "/",
+  "/products",
+  ...productOverviewCatalogue.map(({ publicPath }) => publicPath),
+  ...writingPosts.map(({ slug }) => `/writing/${slug}`),
+];
 
 writeFileSync(
   join(distRoot, "writing-redirects.json"),

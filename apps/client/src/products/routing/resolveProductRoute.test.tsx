@@ -4,7 +4,7 @@ import {
   PRODUCT_ROUTE_ACCESSES,
   PRODUCT_ROUTE_STATUSES,
 } from "packages/shared/src";
-import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
+import { resolveProductRoute } from "apps/client/src/products/routing/resolveProductRoute";
 import type { ProductAppComponents } from "packages/products/src/thoughtform/client";
 
 const testProductAppComponents: ProductAppComponents = {
@@ -28,6 +28,37 @@ describe("resolveProductRoute", () => {
       requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
     });
   });
+
+  it.each(["care-calendar", "the-blackout"])(
+    "mounts the public %s product root",
+    (productSlug) => {
+      expect(
+        resolveProductRoute({
+          accessLevel: ACCESS_LEVELS.demo,
+          components: testProductAppComponents,
+          path: "",
+          productSlug,
+        }),
+      ).toMatchObject({
+        status: PRODUCT_ROUTE_STATUSES.found,
+        requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
+      });
+    },
+  );
+
+  it.each(["care-calendar", "the-blackout"])(
+    "rejects unsupported nested routes for %s",
+    (productSlug) => {
+      expect(
+        resolveProductRoute({
+          accessLevel: ACCESS_LEVELS.demo,
+          components: testProductAppComponents,
+          path: "unknown",
+          productSlug,
+        }),
+      ).toMatchObject({ status: PRODUCT_ROUTE_STATUSES.notFound });
+    },
+  );
 
   it("passes nested paths to the product route renderer", () => {
     expect(

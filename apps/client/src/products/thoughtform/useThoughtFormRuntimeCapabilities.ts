@@ -22,6 +22,7 @@ export function useThoughtFormRuntimeCapabilities(
     }
 
     let isCurrent = true;
+    setState({ data: null, isPending: true });
 
     void loadThoughtFormRuntimeCapabilities()
       .then((data) => {
@@ -37,6 +38,19 @@ export function useThoughtFormRuntimeCapabilities(
   }, [isEnabled]);
 
   return state;
+}
+
+export function shouldLoadThoughtFormRuntimeCapabilities({
+  productPath,
+  productSlug,
+}: {
+  productPath: string;
+  productSlug: string;
+}) {
+  return (
+    productSlug === "thoughtform" &&
+    (productPath === "" || productPath === "editor")
+  );
 }
 
 export async function loadThoughtFormRuntimeCapabilities(

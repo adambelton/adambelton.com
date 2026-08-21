@@ -41,6 +41,7 @@ host-owned local Markdown and static content routes.
 
 ## Completed
 
+- Add Care Calendar and The Blackout project pages
 - Restore ThoughtForm Idea Map output headroom
 - Fix ThoughtForm mobile workspace allocation
 - Fix ThoughtForm workspace overflow and editor control presentation

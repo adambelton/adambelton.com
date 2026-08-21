@@ -16,7 +16,7 @@ const testProductAppComponents: ProductAppComponents = {
 };
 
 describe("renderProductRoute", () => {
-  it("marks the product root as public", () => {
+  it("leaves the public product root to the host", () => {
     expect(
       renderProductRoute({
         accessLevel: ACCESS_LEVELS.demo,
@@ -24,8 +24,7 @@ describe("renderProductRoute", () => {
         segments: [],
       })
     ).toMatchObject({
-      status: PRODUCT_ROUTE_STATUSES.found,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
+      status: PRODUCT_ROUTE_STATUSES.notFound,
     });
   });
 

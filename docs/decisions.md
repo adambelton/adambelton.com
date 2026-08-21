@@ -1410,3 +1410,26 @@ Provider-compatible schema projection remains unchanged. Product-owned
 collection limits and structural validation remain authoritative; restoring
 output headroom does not add retry, provider fallback, automatic catch-up, or a
 new persistence operation.
+
+## 068 — Public Product Overviews Are Host-Owned Presentation
+
+Public product overview pages describe products within the personal website and
+are owned by `apps/client`, together with presentation components shared between
+those pages. A page does not become reusable product implementation merely
+because the host mounts it beneath that product's public URL.
+
+The host therefore owns a separate overview catalogue for website routing,
+metadata, prerendering, writing tags, and Current/Completed presentation. The
+platform product registry is not a portfolio catalogue: it contains only
+products integrated into this system. The Blackout appears in the host overview
+catalogue but has no platform `ProductId` or registry entry; its implementation
+remains external. Care Calendar is also descriptive and definition-stage rather
+than a registered runtime product.
+
+Product packages continue to own reusable domain behaviour and interfaces.
+ThoughtForm's editor, privacy, saved-conversation, and operational product routes
+remain under its product client boundary and receive host-supplied capabilities;
+the host resolves only the public product root before delegating nested routes.
+Care Calendar currently has learning and definition records but no client
+implementation in this repository. The Blackout implementation remains in its
+separate authoritative repository.

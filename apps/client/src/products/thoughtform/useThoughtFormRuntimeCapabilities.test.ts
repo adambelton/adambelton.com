@@ -1,7 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { loadThoughtFormRuntimeCapabilities } from "apps/client/src/products/thoughtform/useThoughtFormRuntimeCapabilities";
+import {
+  loadThoughtFormRuntimeCapabilities,
+  shouldLoadThoughtFormRuntimeCapabilities,
+} from "apps/client/src/products/thoughtform/useThoughtFormRuntimeCapabilities";
 
 describe("ThoughtForm runtime capabilities", () => {
+  it.each([
+    ["", true],
+    ["editor", true],
+    ["privacy", false],
+    ["conversations", false],
+    ["conversations/conversation-1/editor", false],
+  ])("scopes loading for the %s path", (productPath, expected) => {
+    expect(
+      shouldLoadThoughtFormRuntimeCapabilities({
+        productPath,
+        productSlug: "thoughtform",
+      }),
+    ).toBe(expected);
+  });
+
+  it("does not load capabilities for another product", () => {
+    expect(
+      shouldLoadThoughtFormRuntimeCapabilities({
+        productPath: "",
+        productSlug: "the-blackout",
+      }),
+    ).toBe(false);
+  });
+
   it("loads the server-derived temporary-workspace availability", async () => {
     const fetcher = async () => new Response(JSON.stringify({
       ok: true,

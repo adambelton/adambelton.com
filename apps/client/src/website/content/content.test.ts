@@ -4,7 +4,7 @@ import {
   compileContentCollection,
   compileContentDocument,
 } from "apps/client/src/website/content/build/compile-content";
-import { products } from "packages/products/src/registry";
+import { productOverviewCatalogue } from "apps/client/src/products/catalogue/product-overview-catalogue";
 
 const post = (slug: string, createdAt: string, extra = "") => `---
 title: ${slug}
@@ -29,8 +29,10 @@ Body text.
 ${extra}`;
 
 describe("repository Markdown content", () => {
-  it("keeps the host internal-tag policy aligned with registered products", () => {
-    expect(approvedInternalProductTags).toEqual(products.map(({ slug }) => slug));
+  it("keeps the host internal-tag policy aligned with public product overviews", () => {
+    expect(approvedInternalProductTags).toEqual(
+      productOverviewCatalogue.map(({ slug }) => slug),
+    );
   });
   it("accepts Obsidian YAML properties and CRLF documents", () => {
     const page = compileContentDocument(
