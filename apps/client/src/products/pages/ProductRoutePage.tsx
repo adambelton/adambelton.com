@@ -8,18 +8,22 @@ import { ProtectedRoute, useAuthSession } from "apps/client/src/auth";
 import { NavigationLink } from "apps/client/src/ui/components/NavigationLink";
 import { NotFoundPage } from "apps/client/src/website/pages/NotFoundPage";
 import { Breadcrumbs } from "apps/client/src/ui/components/Breadcrumbs";
-import { resolveProductRoute } from "apps/client/src/products/resolveProductRoute";
+import { resolveProductRoute } from "apps/client/src/products/routing/resolveProductRoute";
 import { getProductBySlug } from "packages/products/src/registry";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
-import { useThoughtFormRuntimeCapabilities } from "apps/client/src/products/thoughtform/useThoughtFormRuntimeCapabilities";
-import { ProductRouteLoading } from "apps/client/src/products/ProductRouteLoading";
+import {
+  shouldLoadThoughtFormRuntimeCapabilities,
+  useThoughtFormRuntimeCapabilities,
+} from "apps/client/src/products/thoughtform/useThoughtFormRuntimeCapabilities";
+import { ProductRouteLoading } from "apps/client/src/products/components/ProductRouteLoading";
+import { getProductOverviewBySlug } from "apps/client/src/products/catalogue/product-overview-catalogue";
 import type { ReactNode } from "react";
 
 export function ProductRoutePage() {
   const session = useAuthSession();
   const { productSlug = "", "*": productPath = "" } = useParams();
   const thoughtFormCapabilities = useThoughtFormRuntimeCapabilities(
-    productSlug === "thoughtform",
+    shouldLoadThoughtFormRuntimeCapabilities({ productPath, productSlug }),
   );
   const isTemporaryWorkspaceAvailable =
     thoughtFormCapabilities.data?.temporaryWorkspaceAvailable ?? false;
@@ -107,35 +111,41 @@ function isThoughtFormEditorPath(productSlug: string, productPath: string) {
 }
 
 function getProductRouteMetadata(productSlug: string, productPath: string) {
-  const product = getProductBySlug(productSlug);
+  const productOverview = getProductOverviewBySlug(productSlug);
 
-  if (!product) {
+  if (!productOverview) {
     return null;
   }
 
   if (productPath === "") {
     return (
       <PublicPageMetadata
-        description={product.description}
-        path={`/products/${product.slug}`}
-        title={`${product.name} — Adam Belton`}
+        description={productOverview.description}
+        path={productOverview.publicPath}
+        title={`${productOverview.name} — Adam Belton`}
       />
     );
   }
 
   if (productPath === "privacy") {
+    const hostedProduct = getProductBySlug(productSlug);
+
+    if (!hostedProduct) {
+      return null;
+    }
+
     return (
       <PublicPageMetadata
-        description={`How ${product.name} processes product information and the choices available to you.`}
-        path={`/products/${product.slug}/privacy`}
-        title={`${product.name} privacy — Adam Belton`}
+        description={`How ${hostedProduct.name} processes product information and the choices available to you.`}
+        path={`/products/${hostedProduct.slug}/privacy`}
+        title={`${hostedProduct.name} privacy — Adam Belton`}
       />
     );
   }
 
   return (
     <>
-      <title>{`${product.name} workspace — Adam Belton`}</title>
+      <title>{`${productOverview.name} workspace — Adam Belton`}</title>
       <meta content="noindex" name="robots" />
     </>
   );

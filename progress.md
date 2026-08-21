@@ -2,6 +2,33 @@
 
 ## Current status
 
+The approved Care Calendar and The Blackout project-page task is complete on
+`codex/add-care-calendar-blackout-project-pages`. Care Calendar and ThoughtForm
+appear in that order under a three-column-capable `Current` section; The Blackout
+appears under the separate `Completed` section. Each section owns one full-width
+divider. Host-owned public overview routes present Care Calendar as an
+ongoing domain-learning project whose bounded concept exposes concrete areas of
+inquiry without presenting provisional reasoning as completed learning, and The
+Blackout as a new way to consume football whose value comes
+from quality football writing and whose live delivery is enabled by AI. The
+Blackout prototype is complete and active development is paused. The
+catalogue and all three product roots are prerendered, the sitemap includes both
+new routes, and generated project imagery was explicitly abandoned after review.
+All three descriptions share host-owned overview section and subsection
+primitives for repeated semantic headings, dividers, and associated content.
+ThoughtForm's functional nested routes remain delegated to its product package.
+The host overview catalogue contains all three descriptions, while the platform
+product registry again contains only integrated ThoughtForm; The Blackout has no
+platform product identity or hosted-product entry.
+The host products interface is organised by catalogue, components, pages,
+routing, and ThoughtForm-specific integration. Runtime-capability loading is
+limited to the ThoughtForm overview and temporary editor; both overview demo
+links reserve their text space until availability is confirmed.
+The three public descriptions also share one host-owned title-section primitive
+for their H1, proposition, introduction, and optional action area.
+Focused and full tests, typecheck, build, raw generated-HTML inspection, and
+mounted desktop/mobile verification pass.
+
 The approved Idea Map headroom correction is complete on
 `codex/restore-thoughtform-idea-map-headroom`. Production diagnosis reproduced
 an implicit second-turn split stopping at `max_tokens` in three of three

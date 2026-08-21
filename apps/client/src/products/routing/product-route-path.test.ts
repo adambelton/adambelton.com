@@ -1,6 +1,6 @@
 import { matchPath } from "react-router";
 import { describe, expect, it } from "vitest";
-import { productRoutePath } from "apps/client/src/products/productRoutePath";
+import { productRoutePath } from "apps/client/src/products/routing/product-route-path";
 
 describe("productRoutePath", () => {
   it("matches nested product routes with a product slug and wildcard path", () => {

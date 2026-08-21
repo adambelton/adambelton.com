@@ -10,7 +10,6 @@ import { TemporaryWorkspacePage } from "packages/products/src/thoughtform/client
 import { ConversationsPage } from "packages/products/src/thoughtform/client/pages/ConversationsPage";
 import { ConversationPage } from "packages/products/src/thoughtform/client/pages/ConversationPage";
 import { EditorPage } from "packages/products/src/thoughtform/client/pages/EditorPage";
-import { OverviewPage } from "packages/products/src/thoughtform/client/pages/OverviewPage";
 import { PrivacyPage } from "packages/products/src/thoughtform/client/pages/PrivacyPage";
 
 export type ProductAppRoute = {
@@ -29,18 +28,6 @@ export function renderProductRoute({
   components,
   segments,
 }: ProductAppRoute): ProductAppRouteResult {
-  if (segments.length === 0) {
-    return {
-      status: PRODUCT_ROUTE_STATUSES.found,
-      element: <OverviewPage accessLevel={accessLevel} components={components} />,
-      requiredAccess: PRODUCT_ROUTE_ACCESSES.public,
-      breadcrumbs: [
-        { label: "Products", href: "/products" },
-        { label: "ThoughtForm" },
-      ],
-    };
-  }
-
   if (segments.length === 1 && segments[0] === "editor") {
     return {
       status: PRODUCT_ROUTE_STATUSES.found,
