@@ -24,11 +24,17 @@ describe("AboutPage", () => {
       'class="max-w-3xl text-lg leading-8 text-[var(--muted)] mt-6"',
     );
     expect(markup).toContain(
-      "I’m Adam, a senior product engineer with eight years of experience building complex SaaS products.",
+      "I’m a senior product engineer with eight years of experience building complex SaaS products with React, Vue, TypeScript, Node.js and Ruby on Rails.",
     );
-    expect(markup).toContain("Over the past eight years");
-    expect(markup).toContain("At INDY, I joined as the third engineer");
-    expect(markup).toContain("not as a substitute for human responsibility");
+    expect(markup).toContain("Outside of work, I'm a die-hard Liverpool FC supporter");
+    expect(markup).toContain("Up the Reds.");
+    expect(markup).toContain(
+      'class="mt-8 flow-root max-w-2xl"',
+    );
+    expect(markup).toContain(
+      'class="mx-auto mb-7 w-full max-w-56 sm:float-right sm:mb-4 sm:ml-4 sm:max-w-[13rem] sm:mr-6"><img alt="Illustrated portrait of Adam Belton" class="w-full rounded-sm" decoding="async" height="800" src="/images/about/about-portrait-800.webp" width="800"',
+    );
+    expect(markup).toContain('class="mt-4 max-w-2xl"');
     expect(markup).toContain('href="mailto:hello@adambelton.com"');
     expect(markup).toContain(
       'href="https://www.linkedin.com/in/adam-b-7505693ab"',
