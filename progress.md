@@ -2,6 +2,16 @@
 
 ## Current status
 
+The approved product-engineering hiring article is complete on
+`codex/finalise-product-engineering-hiring-post`. The repository-backed post
+uses reviewed `productengineering`, `career`, `jobsearch`, and
+`softwareengineering` DEV tags, a source illustration with exact website/DEV
+and card renditions, and product-consistent long-form section typography. The
+existing About introduction now also names clear boundaries, low cognitive
+load, and earned abstractions as engineering priorities. Full tests, typecheck,
+build, browser end-to-end tests, mounted article inspection, DEV dry-run
+syndication, image checks, and diff checks pass.
+
 The approved Care Calendar and The Blackout project-page task is complete on
 `codex/add-care-calendar-blackout-project-pages`. Care Calendar and ThoughtForm
 appear in that order under a three-column-capable `Current` section; The Blackout

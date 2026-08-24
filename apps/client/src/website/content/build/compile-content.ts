@@ -25,6 +25,8 @@ export const approvedInternalProductTags = [
 export const approvedDevTags = [
   "ai",
   "architecture",
+  "career",
+  "jobsearch",
   "product",
   "productengineering",
   "softwareengineering",
