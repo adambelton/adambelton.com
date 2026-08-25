@@ -17,13 +17,15 @@ externalTags:
 ---
 Get ready for a bit of a ramble about looking for a job as a software engineer in 2026.
 
-No, it's not about AI changing the definition of software engineering in 2026. But there's obviously some truth in that.
+No, it's not about AI changing the definition of software engineering, although there's obviously some truth in that.
 
-It's about product engineering. Specifically, it's about the challenges engineers face when searching for new opportunities because of the massive shift toward product engineering.
+It's about **product engineering**. Specifically, it's about the challenges software engineers face when searching for new opportunities because of the massive shift toward product engineering practices.
+
+And because everyone is talking about AI, I think these challenges are flying under the radar.
 
 I should preface what comes next with this: Searching for a software engineering job in 2026 is really hard. Scroll through LinkedIn or any software career blog and you'll see plenty of posts about how the recruitment system is broken, how good engineers are being ghosted, how CVs are being filtered out by AI screening for keywords. These frustrations are valid, but... you know what else is really hard in 2026? Being a software engineering recruiter. Being a software engineering hiring manager. And software engineering is about solving problems.
 
-With that said, you can't solve a problem you don't define. So to lay the foundation, I want to address some challenges I've recognised before addressing what can be done about them.
+With that said, a problem is harder to solve when you haven't clearly defined it. So to lay the foundation, I want to address some challenges I've recognised before exploring what can be done about them.
 
 ## The Problem Space
 
@@ -51,7 +53,7 @@ _"aren't just ticket-takers"_
 
 _"own products end to end"_
 
-When I first started my current job search, I got excited by these phrases. These describe the environment I thrive in, right? My CV is full of descriptions about how I've owned problems end to end, fleshed out products from fuzzy requirements, worked closely with users to help define products, shipped fast and often to deliver value right away.
+When I first started my current job search, I got excited by these phrases. These describe the environment I thrive in, right? My CV is full of descriptions about how I've owned products end to end, made strategic product decisions, worked closely with users, and shipped early and often to deliver steady value.
 
 But job description after job description, I kept seeing these phrases. I thought "product engineering" was a bit of a niche engineering culture that was just starting to gain traction over the last couple years. Suddenly it started to feel like every company out there wanted product-minded engineers. And if that's the case, why were so many of my applications being passed up, or worse, ghosted?
 
