@@ -7,6 +7,10 @@ describe("product route loading state", () => {
     const markup = renderToStaticMarkup(<ProductRouteLoading />);
     expect(markup).toContain('aria-live="polite"');
     expect(markup).toContain('role="status"');
+    expect(markup).toContain("text-5xl");
+    expect(markup).toContain("sm:text-7xl");
+    expect(markup).not.toContain("text-6xl");
+    expect(markup).not.toContain("sm:text-8xl");
     expect(markup).toContain("Preparing the product interface.");
   });
 });

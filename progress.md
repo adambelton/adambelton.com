@@ -1040,6 +1040,11 @@ profile during final content review. Its stable keys, compiled fields, component
 mappings, tests, and burgundy colour variables now use Leverage terminology, while
 the revised Markdown remains the authority for all visible labels and explanations.
 
+A final mounted typography audit found About, Writing, Products, and all product
+overview pages consistent at their completed states. The product loading title was
+the sole exception at 60px/96px; it now uses the shared 48px/72px public-page scale,
+removing the transient typographic and layout jump without changing loading semantics.
+
 ## Historical semantic-editor investigation
 
 A constrained semantic Markdown editor was investigated and prototyped, then

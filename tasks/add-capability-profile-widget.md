@@ -235,9 +235,24 @@ Approved by Adam after the final content review renamed the third classification
 - Leave the remaining content changes authored by Adam intact and push the
   validated correction to pull request 54.
 
+### Approved public-page typography amendment — 1 September 2026
+
+Approved by Adam after a mounted typography audit across About, Writing,
+Products, and all three product overview pages.
+
+- Align the transient product loading title with the shared public-page title
+  scale: 48px on mobile and 72px from the small breakpoint.
+- Preserve its weight, line-height, copy, status semantics, and surrounding
+  spacing while removing the 60px/96px loading-to-content layout jump.
+- Leave all other public typography unchanged; the audit found its hierarchy,
+  measures, weights, and responsive scales consistent.
+- Validate the loading and completed product states and push the correction to
+  pull request 54.
+
 ## Status
 
-Complete on `codex/capability-profile-widget`; not committed or published.
+Complete on `codex/capability-profile-widget`; committed and published to pull
+request 54, but not merged.
 
 ## Completion audit
 
@@ -314,6 +329,11 @@ Complete on `codex/capability-profile-widget`; not committed or published.
   empty desktop column is hidden, the dialog fits, and document overflow is zero.
   The complete biography, including `Up the Reds.`, precedes the widget. This was
   browser inspection, not human assistive-technology verification.
+- **Public typography:** mounted desktop/mobile inspection confirms About, Writing,
+  Products, and completed product overviews share the intended title, eyebrow,
+  introduction, body, and subsection scales. The transient product loading title
+  now matches the completed 48px/72px title scale with no mobile overflow, removing
+  the sole observed loading-to-content typography jump.
 - **Validation:** 411 tests passed with 16 skipped; repository typecheck and build
   passed. The repository-wide `git diff --check` reached only unrelated pre-existing
   trailing spaces in the modified Care Calendar learning-outcomes file. The same
