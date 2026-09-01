@@ -4,18 +4,11 @@ import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { App } from "apps/client/src/bootstrap/App";
 import { writingPosts } from "apps/client/src/website/content/content";
-import { productOverviewCatalogue } from "apps/client/src/products/catalogue/product-overview-catalogue";
+import { prerenderRoutes } from "apps/client/src/website/prerender/prerender-routes";
 
 const clientRoot = process.cwd();
 const distRoot = join(clientRoot, "dist");
 const template = readFileSync(join(distRoot, "index.html"), "utf8");
-const routes = [
-  "/",
-  "/products",
-  ...productOverviewCatalogue.map(({ publicPath }) => publicPath),
-  ...writingPosts.map(({ slug }) => `/writing/${slug}`),
-];
-
 writeFileSync(
   join(distRoot, "writing-redirects.json"),
   JSON.stringify(
@@ -32,7 +25,7 @@ writeFileSync(
   ),
 );
 
-for (const route of routes) {
+for (const route of prerenderRoutes) {
     let markup = renderToString(
       <MemoryRouter initialEntries={[route]}>
         <App />

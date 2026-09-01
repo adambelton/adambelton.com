@@ -1052,6 +1052,12 @@ each persistent capability section; values with no capabilities in that section 
 omitted rather than shown as empty disclosures. Desktop retains its keyboard-operable tabs and
 always-visible matrix columns; Overview remains an ordinary card list at all sizes.
 
+The About page now participates in the existing build-time prerender route
+catalogue, so its biography, capability profile, and canonical metadata are
+present before client hydration. The production host's extensionless-route
+mapping is covered directly, and mounted production-artifact verification
+confirmed clean hydration and working capability dialogs.
+
 ## Historical semantic-editor investigation
 
 A constrained semantic Markdown editor was investigated and prototyped, then
