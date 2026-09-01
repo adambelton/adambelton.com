@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createProductionApp } from "apps/api/src/bootstrap/create-production-app";
 
 const app = createProductionApp({ staticRoot: "apps/client" });
@@ -42,6 +45,25 @@ describe("production application", () => {
 
     expect(response.status).toBe(200);
     expect(await response.text()).toContain('<div id="root"></div>');
+  });
+
+  it("serves a prerendered route document before the SPA fallback", async () => {
+    const staticRoot = mkdtempSync(join(tmpdir(), "adambelton-static-"));
+    mkdirSync(join(staticRoot, "about"));
+    writeFileSync(join(staticRoot, "index.html"), '<div id="root"></div>');
+    writeFileSync(
+      join(staticRoot, "about", "index.html"),
+      '<div id="root"><h1>Prerendered About</h1></div>',
+    );
+
+    try {
+      const response = await createProductionApp({ staticRoot }).request("/about");
+
+      expect(response.status).toBe(200);
+      expect(await response.text()).toContain("<h1>Prerendered About</h1>");
+    } finally {
+      rmSync(staticRoot, { force: true, recursive: true });
+    }
   });
 
   it("serves static files without applying the SPA fallback", async () => {
