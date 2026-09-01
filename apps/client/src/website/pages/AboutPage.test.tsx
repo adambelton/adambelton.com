@@ -28,6 +28,15 @@ describe("AboutPage", () => {
     );
     expect(markup).toContain("Outside of work, I'm a die-hard Liverpool FC supporter");
     expect(markup).toContain("Up the Reds.");
+    expect(markup).toContain("Engineering capability profile");
+    expect(markup).toContain('role="tablist"');
+    expect(markup).toContain("Engineering practice");
+    expect(markup).toContain("Systems &amp; architecture");
+    expect(markup).toContain("Leadership");
+    expect(markup.match(/md:grid-cols-3/g)).toHaveLength(3);
+    expect(markup.indexOf("Engineering capability profile")).toBeGreaterThan(
+      markup.indexOf("Up the Reds."),
+    );
     expect(markup).toContain(
       'class="mt-8 flow-root max-w-2xl"',
     );

@@ -339,6 +339,29 @@ inspection confirmed four rendered paragraphs, the intact Contact link, and no
 horizontal overflow. The later typography refinement narrowed its prose measure
 from 768px to 672px.
 
+The public About page now also presents Adam's Markdown-authored engineering
+capability profile. Its four keyboard-operable views preserve Engineering
+practice, Systems & architecture, and Leadership as the primary structure;
+desktop presentation uses a compact four-column matrix with the capability category
+in column one. Classification views use the first matrix row for exact authored
+value definitions aligned with their capability columns; Overview keeps that row
+structurally empty. Definition text and cards share exact left edges through matching
+gutters without cell padding. Mobile presents definitions and category groups sequentially. Capability
+details expose the exact authored description, evidence, and current-focus copy in
+a focused dialog. Evidence basis, Development trajectory, and Impact profile tags
+use three distinct accessible colour families without value-level hierarchy. An
+information control opens a responsive glossary-backed classification guide using
+the same accessible dialog behaviour and the exact explanatory copy shown in each
+classification view. The three classification view controls reuse their tag colour
+families with 700-weight labels and 4px coloured edges, making the connection visible
+while Overview remains neutral. Capability cards are single pointer-cursor buttons
+without link-like detail copy; a small decorative plus appears on hover and keyboard
+focus. Capability dialogs now include each newly authored Impact profile rationale
+after Evidence basis and Development trajectory. Build-time validation
+keeps stable classification keys separate from centrally owned labels and
+descriptions. Automated coverage, the repository typecheck and build, and mounted
+1440px/390px browser inspection pass with no profile-induced horizontal overflow.
+
 The first real public writing post now replaces the placeholder and has been
 verified through the mounted client. Long post breadcrumbs and the article grid
 item shrink without horizontal overflow at 390px, Markdown lists retain visible
@@ -976,6 +999,41 @@ ceiling for separate explicit approval.
 - Added a [Care Calendar product guide](packages/products/src/care-calendar/README.md)
   as a high-level status and navigation entry point. The linked documents remain
   the sources of truth, and no product implementation has started.
+
+## 2026-09-01 — Capability-profile visible-copy ownership
+
+- Restructured the capability-profile Markdown so Overview and each classification
+  explicitly declare stable keys alongside their authored headings, introductions,
+  value headings, ordering, and explanations.
+- Removed the duplicated short classification glossary. Classification views,
+  matrix headings, the classification guide, tags, and capability-dialog headings
+  now share one compiled classification definition.
+- Moved the widget eyebrow and classification-guide eyebrow/title into Markdown;
+  only functional accessibility instructions and decorative symbols remain in code.
+- Focused tests, repository typecheck, production build, and the full 411-test suite
+  pass. Mounted About-page inspection confirmed the Markdown-authored labels and
+  explanations in both dialogs; this was browser inspection rather than human
+  assistive-technology verification.
+
+## 2026-09-01 — Capability-card label compaction
+
+- Reduced capability-name type to 13px with slightly tighter tracking while
+  retaining the existing weight, card dimensions, tags, and interactions.
+- Mounted measurement at 1440px confirmed all 20 capability names occupy one
+  line, including `Asynchronous & event-driven architecture`; 800px and 390px
+  layouts retain natural wrapping with no document-level horizontal overflow.
+
+This typography experiment was subsequently reverted after mounted review. Card
+names again use the original 16px size and normal tracking, and the decorative `+`
+indicator was removed so it no longer reserves space beside the title or increases
+the separation before the classification tags.
+
+The Impact profile colour family was subsequently warmed from lavender to muted
+burgundy, while the teal Evidence and ochre Trajectory families remain unchanged.
+Capability cards no longer impose a minimum height, allowing classification views
+with fewer visible tags to contract around their content. Mounted desktop cards
+measure 82–104px in classification views versus 110–132px in Overview; the new
+Impact text/background contrast is 7.86:1 and the 390px layout has no overflow.
 
 ## Historical semantic-editor investigation
 

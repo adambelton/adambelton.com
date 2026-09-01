@@ -110,7 +110,7 @@ function stringList(
   return tags;
 }
 
-function renderSanitizedMarkdown(markdown: string) {
+export function renderSanitizedMarkdown(markdown: string) {
   return String(
     unified()
       .use(remarkParse)

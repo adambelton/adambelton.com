@@ -10,6 +10,15 @@
   --line-subtle: #ded8cd;
   --accent: #0f6b68;
   --selection: #d8ece8;
+  --classification-evidence-background: #dbeceb;
+  --classification-evidence-border: #78a5a2;
+  --classification-evidence-text: #174f4c;
+  --classification-trajectory-background: #f1e6c8;
+  --classification-trajectory-border: #b49a59;
+  --classification-trajectory-text: #5d4714;
+  --classification-impact-background: #eadcdf;
+  --classification-impact-border: #a77b84;
+  --classification-impact-text: #5b3440;
 }
 
 * {
