@@ -101,9 +101,22 @@ export function CapabilityProfile({ profile }: CapabilityProfileProps) {
         </div>
       </div>
 
+      <div className="mt-5 md:hidden">
+        <select
+          aria-label="Capability profile view"
+          className="field-control min-h-11 w-full px-3 py-2 text-base"
+          onChange={(event) => setActiveView(event.target.value as CapabilityProfileViewKey)}
+          value={activeView}
+        >
+          {profile.views.map((view) => (
+            <option key={view.key} value={view.key}>{view.label}</option>
+          ))}
+        </select>
+      </div>
+
       <div
         aria-label="Capability profile view"
-        className="mt-5 flex max-w-full gap-1 overflow-x-auto border-b border-[var(--line)] pb-px"
+        className="mt-5 hidden max-w-full gap-1 overflow-x-auto border-b border-[var(--line)] pb-px md:flex"
         role="tablist"
       >
         {profile.views.map((view, index) => {
@@ -248,33 +261,70 @@ function ClassifiedCapabilityGroups({
         const groupedCapabilities = capabilities.filter(
           (capability) => capability[capabilityField] === value.key,
         );
+        const groupId = `${groupIdPrefix}-${classificationKey}-${value.key}`;
         return (
-          <section aria-labelledby={`${groupIdPrefix}-${classificationKey}-${value.key}`} key={value.key}>
-            <h4 className="mb-3 text-sm font-semibold md:hidden" id={`${groupIdPrefix}-${classificationKey}-${value.key}`}>
-              {value.label}
-            </h4>
+          <div className="contents" key={`${classificationKey}-${value.key}`}>
+            <section aria-labelledby={groupId} className="hidden md:block">
+              <h4 className="sr-only" id={groupId}>
+                {value.label}
+              </h4>
+              <CapabilityGroupCards
+                capabilities={groupedCapabilities}
+                classificationKey={classificationKey}
+                onSelect={onSelect}
+                profile={profile}
+              />
+            </section>
             {groupedCapabilities.length ? (
-              <div className="grid gap-3">
-                {groupedCapabilities.map((capability) => (
-                  <CapabilityCard
-                    capability={capability}
-                    hiddenClassificationKey={classificationKey}
-                    key={capability.key}
+              <details className="border-t border-[var(--line-subtle)] md:hidden">
+                <summary className="cursor-pointer py-3 text-sm font-semibold">
+                  {value.label}
+                </summary>
+                <div className="pb-3">
+                  <CapabilityGroupCards
+                    capabilities={groupedCapabilities}
+                    classificationKey={classificationKey}
                     onSelect={onSelect}
                     profile={profile}
                   />
-                ))}
-              </div>
-            ) : (
-              <div aria-hidden="true" className="min-h-12 border-t border-[var(--line-subtle)]" />
-            )}
-          </section>
+                </div>
+              </details>
+            ) : null}
+          </div>
         );
       })}
       {classification.values.length === 2 ? (
         <div aria-hidden="true" className="hidden md:block" />
       ) : null}
     </div>
+  );
+}
+
+function CapabilityGroupCards({
+  capabilities,
+  classificationKey,
+  onSelect,
+  profile,
+}: {
+  capabilities: CompiledCapability[];
+  classificationKey: CapabilityClassificationKey;
+  onSelect: (capability: CompiledCapability) => void;
+  profile: CompiledCapabilityProfile;
+}) {
+  return capabilities.length ? (
+    <div className="grid gap-3">
+      {capabilities.map((capability) => (
+        <CapabilityCard
+          capability={capability}
+          hiddenClassificationKey={classificationKey}
+          key={capability.key}
+          onSelect={onSelect}
+          profile={profile}
+        />
+      ))}
+    </div>
+  ) : (
+    <div aria-hidden="true" className="min-h-12 border-t border-[var(--line-subtle)]" />
   );
 }
 

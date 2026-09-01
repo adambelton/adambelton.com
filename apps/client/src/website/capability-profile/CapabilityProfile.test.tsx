@@ -44,6 +44,36 @@ describe("CapabilityProfile", () => {
     }
   });
 
+  it("uses a mobile view select and resets closed classification disclosures", () => {
+    const { container } = render(<CapabilityProfile profile={capabilityProfileContent} />);
+    const select = screen.getByRole("combobox", { name: "Capability profile view" });
+    const tablist = screen.getByRole("tablist", { name: "Capability profile view" });
+
+    expect(select.closest("div")?.className).toContain("md:hidden");
+    expect(tablist.className).toContain("hidden");
+    expect(tablist.className).toContain("md:flex");
+
+    fireEvent.change(select, { target: { value: "evidence-basis" } });
+    expect((select as HTMLSelectElement).value).toBe("evidence-basis");
+    const evidenceGroups = Array.from(container.querySelectorAll("details"));
+    expect(evidenceGroups.length).toBeGreaterThan(0);
+    expect(evidenceGroups.length).toBeLessThan(9);
+    expect(evidenceGroups.every((group) => !group.open)).toBe(true);
+    expect(evidenceGroups.every((group) => group.querySelectorAll("button").length > 0)).toBe(
+      true,
+    );
+    evidenceGroups[0]!.open = true;
+
+    fireEvent.change(select, { target: { value: "leverage-profile" } });
+    const leverageGroups = Array.from(container.querySelectorAll("details"));
+    expect(leverageGroups.length).toBeGreaterThan(0);
+    expect(leverageGroups.length).toBeLessThan(6);
+    expect(leverageGroups.every((group) => !group.open)).toBe(true);
+    expect(leverageGroups.every((group) => group.querySelectorAll("button").length > 0)).toBe(
+      true,
+    );
+  });
+
   it("keeps sections primary and groups each one independently in a classification view", () => {
     render(<CapabilityProfile profile={capabilityProfileContent} />);
     fireEvent.click(screen.getByRole("tab", { name: "Evidence basis" }));
@@ -133,7 +163,7 @@ describe("CapabilityProfile", () => {
     );
     expect(evidenceView.querySelector("span")?.className).toContain("font-bold");
 
-    const capability = screen.getByRole("button", { name: /Full-stack engineering/ });
+    const capability = screen.getAllByRole("button", { name: /Full-stack engineering/ })[0]!;
     capability.focus();
     fireEvent.click(capability);
     const dialog = screen.getByRole("dialog", { name: "Full-stack engineering" });

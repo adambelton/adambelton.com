@@ -1045,6 +1045,13 @@ overview pages consistent at their completed states. The product loading title w
 the sole exception at 60px/96px; it now uses the shared 48px/72px public-page scale,
 removing the transient typographic and layout jump without changing loading semantics.
 
+The capability profile now uses responsive interaction as well as responsive
+layout. Below the four-column `md` breakpoint, a native select replaces the view
+tabs and classification-value card groups become closed native disclosures inside
+each persistent capability section; values with no capabilities in that section are
+omitted rather than shown as empty disclosures. Desktop retains its keyboard-operable tabs and
+always-visible matrix columns; Overview remains an ordinary card list at all sizes.
+
 ## Historical semantic-editor investigation
 
 A constrained semantic Markdown editor was investigated and prototyped, then

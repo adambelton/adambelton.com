@@ -249,6 +249,25 @@ Products, and all three product overview pages.
 - Validate the loading and completed product states and push the correction to
   pull request 54.
 
+### Approved single-column interaction amendment — 1 September 2026
+
+Approved by Adam after reviewing the widget below its four-column breakpoint.
+
+- Below the `md` breakpoint, replace the view tabs with a native select populated
+  from the Markdown-authored view labels; keep both controls synchronized with the
+  same active view.
+- In mobile classification views, present each classification-value group within
+  each persistent capability section as a native expandable disclosure, closed by
+  default. Omit groups that contain no capabilities in their section. Remount
+  disclosures when the classification changes so open state does not leak between
+  views.
+- Keep classification definitions visible above the persistent sections and keep
+  Overview as a normal sequential card list.
+- At `md` and above, preserve the keyboard-operable tabs, four-column matrix,
+  always-visible classification columns, and existing card behaviour.
+- Validate immediately below and above the breakpoint and at 390px, then push the
+  correction to pull request 54.
+
 ## Status
 
 Complete on `codex/capability-profile-widget`; committed and published to pull
@@ -325,8 +344,11 @@ request 54, but not merged.
 - **Responsive presentation:** mounted inspection measured four equal 332px matrix
   columns at 1440px, with three compact 335px content columns after the category.
   Leverage profile exposes two populated groups plus the intentionally empty final
-  column. At 390px, category sections and groups return to one 350px column, the
-  empty desktop column is hidden, the dialog fits, and document overflow is zero.
+  column. Below `md`, the view tabs are replaced by a synchronized native select;
+  classification groups become closed native disclosures within every persistent
+  section, with empty value groups omitted, while Overview remains sequential. At 390px, category sections and
+  groups return to one 350px column, the empty desktop column is hidden, the dialog
+  fits, and document overflow is zero.
   The complete biography, including `Up the Reds.`, precedes the widget. This was
   browser inspection, not human assistive-technology verification.
 - **Public typography:** mounted desktop/mobile inspection confirms About, Writing,
@@ -334,7 +356,7 @@ request 54, but not merged.
   introduction, body, and subsection scales. The transient product loading title
   now matches the completed 48px/72px title scale with no mobile overflow, removing
   the sole observed loading-to-content typography jump.
-- **Validation:** 411 tests passed with 16 skipped; repository typecheck and build
+- **Validation:** 412 tests passed with 16 skipped; repository typecheck and build
   passed. The repository-wide `git diff --check` reached only unrelated pre-existing
   trailing spaces in the modified Care Calendar learning-outcomes file. The same
   check scoped to this task's files passes.
