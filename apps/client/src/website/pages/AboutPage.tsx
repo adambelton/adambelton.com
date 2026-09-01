@@ -1,8 +1,12 @@
 import { Breadcrumbs, Prose, TextLink } from "apps/client/src/ui/components";
-import { aboutPageContent } from "apps/client/src/website/content/content";
+import {
+  aboutPageContent,
+  capabilityProfileContent,
+} from "apps/client/src/website/content/content";
 import type { SanitizedHtml } from "apps/client/src/website/content/content-types";
 import { RenderedMarkdown } from "apps/client/src/website/content/RenderedMarkdown";
 import { PublicPageMetadata } from "apps/client/src/website/metadata/PublicPageMetadata";
+import { CapabilityProfile } from "apps/client/src/website/capability-profile/CapabilityProfile";
 
 export function AboutPage() {
   const firstParagraphEnd = aboutPageContent.bodyHtml.indexOf("</p>") + 4;
@@ -21,7 +25,7 @@ export function AboutPage() {
         path="/about"
         title="About — Adam Belton"
       />
-      <section aria-labelledby="about-title">
+      <section aria-labelledby="about-title" className="min-w-0">
         <Breadcrumbs items={[{ label: "About" }]} />
         <h1
           className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
@@ -47,6 +51,9 @@ export function AboutPage() {
         </div>
         <div className="mt-4 max-w-2xl">
           <RenderedMarkdown html={personalIntro} />
+        </div>
+        <div className="mt-14 sm:mt-16">
+          <CapabilityProfile profile={capabilityProfileContent} />
         </div>
       </section>
 

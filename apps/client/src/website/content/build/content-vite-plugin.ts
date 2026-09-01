@@ -21,6 +21,7 @@ function readMarkdownDirectory(directory: string) {
 export function contentVitePlugin(contentRoot: string): Plugin {
   const pageDirectory = join(contentRoot, "pages");
   const postDirectory = join(contentRoot, "posts");
+  const widgetDirectory = join(contentRoot, "widgets");
   const aliasedModuleId = join(
     contentRoot,
     "../website/content/compiled-content.generated",
@@ -35,16 +36,31 @@ export function contentVitePlugin(contentRoot: string): Plugin {
     },
     async load(id) {
       if (id !== resolvedModuleId) return undefined;
-      const { compileContentCollection } = await import(
+      const {
+        compileContentCollection,
+        parseContentDocument,
+        renderSanitizedMarkdown,
+      } = await import(
         new URL("./compile-content.ts", import.meta.url).href
+      );
+      const { compileCapabilityProfile } = await import(
+        new URL("./compile-capability-profile.ts", import.meta.url).href
       );
       const collection = compileContentCollection(
         readMarkdownDirectory(pageDirectory),
         readMarkdownDirectory(postDirectory),
       );
+      const widgetDocuments = readMarkdownDirectory(widgetDirectory);
+      const capabilityProfiles = Object.entries(widgetDocuments).map(([source, text]) =>
+        compileCapabilityProfile(text, source, {
+          parseContentDocument,
+          renderSanitizedMarkdown,
+        }),
+      );
       for (const page of collection.pages) this.addWatchFile(page.source);
       for (const post of collection.posts) this.addWatchFile(post.source);
-      return `export const pages = ${JSON.stringify(collection.pages)};\nexport const posts = ${JSON.stringify(collection.posts)};`;
+      for (const profile of capabilityProfiles) this.addWatchFile(profile.source);
+      return `export const pages = ${JSON.stringify(collection.pages)};\nexport const posts = ${JSON.stringify(collection.posts)};\nexport const capabilityProfiles = ${JSON.stringify(capabilityProfiles)};`;
     },
     configureServer(server) {
       server.watcher.add(contentRoot);

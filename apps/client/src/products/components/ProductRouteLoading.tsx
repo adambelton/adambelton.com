@@ -2,7 +2,7 @@ export function ProductRouteLoading() {
   return (
     <section aria-labelledby="product-loading-title" aria-live="polite">
       <h1
-        className="m-0 max-w-4xl text-6xl font-semibold leading-[0.95] tracking-normal sm:text-8xl"
+        className="m-0 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-normal sm:text-7xl"
         id="product-loading-title"
       >
         Loading product.
