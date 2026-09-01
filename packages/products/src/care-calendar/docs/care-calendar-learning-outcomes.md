@@ -15,12 +15,22 @@ It deliberately does **not** reproduce the full teaching material.
 2. **Clinical safety: foundational mental model** — how system behaviour can contribute to harm, how risk is controlled, and how supplier and provider safety responsibilities differ.
 3. **Request states, acknowledgement and human review** — how patient/carer submissions progress through technical and human workflow states without those states being collapsed or overstated.
 4. **Stakeholders and organisational responsibility** — who performs, transports, assures, and acts on information across the service, and how responsibility is assigned at organisational boundaries.
+5. **Care/service journey, handovers and information provenance** — how information moves through the end-to-end service, how source and derived states relate, and which handovers Care Calendar can or cannot observe.
+6. **Bounded edge cases: capacity, safeguarding, medicines and outages** — how established principles apply at important healthcare boundaries without expanding Care Calendar into a capacity-assessment, safeguarding, medicines-management, or infrastructure-ownership system.
+7. **User-centred discovery** — how to validate and enrich the problem context that Care Calendar's product reasoning depends on without confusing user preference with assurance evidence.
+8. **Evidence-control operating model** — how to distinguish claim/evidence strength from assurance/scrutiny, validate narrow claims proportionately, and avoid overclaiming through descriptive-first evidence discipline.
 
 ## How the sections fit together
 
-The sections build progressively from the product itself into the wider health and care service. **Product purpose and information boundaries** first establishes what Care Calendar is, what it is not, and where its authority stops. **Clinical safety: foundational mental model** then examines how failures or misleading behaviour within that bounded product can contribute to patient harm, including how risk, controls, freshness, reconciliation, and supplier/provider safety responsibilities relate. **Request states, acknowledgement and human review** applies those foundations to a concrete Care Calendar workflow, showing how patient/carer information can move toward a provider without the interface overstating what has been received, reviewed, accepted, or acted upon. **Stakeholders and organisational responsibility** then widens the lens to the end-to-end service, distinguishing operational actors, technical dependencies, assurance roles, and provider-specific workflows.
+The foundational module builds progressively from the product boundary into the wider health and care service, then into the evidence needed to justify what we believe about the product.
 
-Together, these sections move from **what the product is**, to **how it can create or control risk**, to **how safety-relevant information states should be represented**, and finally to **how responsibility is distributed across the wider service**. That foundation prepares us for the next section, where we map the full care/service journey, its handovers, and its information provenance.
+**Product purpose and information boundaries** establishes what Care Calendar is, what it is not, and where its authority stops. **Clinical safety: foundational mental model** then examines how failures or misleading behaviour within that bounded product can contribute to harm, including risk, controls, freshness, reconciliation, and supplier/provider safety responsibility. **Request states, acknowledgement and human review** applies those foundations to one of the product's most safety-sensitive workflows: patient/carer information moving toward a provider without the interface overstating what has been received, reviewed, accepted, or acted upon.
+
+**Stakeholders and organisational responsibility** widens the lens beyond the application to the people, teams, organisations, systems and assurance roles that participate in the service. **Care/service journey, handovers and information provenance** then traces information through those boundaries and establishes how Care Calendar should preserve source, freshness, lineage, semantic meaning and uncertainty while distinguishing observable from unobservable service handovers.
+
+**Bounded edge cases** tests whether those principles still hold in healthcare-specific contexts. Capacity introduces a genuinely new decision-specific authority boundary; safeguarding introduces provider-defined routing and visibility consequences without making Care Calendar the safeguarding decision-maker; medicines and outages primarily test transfer of established semantic-integrity and freshness principles. **User-centred discovery** then adds a different evidence dimension: standards and assurance material can constrain a trustworthy product, but they cannot establish whether the underlying coordination problem is real, important, or correctly understood by the product team.
+
+The final foundational section, **Evidence-control operating model**, applies the same epistemic discipline to Care Calendar's own claims. It distinguishes **evidence maturity**—how strongly a claim is supported—from **assurance status**—the independence, competence and formality of the judgement applied to that support. It also establishes a descriptive-first claim discipline so broader interpretive or evaluative conclusions are only made when the underlying evidence genuinely supports them.
 
 ---
 
@@ -204,6 +214,22 @@ You tested the model with a concrete organisational scenario: if the supplier's 
 
 You understood that the answer is collaborative rather than a simple transfer of responsibility. The buyer may need a product change, configuration change or other supplier-side mitigation, while the supplier may depend on provider-side workflow controls. You recognised that the two safety analyses address different scopes but may need complementary controls where the hazard crosses the organisational boundary.
 
+
+### 2.10 Distinguish a product-level safety requirement from the provider-specific workflow used to satisfy it in deployment
+
+**Description**  
+Care Calendar should define safety requirements at the level of product behaviour and evidence, rather than silently prescribing a provider's internal operating model. A provider may use triage, direct clinician review, or another workflow. What matters to Care Calendar is whether the deployment can provide reliable evidence for any safety-relevant state the product intends to communicate. Provider-specific workflow design belongs to the deployment context; Care Calendar's responsibility is to avoid presenting a stronger state than the available evidence supports.
+
+**Validation evidence — Care Calendar**  
+Given the product-level requirement that Care Calendar must not imply attending-professional review unless reliable evidence of that review is available, you correctly separated that requirement from Provider X's internal triage-and-escalation workflow.
+
+You identified Care Calendar's requirement as: the interface cannot display that a patient-submitted update has been reviewed by the attending professional unless the provider makes reliable evidence of that review available.
+
+You then identified the provider's triage-and-escalation process as a deployment implementation rather than part of Care Calendar's product-level safety requirement.
+
+You also correctly concluded that Care Calendar would need an exposed workflow state or equivalent evidence confirming attending-professional review before it could safely display that state to the patient. This demonstrates that you understand the difference between **what must be true for the product to communicate a state safely** and **how a particular provider's internal workflow makes that state true**.
+
+A further nuance is that Care Calendar does not necessarily need every intermediate provider state to be exposed if the final state it needs to communicate can be evidenced reliably. For example, if the provider can reliably expose “reviewed by attending professional,” Care Calendar does not inherently need a separately exposed “escalated by triage” state unless that intermediate state is itself important to the product or safety model.
 ---
 
 ## 3. Request states, acknowledgement and human review
@@ -404,6 +430,10 @@ You also correctly separated this uncertainty from fault attribution. Care Calen
 
 
 
+## 5. Care/service journey, handovers and information provenance
+
+**Goal for this section:** understand how information moves through the end-to-end home-care journey, where responsibility changes hands, and how Care Calendar should preserve source, freshness, provenance, and observable workflow state without becoming the source record itself or inventing relationships it cannot evidence.
+
 ### 5.1 Explain why information shown together in one appointment view can have different provenance and freshness
 
 **Description**  
@@ -517,41 +547,300 @@ You correctly said Care Calendar can show the current 14:00 appointment state an
 You identified two unproven relationships: Care Calendar cannot infer that the patient submission caused the provider-side note to be added, and it cannot infer that the visiting professional has reviewed the note. You therefore avoided both causal overstatement and an invented organisational handover.
 
 
-### 2.10 Distinguish a product-level safety requirement from the provider-specific workflow used to satisfy it in deployment
+
+---
+
+## 6. Bounded edge cases: capacity, safeguarding, medicines and outages
+
+**Goal for this section:** understand which healthcare-specific edge cases introduce genuinely new responsibility or authority boundaries, and which merely require Care Calendar to transfer already-established principles without expanding its intended purpose.
+
+### 6.1 Explain why mental capacity must be understood as decision-specific and time-specific rather than represented as one global patient property
 
 **Description**  
-Care Calendar should define safety requirements at the level of product behaviour and evidence, rather than silently prescribing a provider's internal operating model. A provider may use triage, direct clinician review, or another workflow. What matters to Care Calendar is whether the deployment can provide reliable evidence for any safety-relevant state the product intends to communicate. Provider-specific workflow design belongs to the deployment context; Care Calendar's responsibility is to avoid presenting a stronger state than the available evidence supports.
+Mental capacity is assessed for a particular decision at the time that decision needs to be made. Care Calendar should therefore not model capacity as one permanent global flag and derive every permission from it. Release 1 deliberately requires the patient to have the capacities needed for every decision involved in using the enabled product feature set, including relevant carer-authorisation decisions. Care Calendar does not assess capacity itself; any capacity determination it relies on sits upstream of the product.
+
+The Release 1 rule does not establish that all current or future carer permissions necessarily form one legal capacity decision. If later features introduce materially different decisions or authority boundaries, those may need to be reconsidered separately. A future version could potentially support partial feature access where narrower capacity and authority boundaries are established, but Release 1 does not.
 
 **Validation evidence — Care Calendar**  
-Given the product-level requirement that Care Calendar must not imply attending-professional review unless reliable evidence of that review is available, you correctly separated that requirement from Provider X's internal triage-and-escalation workflow.
+You initially scoped the relevant capacity to being able to authorise a carer to help coordinate appointments and explicitly placed the act of determining capacity outside Care Calendar. You then refined the model after discussing permission granularity: you recognised that as the product evolves, different permissions may not necessarily fall under one capacity decision, even though the Release 1 product rule remains that the patient must have all capacities required for the enabled feature set.
 
-You identified Care Calendar's requirement as: the interface cannot display that a patient-submitted update has been reviewed by the attending professional unless the provider makes reliable evidence of that review available.
+You also distinguished authorisation renewal from capacity assessment. Periodically reconfirming that a carer should retain access could be a product decision, but that does not mean Care Calendar should periodically reassess mental capacity. In multiple-choice validation, you correctly identified the underlying principle that capacity is assessed in relation to a specific decision at the time it needs to be made, rather than being a stable global property.
 
-You then identified the provider's triage-and-escalation process as a deployment implementation rather than part of Care Calendar's product-level safety requirement.
+### 6.2 Explain how Care Calendar may support safeguarding-related routing, status or visibility without itself deciding whether a safeguarding concern exists
 
-You also correctly concluded that Care Calendar would need an exposed workflow state or equivalent evidence confirming attending-professional review before it could safely display that state to the patient. This demonstrates that you understand the difference between **what must be true for the product to communicate a state safely** and **how a particular provider's internal workflow makes that state true**.
+**Description**  
+Care Calendar should not analyse ordinary free text and decide that abuse or neglect has occurred or that statutory safeguarding criteria are met. It may, however, support an explicit user-selected concern-reporting route or represent a safeguarding-relevant state supplied by the provider. Once such a trustworthy state exists, it may legitimately affect routing, presentation, or visibility according to agreed provider rules.
 
-A further nuance is that Care Calendar does not necessarily need every intermediate provider state to be exposed if the final state it needs to communicate can be evidenced reliably. For example, if the provider can reliably expose “reviewed by attending professional,” Care Calendar does not inherently need a separately exposed “escalated by triage” state unless that intermediate state is itself important to the product or safety model.
+The provider and relevant safeguarding professionals remain responsible for deciding whether safeguarding criteria are met, what action is required, and what information may or should be shared.
+
+**Validation evidence — Care Calendar**  
+You initially questioned how Care Calendar could provide special safeguarding routing without first interpreting message content. You resolved that apparent contradiction by separating **classification** from **representation/handling**. An ordinary user message can follow the normal workflow unless the provider later marks it as safeguarding-relevant. Alternatively, Care Calendar could provide an explicit “report a concern” route selected by the patient, which gives the product a routing signal without requiring it to infer meaning from prose.
+
+You also identified a new visibility consequence: if the provider marks information as safeguarding-related, Care Calendar may need to display it differently or withhold it from an otherwise authorised carer, particularly if that carer could be implicated in the concern. In multiple-choice validation, you correctly selected the model in which Care Calendar can support explicit concern-reporting or provider-defined safeguarding states while leaving safeguarding judgement and response to provider/specialist workflows.
+
+### 6.3 Apply the established semantic-integrity rule to appointment-relevant medicines information without creating a separate medicines-management responsibility
+
+**Description**  
+Medicines information can be safety-relevant, but the main Care Calendar principle is already established: preserve the provider's wording, provenance and semantic meaning rather than translating it into a stronger clinical interpretation. Medicines context does not by itself create a new product responsibility.
+
+**Validation evidence — Care Calendar**  
+You explicitly challenged the need for a full medicines lesson because it appeared to repeat the already-established rule that Care Calendar does not reinterpret provider information. We agreed that medicines is primarily a transfer context rather than a new conceptual area. In review, when the provider wording was “Medication offered; patient declined,” you correctly chose to preserve that wording rather than translate it into “medication missed” or another unsupported state.
+
+### 6.4 Apply the established freshness/degraded-state model to provider outages without confusing upstream fault ownership with downstream Care Calendar responsibility
+
+**Description**  
+A provider outage remains an upstream fault, but if it prevents Care Calendar from confirming current appointment information, Care Calendar owns the resulting uncertainty in its own derived view. It should preserve the last confirmed source state while making degraded confidence in currency explicit.
+
+**Validation evidence — Care Calendar**  
+Outages had already been studied extensively earlier in the module, so this subsection was treated as review rather than new teaching. In multiple-choice review, you correctly selected the response that retains the last confirmed appointment value, marks it as degraded or potentially stale once the freshness threshold is exceeded, and explains that current provider data cannot presently be verified.
+
+---
+
+## 7. User-centred discovery
+
+**Goal for this section:** understand user research as a way to validate and enrich the problem context that Care Calendar's product reasoning depends on, while recognising that user preferences do not override safety, provenance, legal, or assurance constraints.
+
+### 7.1 Explain why early Care Calendar research should validate and enrich the problem context rather than primarily ask users to judge the proposed solution
+
+**Description**  
+Product reasoning is only as good as the context it is built on. In an unfamiliar domain, early research should temporarily bracket the proposed solution and investigate the real behaviours, constraints, workarounds, burdens and consequences that produced the product hypothesis. Research may confirm, complicate, or contradict the context model and should feed that richer context back into product reasoning.
+
+**Validation evidence — Care Calendar**  
+You reframed the purpose of research around the distance between the product team and the problem domain. You observed that deciding to build a product already implies some reasoned model of the problem, but when domain context is incomplete, the risk is that good reasoning is being applied to inaccurate or partial inputs. You therefore described research as validating the context we used to reason toward Care Calendar and building any missing context before judging whether the solution still follows.
+
+In multiple-choice validation, you correctly selected the formulation that early research should validate and enrich the problem context while temporarily bracketing the current Care Calendar solution.
+
+### 7.2 Explain why user preferences are evidence about usability needs but cannot authorise Care Calendar to weaken safety, provenance or semantic constraints
+
+**Description**  
+User research can reveal that the current presentation is confusing, burdensome, or cognitively expensive. That evidence should influence design, but it does not permit Care Calendar to infer provider meaning it does not possess or collapse distinct assurance-relevant states into unsupported conclusions. The product challenge is to satisfy the usability need without changing the semantics of the evidence.
+
+**Validation evidence — Care Calendar**  
+You identified an important overlap between user assumptions and assurance when considering whether source/freshness information or detailed request statuses are useful. You specifically challenged a hypothetical user preference for a binary “you need to do something / you don't need to do something” model because producing that state might require Care Calendar to interpret provider information, contradicting the product boundary already established.
+
+We refined the implication: such feedback would be evidence that users need a simpler presentation, not permission to invent meaning. In multiple-choice validation, you correctly chose to explore clearer presentation, grouping, progressive disclosure or provider-defined guidance while preserving the underlying source semantics.
+
+### 7.3 Explain why discovery should pay attention to evidence that confirms, complicates or contradicts the context model rather than requiring a predetermined binary product kill criterion
+
+**Description**  
+Bounded research should have clear decision relevance, but it does not need an artificial binary threshold that determines whether the whole product survives. The important discipline is to know which parts of the current context model are assumptions and remain alert to evidence that changes those assumptions. Product direction can then evolve because the underlying information changed.
+
+**Validation evidence — Care Calendar**  
+You challenged the original instruction to decide in advance exactly what evidence would change the product direction, arguing that this itself embeds assumptions. You proposed a better framing: because product teams can reasonably make good decisions from the information available, research should focus on whether that information is accurate and complete. We adopted that refinement and replaced the binary “decision threshold” idea with attention to how research informs and changes the context model.
+
+### 7.4 Identify a strong first Care Calendar discovery hypothesis that tests the coordination problem without prematurely asserting a solution or clinical harm outcome
+
+**Description**  
+The first discovery hypothesis should sit close to observable user behaviour and burden. It should not assume Care Calendar works, that a calendar is necessarily the right interface, or that coordination complexity causes clinically significant missed care. Stronger consequential claims can emerge as findings and be investigated separately.
+
+**Validation evidence — Care Calendar**  
+You agreed that the strongest initial hypothesis is that people coordinating appointments across multiple health and care services experience meaningful manual burden from consolidating fragmented appointment information and managing changes. You also considered whether the more consequential hypothesis—coordination complexity putting people at risk of missing important care—might be more important, but recognised that it is a stronger claim requiring different evidence.
+
+We therefore kept missed/delayed care as a potential consequential finding rather than the primary first-study claim. In multiple-choice validation, you correctly selected the fragmentation/manual-burden hypothesis over claims that Care Calendar reduces missed care, that users prefer calendars, or that request statuses reduce anxiety.
+
+### 7.5 Define a bounded first discovery study that investigates current behaviour while minimising unnecessary sensitive-data collection
+
+**Description**  
+A suitable first study is a small qualitative discovery exercise with relevant patients and carers who coordinate appointments across more than one service. Questions should begin from recent real behaviour—how information arrived, how it was consolidated, how changes were managed, what created uncertainty, and what consequences followed—rather than asking whether participants like the Care Calendar concept.
+
+Because participants may naturally discuss health and care experiences, the study should avoid collecting unnecessary diagnoses, medication histories or detailed clinical narratives when the research question can be answered through service, channel, coordination and workflow information.
+
+**Validation evidence — Care Calendar**  
+Through discussion, you accepted the proposed primary context hypothesis and the need to bracket the product itself. The applied research plan therefore focuses on current coordination behaviour, includes both patients and carers with multi-service experience, and explicitly separates potential consequential findings such as missed care from claims the initial study could actually establish.
+
+The resulting `care-calendar-initial-user-discovery-plan.md` is the applied output for this learning outcome.
+
+---
+
+## 8. Evidence-control operating model
+
+**Goal for this section:** understand how to record what Care Calendar evidence actually proves, how strongly a claim is supported, what kind of scrutiny or assurance has been applied, and when a statement is important enough to track formally—without allowing evidence administration to replace learning, reasoning or building.
+
+### 8.1 Explain the distinction between evidence maturity and assurance status as claim state versus judgement state
+
+**Description**  
+The E and A scales answer different questions.
+
+- **Evidence maturity (E)** asks: **How strongly is this claim supported? What proof do we possess?**
+- **Assurance status (A)** asks: **What level of independent, competent or formal judgement has been applied to that support?**
+
+Useful mental models include:
+
+- **E = claim state / proof state**
+- **A = judgement state / scrutiny state**
+- **E = how do we know?**
+- **A = who or what has judged whether that is enough?**
+
+A secondary intuition is **inside versus outside the building loop**. Evidence is often produced by the team building the product. Assurance increasingly asks whether that evidence has been checked beyond the act of building—through explicit technical validation, specialist judgement, or formal organisational/regulatory process. This is a gradient rather than a strict organisational boundary: what matters is the independence, competence and authority of the judgement.
+
+**Validation evidence — Care Calendar**  
+You initially found the E/A labels hard to distinguish because “E2 — demonstrated in a bounded project” and “A1 — technically validated within a stated scope” both sound like evidence-producing activities. Through discussion, you developed several compatible mental models and concluded that **claim state versus judgement state** is the cleanest primary distinction, while **inside versus outside the building loop** remains a useful intuition for why assurance exists.
+
+In multiple-choice validation, you correctly selected the formulation that evidence maturity tracks how strongly the claim itself is supported, while assurance status tracks the independence, competence and formality of the judgement applied to that support.
+
+### 8.2 Distinguish E0, E1, E2 and E3 as increasing maturity of the claim's supporting evidence
+
+**Description**  
+The evidence scale describes what support exists for a narrow claim:
+
+- **E0 — Unverified:** assumption or reasoned proposition without the relevant evidence.
+- **E1 — Source verified:** an appropriate authoritative source supports the factual claim.
+- **E2 — Demonstrated in a bounded project:** the claim has been shown in Care Calendar within a stated project scope.
+- **E3 — Independently reviewed:** someone independent of producing the specific result has reviewed or confirmed it.
+
+E3 strengthens the evidence state but does not by itself imply specialist or formal assurance.
+
+**Validation evidence — Care Calendar**  
+You correctly reasoned that an independently reviewed reconciliation implementation could move a narrow technical claim from E2 to **E3** while remaining at **A1** if the scrutiny is still technical rather than specialist or formal. This demonstrated that you can separate independent confirmation of the evidence from the authority of the assurance applied to it.
+
+### 8.3 Distinguish A0, A1, A2, A3 and AX as increasing forms of scrutiny or assurance
+
+**Description**  
+The assurance scale records the type of judgement applied to a claim or result:
+
+- **A0 — Educational simulation only:** no higher assurance has been applied.
+- **A1 — Technically validated within a stated scope:** the result has been checked against an explicit technical criterion.
+- **A2 — Specialist opinion obtained:** an appropriately competent specialist has reviewed a specific conclusion within their remit.
+- **A3 — Formal organisational or regulatory assurance:** the conclusion has passed through an appropriate formal assurance process.
+- **AX — Formal assurance unavailable or not claimable in this project:** the portfolio project cannot legitimately make that formal assurance claim.
+
+The building team must not treat its own confidence in an implementation as equivalent to specialist or formal assurance.
+
+**Validation evidence — Care Calendar**  
+You correctly identified an integration test that proves a degraded-state warning appears after a 60-minute threshold as **E2/A1**: demonstrated in the bounded project and technically validated against an explicit criterion.
+
+You also correctly identified that a Clinical Safety Officer agreeing that a specific hazard and causal chain are clinically plausible may raise that narrow conclusion to **A2**, but does not establish acceptable residual risk, DCB0129 compliance, formal assurance or overall clinical safety.
+
+### 8.4 Explain why A1 technical validation requires criterion, method, result and limitation
+
+**Description**  
+A1 is not simply “we tested it.” A technically validated result should record:
+
+1. **Criterion** — what had to be true.
+2. **Method** — how the criterion was tested.
+3. **Result** — what happened.
+4. **Limitation** — what the test does not establish.
+
+The limitation is especially important because it prevents a narrow technical test from silently becoming a broader safety, usability, reliability or compliance claim.
+
+**Validation evidence — Care Calendar**  
+The degraded-state example established the distinction: a test may prove that the UI shows a warning when data exceeds a configured threshold, while saying nothing about whether that threshold is clinically appropriate. You consistently distinguished technical behaviour from the specialist judgement required to assess its adequacy.
+
+### 8.5 Explain why claim status belongs to the narrow statement or result rather than the whole artefact
+
+**Description**  
+A single Care Calendar document can contain source-backed facts, project assumptions, implemented results, untested design hypotheses and specialist-dependent conclusions. Giving the entire artefact one E/A pair would obscure these differences.
+
+Statuses should therefore attach to the narrowest meaningful statement, implementation result, test result or reviewed conclusion.
+
+**Validation evidence — Care Calendar**  
+Across the module, you repeatedly rejected attempts to broaden what evidence established. For example, a tested reconciliation behaviour supports a narrow claim about detecting and correcting a tested divergence; it does not support a whole-system statement that Care Calendar “reliably keeps provider information synchronised.”
+
+This same discipline was validated in the module synthesis review, where you selected the narrow reconciliation statement over broader claims about reliability, clinical safety or full integration assurance.
+
+### 8.6 Prefer descriptive claims over interpretive or evaluative claims unless the broader conclusion has earned sufficient evidence
+
+**Description**  
+Care Calendar claims can be thought of as a progression:
+
+- **Descriptive:** what was built, observed, sourced or tested.
+- **Interpretive:** what those facts mean in a particular context.
+- **Evaluative:** how good, reliable, safe, effective, trustworthy, accessible or useful the resulting system is.
+
+Descriptive claims are often easiest to support precisely because they contain fewer hidden propositions. Interpretive and evaluative claims are not forbidden, but they need evidence for the additional conclusions embedded in their wording.
+
+A useful rule is:
+
+> **Stick to the details. Facts first; conclusions earn their way in.**
+
+**Validation evidence — Care Calendar**  
+You noticed that the strongest narrow examples were factual and resembled technical writing, while the problematic broader examples were usually qualitative conclusions. You reframed the lesson from merely “avoid broad claims” to **prefer factual detail**, because it is much harder to overclaim when summarising exactly what the system does and what was tested.
+
+In multiple-choice validation, you correctly identified “Care Calendar displays provider source-update time separately from the time its own reconciliation last confirmed the record” as a descriptive claim, distinguishing it from broader claims about reliability, transparency or trustworthiness.
+
+### 8.7 Decide proportionately which conclusions deserve active claim records
+
+**Description**  
+Not every useful fact should become an active claim. A formal claim record is justified where:
+
+- a current product decision depends on it;
+- another active lesson depends on it;
+- misunderstanding it could materially alter the work;
+- it is likely to support a public case-study statement.
+
+The approximate 15–20 active-foundational-claim ceiling is a cognitive-load and proportionality guardrail, not a completeness target.
+
+**Validation evidence — Care Calendar**  
+In validation, you correctly chose the source-record versus coordination-view distinction as worth an active claim record because architecture, provenance, safety reasoning, request handling and later assurance work all depend on it. You rejected incidental facts such as the framework used by the UI or the existence of a calendar screen as unnecessary claim administration.
+
+### 8.8 Explain why specialist review and independent review do not automatically imply formal assurance
+
+**Description**  
+Independent review strengthens evidence. Specialist review adds assurance within a specific competence. Neither automatically creates formal organisational or regulatory assurance.
+
+A senior engineer reviewing a technical implementation may support E3 while the assurance remains A1. A CSO reviewing a narrow hazard conclusion may support A2. A3 requires an appropriate formal process, not merely a knowledgeable reviewer.
+
+**Validation evidence — Care Calendar**  
+You correctly answered both review scenarios:
+
+- independent senior-engineer review can support **E3/A1**;
+- CSO review of one hazard conclusion can support **A2** for that conclusion without establishing formal compliance or overall clinical safety.
+
+This demonstrates that you understand why the framework tracks evidence maturity separately from the authority of the judgement applied to it.
 
 ---
 
 ## Current revision status
 
-### Established areas
+### Foundational module status
 
-- Product purpose and source-record boundary
-- Clinical-safety foundational mental model
-- Freshness, reconciliation and integration-health distinctions
-- Request-status and human-review distinctions
-- Supplier/provider clinical-safety boundary
-- Responsibility following specific workflow actors
-- Third-party integration responsibility
-- Operational actors, system dependencies, and assurance actors
-- Immediate technical fault ownership versus clinical-safety assurance responsibility
-- Independent and complementary cross-organisational controls
-- Workflow-state semantics and integration evidence
-- Product-level safety requirements versus provider-specific deployment workflows
+**Module 1 — Foundations and care-service context is complete.**
 
-### Still being validated
+Completed sections:
 
-- None for Sections 1–5 currently recorded; the care/service journey, handovers, and provenance validation is complete.
+- **1. Product purpose and information boundaries**
+- **2. Clinical safety: foundational mental model**
+- **3. Request states, acknowledgement and human review**
+- **4. Stakeholders and organisational responsibility**
+- **5. Care/service journey, handovers and information provenance**
+- **6. Bounded edge cases**
+- **7. User-centred discovery**
+- **8. Evidence-control operating model**
+
+The foundational module integration review is complete. The synthesis review confirmed that the concepts form one connected service model rather than a set of isolated topics: source and provenance determine what Care Calendar knows; handovers and responsibility determine who must act; clinical-safety reasoning examines how failures can contribute to harm; user research validates and enriches the problem context; and the evidence/assurance model controls what can legitimately be claimed about the product and its results.
+
+### Delivery conclusions established during Module 1
+
+- Track progress by **learning module**, not calendar week.
+- Start sections with explicit, high-resolution learning outcomes.
+- Teach new concepts before validation.
+- Use discussion as core learning time.
+- Classify later material as **new concept**, **new implication**, or **transfer example** to avoid redundant teaching.
+- When understanding is already established through discussion, validate with multiple choice rather than repeated open-ended explanation.
+- Treat correct reuse of earlier concepts as retention evidence.
+- Use formal review selectively for concepts that have not naturally recurred, caused hesitation, exposed corrections, or are important prerequisites.
+- Avoid broad free-recall review questions during concept learning; reserve that style for later interview-preparation retrieval practice.
+- Create repo-ready Care Calendar artefacts only after their substantive contents have been learned and validated.
+- Use descriptive-first claims and allow broader conclusions to earn their way in through sufficient evidence and assurance.
+
+### Current applied Care Calendar artefacts
+
+- `care-calendar-intended-purpose-and-exclusions.md`
+- `care-calendar-foundational-clinical-safety-model.md`
+- `care-calendar-stakeholder-and-responsibility-map.md`
+- `care-calendar-care-service-journey-and-handovers.md`
+- `care-calendar-initial-user-discovery-plan.md`
+
+The learning-outcomes document is revision/evidence material rather than a product artefact.
+
+### Next module
+
+**Module 2 — NHS assurance and evidence landscape**
+
+Start Module 2 in a new conversation using:
+
+- the frozen v0.3.1 curriculum;
+- `care-calendar-learning-delivery-wrapper.md`;
+- this learning-outcomes document;
+- `care-calendar-module-1-integration-review.md`;
+- the current repo-ready Care Calendar artefacts.
