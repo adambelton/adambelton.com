@@ -13,7 +13,7 @@ views:
   - overview
   - evidence-basis
   - development-trajectory
-  - impact-profile
+  - leverage-profile
 ---
 
 # Overview
@@ -96,13 +96,13 @@ order: 3
 
 I am actively building the mental model and foundations through concrete study or practice. I use this only where there is already enough evidence to justify including the capability in the profile.
 
-# Impact profile
+# Leverage profile
 
 ```yaml
-key: impact_profile
+key: leverage_profile
 ```
 
-Every capability here matters. The distinction is between the skills I see as foundational to effective product engineering and the areas where I believe my own profile can create disproportionate value.
+Every capability here matters. This view separates the capabilities I see as foundational to effective product engineering from the areas where I think my own judgement or way of working can create disproportionate value.
 
 ## Core competency
 
@@ -129,7 +129,7 @@ A capability I believe can become part of my personal competitive advantage: the
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: maintaining
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 1
 ```
 
@@ -143,7 +143,7 @@ At INDY, I owned substantial product work across frontend, Rails backend logic, 
 
 Working across the stack is already an established part of how I operate. I am maintaining that breadth while putting more of my deliberate development effort into architecture, domain modelling, distributed systems, and broader technical judgement.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because product ownership often crosses technical layers. Being able to follow the problem through interface, application logic, APIs, data, and production behaviour makes end-to-end decisions more coherent and reduces handoff friction.
 
@@ -152,7 +152,7 @@ Core competency because product ownership often crosses technical layers. Being 
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 2
 ```
 
@@ -166,7 +166,7 @@ I have designed and built operational interfaces used in live venue environments
 
 I am making this more explicit as a product-design principle: software should preserve meaningful user control, reduce unnecessary cognitive burden, and help people act confidently. I am also deepening my accessibility practice and applying the same thinking to AI-enabled products where authority and inspectability matter.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because the quality of a product depends on how well it supports the user’s goals, judgement, and control. Stronger decisions here improve accessibility, trust, adoption, and the usefulness of the software itself.
 
@@ -175,7 +175,7 @@ Strategic leverage because the quality of a product depends on how well it suppo
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 3
 ```
 
@@ -189,7 +189,7 @@ At INDY, I regularly worked from customer or operational requests rather than fi
 
 I am developing a more deliberate method for connecting problem framing with explicit product and technical trade-offs. The goal is to make good judgement less dependent on accumulated intuition and easier to apply in unfamiliar domains.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because solving the wrong problem well is still failure. Strong framing and explicit trade-off analysis improve both product direction and technical decision quality before implementation cost accumulates.
 
@@ -198,7 +198,7 @@ Strategic leverage because solving the wrong problem well is still failure. Stro
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 4
 ```
 
@@ -212,7 +212,7 @@ I have modelled production workflows and state across inventory, booking, config
 
 I am making state, transitions, invariants, authority, and temporal behaviour more explicit in how I design features. I want to move from modelling these well by instinct toward a repeatable discipline that holds up as workflows become more complex.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because most non-trivial product behaviour depends on state, transitions, rules, and temporal flow. Making those explicit reduces ambiguity and creates a firmer basis for implementation and testing.
 
@@ -221,7 +221,7 @@ Core competency because most non-trivial product behaviour depends on state, tra
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 5
 ```
 
@@ -235,7 +235,7 @@ I have delivered major product and platform changes incrementally rather than tr
 
 I am strengthening the feedback side of that loop: defining intended outcomes earlier, using qualitative feedback and instrumentation more deliberately, and treating post-release learning as part of the engineering work rather than something that happens informally afterwards.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because product engineering depends on learning from real use, not only shipping code. Smaller delivery steps and faster feedback reduce risk and improve the quality of subsequent decisions.
 
@@ -243,8 +243,8 @@ Core competency because product engineering depends on learning from real use, n
 
 ```yaml
 evidence_basis: commercial_ownership
-development_trajectory: deepening
-impact_profile: strategic_leverage
+development_trajectory: maintaining
+leverage_profile: strategic_leverage
 order: 6
 ```
 
@@ -254,11 +254,11 @@ Designing software so its concepts, responsibilities, and abstractions fit toget
 
 My commercial work has repeatedly focused on making complex software easier to reason about: introducing clearer boundaries, building reusable primitives and patterns, reducing accidental complexity, and creating structures that let engineers work locally without needing the whole system in their heads.
 
-### Development trajectory: [Deepening]
+### Development trajectory: [Maintaining]
 
-I am formalising this into a stronger design principle: concepts, responsibilities, and abstractions should form a coherent model while respecting the cognitive limits of the people working with it. I am deepening my thinking around local reasoning, progressive disclosure, deep modules, and abstractions that justify their cost.
+This is already an established part of how I design software. I continue to apply the same principles in day-to-day work: clear boundaries, local reasoning, progressive disclosure of complexity, and abstractions that earn their place.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because coherent systems reduce the amount of context engineers must hold at once. That compounds across maintainability, architecture, onboarding, collaboration, and the quality of technical decisions.
 
@@ -267,7 +267,7 @@ Strategic leverage because coherent systems reduce the amount of context enginee
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: maintaining
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 7
 ```
 
@@ -281,30 +281,30 @@ Testing has been a consistent part of my commercial engineering practice across 
 
 This is already an established part of how I work. I continue to maintain it through implementation, review, production support, and explicit verification criteria, while extending the same discipline into AI-assisted development and higher-risk product contexts.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because reliable product engineering requires evidence that intended behaviour holds under change. Verification built into the design makes systems safer to evolve and failures easier to reason about.
 
 ## AI-assisted engineering
 
 ```yaml
-evidence_basis: applied
+evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 8
 ```
 
 Using AI tools as engineering leverage while keeping architecture, judgement, validation, and responsibility with the engineer.
 
-### Evidence basis: [Applied]
+### Evidence basis: [Commercial ownership]
 
-Claude Code and Codex are part of my everyday engineering workflow across exploration, implementation, debugging, review, and documentation. I use specifications, explicit boundaries, and verification criteria to give agents enough context to be useful without handing over architectural judgement or responsibility.
+I used AI-assisted development commercially at INDY, particularly during the frontend architecture work, and helped establish rules and reusable skills for the wider development team. My own workflow uses AI across exploration, implementation, debugging, review, and documentation while keeping architecture, judgement, and verification with the engineer.
 
 ### Development trajectory: [Deepening]
 
 I am actively refining how I use AI as engineering leverage: deciding what should remain human-owned, how much autonomy is appropriate for the risk, how decisions stay inspectable, and how agent-authored work is verified and kept maintainable.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because AI changes the implementation workflow without removing the need for engineering judgement. Clear specifications, boundaries, and verification become more important as more work is delegated to agents.
 
@@ -313,7 +313,7 @@ Core competency because AI changes the implementation workflow without removing 
 ```yaml
 evidence_basis: applied
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: core_competency
 order: 9
 ```
 
@@ -327,16 +327,16 @@ My personal product work includes AI-enabled systems where prompts, context, str
 
 I am developing a clearer practice for deciding what AI should be allowed to infer or decide, how its behaviour remains inspectable, and how products can use AI to extend capability without unnecessarily reducing user judgement or control.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Core competency]
 
-Strategic leverage because AI introduces new product questions around authority, uncertainty, inspectability, and human control. Designing those boundaries well can materially improve both usefulness and trust.
+Core competency because AI-enabled products introduce product and engineering questions around authority, uncertainty, inspectability, and human control. Engineers working with these systems need to be able to reason about those boundaries rather than treating model behaviour as an implementation detail.
 
 ## Written technical communication
 
 ```yaml
 evidence_basis: commercial_ownership
-development_trajectory: deepening
-impact_profile: strategic_leverage
+development_trajectory: maintaining
+leverage_profile: strategic_leverage
 order: 10
 ```
 
@@ -346,11 +346,11 @@ Making technical intent, assumptions, constraints, trade-offs, and decisions exp
 
 I have used written technical communication to document decisions, explain architecture, raise concerns, align remote collaborators, and give other engineers enough context to act independently. Written clarity has been especially important in small teams where decisions often need to outlive the conversation that produced them.
 
-### Development trajectory: [Deepening]
+### Development trajectory: [Maintaining]
 
-I am investing further in written reasoning because its leverage grows with asynchronous collaboration and AI-assisted engineering. Clear specifications, assumptions, boundaries, trade-offs, and verification criteria increasingly determine how safely both people and agents can act without constant synchronous coordination.
+Written reasoning is already an established part of how I work, particularly in remote and asynchronous teams. I continue to use clear specifications, assumptions, boundaries, trade-offs, and verification criteria so that decisions remain inspectable and other people or agents can act without constant synchronous coordination.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because clear written reasoning scales across remote collaboration, architecture, delegation, and AI-assisted engineering. It makes decisions inspectable and allows others to act with less synchronous coordination.
 
@@ -361,7 +361,7 @@ Strategic leverage because clear written reasoning scales across remote collabor
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 1
 ```
 
@@ -375,7 +375,7 @@ At INDY, I built detailed operational context around cinema workflows and used i
 
 I am making that context-building process more systematic for unfamiliar domains: separating evidence from assumptions, identifying unknowns, mapping actors and responsibilities, understanding existing workflows, and working directly with users and domain experts before shaping the software model.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because better technical decisions depend on a reliable model of the real domain. Strong discovery reduces assumption-driven design and improves the quality of modelling, architecture, and product direction.
 
@@ -384,7 +384,7 @@ Strategic leverage because better technical decisions depend on a reliable model
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 2
 ```
 
@@ -398,7 +398,7 @@ I have modelled domain concepts, rules, relationships, and responsibilities in p
 
 I am formalising that existing instinct through deliberate DDD study and modelling practice, with particular attention to subdomains, bounded contexts, entities, value objects, invariants, ubiquitous language, and the relationship between domain structure and software boundaries.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because explicit domain models turn complex business knowledge into software structures that are easier to reason about and evolve. Strong modelling improves the quality of boundaries, workflows, and architectural decisions.
 
@@ -407,7 +407,7 @@ Strategic leverage because explicit domain models turn complex business knowledg
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 3
 ```
 
@@ -421,7 +421,7 @@ I have shaped production software around product and domain needs, including gen
 
 I am building a repeatable discipline for translating domain structure into product architecture, then reasoning from that model into system design through architectural characteristics, components, data flows, failure modes, storage, communication patterns, and explicit trade-offs.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because this is where domain understanding becomes durable technical structure. Strong decisions here increase the scale of problems that can be solved coherently and reduce the cost of future change.
 
@@ -430,7 +430,7 @@ Strategic leverage because this is where domain understanding becomes durable te
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 4
 ```
 
@@ -444,7 +444,7 @@ I have designed and worked with boundaries across modules, APIs, product areas, 
 
 I am developing more rigorous thinking around ownership, coupling, bounded contexts, internal service contracts, and the consequences of moving responsibilities across boundaries. I want boundaries to emerge from the domain and change patterns rather than from arbitrary technical decomposition.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because clear responsibility boundaries contain complexity and reduce coupling. Good contracts make systems easier to change, teams easier to coordinate, and failures easier to isolate.
 
@@ -452,8 +452,8 @@ Strategic leverage because clear responsibility boundaries contain complexity an
 
 ```yaml
 evidence_basis: commercial_exposure
-development_trajectory: deepening
-impact_profile: core_competency
+development_trajectory: learning
+leverage_profile: core_competency
 order: 5
 ```
 
@@ -463,34 +463,34 @@ Understanding the constraints that appear when computation and state are spread 
 
 INDY ran as a cloud-hosted production application with separately running web, Sidekiq, and MySQL processes, so I worked in a system where computation, persistence, and asynchronous work crossed process boundaries. My experience was with a relatively simple distributed architecture rather than large-scale microservice ownership.
 
-### Development trajectory: [Deepening]
+### Development trajectory: [Learning]
 
-I am actively building stronger fluency around partial failure, latency, consistency, coordination, state ownership, replication, and recovery so I can reason about distributed constraints explicitly rather than only encountering them through implementation details.
+I am building the mental model behind the distributed behaviour I have encountered in production: partial failure, latency, consistency, coordination, state ownership, replication, and recovery. The aim is to reason about those constraints explicitly rather than only meeting them through implementation details.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because modern production systems routinely cross process and network boundaries. Product engineers need enough fluency in latency, consistency, coordination, and partial failure to make sound system-level decisions.
 
 ## Asynchronous & event-driven architecture
 
 ```yaml
-evidence_basis: commercial_ownership
+evidence_basis: commercial_exposure
 development_trajectory: deepening
-impact_profile: core_competency
+leverage_profile: core_competency
 order: 6
 ```
 
 Designing workflows that coordinate work over time through jobs, events, messaging, retries, ordering, and idempotent processing rather than assuming everything happens synchronously.
 
-### Evidence basis: [Commercial ownership]
+### Evidence basis: [Commercial exposure]
 
-I designed and built asynchronous production workflows at INDY, including inventory updates where sales and stock movements triggered background balance recomputation and updated availability was propagated downstream to point-of-sale clients.
+I built asynchronous and event-driven product workflows at INDY, including inventory updates where sales and stock movements triggered background balance recomputation and updated availability was propagated downstream to point-of-sale clients. I worked directly with these patterns, but did not own an event-driven architecture at system level.
 
 ### Development trajectory: [Deepening]
 
 I am deepening my reasoning around ordering, retries, idempotency, event modelling, temporal coordination, fan-out, and recovery. Personal project work has added further experience with stateful real-time event flows and multiple asynchronous sources.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because many real workflows do not fit synchronous request-response assumptions. Understanding asynchronous coordination expands the range of product and system behaviours that can be modelled safely.
 
@@ -498,8 +498,8 @@ Core competency because many real workflows do not fit synchronous request-respo
 
 ```yaml
 evidence_basis: commercial_exposure
-development_trajectory: deepening
-impact_profile: core_competency
+development_trajectory: learning
+leverage_profile: core_competency
 order: 7
 ```
 
@@ -509,11 +509,11 @@ Designing systems that continue to behave acceptably as load, data volume, compl
 
 I have worked on production systems where performance and reliability mattered, including inventory logic that became more expensive as data volumes grew. I changed the model to bound calculations with opening and closing stocktakes and explicit adjustment records, reducing balance computation to simpler operations.
 
-### Development trajectory: [Deepening]
+### Development trajectory: [Learning]
 
-I am building broader architectural fluency around load, resilience, capacity, failure modes, performance, observability, diagnosability, and graceful degradation. My goal is to reason about production behaviour as a design concern rather than something discovered only after release.
+I am building a broader mental model around load, resilience, capacity, failure modes, performance, observability, diagnosability, and graceful degradation. I want to be able to reason about production behaviour as part of system design rather than only through problems I have encountered in running software.
 
-### Impact profile: [Core competency]
+### Leverage profile: [Core competency]
 
 Core competency because production software has to keep working as usage, data, and failure conditions change. Performance, resilience, observability, and diagnosability are part of the design, not operational afterthoughts.
 
@@ -524,7 +524,7 @@ Core competency because production software has to keep working as usage, data, 
 ```yaml
 evidence_basis: commercial_ownership
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 1
 ```
 
@@ -538,30 +538,30 @@ At INDY, I took increasing responsibility for technical direction as a senior IC
 
 I am deliberately developing toward broader responsibility for technical direction across product and system boundaries. I want to remain close to implementation while becoming stronger at connecting domain understanding, architecture, engineering standards, and team decision-making.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because technical judgement scales through other people. Strong leadership improves standards, decision quality, architectural consistency, and the effectiveness of the team beyond one engineer’s direct output.
 
 ## Servant leadership
 
 ```yaml
-evidence_basis: commercial_ownership
+evidence_basis: commercial_exposure
 development_trajectory: deepening
-impact_profile: strategic_leverage
+leverage_profile: strategic_leverage
 order: 2
 ```
 
 Creating leverage for other engineers by improving context, removing blockers, enabling autonomy, and helping people make better decisions and take greater ownership.
 
-### Evidence basis: [Commercial ownership]
+### Evidence basis: [Commercial exposure]
 
-My leadership style has consistently been to share context, unblock work, explain decisions, support colleagues, and help other engineers take greater ownership rather than relying on hierarchy or direction for its own sake.
+I have practised this informally within engineering teams by sharing context, unblocking work, explaining decisions, supporting colleagues, and helping other engineers take greater ownership. I have not held a formal people-leadership role.
 
 ### Development trajectory: [Deepening]
 
 I am making that approach more deliberate by thinking in terms of leverage: improving the context, autonomy, decision environment, and support available to other engineers so they can make better decisions and manage more of their own growth.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because removing blockers, improving context, and enabling autonomy increases the effectiveness of the whole team. The leverage comes from helping others make better decisions and take greater ownership.
 
@@ -569,8 +569,8 @@ Strategic leverage because removing blockers, improving context, and enabling au
 
 ```yaml
 evidence_basis: commercial_exposure
-development_trajectory: deepening
-impact_profile: strategic_leverage
+development_trajectory: learning
+leverage_profile: strategic_leverage
 order: 3
 ```
 
@@ -580,10 +580,10 @@ Connecting domain understanding, product direction, and technical investment ove
 
 I have influenced product direction and architectural choices within areas I owned, particularly where a local request had wider implications for the product model. I have not yet held sustained responsibility for product or technical strategy across a wider organisation.
 
-### Development trajectory: [Deepening]
+### Development trajectory: [Learning]
 
-I am actively developing the ability to connect domain strategy, product direction, and technical investment over longer horizons. The goal is to help shape both what a product should become and how the system should evolve to support that direction.
+I am building a clearer mental model for connecting domain strategy, product direction, and technical investment over longer horizons. I have made these connections within product areas I owned; the gap I am working on now is how to reason about them at wider product and organisational scope.
 
-### Impact profile: [Strategic leverage]
+### Leverage profile: [Strategic leverage]
 
 Strategic leverage because product direction and technical investment compound over long horizons. Connecting the two improves prioritisation, reduces local optimisation, and helps architecture evolve in support of the product rather than against it.

@@ -16,9 +16,9 @@
   --classification-trajectory-background: #f1e6c8;
   --classification-trajectory-border: #b49a59;
   --classification-trajectory-text: #5d4714;
-  --classification-impact-background: #eadcdf;
-  --classification-impact-border: #a77b84;
-  --classification-impact-text: #5b3440;
+  --classification-leverage-background: #eadcdf;
+  --classification-leverage-border: #a77b84;
+  --classification-leverage-text: #5b3440;
 }
 
 * {

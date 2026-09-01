@@ -29,11 +29,11 @@ describe("CapabilityProfile", () => {
     expect(firstCard.textContent).not.toContain("View details");
   });
 
-  it("keeps an empty fourth matrix column in the Impact profile view", () => {
+  it("keeps an empty fourth matrix column in the Leverage profile view", () => {
     const { container } = render(<CapabilityProfile profile={capabilityProfileContent} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Impact profile" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Leverage profile" }));
 
-    const definitions = screen.getByRole("group", { name: "Impact profile column definitions" });
+    const definitions = screen.getByRole("group", { name: "Leverage profile column definitions" });
     expect(definitions.children).toHaveLength(4);
     expect(definitions.lastElementChild?.getAttribute("aria-hidden")).toBe("true");
 
@@ -77,7 +77,7 @@ describe("CapabilityProfile", () => {
     expect(valueTags).toHaveLength(8);
     expect(valueTags[0]?.className).toContain("classification-evidence-background");
     expect(valueTags[3]?.className).toContain("classification-trajectory-background");
-    expect(valueTags[6]?.className).toContain("classification-impact-background");
+    expect(valueTags[6]?.className).toContain("classification-leverage-background");
     expect(screen.getByRole("button", { name: "Close classification guide" })).toBe(document.activeElement);
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(screen.queryByRole("dialog", { name: "Classification guide" })).toBeNull();
@@ -128,8 +128,8 @@ describe("CapabilityProfile", () => {
     expect(screen.getByRole("tab", { name: "Development trajectory" }).className).toContain(
       "classification-trajectory-border",
     );
-    expect(screen.getByRole("tab", { name: "Impact profile" }).className).toContain(
-      "classification-impact-border",
+    expect(screen.getByRole("tab", { name: "Leverage profile" }).className).toContain(
+      "classification-leverage-border",
     );
     expect(evidenceView.querySelector("span")?.className).toContain("font-bold");
 
@@ -141,7 +141,7 @@ describe("CapabilityProfile", () => {
     expect(within(dialog).getByText(/At INDY, I owned substantial product work/)).toBeTruthy();
     expect(within(dialog).getByText(/Working across the stack is already an established part/)).toBeTruthy();
     expect(within(dialog).getByText(/product ownership often crosses technical layers/)).toBeTruthy();
-    expect(within(dialog).getByRole("heading", { name: "Impact profile: Core competency" })).toBeTruthy();
+    expect(within(dialog).getByRole("heading", { name: "Leverage profile: Core competency" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Close capability details" })).toBe(document.activeElement);
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();

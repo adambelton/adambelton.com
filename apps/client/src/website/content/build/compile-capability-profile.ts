@@ -24,14 +24,14 @@ type MarkdownNode = {
 const classificationKeys = [
   "evidence_basis",
   "development_trajectory",
-  "impact_profile",
+  "leverage_profile",
 ] as const;
 
 const viewKeys = [
   "overview",
   "evidence-basis",
   "development-trajectory",
-  "impact-profile",
+  "leverage-profile",
 ] as const;
 
 type CapabilityProfileCompilerDependencies = {
@@ -147,7 +147,7 @@ function parseViews(
   const classificationByView: Partial<Record<CapabilityProfileViewKey, CapabilityClassificationKey>> = {
     "evidence-basis": "evidence_basis",
     "development-trajectory": "development_trajectory",
-    "impact-profile": "impact_profile",
+    "leverage-profile": "leverage_profile",
   };
   return viewKeys.map((key): CapabilityProfileView => {
     const classificationKey = classificationByView[key];
@@ -267,12 +267,12 @@ function parseCapability(
     name,
     evidenceBasis: classificationValue("evidence_basis"),
     developmentTrajectory: classificationValue("development_trajectory"),
-    impactProfile: classificationValue("impact_profile"),
+    leverageProfile: classificationValue("leverage_profile"),
     order: numberField(metadata.order, `capability "${name}" order`, source),
     descriptionHtml: markdownForNodes(body, descriptionNodes, source, renderSanitizedMarkdown),
     experienceEvidenceHtml: paragraphAfter(`${classifications.evidence_basis.label}:`),
     currentFocusHtml: paragraphAfter(`${classifications.development_trajectory.label}:`),
-    impactProfileHtml: paragraphAfter(`${classifications.impact_profile.label}:`),
+    leverageProfileHtml: paragraphAfter(`${classifications.leverage_profile.label}:`),
   };
 }
 

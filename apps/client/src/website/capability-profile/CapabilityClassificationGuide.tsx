@@ -14,7 +14,7 @@ type CapabilityClassificationGuideProps = {
 const classificationOrder: CapabilityClassificationKey[] = [
   "evidence_basis",
   "development_trajectory",
-  "impact_profile",
+  "leverage_profile",
 ];
 
 export function CapabilityClassificationGuide({

@@ -19,16 +19,16 @@ const classificationByView: Partial<
 > = {
   "evidence-basis": "evidence_basis",
   "development-trajectory": "development_trajectory",
-  "impact-profile": "impact_profile",
+  "leverage-profile": "leverage_profile",
 };
 
 const capabilityFieldByClassification: Record<
   CapabilityClassificationKey,
-  keyof Pick<CompiledCapability, "evidenceBasis" | "developmentTrajectory" | "impactProfile">
+  keyof Pick<CompiledCapability, "evidenceBasis" | "developmentTrajectory" | "leverageProfile">
 > = {
   evidence_basis: "evidenceBasis",
   development_trajectory: "developmentTrajectory",
-  impact_profile: "impactProfile",
+  leverage_profile: "leverageProfile",
 };
 
 const viewControlColours: Record<Exclude<CapabilityProfileViewKey, "overview">, {
@@ -43,9 +43,9 @@ const viewControlColours: Record<Exclude<CapabilityProfileViewKey, "overview">, 
     active: "border-[var(--classification-trajectory-border)] bg-[var(--classification-trajectory-background)] text-[var(--classification-trajectory-text)]",
     inactive: "border-[var(--classification-trajectory-border)] text-[var(--classification-trajectory-text)] hover:bg-[var(--classification-trajectory-background)]",
   },
-  "impact-profile": {
-    active: "border-[var(--classification-impact-border)] bg-[var(--classification-impact-background)] text-[var(--classification-impact-text)]",
-    inactive: "border-[var(--classification-impact-border)] text-[var(--classification-impact-text)] hover:bg-[var(--classification-impact-background)]",
+  "leverage-profile": {
+    active: "border-[var(--classification-leverage-border)] bg-[var(--classification-leverage-background)] text-[var(--classification-leverage-text)]",
+    inactive: "border-[var(--classification-leverage-border)] text-[var(--classification-leverage-text)] hover:bg-[var(--classification-leverage-background)]",
   },
 };
 
@@ -325,7 +325,7 @@ function CapabilityDetail({
 
   const evidence = entries.find(({ key }) => key === "evidence_basis")!;
   const trajectory = entries.find(({ key }) => key === "development_trajectory")!;
-  const impact = entries.find(({ key }) => key === "impact_profile")!;
+  const leverage = entries.find(({ key }) => key === "leverage_profile")!;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onClose();
@@ -381,13 +381,13 @@ function CapabilityDetail({
           </section>
           <section>
             <h3 className="mb-3 flex flex-wrap items-center gap-2 text-base font-semibold">
-              {profile.classifications.impact_profile.label}:{" "}
+              {profile.classifications.leverage_profile.label}:{" "}
               <ClassificationTag
-                classificationKey="impact_profile"
-                label={impact.label}
+                classificationKey="leverage_profile"
+                label={leverage.label}
               />
             </h3>
-            <RenderedMarkdown html={capability.impactProfileHtml} />
+            <RenderedMarkdown html={capability.leverageProfileHtml} />
           </section>
         </div>
       </div>
@@ -402,7 +402,7 @@ function classificationEntries(
   return ([
     ["evidence_basis", capability.evidenceBasis],
     ["development_trajectory", capability.developmentTrajectory],
-    ["impact_profile", capability.impactProfile],
+    ["leverage_profile", capability.leverageProfile],
   ] as const).map(([key, valueKey]) => ({
     key,
     label: profile.classifications[key].values.find(({ key: candidate }) => candidate === valueKey)!.label,

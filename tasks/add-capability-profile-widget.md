@@ -221,6 +221,20 @@ Approved by Adam after mounted review.
 - Preserve natural grid stretching, responsive layout, interaction behaviour,
   and accessible contrast.
 
+### Approved Leverage profile rename amendment — 1 September 2026
+
+Approved by Adam after the final content review renamed the third classification.
+
+- Rename the stable classification key from `impact_profile` to
+  `leverage_profile` and the stable view key from `impact-profile` to
+  `leverage-profile`.
+- Rename the corresponding compiled capability fields, presentation mappings,
+  tests, and colour variables while preserving the approved burgundy treatment.
+- Render the revised Leverage profile heading and exact updated Markdown copy in
+  the view, guide, cards, and capability dialogs.
+- Leave the remaining content changes authored by Adam intact and push the
+  validated correction to pull request 54.
+
 ## Status
 
 Complete on `codex/capability-profile-widget`; not committed or published.
@@ -245,11 +259,11 @@ Complete on `codex/capability-profile-widget`; not committed or published.
   & architecture, and Leadership first. Desktop renders each as a fixed four-column
   matrix row with category in column one. Overview flows ordered cards across the
   remaining three columns; classification views place their groups there, and
-  Impact profile leaves its fourth matrix column intentionally empty.
+  Leverage profile leaves its fourth matrix column intentionally empty.
 - **Matrix header:** Overview retains an empty structural first row. Each
   classification view renders exactly one populated definition row with column one
   empty and each value's formal heading plus exact authored explanation aligned above
-  its capability column. Impact profile also leaves header column four empty.
+  its capability column. Leverage profile also leaves header column four empty.
   Repeated per-category group labels are hidden on desktop and retained on mobile.
   The definition cells have no internal left padding or decorative border, and
   their 16px gutters match the capability-group gutters. Mounted measurement at
@@ -263,9 +277,9 @@ Complete on `codex/capability-profile-widget`; not committed or published.
   minimum height and size from their visible title, tags, and padding. Mounted
   desktop measurement places classification-view cards between 82px and 104px,
   compared with 110px to 132px in Overview where all three tags remain visible.
-  Evidence, trajectory, and impact each have one consistent colour family; values
+  Evidence, trajectory, and leverage each have one consistent colour family; values
   remain distinguished by text rather than tone. Mounted contrast ratios for the
-  three families are 7.62:1, 7.11:1, and 7.86:1 respectively. Impact now uses the
+  three families are 7.62:1, 7.11:1, and 7.86:1 respectively. Leverage uses the
   approved muted burgundy family rather than lavender.
 - **Classification guide:** an information button beside the profile title opens a
   focused dialog containing the exact same three view introductions and eight
@@ -274,7 +288,7 @@ Complete on `codex/capability-profile-widget`; not committed or published.
   metadata no longer creates competing user-facing copy.
   The guide reuses the capability dialog's focus, containment, Escape, dismissal,
   and restoration contract.
-- **View/tag link:** Evidence basis, Development trajectory, and Impact profile
+- **View/tag link:** Evidence basis, Development trajectory, and Leverage profile
   controls reuse the exact background, border, and text colours of their tags in
   selected state, while their inactive borders retain the same family. Overview
   remains neutral and `aria-selected`, borders, and background continue to convey
@@ -288,14 +302,14 @@ Complete on `codex/capability-profile-widget`; not committed or published.
   `button { font: inherit }` shorthand otherwise resets button-level weight utilities.
 - **Capability detail:** selection opens an ARIA modal dialog with section, all
   three classifications, the newly authored capability description before exact
-  evidence, current-focus, and Impact profile paragraphs, an explicit close control,
+  evidence, current-focus, and Leverage profile paragraphs, an explicit close control,
   focus containment/restoration, backdrop dismissal, and Escape handling. The
-  approved amendment intentionally supersedes the original tag-only Impact profile
+  approved amendments intentionally supersede the original tag-only Impact profile
   boundary; no proficiency representation was added. Compiler coverage requires
-  the authored Impact profile paragraph for every capability.
+  the authored Leverage profile paragraph for every capability.
 - **Responsive presentation:** mounted inspection measured four equal 332px matrix
   columns at 1440px, with three compact 335px content columns after the category.
-  Impact profile exposes two populated groups plus the intentionally empty final
+  Leverage profile exposes two populated groups plus the intentionally empty final
   column. At 390px, category sections and groups return to one 350px column, the
   empty desktop column is hidden, the dialog fits, and document overflow is zero.
   The complete biography, including `Up the Reds.`, precedes the widget. This was

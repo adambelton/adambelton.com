@@ -25,13 +25,13 @@ export type CompiledWritingPost = CompiledContentPage & {
 export type CapabilityClassificationKey =
   | "evidence_basis"
   | "development_trajectory"
-  | "impact_profile";
+  | "leverage_profile";
 
 export type CapabilityProfileViewKey =
   | "overview"
   | "evidence-basis"
   | "development-trajectory"
-  | "impact-profile";
+  | "leverage-profile";
 
 export type CapabilityClassificationValue = {
   key: string;
@@ -57,12 +57,12 @@ export type CompiledCapability = {
   name: string;
   evidenceBasis: string;
   developmentTrajectory: string;
-  impactProfile: string;
+  leverageProfile: string;
   order: number;
   descriptionHtml: SanitizedHtml;
   experienceEvidenceHtml: SanitizedHtml;
   currentFocusHtml: SanitizedHtml;
-  impactProfileHtml: SanitizedHtml;
+  leverageProfileHtml: SanitizedHtml;
 };
 
 export type CapabilityProfileSection = {

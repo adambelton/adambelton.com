@@ -24,7 +24,7 @@ describe("capability profile content", () => {
       "overview",
       "evidence-basis",
       "development-trajectory",
-      "impact-profile",
+      "leverage-profile",
     ]);
     expect(profile.views[1]?.introductionHtml).toContain(
       "Every capability here has concrete evidence behind it.",
@@ -52,12 +52,12 @@ describe("capability profile content", () => {
       name: "Full-stack engineering",
       evidenceBasis: "commercial_ownership",
       developmentTrajectory: "maintaining",
-      impactProfile: "core_competency",
+      leverageProfile: "core_competency",
     });
     expect(profile.sections[0]?.capabilities[0]?.descriptionHtml).toContain(
       "follow a product problem across the technical stack",
     );
-    expect(profile.sections[0]?.capabilities[0]?.impactProfileHtml).toContain(
+    expect(profile.sections[0]?.capabilities[0]?.leverageProfileHtml).toContain(
       "product ownership often crosses technical layers",
     );
   });
@@ -74,17 +74,17 @@ describe("capability profile content", () => {
     expect(profile.classifications.evidence_basis.label).toBe("Experience basis");
   });
 
-  it("requires an authored Impact profile paragraph for every capability", () => {
-    const withoutImpactProfile = sourceText.replace(
-      /\n### Impact profile: \[Core competency\]\n\nCore competency because product ownership[\s\S]*?handoff friction\.\n/,
+  it("requires an authored Leverage profile paragraph for every capability", () => {
+    const withoutLeverageProfile = sourceText.replace(
+      /\n### Leverage profile: \[Core competency\]\n\nCore competency because product ownership[\s\S]*?handoff friction\.\n/,
       "\n",
     );
 
     expect(() => compileCapabilityProfile(
-      withoutImpactProfile,
+      withoutLeverageProfile,
       source,
       dependencies,
-    )).toThrow('capability "Full-stack engineering" is missing Impact profile:');
+    )).toThrow('capability "Full-stack engineering" is missing Leverage profile:');
   });
 
   it("rejects unknown classification keys and duplicated human-readable metadata", () => {

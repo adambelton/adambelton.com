@@ -1035,6 +1035,11 @@ with fewer visible tags to contract around their content. Mounted desktop cards
 measure 82–104px in classification views versus 110–132px in Overview; the new
 Impact text/background contrast is 7.86:1 and the 390px layout has no overflow.
 
+The third classification was subsequently renamed from Impact profile to Leverage
+profile during final content review. Its stable keys, compiled fields, component
+mappings, tests, and burgundy colour variables now use Leverage terminology, while
+the revised Markdown remains the authority for all visible labels and explanations.
+
 ## Historical semantic-editor investigation
 
 A constrained semantic Markdown editor was investigated and prototyped, then
