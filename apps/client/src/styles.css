@@ -102,6 +102,19 @@ svg {
   margin-bottom: 0;
 }
 
+.markdown-content a {
+  color: var(--foreground);
+  text-decoration-color: var(--line);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: color 150ms ease;
+}
+
+.markdown-content a:hover {
+  text-decoration-line: none;
+}
+
 .markdown-content h2 {
   color: var(--foreground);
   font-size: 1.5rem;

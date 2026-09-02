@@ -12,6 +12,7 @@ const postsDirectory = fileURLToPath(
   new URL("../../../content/posts", import.meta.url),
 );
 const publicDirectory = fileURLToPath(new URL("../../../../public", import.meta.url));
+const rootRelativeMarkdownImage = /(!\[[^\]\n]*\]\()(\/[^)\s]+)(?=[\s)])/g;
 
 type Fetch = typeof fetch;
 
@@ -29,6 +30,40 @@ export type DevArticle = {
   title: string;
 };
 
+export function repositoryImagePaths(markdown: string) {
+  return [
+    ...new Set(
+      [...markdown.matchAll(rootRelativeMarkdownImage)].map((match) => {
+        const url = new URL(match[2]!, productionOrigin);
+        return url.pathname;
+      }),
+    ),
+  ];
+}
+
+export function markdownForDev(markdown: string) {
+  return markdown.replace(
+    rootRelativeMarkdownImage,
+    (_match, prefix: string, path: string) => `${prefix}${absoluteAssetUrl(path)}`,
+  );
+}
+
+function localPublicPath(path: string, directory = publicDirectory) {
+  return join(directory, decodeURIComponent(path).replace(/^\/+/, ""));
+}
+
+export function assertWritingImagesExist(
+  paths: string[],
+  source: string,
+  directory = publicDirectory,
+) {
+  for (const image of paths) {
+    if (!existsSync(localPublicPath(image, directory))) {
+      throw new Error(`${source}: referenced writing image does not exist: ${image}`);
+    }
+  }
+}
+
 export function loadWritingPosts(directory = postsDirectory) {
   return readdirSync(directory, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
@@ -37,12 +72,11 @@ export function loadWritingPosts(directory = postsDirectory) {
       const source = join(directory, entry.name);
       const sourceText = readFileSync(source, "utf8");
       const compiled = compileContentDocument(sourceText, source, "post");
-      for (const image of [compiled.coverImage, compiled.coverImageSmall]) {
-        if (!existsSync(join(publicDirectory, image))) {
-          throw new Error(`${source}: referenced writing image does not exist: ${image}`);
-        }
-      }
       const { body } = parseContentDocument(sourceText, source);
+      assertWritingImagesExist(
+        [compiled.coverImage, compiled.coverImageSmall, ...repositoryImagePaths(body)],
+        source,
+      );
       return { ...compiled, bodyMarkdown: body };
     });
 }
@@ -58,7 +92,7 @@ export function absoluteAssetUrl(path: string) {
 export function devArticlePayload(post: SyndicationPost) {
   return {
     article: {
-      body_markdown: post.bodyMarkdown,
+      body_markdown: markdownForDev(post.bodyMarkdown),
       canonical_url: canonicalUrlFor(post.slug),
       description: post.description,
       main_image: absoluteAssetUrl(post.coverImage),
@@ -199,13 +233,30 @@ export async function waitForDeployedCover(
   attempts = 30,
   delayMilliseconds = 10_000,
 ) {
-  const localPath = join(publicDirectory, post.coverImage);
-  if (!existsSync(localPath)) throw new Error(`Writing cover does not exist: ${localPath}`);
+  return waitForDeployedWritingImage(
+    post.coverImage,
+    "cover",
+    fetchImpl,
+    attempts,
+    delayMilliseconds,
+  );
+}
+
+export async function waitForDeployedWritingImage(
+  image: string,
+  kind = "inline image",
+  fetchImpl: Fetch = fetch,
+  attempts = 30,
+  delayMilliseconds = 10_000,
+) {
+  const localPath = localPublicPath(image);
+  if (!existsSync(localPath)) throw new Error(`Writing ${kind} does not exist: ${localPath}`);
   const expected = readFileSync(localPath);
-  const url = absoluteAssetUrl(post.coverImage);
+  const url = new URL(absoluteAssetUrl(image));
+  url.searchParams.set("syndication-check", String(expected.byteLength));
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetchImpl(`${url}?syndication-check=${expected.byteLength}`, {
+      const response = await fetchImpl(url, {
         headers: { "Cache-Control": "no-cache", "User-Agent": "adambelton.com writing syndication" },
       });
       if (response.ok && Buffer.from(await response.arrayBuffer()).equals(expected)) return;
@@ -214,7 +265,7 @@ export async function waitForDeployedCover(
     }
     if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, delayMilliseconds));
   }
-  throw new Error(`Deployed cover did not match the repository image: ${url}`);
+  throw new Error(`Deployed ${kind} did not match the repository image: ${absoluteAssetUrl(image)}`);
 }
 
 export async function syndicateWriting({
@@ -222,13 +273,13 @@ export async function syndicateWriting({
   dryRun = false,
   fetchImpl = fetch,
   posts = loadWritingPosts(),
-  verifyDeployedCover = true,
+  verifyDeployedAssets = true,
 }: {
   apiKey?: string;
   dryRun?: boolean;
   fetchImpl?: Fetch;
   posts?: SyndicationPost[];
-  verifyDeployedCover?: boolean;
+  verifyDeployedAssets?: boolean;
 }) {
   if (dryRun) {
     return posts.map((post) => ({
@@ -245,7 +296,14 @@ export async function syndicateWriting({
   for (const post of posts) {
     const canonicalUrl = canonicalUrlFor(post.slug);
     await waitForCanonicalPage(canonicalUrl, fetchImpl);
-    if (verifyDeployedCover) await waitForDeployedCover(post, fetchImpl);
+    if (verifyDeployedAssets) {
+      await Promise.all([
+        waitForDeployedCover(post, fetchImpl),
+        ...repositoryImagePaths(post.bodyMarkdown).map((image) =>
+          waitForDeployedWritingImage(image, "inline image", fetchImpl),
+        ),
+      ]);
+    }
     const existing = findArticleForPost(articles, post);
     if (existing && !articleNeedsUpdate(existing, post)) {
       results.push({ action: "unchanged" as const, canonicalUrl, slug: post.slug });

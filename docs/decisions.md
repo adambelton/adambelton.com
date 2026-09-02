@@ -1385,6 +1385,14 @@ Markdown body. Live syndication verifies that the canonical page and exact
 repository image have reached production before mutation. LinkedIn may crop the
 50:21 image; posting and live preview inspection remain a separate task.
 
+Inline article images share the owning post's `/images/writing/:slug`
+directory rather than introducing a separate media hierarchy. Repository
+Markdown uses root-relative image paths for the canonical website; the
+host-owned DEV delivery adapter converts them to absolute production URLs.
+Live syndication verifies every referenced repository image byte-for-byte after
+deployment before mutating DEV. Separate DEV-owned image copies are not part of
+the content model.
+
 The standalone website hero exposes repository-authored descriptive alternative
 text. A collection thumbnail remains decorative because it shares a single link
 with the visible semantic article title. DEV-generated slugs are retained when

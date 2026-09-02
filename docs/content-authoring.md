@@ -45,6 +45,10 @@ that source without adding typography to the image. `coverImageAlt` describes
 the illustration on the standalone article hero. Card thumbnails use empty alt
 text because the image and visible article title share one link; repeating the
 description would make the link's accessible name unnecessarily verbose.
+Inline article images live in the same `/images/writing/:slug` directory with
+descriptive filenames. Author them with useful alternative text and a
+root-relative path, for example
+`![Capability profile overview](/images/writing/example/capability-profile-overview.png)`.
 
 Production builds prerender the writing collection and every post. Raw article
 responses therefore contain their complete semantic content plus canonical,
@@ -85,8 +89,11 @@ articles have been reviewed under DEV's current submission rules, and any
 material generative-AI assistance has been disclosed in the article as DEV
 requires.
 
-A live run waits for every canonical website page and the byte-identical
-repository cover to be live before calling DEV. The cover is sent as
-`main_image` and is never inserted into article Markdown. If the workflow
-fails, correct the configuration or content and
-rerun it manually; canonical matching makes recovery idempotent.
+A live run waits for every canonical website page and all byte-identical
+repository images to be live before calling DEV. The cover is sent as
+`main_image` and is never inserted into article Markdown. Root-relative inline
+image paths are converted to absolute `https://adambelton.com/...` URLs only in
+the outbound DEV payload; the repository Markdown remains the website-oriented
+source of truth. Missing local images or stale deployed bytes stop the live run
+before any DEV mutation. If the workflow fails, correct the configuration or
+content and rerun it manually; canonical matching makes recovery idempotent.
