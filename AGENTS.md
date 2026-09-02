@@ -189,6 +189,14 @@ The proposal must include:
 
 Do not begin implementation until Adam confirms.
 
+Pure content tasks do not require a persisted repository task file. Continue to
+propose them and obtain explicit approval before editing, but treat the proposal
+and approval as conversational records. This exception applies to authored
+prose, metadata, and repository-owned media preparation only. If a task changes
+application behavior, shared styling, build or publication tooling, contracts,
+tests of runtime behavior, or infrastructure, retain the normal repository task
+record and completion audit.
+
 After each completed task, you may suggest the next task, but that suggestion is not approval to begin.
 
 Approved implementation work should use a dedicated `codex/` branch. Before

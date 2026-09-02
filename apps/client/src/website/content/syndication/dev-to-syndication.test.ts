@@ -1,13 +1,20 @@
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { CompiledWritingPost } from "apps/client/src/website/content/content-types";
 import {
   articleNeedsUpdate,
+  assertWritingImagesExist,
   canonicalUrlFor,
   devArticlePayload,
   findArticleByCanonicalUrl,
   findArticleForPost,
+  markdownForDev,
+  repositoryImagePaths,
   syndicateWriting,
   waitForCanonicalPage,
+  waitForDeployedWritingImage,
   type DevArticle,
   type SyndicationPost,
 } from "apps/client/src/website/content/syndication/dev-to-syndication";
@@ -56,6 +63,53 @@ describe("DEV writing syndication", () => {
       },
     });
     expect(devArticlePayload(post).article.body_markdown).not.toContain(post.coverImage);
+  });
+
+  it("rewrites repository inline images for DEV without changing external images", () => {
+    const markdown = [
+      "![Profile](/images/writing/a-post/profile.png)",
+      "![External](https://images.example.com/example.png)",
+      "![Profile again](/images/writing/a-post/profile.png \"Profile title\")",
+    ].join("\n\n");
+
+    expect(repositoryImagePaths(markdown)).toEqual(["/images/writing/a-post/profile.png"]);
+    expect(markdownForDev(markdown)).toBe(
+      [
+        "![Profile](https://adambelton.com/images/writing/a-post/profile.png)",
+        "![External](https://images.example.com/example.png)",
+        "![Profile again](https://adambelton.com/images/writing/a-post/profile.png \"Profile title\")",
+      ].join("\n\n"),
+    );
+  });
+
+  it("fails when a referenced repository writing image is missing", () => {
+    const directory = mkdtempSync(join(tmpdir(), "writing-images-"));
+    try {
+      mkdirSync(join(directory, "images", "writing", "a-post"), { recursive: true });
+      writeFileSync(join(directory, "images", "writing", "a-post", "present.png"), "image");
+      expect(() =>
+        assertWritingImagesExist(
+          ["/images/writing/a-post/present.png", "/images/writing/a-post/missing.png"],
+          "a-post.md",
+          directory,
+        ),
+      ).toThrow("a-post.md: referenced writing image does not exist: /images/writing/a-post/missing.png");
+    } finally {
+      rmSync(directory, { recursive: true });
+    }
+  });
+
+  it("fails when a deployed inline image does not match its repository file", async () => {
+    const unavailable = vi.fn(async () => new Response("missing", { status: 404 })) as typeof fetch;
+    await expect(
+      waitForDeployedWritingImage(
+        "/images/writing/engineering-capability-profile-beyond-the-cv/capability-profile-overview.png",
+        "inline image",
+        unavailable,
+        1,
+        0,
+      ),
+    ).rejects.toThrow("Deployed inline image did not match the repository image");
   });
 
   it("matches by normalized canonical URL and rejects duplicate ownership", () => {
@@ -122,7 +176,7 @@ describe("DEV writing syndication", () => {
       return new Response("unexpected", { status: 500 });
     }) as typeof fetch;
 
-    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedCover: false })).resolves.toEqual([
+    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedAssets: false })).resolves.toEqual([
       expect.objectContaining({ action: "created" }),
     ]);
     await expect(
@@ -130,7 +184,7 @@ describe("DEV writing syndication", () => {
         apiKey: "secret",
         fetchImpl,
         posts: [{ ...post, bodyMarkdown: "Changed" }],
-        verifyDeployedCover: false,
+        verifyDeployedAssets: false,
       }),
     ).resolves.toEqual([expect.objectContaining({ action: "updated" })]);
     expect(requests).toEqual(expect.arrayContaining([
@@ -160,7 +214,7 @@ describe("DEV writing syndication", () => {
       return new Response("unexpected", { status: 500 });
     }) as typeof fetch;
 
-    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedCover: false })).resolves.toEqual([
+    await expect(syndicateWriting({ apiKey: "secret", fetchImpl, posts: [post], verifyDeployedAssets: false })).resolves.toEqual([
       expect.objectContaining({ action: "unchanged" }),
     ]);
     expect(fetchImpl).toHaveBeenCalledTimes(2);
@@ -170,7 +224,7 @@ describe("DEV writing syndication", () => {
     await expect(syndicateWriting({ posts: [post] })).rejects.toThrow("DEV_TO_API_KEY is required");
     const rejectedApi = vi.fn(async () => new Response("unauthorized", { status: 401 })) as typeof fetch;
     await expect(
-      syndicateWriting({ apiKey: "secret", fetchImpl: rejectedApi, posts: [post], verifyDeployedCover: false }),
+      syndicateWriting({ apiKey: "secret", fetchImpl: rejectedApi, posts: [post], verifyDeployedAssets: false }),
     ).rejects.toThrow("DEV API GET /articles/me/all");
     const unavailable = vi.fn(async () => new Response("missing", { status: 404 })) as typeof fetch;
     await expect(waitForCanonicalPage(canonicalUrlFor(post.slug), unavailable, 1, 0)).rejects.toThrow(

@@ -1129,3 +1129,92 @@ any implementation task can be reported complete.
   the final unchanged idempotency run follow deployment.
 - Adam approved the final mounted desktop presentation after iterative image,
   title, grid, border, hero-order, and spacing review.
+
+## 2026-09-02 — Engineering capability profile article preparation
+
+- Approved preparation of the new engineering capability profile article with
+  the title `I built an engineering capability profile to show hiring managers
+  what my CV can’t`, the compact title `An engineering capability profile beyond
+  the CV`, and the canonical slug
+  `engineering-capability-profile-beyond-the-cv`.
+- Moved the two unique capability-profile screenshots into the article's
+  repository-owned writing-image directory, replaced unsupported Obsidian
+  embeds with accessible standard Markdown images, and discarded one
+  byte-identical untracked duplicate.
+- Extended the host-owned DEV adapter to convert root-relative inline-image
+  paths to absolute production URLs and to require matching local and deployed
+  image bytes before any live mutation. Separate DEV-owned image copies remain
+  unnecessary.
+- The article cover illustration and required 2000 x 840 and 1000 x 420
+  renditions remain intentionally deferred, so the article is not yet ready for
+  publication or a complete syndication dry run.
+
+## 2026-09-02 — Engineering capability profile grammar cleanup
+
+- Completed a grammar-only pass over the article while preserving its argument,
+  paragraph structure, conversational fragments, British English, metadata, and
+  terminology.
+- Corrected objective adverb, agreement, tense, apostrophe, missing-word,
+  duplicated-word, parallel-construction, and punctuation errors. Awkward but
+  grammatically valid wording was deliberately left unchanged.
+- The focused content tests, sequential production build, and diff checks pass.
+  Cover artwork remains the separate publication blocker recorded by the article
+  preparation task.
+
+## 2026-09-02 — Engineering capability profile cover and typography review
+
+- Exported Adam's 1935 x 813 source illustration as the required high-quality
+  2000 x 840 hero/DEV JPEG and 1000 x 420 card JPEG while retaining the PNG
+  source unchanged. The outputs are 425 KB and 125 KB respectively.
+- Replaced the two unsupported Obsidian highlight lines with semantic H3
+  capability names and bold classification summaries. Conceptual questions
+  asked by hiring participants or during capability-profile discovery use
+  emphasis; embedded conceptual questions use quoted italics, while the central
+  numbered and closing questions use italics without quotation marks. Ordinary
+  rhetorical transitions remain unstyled.
+- Thirty focused tests passed before the typography refinement and 18 focused
+  content/writing tests passed afterward. The sequential production builds,
+  four-post DEV dry runs, exact-dimension checks, generated-markup inspection,
+  and diff checks pass.
+- The real Vite client remains available for Adam's desktop/mobile browser
+  review. Programmatic browser control was unavailable in this session, so no
+  automated visual, responsive-overflow, or browser-console inspection is
+  claimed. The client log contains only the expected session-proxy refusal while
+  the API server is not running.
+
+## 2026-09-02 — Final engineering capability profile copy edits
+
+- Applied Adam's eleven exact final replacements: revised cover alternative
+  text, two experience-depth explanations, the Development Alignment and
+  Outsized Value headings, the flat-skill and transferable-judgement framing,
+  the split capability-profile explanation, and both capability examples.
+- Exact source checks confirm every old passage is absent and every supplied
+  replacement appears once. No unaffected article wording or protected metadata
+  changed.
+- All 18 focused content/writing tests, the sequential production build, the
+  four-post DEV dry run, and diff checks pass. The running client hot-reloaded
+  the final copy for Adam's review.
+
+## 2026-09-02 — Terminal engineering capability profile edits
+
+- Applied Adam's four exact replacements and appended the requested standalone
+  Engineering Capability Profile link without changing other article content or
+  frontmatter.
+- Exact source checks, all 18 focused tests, the sequential production build,
+  the four-post DEV dry run, and diff checks pass.
+- Mounted review found that the initially supplied
+  `/about#capability-profile` fragment did not scroll reliably in the development
+  SPA. Adam approved simplifying the destination to `/about` rather than adding
+  application-level hash-scroll behavior.
+
+## 2026-09-02 — Explicit article links
+
+- Added an explicit foreground, line-coloured underline and hover treatment to
+  authored Markdown links, restoring visible affordance removed by the CSS
+  reset. The terminal article link also has semantic bold emphasis without
+  changing its text, and its simplified `/about` destination requires no custom
+  scroll behavior.
+- All five focused About/Writing tests, the sequential production build, the
+  four-post DEV dry run, and diff checks pass. The real client hot-reloaded the
+  result; its only logged warning remains the expected session-proxy refusal
+  while the API server is not running.

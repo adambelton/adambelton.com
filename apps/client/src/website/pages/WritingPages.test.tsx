@@ -84,6 +84,24 @@ describe("public writing pages", () => {
     expect(markup).toContain("6 August 2026");
   });
 
+  it("renders the capability-profile article call to action as a strong internal link", () => {
+    const markup = renderToStaticMarkup(
+      <MemoryRouter
+        initialEntries={[
+          "/writing/engineering-capability-profile-beyond-the-cv",
+        ]}
+      >
+        <Routes>
+          <Route element={<WritingPostPage />} path="/writing/:slug" />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(markup).toContain(
+      '<strong><a href="/about">Explore my Engineering Capability Profile</a></strong>',
+    );
+  });
+
   it("uses the host not-found experience for an unknown slug", () => {
     const markup = renderToStaticMarkup(
       <MemoryRouter initialEntries={["/writing/missing"]}>
