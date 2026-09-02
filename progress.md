@@ -1218,3 +1218,13 @@ any implementation task can be reported complete.
   four-post DEV dry run, and diff checks pass. The real client hot-reloaded the
   result; its only logged warning remains the expected session-proxy refusal
   while the API server is not running.
+
+## 2026-09-02 — DEV root-relative article links
+
+- Approved a focused syndication fix after the Engineering Capability Profile's
+  `/about` destination was observed resolving against DEV's origin.
+- The DEV payload now converts root-relative inline Markdown destinations to
+  absolute `adambelton.com` URLs while preserving fragment-only and already-
+  absolute destinations.
+- All 12 focused syndication tests, repository typecheck, the four-post DEV dry
+  run, and diff checks pass.

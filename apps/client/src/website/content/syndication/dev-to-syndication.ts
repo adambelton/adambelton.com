@@ -13,6 +13,7 @@ const postsDirectory = fileURLToPath(
 );
 const publicDirectory = fileURLToPath(new URL("../../../../public", import.meta.url));
 const rootRelativeMarkdownImage = /(!\[[^\]\n]*\]\()(\/[^)\s]+)(?=[\s)])/g;
+const rootRelativeMarkdownDestination = /(\[[^\]\n]*\]\()(\/[^)\s]+)(?=[\s)])/g;
 
 type Fetch = typeof fetch;
 
@@ -43,7 +44,7 @@ export function repositoryImagePaths(markdown: string) {
 
 export function markdownForDev(markdown: string) {
   return markdown.replace(
-    rootRelativeMarkdownImage,
+    rootRelativeMarkdownDestination,
     (_match, prefix: string, path: string) => `${prefix}${absoluteAssetUrl(path)}`,
   );
 }

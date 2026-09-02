@@ -65,11 +65,14 @@ describe("DEV writing syndication", () => {
     expect(devArticlePayload(post).article.body_markdown).not.toContain(post.coverImage);
   });
 
-  it("rewrites repository inline images for DEV without changing external images", () => {
+  it("rewrites root-relative links and inline images without changing other destinations", () => {
     const markdown = [
       "![Profile](/images/writing/a-post/profile.png)",
       "![External](https://images.example.com/example.png)",
       "![Profile again](/images/writing/a-post/profile.png \"Profile title\")",
+      "[About](/about)",
+      "[Section](#section)",
+      "[External article](https://example.com/article)",
     ].join("\n\n");
 
     expect(repositoryImagePaths(markdown)).toEqual(["/images/writing/a-post/profile.png"]);
@@ -78,6 +81,9 @@ describe("DEV writing syndication", () => {
         "![Profile](https://adambelton.com/images/writing/a-post/profile.png)",
         "![External](https://images.example.com/example.png)",
         "![Profile again](https://adambelton.com/images/writing/a-post/profile.png \"Profile title\")",
+        "[About](https://adambelton.com/about)",
+        "[Section](#section)",
+        "[External article](https://example.com/article)",
       ].join("\n\n"),
     );
   });
