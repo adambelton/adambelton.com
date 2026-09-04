@@ -1228,3 +1228,14 @@ any implementation task can be reported complete.
   absolute destinations.
 - All 12 focused syndication tests, repository typecheck, the four-post DEV dry
   run, and diff checks pass.
+
+## 2026-09-04 — Engineering capability profile perspective clarification
+
+- Clarified that the article's three first-person questions are questions the
+  application needs to answer for a hiring manager, preserving the applicant's
+  perspective and the questions themselves.
+- Made the same speaker relationship explicit in the Development Alignment
+  passage without changing any other article copy or metadata.
+- All 19 focused content and writing tests, repository typecheck, sequential
+  production build, four-post DEV dry run, generated-HTML inspection, and diff
+  checks pass.
